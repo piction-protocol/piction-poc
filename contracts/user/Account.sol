@@ -15,7 +15,7 @@ contract Account {
 
     }
 
-    function createAccount(string _userName) validAddress(msg.sender) {
+    function createAccount(string _userName) public validAddress(msg.sender) {
         require(userNameToAddress[_userName] == address(0));
         require(bytes(addressToUserName[msg.sender]).length == 0);
 
@@ -23,11 +23,11 @@ contract Account {
         addressToUserName[msg.sender] = _userName;
     }
 
-    function getUserName(address _addr) validAddress(_addr) view returns(string) {
+    function getUserName(address _addr) public validAddress(_addr) view returns(string) {
         return addressToUserName[_addr];
     }
 
-    function getUserAddress(string _userName) view returns(address) {
+    function getUserAddress(string _userName) public view returns(address) {
         return userNameToAddress[_userName];
     }
 }
