@@ -16,3 +16,6 @@ build/
 *.ntvs*
 *.njsproj
 *.sln
+
+# local environment files
+.env.*
