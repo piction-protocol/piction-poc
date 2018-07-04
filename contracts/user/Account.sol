@@ -2,8 +2,8 @@ pragma solidity ^0.4.23;
 
 contract Account {
 
-    mapping (string -> address) nickNameToAddress;
-    mapping (address -> string) addressToNickName;
+    mapping (string => address) userNameToAddress;
+    mapping (address => string) addressToUserName;
 
     modifier validAddress(address _account) {
         require(_account != address(0));
@@ -15,19 +15,19 @@ contract Account {
 
     }
 
-    function createAccount(string _nickName) validAddress(msg.sender) {
-        require(nickNameToAddress[_nickName] == address(0));
-        require(bytes(addressToNickName[msg.sender]).length == 0);
+    function createAccount(string _userName) validAddress(msg.sender) {
+        require(userNameToAddress[_userName] == address(0));
+        require(bytes(addressToUserName[msg.sender]).length == 0);
 
-        nickNameToAddress[_nickName] = msg.sender;
-        addressToNickName[msg.sender] = _nickName;
+        userNameToAddress[_userName] = msg.sender;
+        addressToUserName[msg.sender] = _userName;
     }
 
-    function getNickName(address _addr) validAddress(_addr) view returns(string) {
-        return addressToNickName[_addr];
+    function getUserName(address _addr) validAddress(_addr) view returns(string) {
+        return addressToUserName[_addr];
     }
 
-    function getUserAddress(string _nickName) view returns(address) {
-        return nickNameToAddress[_nickName];
+    function getUserAddress(string _userName) view returns(address) {
+        return userNameToAddress[_userName];
     }
 }
