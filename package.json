@@ -15,9 +15,10 @@
   "dependencies": {
     "bignumber.js": "^7.2.1",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "openzeppelin-solidity": "git+https://github.com/OpenZeppelin/openzeppelin-solidity.git",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
-    "openzeppelin-solidity": "git+https://github.com/OpenZeppelin/openzeppelin-solidity.git"
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
