@@ -6,7 +6,7 @@
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
           <router-link active-class="active" class="nav-link" to="/toons">Toon</router-link>
-          <router-link active-class="active" class="nav-link" to="/auth">Auth</router-link>
+          <router-link active-class="active" class="nav-link" to="/my">My</router-link>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

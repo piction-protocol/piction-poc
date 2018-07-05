@@ -1,6 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Web3 from 'web3'
+
 web3 = new Web3(web3.currentProvider);
 import Vue from 'vue'
 import App from './App'
@@ -14,11 +15,24 @@ Vue.config.productionTip = false
 
 Vue.use(BootstrapVue);
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: {App},
-  template: '<App/>',
-});
+(async () => {
+  const accounts = await web3.eth.getAccounts();
+
+  /* eslint-disable no-new */
+  new Vue({
+    el: '#app',
+    router,
+    store,
+    data: {account: accounts[0]},
+    components: {App},
+    template: '<App/>',
+    async created() {
+      web3.currentProvider.publicConfigStore.on('update', (provider) => {
+        if (this.account.toLowerCase() != provider.selectedAddress.toLowerCase()) {
+          this.$router.push('/')
+          window.location.reload()
+        }
+      });
+    },
+  });
+})()
