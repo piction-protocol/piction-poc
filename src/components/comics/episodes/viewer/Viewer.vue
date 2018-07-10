@@ -1,6 +1,5 @@
 <template>
   <div>
-    <b-breadcrumb :items="items"/>
     <img v-for="cut in cuts" :src="cut"/>
     <ul>
       <li class="list">
@@ -31,16 +30,6 @@
           "http://images.battlecomics.co.kr/users/362167/page/item/c81c9c7e-cc2b-4155-a528-e09f506f9b3e.jpg",
           "http://images.battlecomics.co.kr/users/362167/page/item/99de2d42-4818-4ed5-99c4-40903825fcb0.jpg",
           "http://images.battlecomics.co.kr/users/362167/page/item/1636dae2-70e9-4850-84af-5a6abe970f81.jpg"],
-        items: [{
-          text: 'Comics',
-          to: {name: 'comics'}
-        }, {
-          text: `Comic ${this.comic_id}`,
-          to: {name: 'episodes', params: {comic_id: this.comic_id}}
-        }, {
-          text: `Episode ${this.episode_id}`,
-          active: true
-        }]
       }
     },
     methods: {},
