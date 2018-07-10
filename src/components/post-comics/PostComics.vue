@@ -4,7 +4,7 @@
 
 <script>
   export default {
-    name: 'ComicsPosts',
+    name: 'PostComics',
     data() {
       return {}
     },

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Join from '@/components/Join'
 import Comics from '@/components/comics/Comics'
-import ComicsPosts from '@/components/comics/Posts'
+import PostComics from '@/components/post-comics/PostComics'
 import Episodes from '@/components/comics/episodes/Episodes'
 import Viewer from '@/components/comics/episodes/viewer/Viewer'
 import My from '@/components/My'
@@ -25,7 +25,7 @@ const router = new Router({
     {path: '/join', name: 'join', component: Join,},
     {path: '/', redirect: '/comics'},
     {path: '/comics', name: 'comics', component: Comics},
-    {path: '/comics/posts', name: 'comics-posts', component: ComicsPosts},
+    {path: '/comics/posts', name: 'comics-posts', component: PostComics},
     {path: '/comics/:comic_id', name: 'episodes', component: Episodes, props: true},
     {path: '/comics/:comic_id/episodes/:episode_id', name: 'viewer', component: Viewer, props: true},
     {path: '/my', name: 'my', component: My, beforeEnter: requireAuth}
