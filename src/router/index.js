@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Join from '@/components/Join'
-import Toons from '@/components/Toons'
+import Comics from '@/components/comics/Comics'
+import Episodes from '@/components/comics/episodes/Episodes'
+import Viewer from '@/components/comics/episodes/viewer/Viewer'
 import My from '@/components/My'
 
 Vue.use(Router)
@@ -21,25 +23,44 @@ const router = new Router({
   routes: [
     {
       path: '/join',
-      name: 'Join',
+      name: 'join',
       component: Join,
     },
     {
       path: '/',
-      redirect: '/toons',
+      redirect: '/comics',
     },
     {
-      path: '/toons',
-      name: 'Toons',
-      component: Toons,
+      path: '/comics',
+      name: 'comics',
+      component: Comics,
+    },
+    {
+      path: '/comics/:comic_id',
+      name: 'episodes',
+      component: Episodes,
+      props: true
+    },
+    {
+      path: '/comics/:comic_id/episodes/:episode_id',
+      name: 'viewer',
+      component: Viewer,
+      props: true
     },
     {
       path: '/my',
-      name: 'My',
+      name: 'my',
       component: My,
       beforeEnter: requireAuth,
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return {x: 0, y: 0}
+    }
+  }
 })
 
 export default router;
