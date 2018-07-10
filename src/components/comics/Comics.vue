@@ -1,6 +1,8 @@
 <template>
   <div>
-    <b-button style="width: 100%">Create Comics</b-button>
+    <router-link :to="{name:'comics-posts'}">
+      <b-button style="width: 100%">Create Comics</b-button>
+    </router-link>
     <Comic v-for="comic in comics"
            :comic="comic"
            :key="comic.id"/>
