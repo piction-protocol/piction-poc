@@ -20,8 +20,6 @@
 </template>
 
 <script>
-  import source from '../../build/contracts/Account.json'
-
   export default {
     name: 'Join',
     data() {
@@ -35,20 +33,24 @@
     methods: {
       async onSubmit(evt) {
         evt.preventDefault();
-        const account = await web3.eth.getAccounts();
-        const contract = new web3.eth.Contract(source.abi, source.networks['3'].address);
-        const userName = await contract.methods.getUserName(account[0]).call();
-        const address = await contract.methods.getUserAddress(this.form.name).call();
+        const userName = await this.$contract.account.getUserName(this.$root.account);
+        const address = await this.$contract.account.getUserAddress(this.form.name);
         if (userName) {
-          alert('이미 등록된 주소입니다.');
+          this.$toast.center('이미 등록된 주소입니다');
           this.onReset(evt)
         } else if (address > 0) {
-          alert('이미 등록된 사용자명입니다.');
+          this.$toast.center('이미 등록된 사용자명입니다');
           this.onReset(evt)
         } else {
-          const receipt = await contract.methods.createAccount(this.form.name).send({from: account[0]});
-          console.log(receipt)
-          this.$router.push('auth')
+          this.$loading('loading...');
+          try {
+            let receipt = await this.$contract.account.createAccount(this.form.name);
+            console.log(receipt)
+            this.$router.push('my')
+          } catch (e) {
+            alert(e)
+          }
+          this.$loading.close();
         }
       },
       onReset(evt) {

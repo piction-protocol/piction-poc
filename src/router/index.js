@@ -1,16 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import source from '../../build/contracts/Account.json'
 import Join from '@/components/Join'
 import Toons from '@/components/Toons'
 import My from '@/components/My'
 
 Vue.use(Router)
 
-async function requireAuth(to, from, next) {
+const requireAuth = async (to, from, next) => {
   const app = await router.app;
-  const contract = new web3.eth.Contract(source.abi, source.networks['3'].address);
-  const result = await contract.methods.getUserName(app.account).call();
+  const result = await app.$contract.account.getUserName(app.account);
   if (!result) {
     return next({path: '/join'})
   } else {

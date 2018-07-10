@@ -6,8 +6,6 @@
 </template>
 
 <script>
-  import source from '../../build/contracts/Account.json'
-
   export default {
     name: 'My',
     data() {
@@ -16,8 +14,7 @@
       }
     },
     async created() {
-      const contract = new web3.eth.Contract(source.abi, source.networks['3'].address);
-      this.userName = await contract.methods.getUserName(this.$root.account).call();
+      this.userName = await this.$contract.account.getUserName(this.$root.account);
     }
   }
 </script>

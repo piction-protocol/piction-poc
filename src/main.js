@@ -5,34 +5,45 @@ import Web3 from 'web3'
 web3 = new Web3(web3.currentProvider);
 import Vue from 'vue'
 import App from './App'
+import PictionNetworkPlugin from './plugins/piction-network-plugin'
 import router from './router'
 import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import Toast from 'vue2-toast';
+import 'vue2-toast/lib/toast.css';
 
 Vue.config.productionTip = false
 
 Vue.use(BootstrapVue);
+Vue.use(Toast);
 
 (async () => {
   const accounts = await web3.eth.getAccounts();
+  const account = accounts[0].toLowerCase();
+  Vue.use(PictionNetworkPlugin, {account: account});
 
   /* eslint-disable no-new */
   new Vue({
     el: '#app',
     router,
     store,
-    data: {account: accounts[0]},
+    data: {
+      account: account
+    },
+    methods: {
+      reload() {
+        this.$router.push('/')
+        window.location.reload()
+      }
+    },
     components: {App},
     template: '<App/>',
-    async created() {
+    created() {
       web3.currentProvider.publicConfigStore.on('update', (provider) => {
-        if (this.account.toLowerCase() != provider.selectedAddress.toLowerCase()) {
-          this.$router.push('/')
-          window.location.reload()
-        }
+        if (this.account != provider.selectedAddress.toLowerCase()) this.reload();
       });
-    },
+    }
   });
 })()
