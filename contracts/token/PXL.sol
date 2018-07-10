@@ -85,20 +85,9 @@ contract PXL is StandardToken, ExtendsOwnable {
         return super.transfer(_to, _value);
     }
 
-    function transferAndCall(address _to, uint256 _value, bytes _data) public returns (bool) {
+    function approveAndCall(address _to, uint256 _value, bytes[] _data) public returns (bool) {
         require(isTransferable || owners[msg.sender]);
-        if (super.transfer(_to, _value) && isContract(_to)) {
-            ContractReceiver receiver = ContractReceiver(_to);
-            receiver.tokenFallback(msg.sender, _value, _data);
-            emit TransferAndCall(msg.sender, _to, _value, _data);
-
-            return true;
-        }
-    }
-
-    function approveAndCall(address _to, uint256 _value, bytes _data) public returns (bool) {
-        require(isTransferable || owners[msg.sender]);
-        require(_to != address(0));
+        require(_to != address(0) && _to != address(this));
         require(balances[msg.sender] >= _value);
 
         if(approve(_to, _value) && isContract(_to)) {
@@ -148,6 +137,5 @@ contract PXL is StandardToken, ExtendsOwnable {
 
     event Mint(address indexed _to, uint256 _amount);
     event Burn(address indexed _from, uint256 _amount);
-    event TransferAndCall(address indexed _from, address indexed _to, uint256 _value, bytes  _data);
-    event ApproveAndCall(address indexed _from, address indexed _to, uint256 _value, bytes  _data);
+    event ApproveAndCall(address indexed _from, address indexed _to, uint256 _value, bytes[] _data);
 }
