@@ -2,7 +2,10 @@ pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
+
 
 /**
  * @title PXL implementation based on StandardToken ERC-20 contract.
@@ -82,6 +85,20 @@ contract PXL is StandardToken, ExtendsOwnable {
         return super.transfer(_to, _value);
     }
 
+    function approveAndCall(address _to, uint256 _value, bytes[] _data) public returns (bool) {
+        require(isTransferable || owners[msg.sender]);
+        require(_to != address(0) && _to != address(this));
+        require(balances[msg.sender] >= _value);
+
+        if(approve(_to, _value) && isContract(_to)) {
+            ContractReceiver receiver = ContractReceiver(_to);
+            receiver.receiveApproval(msg.sender, _value, address(this), _data);
+            emit ApproveAndCall(msg.sender, _to, _value, _data);
+
+            return true;
+        }
+    }
+
     /**
      * @dev Function to mint tokens
      * @param _amount The amount of tokens to mint.
@@ -109,6 +126,16 @@ contract PXL is StandardToken, ExtendsOwnable {
         emit Burn(msg.sender, _amount);
     }
 
+    function isContract(address _addr) private returns (bool) {
+        uint256 length;
+        assembly {
+        //retrieve the size of the code on target address, this needs assembly
+        length := extcodesize(_addr)
+        }
+        return (length > 0);
+    }
+
     event Mint(address indexed _to, uint256 _amount);
     event Burn(address indexed _from, uint256 _amount);
+    event ApproveAndCall(address indexed _from, address indexed _to, uint256 _value, bytes[] _data);
 }
