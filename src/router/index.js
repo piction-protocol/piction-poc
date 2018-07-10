@@ -25,7 +25,7 @@ const router = new Router({
     {path: '/join', name: 'join', component: Join,},
     {path: '/', redirect: '/comics'},
     {path: '/comics', name: 'comics', component: Comics},
-    {path: '/comics/posts', name: 'comics-posts', component: PostComics},
+    {path: '/comics/posts', name: 'post-comics', component: PostComics},
     {path: '/comics/:comic_id', name: 'episodes', component: Episodes, props: true},
     {path: '/comics/:comic_id/episodes/:episode_id', name: 'viewer', component: Viewer, props: true},
     {path: '/my', name: 'my', component: My, beforeEnter: requireAuth}
