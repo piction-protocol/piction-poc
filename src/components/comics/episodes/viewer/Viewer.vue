@@ -39,6 +39,9 @@
 </script>
 
 <style scoped>
+  div {
+    text-align: center;
+  }
   ul {
     background: black;
     color: white;
