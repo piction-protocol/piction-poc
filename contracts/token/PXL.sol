@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
@@ -13,7 +14,7 @@ import "contracts/utils/ExtendsOwnable.sol";
  * @author Charls Kim - <cs.kim@battleent.com>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
  */
-contract PXL is StandardToken, ExtendsOwnable {
+contract PXL is StandardToken, CustomToken, ExtendsOwnable {
     using SafeMath for uint256;
 
     // Token basic information
@@ -137,5 +138,4 @@ contract PXL is StandardToken, ExtendsOwnable {
 
     event Mint(address indexed _to, uint256 _amount);
     event Burn(address indexed _from, uint256 _amount);
-    event ApproveAndCall(address indexed _from, address indexed _to, uint256 _value, bytes _data);
 }
