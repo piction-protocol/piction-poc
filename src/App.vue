@@ -2,7 +2,7 @@
   <div id="app">
     <Navi/>
     <transition name="fade">
-      <router-view class="container"/>
+      <router-view class="container" />
     </transition>
   </div>
 </template>
@@ -22,10 +22,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
-    margin: 0px;
+    margin: 0px auto;
   }
 
   .container {
-    margin: 70px auto;
+    margin: 80px auto 40px auto;
   }
 </style>
