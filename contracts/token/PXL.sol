@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -85,7 +85,7 @@ contract PXL is StandardToken, ExtendsOwnable {
         return super.transfer(_to, _value);
     }
 
-    function approveAndCall(address _to, uint256 _value, bytes[] _data) public returns (bool) {
+    function approveAndCall(address _to, uint256 _value, bytes _data) public returns (bool) {
         require(isTransferable || owners[msg.sender]);
         require(_to != address(0) && _to != address(this));
         require(balances[msg.sender] >= _value);
@@ -126,7 +126,7 @@ contract PXL is StandardToken, ExtendsOwnable {
         emit Burn(msg.sender, _amount);
     }
 
-    function isContract(address _addr) private returns (bool) {
+    function isContract(address _addr) private view returns (bool) {
         uint256 length;
         assembly {
         //retrieve the size of the code on target address, this needs assembly
@@ -137,5 +137,5 @@ contract PXL is StandardToken, ExtendsOwnable {
 
     event Mint(address indexed _to, uint256 _amount);
     event Burn(address indexed _from, uint256 _amount);
-    event ApproveAndCall(address indexed _from, address indexed _to, uint256 _value, bytes[] _data);
+    event ApproveAndCall(address indexed _from, address indexed _to, uint256 _value, bytes _data);
 }
