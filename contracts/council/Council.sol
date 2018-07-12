@@ -2,6 +2,11 @@ pragma solidity ^0.4.24;
 
 import "contracts/utils/ExtendsOwnable.sol";
 
+/**
+ * @title Council contract
+ *
+ * @author Junghoon Seo - <jh.seo@battleent.com>
+ */
 contract Council is ExtendsOwnable {
     uint256 public cpRate;
     uint256 public translatorRate;
