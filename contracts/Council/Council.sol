@@ -7,6 +7,11 @@ contract Council is ExtendsOwnable {
     uint256 public translatorRate;
     uint256 public deposit;
 
+    modifier validRange(uint256 _value) {
+        require(_value > 0);
+        _;
+    }
+
     constructor(
         uint256 _cpRate,
         uint256 _translatorRate,
@@ -21,25 +26,19 @@ contract Council is ExtendsOwnable {
         emit RegisterCouncil(msg.sender, _cpRate, _translatorRate, _deposit);
     }
 
-    function setCpRate(uint256 _cpRate) external onlyOwner {
-        require(_cpRate > 0);
-
+    function setCpRate(uint256 _cpRate) external onlyOwner validRange(_cpRate) {
         cpRate = _cpRate;
 
         emit ChangeDistributionRate(msg.sender, "cp rate");
     }
 
-    function setTranslatorRate(uint256 _translatorRate) external onlyOwner {
-        require(_translatorRate > 0);
-
+    function setTranslatorRate(uint256 _translatorRate) external onlyOwner validRange(_translatorRate) {
         translatorRate = _translatorRate;
 
         emit ChangeDistributionRate(msg.sender, "translator rate");
     }
 
-    function setDeposit(uint256 _deposit) external onlyOwner {
-        require(_deposit > 0);
-
+    function setDeposit(uint256 _deposit) external onlyOwner validRange(_deposit) {
         deposit = _deposit;
 
         emit ChangeDistributionRate(msg.sender, "deposit");
