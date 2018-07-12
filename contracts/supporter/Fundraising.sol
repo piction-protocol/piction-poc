@@ -54,7 +54,7 @@ contract Fundraising is ExtendsOwnable, ContractReceiver {
         external
     {
         require(_softcap <= _maxcap);
-        require(isOnFunding());
+        require(!isOnFunding());
 
         funds.push(Fund(_maxcap, _softcap, _startTime, _endTime, _distributionRate, _image, _detail));
         fundRise.push(0);
@@ -131,7 +131,7 @@ contract Fundraising is ExtendsOwnable, ContractReceiver {
                 require(pxlToken.balanceOf(address(this)) >= pendingSupports[i].investment);
                 pendingSupports[i].release = true;
 
-                if (funds[funds.length.sub(1)].softcap >= fundRise[funds.length.sub(1)]) {
+                if (funds[funds.length.sub(1)].softcap <= fundRise[funds.length.sub(1)]) {
                     //send Pool
                     CustomToken cToken = CustomToken(address(pxlToken));
                     //cToken.approveAndCall(pool Address, amount, data);
