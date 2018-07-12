@@ -127,7 +127,7 @@ contract Fundraising is ExtendsOwnable, ContractReceiver {
 
         uint256 succeed = 0;
         for(uint i = 0; i < pendingSupports.length; i++) {
-            if (succeed < _count) {
+            if (!pendingSupports[i].release && succeed < _count) {
                 require(pxlToken.balanceOf(address(this)) >= pendingSupports[i].investment);
                 pendingSupports[i].release = true;
 
