@@ -2,25 +2,30 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-//import "contracts/contents/Episode.sol";
-//import "contracts/supporter/Fundraising.sol";
-//import "contracts/supporter/Supporters.sol";
+import "contracts/access/RoleManager.sol";
+import "contracts/contents/Episode.sol";
+import "contracts/contents/TranslateContent.sol";
+import "contracts/supporter/Fund.sol";
+import "contracts/supporter/Supporters.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
 contract Content is ExtendsOwnable {
     using SafeMath for uint256;
 
-    string public name;
+    string public title;
     address public writer;
     string public synopsis;
     string public genres;
+    string public thumbnail;
     string public titleImage;
-//    Fundraising public fundraising;
-//    Supporters public supporters;
+    address[] public fund;
+    address public supporters;
     uint256 public marketerRate;
     uint256 public translatorRate;
-//    Episode[] public episodes;
-//    TranslatorContent[] public translators;
+    address[] public episodes;
+    address[] public translators;
+    address public pxlToken;
+    address public roleManager;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -39,138 +44,263 @@ contract Content is ExtendsOwnable {
     }
 
     constructor(
-        string _name,
+        string _title,
         address _writer,
         string _synopsis,
         string _genres,
+        string _thumbnail,
         string _titleImage,
         uint256 _marketerRate,
-        uint256 _translatorRate
-    ) public {
-        require(bytes(_name).length > 0 && bytes(_titleImage).length > 0 && bytes(_genres).length > 0);
+        uint256 _translatorRate,
+        address _pxlToken,
+        address _roleManager
+    )
+        public
+    {
+        require(bytes(_title).length > 0 && bytes(_titleImage).length > 0 &&
+            bytes(_genres).length > 0) && bytes(_thumbnail).length > 0);
         require(_writer != address(0) && _writer != address(this));
+        require(_pxlToken != address(0) && _pxlToken != address(this));
+        require(_roleManager != address(0) && _roleManager != address(this));
 
-        name = _name;
+        title = _title;
         writer = _writer;
         synopsis = _synopsis;
         genres = _genres;
+        thumbnail = _thumbnail;
         titleImage = _titleImage;
         marketerRate = _marketerRate;
         translatorRate = _translatorRate;
+        roleManager = _roleManager;
 
         emit RegisterContents(msg.sender, "initializing content");
     }
 
-    function resetContent(
-        string _name,
+    function updateContent(
+        string _title,
         address _writer,
         string _synopsis,
         string _genres,
+        string _thumbnail,
         string _titleImage,
         uint256 _marketerRate,
         uint256 _translatorRate
-    ) external contentOwner validAddress(_writer) {
-        require(bytes(_name).length > 0 && bytes(_titleImage).length > 0 && bytes(_genres).length > 0);
-
-        name = _name;
+    )
+        external
+        contentOwner validAddress(_writer) validString(_title)
+        validString(_titleImage) validString(_genres) validString(_thumbnail)
+    {
+        title = _title;
         writer = _writer;
         synopsis = _synopsis;
         genres = _genres;
+        thumbnail = _thumbnail;
         titleImage = _titleImage;
         marketerRate = _marketerRate;
         translatorRate = _translatorRate;
 
         emit RegisterContents(msg.sender, "reset content");
     }
-/*
-    function addSupporter(address _supporterAddr) external contentOwner validAddress(_supporterAddr) {
-        supporters.push(Supporters(_supporterAddr));
-        emit ChangeExternalAddress(_supporterAddr, "add supporter address");
-    } */
 
-    function setWriter(address _writerAddr) external contentOwner validAddress(_writerAddr) {
+    function setWriter(address _writerAddr)
+        external
+        contentOwner validAddress(_writerAddr)
+    {
         writer = _writerAddr;
         emit ChangeExternalAddress(writer, "writer");
     }
 
-    /* function setFundraising(address _funraisingAddr) external contentOwner validAddress(_writerAddr) {
-        fundraising = Fundraising(_funraisingAddr);
-        emit ChangeExternalAddress(_funraisingAddr, "fundraising");
-    } */
-
-    function setContentName(string _name) external contentOwner validString(_name) {
-        name = _name;
-        emit ChangeContentDescription(msg.sender, "content name");
+    function setContentTitle(string _title)
+        external
+        contentOwner validString(_title)
+    {
+        title = _title;
+        emit ChangeContentDescription(msg.sender, "content title");
     }
 
-    function setSynopsis(string _synopsis) external contentOwner validString(_synopsis) {
+    function setSynopsis(string _synopsis)
+        external
+        contentOwner validString(_synopsis)
+    {
         synopsis = _synopsis;
         emit ChangeContentDescription(msg.sender, "synopsis");
     }
 
-    function setGenres(string _genres) external contentOwner validString(_genres) {
+    function setGenres(string _genres)
+        external
+        contentOwner validString(_genres)
+    {
         genres = _genres;
         emit ChangeContentDescription(msg.sender, "genres");
     }
 
-    function setTitleImage(string _imagePath) external contentOwner validString(_imagePath) {
+    function setTitleImage(string _imagePath)
+        external
+        contentOwner
+        validString(_imagePath)
+    {
         titleImage = _imagePath;
         emit ChangeContentDescription(msg.sender, "title image");
     }
 
-    function setMarketerRate(uint256 _marketerRate) external contentOwner {
+    function setThumbnail(string _imagePath)
+        external
+        contentOwner
+        validString(_thumbnail)
+    {
+        thumbnail = _imagePath;
+        emit ChangeContentDescription(msg.sender, "thumbnail");
+    }
+
+    function setMarketerRate(uint256 _marketerRate)
+        external
+        contentOwner
+    {
         marketerRate = _marketerRate;
         emit ChangeDistributionRate(msg.sender, "marketer rate");
     }
 
-    function setTranslatorRate(uint256 _translatorRate) external contentOwner {
+    function setTranslatorRate(uint256 _translatorRate)
+        external
+        contentOwner
+    {
         translatorRate = _translatorRate;
         emit ChangeDistributionRate(msg.sender, "translator rate");
     }
 
-    /* function addEpisode(address _episodeAddr) external contentOwner {
-        episodes.push(Episode(_episodeAddr));
-        emit RegisterContents(msg.sender, "episode");
+    function setSupporter(address _supporterAddr)
+        external
+        contentOwner
+        validAddress(_supporterAddr)
+    {
+        supporters = new Supporters(_supporterAddr);
+        emit CreateContract(msg.sender, supporters, "supporters");
     }
 
-    function addTranslatorContent(address _translatorAddr) external contentOwner {
-        translators.push(TranslatorContent(_translatorAddr));
-        emit RegisterContents(msg.sender, "translator contents");
+    function addFund(
+        uint256 _stripPeriod,
+        uint256 _maxcap,
+        uint256 _softcap,
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256 _distributionRate,
+        string _imagePath,
+        string _description
+    )
+        external
+        contentOwner validString(_imagePath) validString(_description)
+    {
+        address contractAddress = new Fund(
+            writer, pxlToken, _stripPeriod, _maxcap, _softcap,
+            _startTime, _endTime, _distributionRate, _imagePath, _description
+        );
+
+        fund.push(contractAddress);
+        emit CreateContract(msg.sender, contractAddress, "fund");
     }
 
-    function getSupportersAddress() public view return (address) {
-        return address(supporters);
+    function addEpisode(string _thumbnail, uint256 _price)
+        external
+        contentOwner validString(_thumbnail)
+    {
+        address contractAddress = new Episode(
+            writer, _thumbnail, _price, address(this), roleManager);
+
+        episodes.push(contractAddress);
+        emit CreateContract(msg.sender, contractAddress, "episode");
     }
 
-    function getEpisodeList() public view return (address[], string[], string[], uint256[]) {
+    function addTranslatorContent(address _translatorAddr, string _synopsis, string _genres, string _languageName)
+        external
+        contentOwner
+        validAddress(_translatorAddr) validString(_synopsis) validString(_genres) validString(_languageName)
+    {
+        address contractAddress;
+        contractAddress = new TranslateContent(
+            writer, _translatorAddr, _synopsis, _genres, _languageName, address(this));
+
+        translators.push(contractAddress);
+        emit CreateContract(msg.sender, contractAddress, "translate contract");
+    }
+
+    function getEpisodeDetail()
+        public
+        view
+        return (address[], string[], string[], uint256[])
+    {
         uint256 arrayLength = episodes.length;
         address[] memory episodeAddress = new address[](arrayLength);
-        string[] memory episodeNames = new string[](arrayLength);
-        string[] memory episodeTitleImages = new string[](arrayLength);
+        string[] memory episodeTitles = new string[](arrayLength);
+        string[] memory episodeThumbnail = new string[](arrayLength);
         uint256[] memory episodePrices = new uint256[](arrayLength);
 
         for(uint256 i = 0 ; i < arrayLength ; i++) {
-            episodeAddress[i] = address(episodes[i]);
-            episodeNames[i] = episodes[i].name();
-            episodeTitleImages[i] = episode[i].titleImage();
-            episodePrices[i] = episode[i].price();
+            episodeAddress[i] = episodes[i];
+            episodeTitles[i] = Episode(episodes[i]).title();
+            episodeThumbnail[i] = Episode(episode[i]).titleImage();
+            episodePrices[i] = Episode(episode[i]).price();
         }
 
-        return (episodeAddress, episodeNames, episodeTitleImages, episodePrices);
+        return (episodeAddress, episodeTitles, episodeThumbnail, episodePrices);
     }
 
-    function getTranslationLanguageList() public view return (string[]) {
+    function getTranslationLanguageList()
+        public
+        view
+        return (string[], address[])
+    {
         string[] memory translationLanguages = new string[](translators.length);
+        address[] memory addr = new address[](translators.length);
 
+        uint256 idx;
         for(uint256 i = 0 ; i < translators.length ; i++) {
-            translationLanguages[i] = translators[i].language;
+            TranslateContent translateContent = TranslateContent(translators[i]);
+            if(translateContent.episodes.length > 0) {
+                addr[idx] = translators[i];
+                translationLanguages[idx] = TranslateContent(translators[i]).language;
+                idx = idx.add(1);
+            }
+        }
+        return (translationLanguages, addr);
+    }
+
+    function getTotalPurchasedPxlAmount()
+        public
+        view
+        return (uint256)
+    {
+        uint256 amount;
+
+        for(uint256 i = 0 ; i < episodes.length ; i++) {
+            amount = amount.add(episodes.getPurchasedAmount());
         }
 
-        return translationLanguages;
-    } */
+        return amount;
+    }
 
-    event ChangeExternalAddress(address _addr, string _name);
-    event ChangeDistributionRate(address _addr, string _name);
-    event ChangeContentDescription(address _addr, string _name);
-    event RegisterContents(address _addr, string _name);
+    function getTranslatePurchasedPxlAmount()
+        public
+        view
+        return (uint256)
+    {
+        uint256 amount;
+        for(uint256 i = 0 ; i < episodes.length ; i++) {
+            amount = amount.add(episodes.getPurchasedAmount());
+        }
+        return amount;
+    }
+
+    function getIsFunding()
+        public
+        view
+        return (bool)
+    {
+        return fund.isOnFunding();
+    }
+
+    event ChangeExternalAddress(address _sender, string _name);
+    event ChangeDistributionRate(address _sender, string _name);
+    event ChangeContentDescription(address _sender, string _name);
+    event RegisterContents(address _sender, string _name);
+    event CreateContract(address _sender, address _contractAddr, string _contractName);
 }
