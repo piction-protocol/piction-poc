@@ -37,7 +37,7 @@ contract TranslateContent is ExtendsOwnable {
     constructor(
         string _title,
         address _translator,
-        string _synopsis
+        string _synopsis,
         string _genres,
         string _languageName,
         address _originContent
@@ -65,7 +65,7 @@ contract TranslateContent is ExtendsOwnable {
     function updateContent(
         string _title,
         address _translator,
-        string _synopsis
+        string _synopsis,
         string _genres,
         string _languageName
     )
@@ -82,35 +82,59 @@ contract TranslateContent is ExtendsOwnable {
         emit RegisterContents(msg.sender, "reset translate content", languageName);
     }
 
-    function setContentTitle(string _title) external contentOwner validString(_title) {
+    function setContentTitle(string _title)
+        external
+        contentOwner validString(_title)
+    {
         title = _title;
         emit ChangeContentDescription(msg.sender, "content title");
     }
 
-    function setSynopsis(string _synopsis) external contentOwner validString(_synopsis) {
+    function setSynopsis(string _synopsis)
+        external
+        contentOwner validString(_synopsis)
+    {
         synopsis = _synopsis;
         emit ChangeContentDescription(msg.sender, "synopsis");
     }
 
-    function setGenres(string _genres) external contentOwner validString(_genres) {
+    function setGenres(string _genres)
+        external
+        contentOwner validString(_genres)
+    {
         genres = _genres;
         emit ChangeContentDescription(msg.sender, "genres");
     }
 
-    function addEpisode(address _episodeAddr) external contentOwner {
+    function addEpisode(address _episodeAddr)
+        external
+        contentOwner
+    {
         episodes.push(Episode(_episodeAddr));
         emit RegisterContents(msg.sender, "episode");
     }
 
-    function getTitleImage() public view returns (string) {
+    function getTitleImage()
+        public
+        view
+        returns (string)
+    {
         return originContent.titleImage();
     }
 
-    function getThumbnale() public view returns (string) {
+    function getThumbnale()
+        public
+        view
+        returns (string)
+    {
         return originContent.thumbnail();
     }
 
-    function getEpisodeList() public view returns (address[], string[], string[], uint256[]) {
+    function getEpisodeList()
+        public
+        view
+        returns (address[], string[], string[], uint256[])
+    {
         uint256 arrayLength = episodes.length;
         address[] memory episodeAddress = new address[](arrayLength);
         string[] memory episodeTitles = new string[](arrayLength);
@@ -127,7 +151,11 @@ contract TranslateContent is ExtendsOwnable {
         return (episodeAddress, episodeTitles, episodeTitleImages, episodePrices);
     }
 
-    function getTotalPurchasedPxlAmount() public view return (uint256) {
+    function getTotalPurchasedPxlAmount()
+        public
+        view
+        returns (uint256)
+    {
         uint256 amount;
 
         for(uint256 i = 0 ; i < episodes.length ; i++) {

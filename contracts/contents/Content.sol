@@ -58,7 +58,7 @@ contract Content is ExtendsOwnable {
         public
     {
         require(bytes(_title).length > 0 && bytes(_titleImage).length > 0 &&
-            bytes(_genres).length > 0) && bytes(_thumbnail).length > 0);
+            bytes(_genres).length > 0 && bytes(_thumbnail).length > 0);
         require(_writer != address(0) && _writer != address(this));
         require(_pxlToken != address(0) && _pxlToken != address(this));
         require(_roleManager != address(0) && _roleManager != address(this));
@@ -226,7 +226,7 @@ contract Content is ExtendsOwnable {
     function getEpisodeDetail()
         public
         view
-        return (address[], string[], string[], uint256[])
+        returns (address[], string[], string[], uint256[])
     {
         uint256 arrayLength = episodes.length;
         address[] memory episodeAddress = new address[](arrayLength);
@@ -247,7 +247,7 @@ contract Content is ExtendsOwnable {
     function getTranslationLanguageList()
         public
         view
-        return (string[], address[])
+        returns (string[], address[])
     {
         string[] memory translationLanguages = new string[](translators.length);
         address[] memory addr = new address[](translators.length);
@@ -267,7 +267,7 @@ contract Content is ExtendsOwnable {
     function getTotalPurchasedPxlAmount()
         public
         view
-        return (uint256)
+        returns (uint256)
     {
         uint256 amount;
 
@@ -281,7 +281,7 @@ contract Content is ExtendsOwnable {
     function getTranslatePurchasedPxlAmount()
         public
         view
-        return (uint256)
+        returns (uint256)
     {
         uint256 amount;
         for(uint256 i = 0 ; i < episodes.length ; i++) {
@@ -293,7 +293,7 @@ contract Content is ExtendsOwnable {
     function getIsFunding()
         public
         view
-        return (bool)
+        returns (bool)
     {
         return fund.isOnFunding();
     }

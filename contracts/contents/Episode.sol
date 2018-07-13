@@ -162,7 +162,7 @@ contract Episode is ExtendsOwnable {
     function getRoleMansgerAddress()
         external
         view
-        return (address)
+        returns (address)
     {
         return address(roleManager);
     }

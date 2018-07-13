@@ -54,12 +54,12 @@ contract ContentsManager is ExtendsOwnable {
     function getRegisteredContents()
         external
         view
-        return (address[])
+        returns (address[])
     {
         address[] memory addr = new address[](cotentsAddress.length);
 
         uint256 idx;
-        for(uint256 i = 0 ; i < cotentsAddress.length < i++) {
+        for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
             Content content = Content(cotentsAddress[i]);
             if (_addr = content.writer()) {
                 addr[idx] = address(content);
