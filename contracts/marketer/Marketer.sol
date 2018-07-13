@@ -14,10 +14,6 @@ contract Marketer {
       _;
   }
 
-  constructor () public {
-
-  }
-
   function getMarketerKey() public validAddress(msg.sender) returns(bytes32) {
       bytes32 key = bytes32(keccak256(abi.encodePacked(msg.sender)));
       marketerInfo[key] = msg.sender;
