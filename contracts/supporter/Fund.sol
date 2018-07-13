@@ -1,12 +1,10 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/SponsorshipPool.sol";
 import "contracts/utils/ExtendsOwnable.sol";
-import "contracts/utils/BlockTimeMs.sol";
 
 contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
     using SafeMath for uint256;
@@ -23,8 +21,9 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
     string detail;
 
     constructor(
+        address _writerAddress,
         address _tokenAddress,
-        uint256 _stripPeriod,
+        uint256 _numberOfRelease,
         uint256 _maxcap,
         uint256 _softcap,
         uint256 _startTime,
@@ -32,7 +31,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         uint256 _distributionRate,
         string _image,
         string _detail)
-        SponsorshipPool(_tokenAddress, _stripPeriod)
+        SponsorshipPool(_writerAddress, _tokenAddress, _numberOfRelease, _endTime)
         public
     {
         require(_softcap <= _maxcap);
@@ -87,7 +86,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
 
     function getSupportDetail(uint256 _maxcap, uint256 _raisedAmount, uint256 _amount)
         private
-        pure
+        view
         returns (uint256, uint256)
     {
         uint256 d1 = _maxcap.sub(_raisedAmount);
@@ -115,26 +114,6 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         }
     }
 
-    function getSupports()
-        external
-        view
-        returns (address[], uint256[], bool[])
-    {
-        address[] memory user = new address[](supports.length.sub(1));
-        uint256[] memory investment = new uint256[](supports.length.sub(1));
-        bool[] memory supportRefund = new bool[](supports.length.sub(1));
-
-        uint256 supportsIndex = 0;
-        for(uint i = 0; i < supports.length; i++) {
-            user[supportsIndex] = supports[i].user;
-            investment[supportsIndex] = supports[i].investment;
-            supportRefund[supportsIndex] = supports[i].refund;
-
-            supportsIndex = supportsIndex.add(1);
-        }
-        return (user, investment, supportRefund);
-    }
-
     function isOnFunding() public view returns (bool) {
         if (startTime <= block.timestamp.getMs()
             && endTime >= block.timestamp.getMs())
@@ -147,6 +126,11 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         } else {
             return false;
         }
+    }
+
+    function getDistributeAmount(uint256 _total, uint256 _remainder) external returns(address, uint256) {
+        //todo
+        return (new address[](0), new uint256[](0));
     }
 
     event Support(address _from, uint256 supportAmount, uint256 refundAmount);
