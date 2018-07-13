@@ -41,7 +41,7 @@ const router = new Router({
     // my
     {
       path: '/my', name: 'my',
-      component: require('@/components/contents/Index').default
+      component: require('@/components/my/Index').default
     },
   ],
   scrollBehavior(to, from, savedPosition) {
