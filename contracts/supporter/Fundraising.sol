@@ -26,17 +26,8 @@ contract Fundraising is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         string detail;
     }
 
-    struct Supporter {
-        address user;
-        uint256 investment;
-        uint256 collection;
-        uint256 distributionRate;
-        bool refund;
-    }
-
     Fund fund;
     uint256 fundRise;
-    Supporter[] private pendingSupports;
     ERC20 private pxlToken;
 
     constructor(
@@ -79,15 +70,15 @@ contract Fundraising is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         }
 
         bool already = false;
-        for(uint i = 0; i < pendingSupports.length; i++) {
-            if (pendingSupports[i].user == _from) {
+        for(uint i = 0; i < supports.length; i++) {
+            if (supports[i].user == _from) {
                 already = true;
-                pendingSupports[i].investment = pendingSupports[i].investment.add(supportAmount);
+                supports[i].investment = supports[i].investment.add(supportAmount);
             }
         }
 
         if (!already) {
-            pendingSupports.push(
+            supports.push(
                 Supporter(
                     _from,
                     supportAmount,
@@ -117,37 +108,36 @@ contract Fundraising is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         require(fund.endTime <= block.timestamp.getMs());
 
         uint256 succeed = 0;
-        for(uint i = 0; i < pendingSupports.length; i++) {
-            if (!pendingSupports[i].refund && succeed < _count)
+        for(uint i = 0; i < supports.length; i++) {
+            if (!supports[i].refund && succeed < _count)
             {
-                require(pxlToken.balanceOf(address(this)) >= pendingSupports[i].investment);
+                require(pxlToken.balanceOf(address(this)) >= supports[i].investment);
 
-                pendingSupports[i].refund = true;
-                pxlToken.safeTransfer(pendingSupports[i].user, pendingSupports[i].investment);
+                supports[i].refund = true;
+                pxlToken.safeTransfer(supports[i].user, supports[i].investment);
                 succeed = succeed.add(1);
 
-                emit refund(pendingSupports[i].user, pendingSupports[i].investment, "refund");
+                emit Refund(supports[i].user, supports[i].investment, "refund");
             }
         }
     }
 
-    function getPendingSupports()
+    function getSupports()
         external
         view
         returns (address[], uint256[], bool[])
     {
-        require(fund.length > 0);
-        address[] memory user = new address[](pendingSupports.length.sub(1));
-        uint256[] memory investment = new uint256[](pendingSupports.length.sub(1));
-        bool[] memory supportRefund = new bool[](pendingSupports.length.sub(1));
+        address[] memory user = new address[](supports.length.sub(1));
+        uint256[] memory investment = new uint256[](supports.length.sub(1));
+        bool[] memory supportRefund = new bool[](supports.length.sub(1));
 
-        uint256 pendingSupportsIndex = 0;
-        for(uint i = 0; i < pendingSupports.length; i++) {
-            user[pendingSupportsIndex] = pendingSupports[i].user;
-            investment[pendingSupportsIndex] = pendingSupports[i].investment;
-            supportRefund[pendingSupportsIndex] = pendingSupports[i].refund;
+        uint256 supportsIndex = 0;
+        for(uint i = 0; i < supports.length; i++) {
+            user[supportsIndex] = supports[i].user;
+            investment[supportsIndex] = supports[i].investment;
+            supportRefund[supportsIndex] = supports[i].refund;
 
-            pendingSupportsIndex = pendingSupportsIndex.add(1);
+            supportsIndex = supportsIndex.add(1);
         }
         return (user, investment, supportRefund);
     }
@@ -167,5 +157,5 @@ contract Fundraising is ExtendsOwnable, ContractReceiver, SponsorshipPool {
     }
 
     event Support(address _from, uint256 supportAmount, uint256 refundAmount);
-    event refund(address, uint256 investment, string reason);
+    event Refund(address, uint256 investment, string reason);
 }
