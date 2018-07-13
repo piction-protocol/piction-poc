@@ -3,17 +3,17 @@
     <b-navbar fixed="top" toggleable="md" type="light" variant="light">
       <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
       <b-navbar-brand href="/">
-        <img style="width: 100%" src="../assets/icon.png" />
+        <img style="width: 100%" src="../assets/icon.png"/>
       </b-navbar-brand>
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
-          <router-link active-class="active" class="nav-link" to="/comics">Comics</router-link>
+          <router-link active-class="active" class="nav-link" to="/contents">Comics</router-link>
           <router-link active-class="active" class="nav-link" to="/trends">Trends</router-link>
           <router-link active-class="active" class="nav-link" to="/my">My</router-link>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-form>
-            <b-button variant="outline-success" class="my-2 my-sm-0" :to="{name:'post-comics'}">Create</b-button>
+            <b-button variant="outline-success" class="my-2 my-sm-0" :to="{name:'new-content'}">Create</b-button>
           </b-nav-form>
         </b-navbar-nav>
       </b-collapse>

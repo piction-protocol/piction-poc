@@ -1,23 +1,48 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Comics from '@/components/comics/Comics'
-import PostComics from '@/components/post-comics/PostComics'
-import Episodes from '@/components/episodes/Episodes'
-import Viewer from '@/components/viewer/Viewer'
-import My from '@/components/my/My'
 
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
   routes: [
-    {path: '/', redirect: '/comics'},
-    {path: '/comics', name: 'comics', component: Comics},
-    {path: '/comics/posts', name: 'post-comics', component: PostComics},
-    {path: '/comics/:comic_id', name: 'episodes', component: Episodes, props: true},
-    {path: '/comics/:comic_id/episodes/:episode_id', name: 'viewer', component: Viewer, props: true},
-    {path: '/trends', name: 'trends', component: Comics},
-    {path: '/my', name: 'my', component: My},
+    {path: '/', redirect: '/contents'},
+    // contents
+    {
+      path: '/contents', name: 'contents',
+      component: require('@/components/contents/Index').default
+    }, {
+      path: '/contents/new', name: 'new-content',
+      component: require('@/components/contents/New').default
+    }, {
+      path: '/contents/:content_id/show', name: 'show-content', props: true,
+      component: require('@/components/contents/Show').default
+    }, {
+      path: '/contents/:content_id/edit', name: 'edit-content', props: true,
+      component: require('@/components/contents/Edit').default
+    },
+    // episodes
+    {
+      path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'
+    }, {
+      path: '/contents/:content_id/episodes', name: 'episodes', props: true,
+      component: require('@/components/episodes/Index').default
+    },
+    // viewer
+    {
+      path: '/contents/:content_id/episodes/:episode_id', name: 'viewer', props: true,
+      component: require('@/components/viewer/Index').default
+    },
+    // trends
+    {
+      path: '/trends', name: 'trends',
+      component: require('@/components/contents/Index').default
+    },
+    // my
+    {
+      path: '/my', name: 'my',
+      component: require('@/components/contents/Index').default
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

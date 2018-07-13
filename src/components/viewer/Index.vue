@@ -3,7 +3,7 @@
     <img v-for="cut in cuts" :src="cut"/>
     <ul>
       <li class="list">
-        <router-link :to="{ name: 'episodes', params: { comic_id: comic_id }}">list</router-link>
+        <router-link :to="{ name: 'episodes', params: { content_id: content_id }}">list</router-link>
       </li>
       <li class="prev">prev</li>
       <li class="next">next</li>
@@ -13,8 +13,7 @@
 
 <script>
   export default {
-    name: 'Viewer',
-    props: ['comic_id', 'episode_id'],
+    props: ['content_id', 'episode_id'],
     data() {
       return {
         cuts: [
