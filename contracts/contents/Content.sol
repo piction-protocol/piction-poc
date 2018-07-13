@@ -6,7 +6,6 @@ import "contracts/access/RoleManager.sol";
 import "contracts/contents/Episode.sol";
 import "contracts/contents/TranslateContent.sol";
 import "contracts/supporter/Fund.sol";
-import "contracts/supporter/Supporters.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
 contract Content is ExtendsOwnable {
@@ -19,7 +18,6 @@ contract Content is ExtendsOwnable {
     string public thumbnail;
     string public titleImage;
     address[] public fund;
-    address public supporters;
     uint256 public marketerRate;
     uint256 public translatorRate;
     address[] public episodes;
@@ -168,15 +166,6 @@ contract Content is ExtendsOwnable {
         emit ChangeDistributionRate(msg.sender, "translator rate");
     }
 
-    function setSupporter(address _supporterAddr)
-        external
-        contentOwner
-        validAddress(_supporterAddr)
-    {
-        supporters = new Supporters(_supporterAddr);
-        emit CreateContract(msg.sender, supporters, "supporters");
-    }
-
     function addFund(
         uint256 _stripPeriod,
         uint256 _maxcap,
@@ -290,12 +279,45 @@ contract Content is ExtendsOwnable {
         return amount;
     }
 
-    function getIsFunding()
+    function isFunding()
         public
         view
         returns (bool)
     {
-        return fund.isOnFunding();
+        return fund[fund.length - 1].isOnFunding();
+    }
+
+    function getFundDistributeAmount()
+        public
+        view
+        returns (address[], uint256[])
+    {
+        if(fund.length == 0) {
+            return (new address[](0), new uint256[](0));
+        } else {
+            uint256 arrayLength;
+
+            for(uint256 i = 0 ; i < fund.length ; i++) {
+                arrayLength = arrayLength.add(fund[i].supports().length);
+            }
+
+            address[] memory supporter = new address[](arrayLength);
+            uint256[] memory pxlAmount = new uint256[](arrayLength);
+
+            uint256 idx;
+            for(uint256 i = 0 ; i < fund.length ; i++) {
+                address[] memory tempAddress = new address[](fund[i].supports().length);
+                uint256[] memory tempAmount = new uint256[](fund[i].supports().length);
+
+                (tempAddress, tempAmount) = fund[i].getDistributeAmount();
+
+                for(uint256 j = 0 ; j < fund[i].supports().length ; j ++) {
+                    supporter[idx] = tempAddress[j];
+                    pxlAmount[idx] = tempAmount[j];
+                }
+            }
+            return (supporter, pxlAmount);
+        }
     }
 
     event ChangeExternalAddress(address _sender, string _name);

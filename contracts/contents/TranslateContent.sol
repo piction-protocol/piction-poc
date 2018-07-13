@@ -164,6 +164,46 @@ contract TranslateContent is ExtendsOwnable {
         return amount;
     }
 
+    function isFunding()
+        public
+        view
+        returns (bool)
+    {
+        return originContent.fund[originContent.fund.length - 1].isOnFunding();
+    }
+
+    function getFundDistributeAmount()
+        public
+        view
+        returns (address[], uint256[])
+    {
+        if(originContent.fund.length == 0) {
+            return (new address[](0), new uint256[](0));
+        } else {
+            uint256 arrayLength;
+
+            for(uint256 i = 0 ; i < originContent.fund.length ; i++) {
+                arrayLength = arrayLength.add(originContent.fund[i].supports().length);
+            }
+
+            address[] memory supporter = new address[](arrayLength);
+            uint256[] memory pxlAmount = new uint256[](arrayLength);
+
+            uint256 idx;
+            for(uint256 i = 0 ; i < originContent.fund.length ; i++) {
+                address[] memory tempAddress = new address[](originContent.fund[i].supports().length);
+                uint256[] memory tempAmount = new uint256[](originContent.fund[i].supports().length);
+
+                (tempAddress, tempAmount) = originContent.fund[i].getDistributeAmount();
+
+                for(uint256 j = 0 ; j < originContent.fund[i].supports().length ; j ++) {
+                    supporter[idx] = tempAddress[j];
+                    pxlAmount[idx] = tempAmount[j];
+                }
+            }
+            return (supporter, pxlAmount);
+        }
+    }
 
     event ChangeExternalAddress(address _addr, string _name);
     event ChangeContentDescription(address _addr, string _name);
