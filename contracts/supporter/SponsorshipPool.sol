@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+import "contracts/council/Council.sol";
 import "contracts/utils/BlockTimeMs.sol";
 
 contract SponsorshipPool {
@@ -48,14 +49,14 @@ contract SponsorshipPool {
     constructor(
         address _contentAddress,
         address _writerAddress,
-        address _tokenAddress,
+        address _councilAddress,
         uint256 _countOfRelease,
         uint256 _fundEndTime,
         uint256 _distributionRate)
     {
         contentAddress = _contentAddress;
         writerAddress = _writerAddress;
-        pxlToken = ERC20(_tokenAddress);
+        pxlToken = ERC20(Council(_councilAddress).token());
         countOfRelease = _countOfRelease;
         originCountOfRelease = _countOfRelease;
         lastReleaseTime = _fundEndTime;
@@ -95,12 +96,12 @@ contract SponsorshipPool {
         require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
         require(countOfRelease >= releasedCount);
         uint256 releaseAmount = fundRise.div(originCountOfRelease);
-        require(token.balanceOf(address(this)) >= releaseAmount);
+        require(pxlToken.balanceOf(address(this)) >= releaseAmount);
 
         if (getInterruptVoteRate() >= 50) {
             countOfRelease = countOfRelease.add(1);
         } else {
-            token.safeTransfer(writerAddress, releaseAmount);
+            pxlToken.safeTransfer(writerAddress, releaseAmount);
         }
         releasedCount = releasedCount.add(1);
         lastReleaseTime = lastReleaseTime.add(releaseInterval);
@@ -115,7 +116,7 @@ contract SponsorshipPool {
     }
 
     function getDistributeAmount(uint256 _total) external returns(address, uint256) {
-        require(msg.sender == _contentAddress);
+        require(msg.sender == contentAddress);
         if (supports.length == 0) {
             return (new address[](0), new uint256[](0));
         }

@@ -27,7 +27,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
     constructor(
         address _contentAddress,
         address _writerAddress,
-        address _tokenAddress,
+        address _councilAddress,
         uint256 _numberOfRelease,
         uint256 _maxcap,
         uint256 _softcap,
@@ -39,14 +39,14 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         SponsorshipPool(
             _contentAddress,
             _writerAddress,
-            _tokenAddress,
+            _councilAddress,
             _numberOfRelease,
             _endTime,
             _distributionRate)
         public
         validAddress(_contentAddress)
         validAddress(_writerAddress)
-        validAddress(_tokenAddress)
+        validAddress(_councilAddress)
     {
         require(_softcap <= _maxcap);
         require(_startTime > block.timestamp.getMs());
@@ -64,7 +64,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         uint256 _value,
         address _token,
         bytes _data)
-        public 
+        public
         validAddress(_from)
         validAddress(_token)
     {
