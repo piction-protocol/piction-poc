@@ -10,19 +10,19 @@
 
 <script>
   import Form from './Form'
-  import Helper from './Helper'
+  import {formData} from './helper'
 
   export default {
     props: ['content_id'],
     components: {Form},
     data() {
       return {
-        form: Helper.formData,
+        form: formData,
       }
     },
     methods: {
       onSubmit() {
-        this.$router.push({name:'edit-content', params:{content_id: this.content_id}});
+        this.$router.push({name: 'edit-content', params: {content_id: this.content_id}});
       }
     },
     async created() {

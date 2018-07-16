@@ -78,13 +78,13 @@
 </template>
 
 <script>
-  import Helper from './Helper'
+  import {genres} from './helper'
 
   export default {
     props: ['form', 'action', 'submitText'],
     data() {
       return {
-        options: Helper.genres,
+        options: genres,
       }
     },
     computed: {
@@ -113,7 +113,8 @@
 
 <style scoped>
   .preview {
-    width: 240px;
+    width: 360px;
+    height: 180px;
     margin-bottom: 4px;
   }
 </style>

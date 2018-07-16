@@ -10,14 +10,14 @@
 
 <script>
   import Form from './Form'
-  import Helper from './Helper'
+  import {formData} from './helper'
 
   export default {
     components: {Form},
     props: ['content_id'],
     data() {
       return {
-        form: Helper.formData
+        form: formData
       }
     },
     methods: {

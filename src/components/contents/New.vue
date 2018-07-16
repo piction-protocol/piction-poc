@@ -10,13 +10,13 @@
 
 <script>
   import Form from './Form'
-  import Helper from './Helper'
+  import {formData, genres} from './helper'
 
   export default {
     components: {Form},
     data() {
       return {
-        form: Helper.formData,
+        form: formData,
       }
     },
     methods: {
@@ -36,7 +36,7 @@
       },
     },
     created() {
-      this.form.genres = Helper.genres[0].value
+      this.form.genres = genres[0].value
     }
   }
 </script>
