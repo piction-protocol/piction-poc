@@ -8,7 +8,7 @@ import "contracts/utils/ExtendsOwnable.sol";
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
 contract Council is ExtendsOwnable {
-    uint256 public cpRate;
+    uint256 public cdRate;
     uint256 public translatorRate;
     uint256 public deposit;
     address public token;
@@ -27,26 +27,26 @@ contract Council is ExtendsOwnable {
     }
 
     constructor(
-        uint256 _cpRate,
+        uint256 _cdRate,
         uint256 _translatorRate,
         uint256 _deposit,
         address _token
     ) public {
-        require(_cpRate > 0 && _translatorRate > 0 && _deposit > 0);
+        require(_cdRate > 0 && _translatorRate > 0 && _deposit > 0);
         require(_token != address(0) && _token != address(this));
 
-        cpRate = _cpRate;
+        cdRate = _cdRate;
         translatorRate = _translatorRate;
         deposit = _deposit;
         token = _token;
 
-        emit RegisterCouncil(msg.sender, _cpRate, _translatorRate, _deposit, _token);
+        emit RegisterCouncil(msg.sender, _cdRate, _translatorRate, _deposit, _token);
     }
 
-    function setCpRate(uint256 _cpRate) external onlyOwner validRange(_cpRate) {
-        cpRate = _cpRate;
+    function setCdRate(uint256 _cdRate) external onlyOwner validRange(_cdRate) {
+        cdRate = _cdRate;
 
-        emit ChangeDistributionRate(msg.sender, "cp rate");
+        emit ChangeDistributionRate(msg.sender, "cd rate");
     }
 
     function setTranslatorRate(uint256 _translatorRate) external onlyOwner validRange(_translatorRate) {
@@ -73,7 +73,7 @@ contract Council is ExtendsOwnable {
         emit ChangeAddress(msg.sender, "content manager", _contentManager);
     }
 
-    event RegisterCouncil(address _sender, uint256 _cpRate, uint256 _translatorRate, uint256 _deposit, address _token);
+    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _translatorRate, uint256 _deposit, address _token);
     event ChangeDistributionRate(address _sender, string _name);
     event ChangeAddress(address _sender, string addressName, address _addr);
 }
