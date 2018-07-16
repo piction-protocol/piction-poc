@@ -4,7 +4,8 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/access/RoleManager.sol";
 import "contracts/contents/Episode.sol";
-import "contracts/contents/TranslateContent.sol";
+import "contracts/contents/ContentsManager.sol";
+import "contracts/council/Council.sol";
 import "contracts/supporter/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
@@ -19,11 +20,8 @@ contract Content is ExtendsOwnable {
     string public titleImage;
     address[] public fund;
     uint256 public marketerRate;
-    uint256 public translatorRate;
     address[] public episodes;
-    address[] public translators;
-    address public pxlToken;
-    address public roleManager;
+    ContentsManager public contentsManager;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -49,17 +47,14 @@ contract Content is ExtendsOwnable {
         string _thumbnail,
         string _titleImage,
         uint256 _marketerRate,
-        uint256 _translatorRate,
-        address _pxlToken,
-        address _roleManager
+        address _contentsManager
     )
         public
     {
         require(bytes(_title).length > 0 && bytes(_titleImage).length > 0 &&
             bytes(_genres).length > 0 && bytes(_thumbnail).length > 0);
         require(_writer != address(0) && _writer != address(this));
-        require(_pxlToken != address(0) && _pxlToken != address(this));
-        require(_roleManager != address(0) && _roleManager != address(this));
+        require(_contentsManager != address(0) && _contentsManager != address(this));
 
         title = _title;
         writer = _writer;
@@ -67,9 +62,7 @@ contract Content is ExtendsOwnable {
         genres = _genres;
         thumbnail = _thumbnail;
         titleImage = _titleImage;
-        marketerRate = _marketerRate;
-        translatorRate = _translatorRate;
-        roleManager = _roleManager;
+        contentsManager = ContentsManager(_contentsManager);
 
         emit RegisterContents(msg.sender, "initializing content");
     }
@@ -81,8 +74,7 @@ contract Content is ExtendsOwnable {
         string _genres,
         string _thumbnail,
         string _titleImage,
-        uint256 _marketerRate,
-        uint256 _translatorRate
+        uint256 _marketerRate
     )
         external
         contentOwner validAddress(_writer) validString(_title)
@@ -95,9 +87,16 @@ contract Content is ExtendsOwnable {
         thumbnail = _thumbnail;
         titleImage = _titleImage;
         marketerRate = _marketerRate;
-        translatorRate = _translatorRate;
 
         emit RegisterContents(msg.sender, "reset content");
+    }
+
+    function setContentsManager(address _contentsManagerAddr)
+        external
+        onlyOwner validAddress(_contentsManagerAddr)
+    {
+        contentsManager = ContentsManager(_contentsManagerAddr);
+        emit ChangeExternalAddress(msg.sender, "contents manager");
     }
 
     function setWriter(address _writerAddr)
@@ -158,16 +157,9 @@ contract Content is ExtendsOwnable {
         emit ChangeDistributionRate(msg.sender, "marketer rate");
     }
 
-    function setTranslatorRate(uint256 _translatorRate)
-        external
-        contentOwner
-    {
-        translatorRate = _translatorRate;
-        emit ChangeDistributionRate(msg.sender, "translator rate");
-    }
 
     function addFund(
-        uint256 _stripPeriod,
+        uint256 _numberOfRelease,
         uint256 _maxcap,
         uint256 _softcap,
         uint256 _startTime,
@@ -179,10 +171,11 @@ contract Content is ExtendsOwnable {
         external
         contentOwner validString(_imagePath) validString(_description)
     {
+        require(getDistributionRate().add(_distributionRate) > 100);
+
         address contractAddress = new Fund(
-            writer, pxlToken, _stripPeriod, _maxcap, _softcap,
-            _startTime, _endTime, _distributionRate, _imagePath, _description
-        );
+            address(this), writer, getPxlTokenAddress(), _numberOfRelease, _maxcap, _softcap,
+            _startTime, _endTime, _distributionRate, _imagePath, _description);
 
         fund.push(contractAddress);
         emit CreateContract(msg.sender, contractAddress, "fund");
@@ -193,23 +186,34 @@ contract Content is ExtendsOwnable {
         contentOwner validString(_thumbnail)
     {
         address contractAddress = new Episode(
-            writer, _thumbnail, _price, address(this), roleManager);
+            writer, _thumbnail, _price, address(this), getRoleManagerAddress());
 
         episodes.push(contractAddress);
         emit CreateContract(msg.sender, contractAddress, "episode");
     }
 
-    function addTranslatorContent(address _translatorAddr, string _synopsis, string _genres, string _languageName)
-        external
-        contentOwner
-        validAddress(_translatorAddr) validString(_synopsis) validString(_genres) validString(_languageName)
+    function getPxlTokenAddress()
+        public
+        view
+        returns (address)
     {
-        address contractAddress;
-        contractAddress = new TranslateContent(
-            writer, _translatorAddr, _synopsis, _genres, _languageName, address(this));
+        return contentsManager.pxlToken();
+    }
 
-        translators.push(contractAddress);
-        emit CreateContract(msg.sender, contractAddress, "translate contract");
+    function getRoleManagerAddress()
+        public
+        view
+        returns (address)
+    {
+        return contentsManager.roleManager();
+    }
+
+    function getCouncilAddress()
+        public
+        view
+        returns (address)
+    {
+        return contentsManager.council();
     }
 
     function getEpisodeDetail()
@@ -224,33 +228,14 @@ contract Content is ExtendsOwnable {
         uint256[] memory episodePrices = new uint256[](arrayLength);
 
         for(uint256 i = 0 ; i < arrayLength ; i++) {
-            episodeAddress[i] = episodes[i];
-            episodeTitles[i] = Episode(episodes[i]).title();
-            episodeThumbnail[i] = Episode(episode[i]).titleImage();
-            episodePrices[i] = Episode(episode[i]).price();
+            Episode episode = Episode(episodes[i]);
+            episodeAddress[i] = address(episode);
+            episodeTitles[i] = episode.title();
+            episodeThumbnail[i] = episode.titleImage();
+            episodePrices[i] = episode.price();
         }
 
         return (episodeAddress, episodeTitles, episodeThumbnail, episodePrices);
-    }
-
-    function getTranslationLanguageList()
-        public
-        view
-        returns (string[], address[])
-    {
-        string[] memory translationLanguages = new string[](translators.length);
-        address[] memory addr = new address[](translators.length);
-
-        uint256 idx;
-        for(uint256 i = 0 ; i < translators.length ; i++) {
-            TranslateContent translateContent = TranslateContent(translators[i]);
-            if(translateContent.episodes.length > 0) {
-                addr[idx] = translators[i];
-                translationLanguages[idx] = TranslateContent(translators[i]).language;
-                idx = idx.add(1);
-            }
-        }
-        return (translationLanguages, addr);
     }
 
     function getTotalPurchasedPxlAmount()
@@ -259,22 +244,8 @@ contract Content is ExtendsOwnable {
         returns (uint256)
     {
         uint256 amount;
-
         for(uint256 i = 0 ; i < episodes.length ; i++) {
-            amount = amount.add(episodes.getPurchasedAmount());
-        }
-
-        return amount;
-    }
-
-    function getTranslatePurchasedPxlAmount()
-        public
-        view
-        returns (uint256)
-    {
-        uint256 amount;
-        for(uint256 i = 0 ; i < episodes.length ; i++) {
-            amount = amount.add(episodes.getPurchasedAmount());
+            amount = amount.add(episodes[i].getPurchasedAmount());
         }
         return amount;
     }
@@ -296,7 +267,6 @@ contract Content is ExtendsOwnable {
             return (new address[](0), new uint256[](0));
         } else {
             uint256 arrayLength;
-
             for(uint256 i = 0 ; i < fund.length ; i++) {
                 arrayLength = arrayLength.add(fund[i].supports().length);
             }
@@ -304,20 +274,40 @@ contract Content is ExtendsOwnable {
             address[] memory supporter = new address[](arrayLength);
             uint256[] memory pxlAmount = new uint256[](arrayLength);
 
-            uint256 idx;
+
             for(uint256 i = 0 ; i < fund.length ; i++) {
                 address[] memory tempAddress = new address[](fund[i].supports().length);
                 uint256[] memory tempAmount = new uint256[](fund[i].supports().length);
 
                 (tempAddress, tempAmount) = fund[i].getDistributeAmount();
 
+                uint256 idx;
                 for(uint256 j = 0 ; j < fund[i].supports().length ; j ++) {
                     supporter[idx] = tempAddress[j];
                     pxlAmount[idx] = tempAmount[j];
+                    idx = idx.add(1);
                 }
             }
             return (supporter, pxlAmount);
         }
+    }
+
+    function getDistributionRate()
+        internal
+        view
+        returns (uint256)
+    {
+        Council council = Council(contentsManager.council());
+
+        uint256 returnRate;
+        returnRate = returnRate.add(council.cdRate());
+        returnRate = returnRate.add(council.deposit());
+        returnRate = returnRate.add(council.userPaybackRate());
+
+        for(uint256 i = 0 ; i < fund.length ; i++){
+            returnRate = returnRate.add(fund[i].distributionRate());
+        }
+        return returnRate;
     }
 
     event ChangeExternalAddress(address _sender, string _name);

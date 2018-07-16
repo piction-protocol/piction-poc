@@ -10,7 +10,9 @@ contract ContentsManager is ExtendsOwnable {
     mapping (address => bool) isRegistered;
 
     address[] public cotentsAddress;
-    address public councilAddress;
+    address public pxlToken;
+    address public council;
+    address public roleManager;
 
     modifier validAddress(address _account) {
         require(_account != address(0));
@@ -18,22 +20,58 @@ contract ContentsManager is ExtendsOwnable {
         _;
     }
 
-    constructor(address _councilAddr) {
-        require(_councilAddr != address(0));
-        require(_councilAddr != address(this));
+    constructor(address _pxlToken, address _councilAddr, address _roleManagerAddr)
+        public
+    {
+        require(_pxlToken != address(0) && _pxlToken != address(this));
+        require(_councilAddr != address(0) && _councilAddr != address(this));
+        require(_roleManagerAddr != address(0) && _roleManagerAddr != address(this));
 
-        councilAddress = _councilAddr;
+        pxlToken = _pxlToken;
+        council = _councilAddr;
+        roleManager = _roleManagerAddr;
+    }
+
+    function setPxlTokenAddress(address _pxlToken)
+        external
+        onlyOwner validAddress(_pxlToken)
+    {
+        pxlToken = _pxlToken;
+        emit ChangeExternalAddress(msg.sender, "pxl token");
     }
 
     function setCouncilAddress(address _councilAddr)
         external
         onlyOwner validAddress(_councilAddr)
     {
-        councilAddress = _councilAddress;
+        council = _councilAddress;
         emit ChangeExternalAddress(msg.sender, "council");
     }
 
-    function addContents(address _contentAddress)
+    function setRoleManagerAddress(address _roleManagerAddr)
+        external
+        onlyOwner validAddress(_roleManagerAddr)
+    {
+        roleManager = _roleManagerAddr;
+        emit ChangeExternalAddress(msg.sender, "role manager");
+    }
+
+    function setChildContentsManagerAddress(uint256 _count, address _contentsMangerAddr)
+        external
+        onlyOwner validAddress(_contentsMangerAddr)
+    {
+        uint256 changeNumber;
+        for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
+            if(changeNumber < _count) {
+                if(address(cotentsAddress[i].contentsManager()) != _contentsMangerAddr ) {
+                    cotentsAddress[i].setContentsManager(_contentsMangerAddr);
+                    changeNumber = changeNumber.add(1);
+                }
+            }
+        }
+    }
+
+    function addContents()
         external
         onlyOwner validAddress(_contentsAddress)
     {
@@ -42,8 +80,7 @@ contract ContentsManager is ExtendsOwnable {
         Council council = Council(councilAddress);
 
         address contractAddress = new Content(
-            _title, _writer, _synopsis, _genres, _thumbnail, _titleImage,
-            _marketerRate, _translatorRate, council.token(), council.roleManager());
+            _title, _writer, _synopsis, _genres, _thumbnail, _titleImage, _marketerRate, address(this));
 
         contentsAddress.push(contractAddress);
         isRegistered[contractAddress] = true;
@@ -51,19 +88,27 @@ contract ContentsManager is ExtendsOwnable {
         emit RegisterContents(contractAddress, contentsAddress.length);
     }
 
-    function getRegisteredContents()
+    function getWriterContents(address _writerAddr)
         external
         view
         returns (address[])
     {
-        address[] memory addr = new address[](cotentsAddress.length);
+        uint256 arrayLength;
+        for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
+            Content content = Content(cotentsAddress[i]);
+            if (_writerAddr = content.writer()) {
+                arrayLength = arrayLength.add(1);
+            }
+        }
+
+        address[] memory addr = new address[](arrayLength);
 
         uint256 idx;
         for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
             Content content = Content(cotentsAddress[i]);
-            if (_addr = content.writer()) {
+            if (_writerAddr = content.writer()) {
                 addr[idx] = address(content);
-                idx.add(1);
+                idx = idx.add(1);
             }
         }
         return addr;

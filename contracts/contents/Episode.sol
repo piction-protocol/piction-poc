@@ -13,14 +13,14 @@ contract Episode is ExtendsOwnable {
 
     mapping (address => bool) buyUser;
 
+    string[] private url;
     string public title;
     address public writer;
     string public thumbnail;
     uint256 public price;
-    string[] public url;
     uint256 public buyCount;
     Content public content;
-    RoleManager public roleManager;
+    address public roleManager;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -58,7 +58,7 @@ contract Episode is ExtendsOwnable {
         writer = _writer;
         thumbnail = _thumbnail;
         price = _price;
-        roleManager = RoleManager(_roleManager);
+        roleManager = _roleManager;
 
         emit RegisterContents(msg.sender, "initializing episode");
     }
@@ -95,6 +95,8 @@ contract Episode is ExtendsOwnable {
         external
         contentOwner validAddress(_writerAddr)
     {
+        require(content.writer() == _writerAddr);
+
         writer = _writerAddr;
         emit ChangeExternalAddress(msg.sender, "writer");
     }
@@ -140,7 +142,19 @@ contract Episode is ExtendsOwnable {
         contentOwner validAddress(_addr)
     {
         content = Content(_addr);
+        require(content.writer() == writer);
+
         emit ChangeExternalAddress(msg.sender, "Content");
+    }
+
+    function getImages()
+        external
+        view
+        returns (string[])
+    {
+        require(getIsPurchased(msg.sender));
+
+        return url;
     }
 
     function getPurchasedAmount()
@@ -152,27 +166,20 @@ contract Episode is ExtendsOwnable {
     }
 
     function getIsPurchased(address _buyer)
-        external
+        public
         view
         returns (bool)
     {
         return buyUser[_buyer];
     }
 
-    function getRoleMansgerAddress()
-        external
-        view
-        returns (address)
-    {
-        return address(roleManager);
-    }
-
-    function episodePurchase(address _buyer)
+    function episodePurchase(address _buyer, uint256 _amount)
         external
         validAddress(_buyer)
     {
         require(roleManager.isAccess(msg.sender, ROLE_NAME));
         require(!buyUser[_buyer]);
+        require(price == _amount);
 
         buyUser[_buyer] = true;
         buyCount = buyCount.add(1);
