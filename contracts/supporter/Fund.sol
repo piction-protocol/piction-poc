@@ -10,6 +10,12 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
     using SafeERC20 for ERC20;
     using BlockTimeMs for uint256;
 
+    modifier validAddress(address _account) {
+        require(_account != address(0));
+        require(_account != address(this));
+        _;
+    }
+
     uint256 maxcap;
     uint256 softcap;
     uint256 startTime;
@@ -38,6 +44,9 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
             _endTime,
             _distributionRate)
         public
+        validAddress(_contentAddress)
+        validAddress(_writerAddress)
+        validAddress(_tokenAddress)
     {
         require(_softcap <= _maxcap);
         require(_startTime > block.timestamp.getMs());
@@ -50,7 +59,15 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         detail = _detail;
     }
 
-    function receiveApproval(address _from, uint256 _value, address _token, bytes _data) public {
+    function receiveApproval(
+        address _from,
+        uint256 _value,
+        address _token,
+        bytes _data)
+        public 
+        validAddress(_from)
+        validAddress(_token)
+    {
         support(_from, _value, _token);
     }
 
