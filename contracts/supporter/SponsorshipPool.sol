@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/utils/BlockTimeMs.sol";
@@ -9,6 +10,7 @@ import "contracts/utils/BlockTimeMs.sol";
 contract SponsorshipPool {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
+    using Math for uint256;
     using BlockTimeMs for uint256;
 
     struct Supporter {
@@ -18,7 +20,8 @@ contract SponsorshipPool {
         bool refund;
         mapping (uint256 => bool) voteResult;
     }
-
+    //작품주소
+    address contentAddress;
     //작가주소
     address writerAddress;
     //픽셀주소
@@ -39,15 +42,24 @@ contract SponsorshipPool {
     uint256 lastReleaseTime;
     //자금모집이 종료된 시간
     uint256 fundEndTime;
-    //전송될 토큰
-    ERC20 pxlToken;
+    //서포터의 비율
+    uint256 distributionRate;
 
-    constructor(address _writerAddress, address _tokenAddress, uint256 _countOfRelease, _fundEndTime) {
+    constructor(
+        address _contentAddress,
+        address _writerAddress,
+        address _tokenAddress,
+        uint256 _countOfRelease,
+        uint256 _fundEndTime,
+        uint256 _distributionRate)
+    {
+        contentAddress = _contentAddress;
         writerAddress = _writerAddress;
         pxlToken = ERC20(_tokenAddress);
         countOfRelease = _countOfRelease;
         originCountOfRelease = _countOfRelease;
         lastReleaseTime = _fundEndTime;
+        distributionRate = _distributionRate;
 
         releaseInterval = 600000; //for test 10min
     }
@@ -92,6 +104,45 @@ contract SponsorshipPool {
         }
         releasedCount = releasedCount.add(1);
         lastReleaseTime = lastReleaseTime.add(releaseInterval);
+    }
+
+    function getTotalInvestment() public view returns (uint256) {
+        uint256 total;
+        for (uint256 i = 0; i < supports.length; i++) {
+            total = total.add(supports[i].investment);
+        }
+        return total;
+    }
+
+    function getDistributeAmount(uint256 _total) external returns(address, uint256) {
+        require(msg.sender == _contentAddress);
+        if (supports.length == 0) {
+            return (new address[](0), new uint256[](0));
+        }
+
+        address[] memory support = new address[](supports.length);
+        uint256[] memory amount = new uint256[](supports.length);
+
+        uint256 totalInvestment = getTotalInvestment();
+        uint256[] memory rate = new uint256[](supports.length);
+        uint256 remainCollection;
+        for(uint256 i = 0; i < supports.length; i++) {
+            rate[i] = totalInvestment.div(supports[i].investment);
+            remainCollection = remainCollection.add(supports[i].investment.sub(supports[i].collection));
+        }
+
+        for (uint256 j = 0; j < supports.length; j++) {
+            support[j] = supports[j].user;
+            if (remainCollection == 0) {
+                amount[j] = _total.div(distributionRate).div(rate[j]);
+            } else {
+                uint256 rateAmount = _total.div(rate[j]);
+                uint256 remainAmount = supports[j].investment.sub(supports[j].collection);
+                amount[j] = rateAmount.min256(remainAmount);
+            }
+        }
+
+        return (support, amount);
     }
 
     function getSupports()

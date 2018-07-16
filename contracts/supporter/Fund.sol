@@ -1,7 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/Math.sol";
-
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/SponsorshipPool.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -16,11 +14,12 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
     uint256 softcap;
     uint256 startTime;
     uint256 endTime;
-    uint256 distributionRate;
     string image;
     string detail;
+    address content;
 
     constructor(
+        address _contentAddress,
         address _writerAddress,
         address _tokenAddress,
         uint256 _numberOfRelease,
@@ -31,7 +30,13 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         uint256 _distributionRate,
         string _image,
         string _detail)
-        SponsorshipPool(_writerAddress, _tokenAddress, _numberOfRelease, _endTime)
+        SponsorshipPool(
+            _contentAddress,
+            _writerAddress,
+            _tokenAddress,
+            _numberOfRelease,
+            _endTime,
+            _distributionRate)
         public
     {
         require(_softcap <= _maxcap);
@@ -41,7 +46,6 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         softcap = _softcap;
         startTime = _startTime;
         endTime = _endTime;
-        distributionRate = _distributionRate;
         image = _image;
         detail = _detail;
     }
@@ -126,11 +130,6 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         } else {
             return false;
         }
-    }
-
-    function getDistributeAmount(uint256 _total, uint256 _remainder) external returns(address, uint256) {
-        //todo
-        return (new address[](0), new uint256[](0));
     }
 
     event Support(address _from, uint256 supportAmount, uint256 refundAmount);
