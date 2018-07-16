@@ -25,13 +25,14 @@
         this.$router.push({name: 'edit-content', params: {content_id: this.content_id}});
       }
     },
-    async created() {
-      this.form.title = await this.$contract.content.getTitle(this.content_id);
-      this.form.thumbnail = await this.$contract.content.getThumbnail(this.content_id);
-      this.form.synopsis = await this.$contract.content.getSynopsis(this.content_id);
-      this.form.genres = await this.$contract.content.getGenres(this.content_id);
-      this.form.marketerRate = await this.$contract.content.getMarketerRate(this.content_id);
-      this.form.translatorRate = await this.$contract.content.getTranslatorRate(this.content_id);
+    created() {
+      const instance = this.$contract.content;
+      instance.getTitle(this.content_id).then(r => this.form.title = r);
+      instance.getThumbnail(this.content_id).then(r => this.form.thumbnail = r);
+      instance.getSynopsis(this.content_id).then(r => this.form.synopsis = r);
+      instance.getGenres(this.content_id).then(r => this.form.genres = r);
+      instance.getMarketerRate(this.content_id).then(r => this.form.marketerRate = r);
+      instance.getTranslatorRate(this.content_id).then(r => this.form.translatorRate = r);
     }
   }
 </script>

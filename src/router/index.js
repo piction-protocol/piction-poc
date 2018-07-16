@@ -22,7 +22,7 @@ const router = new Router({
     {path: '/contents', name: 'contents', component: ContentIndex},
     {path: '/contents/new', name: 'new-content', component: ContentNew},
     {path: '/contents/:content_id/show', name: 'show-content', component: ContentShow, props: true},
-    {path: '/contents/:content_id/edit', name: 'edit-content', component: ContentEdit, rops: true},
+    {path: '/contents/:content_id/edit', name: 'edit-content', component: ContentEdit, props: true},
     // episodes
     {path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'},
     {path: '/contents/:content_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
