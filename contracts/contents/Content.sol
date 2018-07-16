@@ -2,9 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/access/RoleManager.sol";
 import "contracts/contents/Episode.sol";
-import "contracts/contents/ContentsManager.sol";
 import "contracts/council/Council.sol";
 import "contracts/supporter/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -21,7 +19,7 @@ contract Content is ExtendsOwnable {
     address[] public fund;
     uint256 public marketerRate;
     address[] public episodes;
-    ContentsManager public contentsManager;
+    Council public council;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -47,14 +45,14 @@ contract Content is ExtendsOwnable {
         string _thumbnail,
         string _titleImage,
         uint256 _marketerRate,
-        address _contentsManager
+        address _councilAddress
     )
         public
     {
         require(bytes(_title).length > 0 && bytes(_titleImage).length > 0 &&
             bytes(_genres).length > 0 && bytes(_thumbnail).length > 0);
         require(_writer != address(0) && _writer != address(this));
-        require(_contentsManager != address(0) && _contentsManager != address(this));
+        require(_councilAddress != address(0) && _councilAddress != address(this));
 
         title = _title;
         writer = _writer;
@@ -62,7 +60,7 @@ contract Content is ExtendsOwnable {
         genres = _genres;
         thumbnail = _thumbnail;
         titleImage = _titleImage;
-        contentsManager = ContentsManager(_contentsManager);
+        council = Council(_councilAddress);
 
         emit RegisterContents(msg.sender, "initializing content");
     }
@@ -91,12 +89,12 @@ contract Content is ExtendsOwnable {
         emit RegisterContents(msg.sender, "reset content");
     }
 
-    function setContentsManager(address _contentsManagerAddr)
+    function setCouncil(address _councilAddress)
         external
-        onlyOwner validAddress(_contentsManagerAddr)
+        onlyOwner validAddress(_councilAddress)
     {
-        contentsManager = ContentsManager(_contentsManagerAddr);
-        emit ChangeExternalAddress(msg.sender, "contents manager");
+        council = Council(_councilAddress);
+        emit ChangeExternalAddress(msg.sender, "council");
     }
 
     function setWriter(address _writerAddr)
@@ -157,7 +155,6 @@ contract Content is ExtendsOwnable {
         emit ChangeDistributionRate(msg.sender, "marketer rate");
     }
 
-
     function addFund(
         uint256 _numberOfRelease,
         uint256 _maxcap,
@@ -174,7 +171,7 @@ contract Content is ExtendsOwnable {
         require(getDistributionRate().add(_distributionRate) > 100);
 
         address contractAddress = new Fund(
-            address(this), writer, getPxlTokenAddress(), _numberOfRelease, _maxcap, _softcap,
+            address(this), writer, getCouncilAddress(), _numberOfRelease, _maxcap, _softcap,
             _startTime, _endTime, _distributionRate, _imagePath, _description);
 
         fund.push(contractAddress);
@@ -186,7 +183,7 @@ contract Content is ExtendsOwnable {
         contentOwner validString(_thumbnail)
     {
         address contractAddress = new Episode(
-            writer, _thumbnail, _price, address(this), getRoleManagerAddress());
+            writer, _thumbnail, _price, address(this), getCouncilAddress());
 
         episodes.push(contractAddress);
         emit CreateContract(msg.sender, contractAddress, "episode");
@@ -197,7 +194,7 @@ contract Content is ExtendsOwnable {
         view
         returns (address)
     {
-        return contentsManager.pxlToken();
+        return council.token();
     }
 
     function getRoleManagerAddress()
@@ -205,7 +202,7 @@ contract Content is ExtendsOwnable {
         view
         returns (address)
     {
-        return contentsManager.roleManager();
+        return council.roleManager();
     }
 
     function getCouncilAddress()
@@ -213,7 +210,7 @@ contract Content is ExtendsOwnable {
         view
         returns (address)
     {
-        return contentsManager.council();
+        return address(council);
     }
 
     function getEpisodeDetail()
@@ -297,8 +294,6 @@ contract Content is ExtendsOwnable {
         view
         returns (uint256)
     {
-        Council council = Council(contentsManager.council());
-
         uint256 returnRate;
         returnRate = returnRate.add(council.cdRate());
         returnRate = returnRate.add(council.deposit());

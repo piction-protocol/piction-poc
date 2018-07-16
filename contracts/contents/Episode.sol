@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/access/RoleManager.sol";
+import "contracts/council/Council.sol";
 import "contracts/contents/Content.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
@@ -20,7 +21,7 @@ contract Episode is ExtendsOwnable {
     uint256 public price;
     uint256 public buyCount;
     Content public content;
-    address public roleManager;
+    Council public council;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -44,12 +45,12 @@ contract Episode is ExtendsOwnable {
         string _thumbnail,
         uint256 _price,
         address _contentAddress,
-        address _roleManager
+        address _councilAddress
     ) public {
         require(bytes(_title).length > 0 && bytes(_thumbnail).length > 0);
         require(_writer != address(0) && _writer != address(this));
         require(_contentAddress != address(0) && _contentAddress != address(this));
-        require(_roleManager != address(0) && _roleManager != address(this));
+        require(_councilAddress != address(0) && _councilAddress != address(this));
 
         content = Content(_contentAddress);
         require(content.writer() == _writer);
@@ -58,7 +59,7 @@ contract Episode is ExtendsOwnable {
         writer = _writer;
         thumbnail = _thumbnail;
         price = _price;
-        roleManager = _roleManager;
+        council = Council(_councilAddress);
 
         emit RegisterContents(msg.sender, "initializing episode");
     }
@@ -177,7 +178,7 @@ contract Episode is ExtendsOwnable {
         external
         validAddress(_buyer)
     {
-        require(roleManager.isAccess(msg.sender, ROLE_NAME));
+        require(RoleManager(council.roleManager()).isAccess(msg.sender, ROLE_NAME));
         require(!buyUser[_buyer]);
         require(price == _amount);
 

@@ -10,9 +10,7 @@ contract ContentsManager is ExtendsOwnable {
     mapping (address => bool) isRegistered;
 
     address[] public cotentsAddress;
-    address public pxlToken;
     address public council;
-    address public roleManager;
 
     modifier validAddress(address _account) {
         require(_account != address(0));
@@ -20,24 +18,17 @@ contract ContentsManager is ExtendsOwnable {
         _;
     }
 
-    constructor(address _pxlToken, address _councilAddr, address _roleManagerAddr)
-        public
-    {
-        require(_pxlToken != address(0) && _pxlToken != address(this));
-        require(_councilAddr != address(0) && _councilAddr != address(this));
-        require(_roleManagerAddr != address(0) && _roleManagerAddr != address(this));
-
-        pxlToken = _pxlToken;
-        council = _councilAddr;
-        roleManager = _roleManagerAddr;
+    modifier validString(string _str) {
+        require(bytes(_str).length > 0);
+        _;
     }
 
-    function setPxlTokenAddress(address _pxlToken)
-        external
-        onlyOwner validAddress(_pxlToken)
+    constructor(address _councilAddr)
+        public
     {
-        pxlToken = _pxlToken;
-        emit ChangeExternalAddress(msg.sender, "pxl token");
+        require(_councilAddr != address(0) && _councilAddr != address(this));
+
+        council = _councilAddr;
     }
 
     function setCouncilAddress(address _councilAddr)
@@ -46,14 +37,6 @@ contract ContentsManager is ExtendsOwnable {
     {
         council = _councilAddress;
         emit ChangeExternalAddress(msg.sender, "council");
-    }
-
-    function setRoleManagerAddress(address _roleManagerAddr)
-        external
-        onlyOwner validAddress(_roleManagerAddr)
-    {
-        roleManager = _roleManagerAddr;
-        emit ChangeExternalAddress(msg.sender, "role manager");
     }
 
     function setChildContentsManagerAddress(uint256 _count, address _contentsMangerAddr)
@@ -81,10 +64,9 @@ contract ContentsManager is ExtendsOwnable {
         uint256 _marketerRate
     )
         external
-        onlyOwner validAddress(_contentsAddress)
+        onlyOwner validString(_title) validAddress(_writer) validString(_synopsis)
+        validString(_genres) validString(_thumbnail) validString(_titleImage)
     {
-        require(!isRegistered[_contentAddress]);
-
         Council council = Council(councilAddress);
 
         address contractAddress = new Content(
