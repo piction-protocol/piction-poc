@@ -11,6 +11,8 @@ contract Council is ExtendsOwnable {
     uint256 public cdRate;
     uint256 public deposit;
     address public token;
+    address public userPaybackPool;
+    uint256 public userPaybackRate;
     address public roleManager;
     address public contentManager;
 
@@ -28,16 +30,21 @@ contract Council is ExtendsOwnable {
     constructor(
         uint256 _cdRate,
         uint256 _deposit,
-        address _token
+        address _token,
+        address _userPaybackPool,
+        uint256 _userPaybackRate
     ) public {
-        require(_cdRate > 0 && _deposit > 0);
+        require(_cdRate > 0 && _deposit > 0 && _userPaybackRate > 0);
         require(_token != address(0) && _token != address(this));
+        require(_userPaybackPool != address(0) && _userPaybackPool != address(this));
 
         cdRate = _cdRate;
         deposit = _deposit;
         token = _token;
+        userPaybackPool = _userPaybackPool;
+        userPaybackRate = _userPaybackRate;
 
-        emit RegisterCouncil(msg.sender, _cdRate, _deposit, _token);
+        emit RegisterCouncil(msg.sender, _cdRate, _deposit, _token, _userPaybackPool, _userPaybackRate);
     }
 
     function setCdRate(uint256 _cdRate) external onlyOwner validRange(_cdRate) {
@@ -52,6 +59,18 @@ contract Council is ExtendsOwnable {
         emit ChangeDistributionRate(msg.sender, "deposit");
     }
 
+    function setUserPaybackPool(address _userPaybackPool) external onlyOwner validAddress(_userPaybackPool) {
+        userPaybackPool = _userPaybackPool;
+
+        emit ChangeAddress(msg.sender, "user payback pool", _userPaybackPool);
+    }
+
+    function setUserPaybackRate(address _userPaybackRate) external onlyOwner validRange(_userPaybackRate) {
+        userPaybackRate = _userPaybackRate;
+
+        emit ChangeDistributionRate(msg.sender, "user payback rate", _userPaybackRate);
+    }
+
     function setRoleManager(address _roleManager) external onlyOwner validAddress(_roleManager) {
         roleManager = _roleManager;
 
@@ -64,7 +83,7 @@ contract Council is ExtendsOwnable {
         emit ChangeAddress(msg.sender, "content manager", _contentManager);
     }
 
-    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, address _token);
+    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, address _token, address _userPaybackPool, uint256 _userPaybackRate);
     event ChangeDistributionRate(address _sender, string _name);
     event ChangeAddress(address _sender, string addressName, address _addr);
 }
