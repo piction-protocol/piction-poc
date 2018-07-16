@@ -22,17 +22,21 @@
     methods: {
       async onSubmit(form) {
         this.$loading('Uploading...');
-        let contrat = await this.$contract.content.deploy([
-          form.title,
-          this.$root.account,
-          form.synopsis,
-          form.genres,
-          form.thumbnail,
-          form.marketerRate,
-          form.translatorRate
-        ]);
+        try {
+          let contrat = await this.$contract.content.deploy([
+            form.title,
+            this.$root.account,
+            form.synopsis,
+            form.genres,
+            form.thumbnail,
+            form.marketerRate,
+            form.translatorRate
+          ]);
+          this.$router.push({name: 'show-content', params: {content_id: contrat._address}})
+        } catch (e) {
+          alert(e)
+        }
         this.$loading.close();
-        this.$router.push({name: 'show-content', params: {content_id: contrat._address}})
       },
     },
     created() {

@@ -23,17 +23,21 @@
     methods: {
       async onSubmit(form) {
         this.$loading('Uploading...');
-        await this.$contract.content.update([
-          form.title,
-          this.$root.account,
-          form.synopsis,
-          form.genres,
-          form.thumbnail,
-          form.marketerRate,
-          form.translatorRate
-        ]);
+        try {
+          await this.$contract.content.update([
+            form.title,
+            this.$root.account,
+            form.synopsis,
+            form.genres,
+            form.thumbnail,
+            form.marketerRate,
+            form.translatorRate
+          ]);
+          this.$router.push({name: 'show-content', params: {content_id: this.content_id}})
+        } catch (e) {
+          alert(e)
+        }
         this.$loading.close();
-        this.$router.push({name: 'show-content', params: {content_id: this.content_id}})
       },
     },
     created() {
