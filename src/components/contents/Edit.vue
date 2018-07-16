@@ -17,7 +17,7 @@
     props: ['content_id'],
     data() {
       return {
-        form: formData
+        form: formData()
       }
     },
     methods: {

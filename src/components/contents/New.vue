@@ -16,7 +16,7 @@
     components: {Form},
     data() {
       return {
-        form: formData,
+        form: formData(),
       }
     },
     methods: {

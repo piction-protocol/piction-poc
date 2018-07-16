@@ -1,10 +1,12 @@
-export const formData = {
-  title: null,
-  synopsis: null,
-  thumbnail: null,
-  genres: null,
-  marketerRate: 0,
-  translatorRate: 0,
+export function formData() {
+  return {
+    title: null,
+    synopsis: null,
+    thumbnail: null,
+    genres: null,
+    marketerRate: 0,
+    translatorRate: 0
+  }
 }
 
 export const genres = [
