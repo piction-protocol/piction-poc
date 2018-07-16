@@ -32,6 +32,8 @@ const router = new Router({
     {path: '/trends', name: 'trends', component: ContentIndex},
     // my
     {path: '/my', name: 'my', component: MyIndex},
+    // not found
+    {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
