@@ -71,7 +71,15 @@ contract ContentsManager is ExtendsOwnable {
         }
     }
 
-    function addContents()
+    function addContents(
+        string _title,
+        address _writer,
+        string _synopsis,
+        string _genres,
+        string _thumbnail,
+        string _titleImage,
+        uint256 _marketerRate
+    )
         external
         onlyOwner validAddress(_contentsAddress)
     {
