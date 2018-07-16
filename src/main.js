@@ -22,6 +22,9 @@ Vue.use(Toast);
 
 (async () => {
   const accounts = await web3.eth.getAccounts();
+  if(accounts.length == 0) {
+    alert('Log in to the Metamask.')
+  }
   const account = accounts[0].toLowerCase();
   Vue.use(PictionNetworkPlugin, {account: account});
   Vue.use(FirebasePlugin, {
