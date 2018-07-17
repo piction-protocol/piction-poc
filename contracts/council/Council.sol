@@ -14,7 +14,7 @@ contract Council is ExtendsOwnable {
     address public userPaybackPool;
     uint256 public userPaybackRate;
     address public roleManager;
-    address public contentManager;
+    address public contentsManager;
 
     modifier validRange(uint256 _value) {
         require(_value > 0);
@@ -77,10 +77,10 @@ contract Council is ExtendsOwnable {
         emit ChangeAddress(msg.sender, "role manager", _roleManager);
     }
 
-    function setContentManager(address _contentManager) external onlyOwner validAddress(_contentManager) {
-        contentManager = _contentManager;
+    function setContentsManager(address _contentsManager) external onlyOwner validAddress(_contentsManager) {
+        contentsManager = _contentsManager;
 
-        emit ChangeAddress(msg.sender, "content manager", _contentManager);
+        emit ChangeAddress(msg.sender, "contents manager", _contentsManager);
     }
 
     event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, address _token, address _userPaybackPool, uint256 _userPaybackRate);
