@@ -9,7 +9,8 @@ import "contracts/utils/ExtendsOwnable.sol";
  */
 contract Council is ExtendsOwnable {
     uint256 public cdRate;
-    uint256 public deposit;
+    uint256 public depositRate;
+    uint256 public initialDeposit;
     address public token;
     address public userPaybackPool;
     uint256 public userPaybackRate;
@@ -29,22 +30,27 @@ contract Council is ExtendsOwnable {
 
     constructor(
         uint256 _cdRate,
-        uint256 _deposit,
+        uint256 _depositRate,
+        uint256 _initialDeposit,
         address _token,
         address _userPaybackPool,
-        uint256 _userPaybackRate
-    ) public {
-        require(_cdRate > 0 && _deposit > 0 && _userPaybackRate > 0);
-        require(_token != address(0) && _token != address(this));
-        require(_userPaybackPool != address(0) && _userPaybackPool != address(this));
-
+        uint256 _userPaybackRate)
+        public
+        validRange(_cdRate)
+        validRange(_depositRate)
+        validRange(_initialDeposit)
+        validRange(_userPaybackRate)
+        validAddress(_token)
+        validAddress(_userPaybackPool)
+    {
         cdRate = _cdRate;
-        deposit = _deposit;
+        depositRate = _depositRate;
+        initialDeposit = _initialDeposit;
         token = _token;
         userPaybackPool = _userPaybackPool;
         userPaybackRate = _userPaybackRate;
 
-        emit RegisterCouncil(msg.sender, _cdRate, _deposit, _token, _userPaybackPool, _userPaybackRate);
+        emit RegisterCouncil(msg.sender, _cdRate, _depositRate, _initialDeposit, _token, _userPaybackPool, _userPaybackRate);
     }
 
     function setCdRate(uint256 _cdRate) external onlyOwner validRange(_cdRate) {
@@ -53,10 +59,16 @@ contract Council is ExtendsOwnable {
         emit ChangeDistributionRate(msg.sender, "cd rate", _cdRate);
     }
 
-    function setDeposit(uint256 _deposit) external onlyOwner validRange(_deposit) {
-        deposit = _deposit;
+    function setDepositRate(uint256 _depositRate) external onlyOwner validRange(_depositRate) {
+        depositRate = _depositRate;
 
-        emit ChangeDistributionRate(msg.sender, "deposit", _deposit);
+        emit ChangeDistributionRate(msg.sender, "deposit rate", _depositRate);
+    }
+
+    function setInitialDeposit(uint256 _initialDeposit) external onlyOwner validRange(_initialDeposit) {
+        initialDeposit = _initialDeposit;
+
+        emit ChangeDistributionRate(msg.sender, "initial deposit", _initialDeposit);
     }
 
     function setUserPaybackPool(address _userPaybackPool) external onlyOwner validAddress(_userPaybackPool) {
@@ -83,7 +95,7 @@ contract Council is ExtendsOwnable {
         emit ChangeAddress(msg.sender, "contents manager", _contentsManager);
     }
 
-    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, address _token, address _userPaybackPool, uint256 _userPaybackRate);
+    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, uint256 _initialDeposit, address _token, address _userPaybackPool, uint256 _userPaybackRate);
     event ChangeDistributionRate(address _sender, string _name, uint256 _value);
     event ChangeAddress(address _sender, string addressName, address _addr);
 }
