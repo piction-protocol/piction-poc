@@ -25,8 +25,8 @@ contract SponsorshipPool {
     address contentAddress;
     //작가주소
     address writerAddress;
-    //픽셀주소
-    ERC20 pxlToken;
+    //위원회 주소
+    address councilAddress;
     //참여한 서포터 목록
     Supporter[] supports;
     //모집된 금액
@@ -57,7 +57,7 @@ contract SponsorshipPool {
     {
         contentAddress = _contentAddress;
         writerAddress = _writerAddress;
-        pxlToken = ERC20(Council(_councilAddress).token());
+        councilAddress = _councilAddress;
         countOfRelease = _countOfRelease;
         originCountOfRelease = _countOfRelease;
         lastReleaseTime = _fundEndTime;
@@ -99,13 +99,14 @@ contract SponsorshipPool {
         require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
         require(countOfRelease >= releasedCount);
         uint256 releaseAmount = fundRise.div(originCountOfRelease);
-        require(pxlToken.balanceOf(address(this)) >= releaseAmount);
+        ERC20 token = ERC20(Council(councilAddress).token());
+        require(token.balanceOf(address(this)) >= releaseAmount);
 
         if (getInterruptVoteRate() >= 50) {
             countOfRelease = countOfRelease.add(1);
             emit ReleaseMonthly(false);
         } else {
-            pxlToken.safeTransfer(writerAddress, releaseAmount);
+            token.safeTransfer(writerAddress, releaseAmount);
             emit ReleaseMonthly(true);
         }
         releasedCount = releasedCount.add(1);

@@ -73,7 +73,8 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
 
     function support(address _from, uint256 _value, address _token) private {
         require(isOnFunding());
-        require(address(pxlToken) == _token);
+        ERC20 token = ERC20(Council(councilAddress).token());
+        require(address(token) == _token);
         require(fundRise < maxcap);
 
         uint256 supportAmount;
@@ -81,11 +82,11 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         (supportAmount, refundAmount) = getSupportDetail(maxcap, fundRise, _value);
 
         if(supportAmount > 0) {
-            pxlToken.safeTransferFrom(_from, address(this), supportAmount);
+            token.safeTransferFrom(_from, address(this), supportAmount);
         }
 
         if (refundAmount > 0) {
-            pxlToken.safeTransferFrom(_from, _from, refundAmount);
+            token.safeTransferFrom(_from, _from, refundAmount);
         }
 
         bool already = false;
@@ -120,6 +121,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         require(softcap > fundRise);
         require(endTime <= block.timestamp.getMs());
 
+        ERC20 token = ERC20(Council(councilAddress).token());
         uint256 succeed = 0;
         for(uint i = 0; i < supports.length; i++) {
             if (!supports[i].refund && succeed < _count)
@@ -127,7 +129,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
                 require(fundRise >= supports[i].investment);
 
                 supports[i].refund = true;
-                pxlToken.safeTransfer(supports[i].user, supports[i].investment);
+                token.safeTransfer(supports[i].user, supports[i].investment);
                 succeed = succeed.add(1);
 
                 emit Refund(supports[i].user, supports[i].investment, "refund");
@@ -137,13 +139,10 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
 
     function isOnFunding() public view returns (bool) {
         if (startTime <= block.timestamp.getMs()
-            && endTime >= block.timestamp.getMs())
+            && endTime >= block.timestamp.getMs()
+            && fundRise < maxcap)
         {
-            if (fundRise < maxcap) {
-                return true;
-            } else {
-                return false;
-            }
+            return true;
         } else {
             return false;
         }
