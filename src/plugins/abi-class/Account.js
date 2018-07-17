@@ -1,8 +1,7 @@
-import Contract from './Contract'
-
-class Account extends Contract {
+class Account {
   constructor(abi, address, from) {
-    super(abi, address, from);
+    this._contract = new web3.eth.Contract(abi, address);
+    this._contract.options.from = from;
   }
 
   getUserName(address) {
@@ -15,6 +14,10 @@ class Account extends Contract {
 
   createAccount(userName) {
     return this._contract.methods.createAccount(userName).send();
+  }
+
+  clone() {
+    return this._contract.clone();
   }
 }
 

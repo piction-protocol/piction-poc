@@ -1,34 +1,33 @@
 <template>
   <div>
-    <Comic v-for="comic in comics"
-           :comic="comic"
-           :key="comic.id"/>
+    <ContentItem v-for="content in contents"
+           :content="content"
+           :key="content.id"/>
   </div>
 </template>
 
 <script>
-  import Comic from './Comic'
+  import ContentItem from './ContentItem'
 
   export default {
-    name: 'Comics',
-    components: {Comic},
+    components: {ContentItem},
     data() {
       return {
-        comics: [],
+        contents: [],
       }
     },
     methods: {},
     created() {
       Array(20).fill().forEach((obj, index) => {
         let id = index + 1;
-        let comic = {
+        let content = {
           id: id,
           title: `Comic ${id}`,
           thumbnail: `http://images.battlecomics.co.kr/webtoon/677/image/image-webtoonid_677-w_720-h_360-t_20171108144640.jpg`,
           description: `Description ${id}`,
           writer: `skkwon`
         }
-        this.comics.push(comic);
+        this.contents.push(content);
       });
     }
   }

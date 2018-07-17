@@ -1,23 +1,39 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Comics from '@/components/comics/Comics'
-import PostComics from '@/components/post-comics/PostComics'
-import Episodes from '@/components/episodes/Episodes'
-import Viewer from '@/components/viewer/Viewer'
-import My from '@/components/my/My'
+// contents
+import ContentIndex from '@/components/contents/Index'
+import ContentNew from '@/components/contents/New'
+import ContentShow from '@/components/contents/Show'
+import ContentEdit from '@/components/contents/Edit'
+// episodes
+import EpisodeIndex from '@/components/episodes/Index'
+// viewer
+import ViewerIndex from '@/components/viewer/Index'
+// my
+import MyIndex from '@/components/my/Index'
 
 Vue.use(Router)
 
 const router = new Router({
   mode: 'history',
   routes: [
-    {path: '/', redirect: '/comics'},
-    {path: '/comics', name: 'comics', component: Comics},
-    {path: '/comics/posts', name: 'post-comics', component: PostComics},
-    {path: '/comics/:comic_id', name: 'episodes', component: Episodes, props: true},
-    {path: '/comics/:comic_id/episodes/:episode_id', name: 'viewer', component: Viewer, props: true},
-    {path: '/trends', name: 'trends', component: Comics},
-    {path: '/my', name: 'my', component: My},
+    {path: '/', redirect: '/contents'},
+    // contents
+    {path: '/contents', name: 'contents', component: ContentIndex},
+    {path: '/contents/new', name: 'new-content', component: ContentNew},
+    {path: '/contents/:content_id/show', name: 'show-content', component: ContentShow, props: true},
+    {path: '/contents/:content_id/edit', name: 'edit-content', component: ContentEdit, props: true},
+    // episodes
+    {path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'},
+    {path: '/contents/:content_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
+    // viewer
+    {path: '/contents/:content_id/episodes/:episode_id', name: 'viewer', component: ViewerIndex, props: true},
+    // trends
+    {path: '/trends', name: 'trends', component: ContentIndex},
+    // my
+    {path: '/my', name: 'my', component: MyIndex},
+    // not found
+    {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {

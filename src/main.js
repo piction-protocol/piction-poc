@@ -6,6 +6,7 @@ web3 = new Web3(web3.currentProvider);
 import Vue from 'vue'
 import App from './App'
 import PictionNetworkPlugin from './plugins/piction-network-plugin'
+import FirebasePlugin from './plugins/firebase-plugin'
 import router from './router'
 import store from './store'
 import BootstrapVue from 'bootstrap-vue'
@@ -21,8 +22,19 @@ Vue.use(Toast);
 
 (async () => {
   const accounts = await web3.eth.getAccounts();
+  if(accounts.length == 0) {
+    alert('Log in to the Metamask.')
+  }
   const account = accounts[0].toLowerCase();
   Vue.use(PictionNetworkPlugin, {account: account});
+  Vue.use(FirebasePlugin, {
+    apiKey: "AIzaSyAmq4aDivflyokSUzdDCPmmKBu_3LFTmkU",
+    authDomain: "battlecomics-dev.firebaseapp.com",
+    databaseURL: "https://battlecomics-dev.firebaseio.com",
+    projectId: "battlecomics-dev",
+    storageBucket: "battlecomics-dev.appspot.com",
+    messagingSenderId: "312406426508"
+  });
 
   /* eslint-disable no-new */
   new Vue({

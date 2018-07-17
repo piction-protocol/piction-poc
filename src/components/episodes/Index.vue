@@ -1,28 +1,27 @@
 <template>
   <div>
     <b-breadcrumb :items="items"/>
-    <Episode v-for="episode in episodes"
+    <EpisodeItem v-for="episode in episodes"
              :episode="episode"
-             :comic_id="comic_id"
+             :content_id="content_id"
              :key="episode.id"/>
   </div>
 </template>
 
 <script>
-  import Episode from './Episode'
+  import EpisodeItem from './EpisodeItem'
 
   export default {
-    name: 'Episodes',
-    props: ['comic_id'],
-    components: {Episode},
+    props: ['content_id'],
+    components: {EpisodeItem},
     data() {
       return {
         episodes: [],
         items: [{
           text: 'Comics',
-          to: {name: 'comics'}
+          to: {name: 'contents'}
         }, {
-          text: `Comic ${this.comic_id}`,
+          text: `Comic ${this.content_id}`,
           active: true
         }]
       }

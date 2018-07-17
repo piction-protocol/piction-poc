@@ -8,47 +8,82 @@ import "contracts/utils/ExtendsOwnable.sol";
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
 contract Council is ExtendsOwnable {
-    uint256 public cpRate;
-    uint256 public translatorRate;
+    uint256 public cdRate;
     uint256 public deposit;
+    address public token;
+    address public userPaybackPool;
+    uint256 public userPaybackRate;
+    address public roleManager;
+    address public contentManager;
 
     modifier validRange(uint256 _value) {
         require(_value > 0);
         _;
     }
 
+    modifier validAddress(address _account) {
+        require(_account != address(0));
+        require(_account != address(this));
+        _;
+    }
+
     constructor(
-        uint256 _cpRate,
-        uint256 _translatorRate,
-        uint256 _deposit
+        uint256 _cdRate,
+        uint256 _deposit,
+        address _token,
+        address _userPaybackPool,
+        uint256 _userPaybackRate
     ) public {
-        require(_cpRate > 0 && _translatorRate > 0 && _deposit > 0);
+        require(_cdRate > 0 && _deposit > 0 && _userPaybackRate > 0);
+        require(_token != address(0) && _token != address(this));
+        require(_userPaybackPool != address(0) && _userPaybackPool != address(this));
 
-        cpRate = _cpRate;
-        translatorRate = _translatorRate;
+        cdRate = _cdRate;
         deposit = _deposit;
+        token = _token;
+        userPaybackPool = _userPaybackPool;
+        userPaybackRate = _userPaybackRate;
 
-        emit RegisterCouncil(msg.sender, _cpRate, _translatorRate, _deposit);
+        emit RegisterCouncil(msg.sender, _cdRate, _deposit, _token, _userPaybackPool, _userPaybackRate);
     }
 
-    function setCpRate(uint256 _cpRate) external onlyOwner validRange(_cpRate) {
-        cpRate = _cpRate;
+    function setCdRate(uint256 _cdRate) external onlyOwner validRange(_cdRate) {
+        cdRate = _cdRate;
 
-        emit ChangeDistributionRate(msg.sender, "cp rate");
-    }
-
-    function setTranslatorRate(uint256 _translatorRate) external onlyOwner validRange(_translatorRate) {
-        translatorRate = _translatorRate;
-
-        emit ChangeDistributionRate(msg.sender, "translator rate");
+        emit ChangeDistributionRate(msg.sender, "cd rate", _cdRate);
     }
 
     function setDeposit(uint256 _deposit) external onlyOwner validRange(_deposit) {
         deposit = _deposit;
 
-        emit ChangeDistributionRate(msg.sender, "deposit");
+        emit ChangeDistributionRate(msg.sender, "deposit", _deposit);
     }
 
-    event RegisterCouncil(address _addr, uint256 _cpRate, uint256 _translatorRate, uint256 _deposit);
-    event ChangeDistributionRate(address _addr, string _name);
+    function setUserPaybackPool(address _userPaybackPool) external onlyOwner validAddress(_userPaybackPool) {
+        userPaybackPool = _userPaybackPool;
+
+        emit ChangeAddress(msg.sender, "user payback pool", _userPaybackPool);
+    }
+
+    function setUserPaybackRate(uint256 _userPaybackRate) external onlyOwner validRange(_userPaybackRate) {
+        userPaybackRate = _userPaybackRate;
+
+        emit ChangeDistributionRate(msg.sender, "user payback rate", _userPaybackRate);
+    }
+
+    function setRoleManager(address _roleManager) external onlyOwner validAddress(_roleManager) {
+        roleManager = _roleManager;
+
+        emit ChangeAddress(msg.sender, "role manager", _roleManager);
+    }
+
+    function setContentManager(address _contentManager) external onlyOwner validAddress(_contentManager) {
+        contentManager = _contentManager;
+
+        emit ChangeAddress(msg.sender, "content manager", _contentManager);
+    }
+
+    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, address _token, address _userPaybackPool, uint256 _userPaybackRate);
+    event ChangeDistributionRate(address _sender, string _name, uint256 _value);
+    event ChangeAddress(address _sender, string addressName, address _addr);
 }
