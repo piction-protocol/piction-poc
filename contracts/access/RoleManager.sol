@@ -11,7 +11,7 @@ contract RoleManager is Ownable, RBAC {
     addRole(_operator, _roleName);
   }
 
-  function isAccessRole(address _operator, string _roleName)
+  function isAccess(address _operator, string _roleName)
     public
     view
     returns (bool)

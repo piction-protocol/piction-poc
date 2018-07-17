@@ -2,25 +2,24 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-//import "contracts/contents/Episode.sol";
-//import "contracts/supporter/Fundraising.sol";
-//import "contracts/supporter/Supporters.sol";
+import "contracts/contents/Episode.sol";
+import "contracts/council/Council.sol";
+import "contracts/supporter/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
 contract Content is ExtendsOwnable {
     using SafeMath for uint256;
 
-    string public name;
+    string public title;
     address public writer;
     string public synopsis;
     string public genres;
+    string public thumbnail;
     string public titleImage;
-//    Fundraising public fundraising;
-//    Supporters public supporters;
+    address[] public fund;
     uint256 public marketerRate;
-    uint256 public translatorRate;
-//    Episode[] public episodes;
-//    TranslatorContent[] public translators;
+    address[] public episodes;
+    Council public council;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -39,138 +38,222 @@ contract Content is ExtendsOwnable {
     }
 
     constructor(
-        string _name,
+        string _title,
         address _writer,
         string _synopsis,
         string _genres,
+        string _thumbnail,
         string _titleImage,
         uint256 _marketerRate,
-        uint256 _translatorRate
-    ) public {
-        require(bytes(_name).length > 0 && bytes(_titleImage).length > 0 && bytes(_genres).length > 0);
-        require(_writer != address(0) && _writer != address(this));
-
-        name = _name;
+        address _councilAddress
+    )
+        public
+        validAddress(_writer) validString(_title) validAddress(_synopsis)
+        validString(_thumbnail) validString(_titleImage) validAddress(_councilAddress)
+    {
+        title = _title;
         writer = _writer;
         synopsis = _synopsis;
         genres = _genres;
+        thumbnail = _thumbnail;
         titleImage = _titleImage;
-        marketerRate = _marketerRate;
-        translatorRate = _translatorRate;
+        council = Council(_councilAddress);
 
         emit RegisterContents(msg.sender, "initializing content");
     }
 
-    function resetContent(
-        string _name,
+    function updateContent(
+        string _title,
         address _writer,
         string _synopsis,
         string _genres,
+        string _thumbnail,
         string _titleImage,
-        uint256 _marketerRate,
-        uint256 _translatorRate
-    ) external contentOwner validAddress(_writer) {
-        require(bytes(_name).length > 0 && bytes(_titleImage).length > 0 && bytes(_genres).length > 0);
-
-        name = _name;
+        uint256 _marketerRate
+    )
+        external
+        contentOwner validAddress(_writer) validString(_title)
+        validString(_titleImage) validString(_genres) validString(_thumbnail)
+    {
+        title = _title;
         writer = _writer;
         synopsis = _synopsis;
         genres = _genres;
+        thumbnail = _thumbnail;
         titleImage = _titleImage;
         marketerRate = _marketerRate;
-        translatorRate = _translatorRate;
 
-        emit RegisterContents(msg.sender, "reset content");
+        emit RegisterContents(msg.sender, "update content");
     }
-/*
-    function addSupporter(address _supporterAddr) external contentOwner validAddress(_supporterAddr) {
-        supporters.push(Supporters(_supporterAddr));
-        emit ChangeExternalAddress(_supporterAddr, "add supporter address");
-    } */
 
-    function setWriter(address _writerAddr) external contentOwner validAddress(_writerAddr) {
+    function setCouncil(address _councilAddress)
+        external
+        onlyOwner validAddress(_councilAddress)
+    {
+        council = Council(_councilAddress);
+        emit ChangeExternalAddress(msg.sender, "council");
+    }
+
+    function setWriter(address _writerAddr)
+        external
+        contentOwner validAddress(_writerAddr)
+    {
         writer = _writerAddr;
         emit ChangeExternalAddress(writer, "writer");
     }
 
-    /* function setFundraising(address _funraisingAddr) external contentOwner validAddress(_writerAddr) {
-        fundraising = Fundraising(_funraisingAddr);
-        emit ChangeExternalAddress(_funraisingAddr, "fundraising");
-    } */
+    function addFund(
+        uint256 _numberOfRelease,
+        uint256 _maxcap,
+        uint256 _softcap,
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256 _distributionRate,
+        string _imagePath,
+        string _description
+    )
+        external
+        contentOwner validString(_imagePath) validString(_description)
+    {
+        require(getDistributionRate().add(_distributionRate) > 100);
 
-    function setContentName(string _name) external contentOwner validString(_name) {
-        name = _name;
-        emit ChangeContentDescription(msg.sender, "content name");
+        address contractAddress = new Fund(
+            address(this), writer, getCouncilAddress(), _numberOfRelease, _maxcap, _softcap,
+            _startTime, _endTime, _distributionRate, _imagePath, _description);
+
+        fund.push(contractAddress);
+        emit CreateFund(msg.sender, contractAddress);
     }
 
-    function setSynopsis(string _synopsis) external contentOwner validString(_synopsis) {
-        synopsis = _synopsis;
-        emit ChangeContentDescription(msg.sender, "synopsis");
+    function addEpisode(string, _title, string _thumbnail, uint256 _price)
+        external
+        contentOwner validString(_thumbnail) validString(_title);
+    {
+        address contractAddress = new Episode(
+            _title, writer, _thumbnail, _price, address(this), getCouncilAddress());
+
+        episodes.push(contractAddress);
+        emit CreateEpisode(msg.sender, contractAddress);
     }
 
-    function setGenres(string _genres) external contentOwner validString(_genres) {
-        genres = _genres;
-        emit ChangeContentDescription(msg.sender, "genres");
+    function getPxlTokenAddress()
+        public
+        view
+        returns (address)
+    {
+        return council.token();
     }
 
-    function setTitleImage(string _imagePath) external contentOwner validString(_imagePath) {
-        titleImage = _imagePath;
-        emit ChangeContentDescription(msg.sender, "title image");
+    function getRoleManagerAddress()
+        public
+        view
+        returns (address)
+    {
+        return council.roleManager();
     }
 
-    function setMarketerRate(uint256 _marketerRate) external contentOwner {
-        marketerRate = _marketerRate;
-        emit ChangeDistributionRate(msg.sender, "marketer rate");
+    function getCouncilAddress()
+        public
+        view
+        returns (address)
+    {
+        return address(council);
     }
 
-    function setTranslatorRate(uint256 _translatorRate) external contentOwner {
-        translatorRate = _translatorRate;
-        emit ChangeDistributionRate(msg.sender, "translator rate");
-    }
-
-    /* function addEpisode(address _episodeAddr) external contentOwner {
-        episodes.push(Episode(_episodeAddr));
-        emit RegisterContents(msg.sender, "episode");
-    }
-
-    function addTranslatorContent(address _translatorAddr) external contentOwner {
-        translators.push(TranslatorContent(_translatorAddr));
-        emit RegisterContents(msg.sender, "translator contents");
-    }
-
-    function getSupportersAddress() public view return (address) {
-        return address(supporters);
-    }
-
-    function getEpisodeList() public view return (address[], string[], string[], uint256[]) {
+    function getEpisodeDetail()
+        public
+        view
+        returns (address[], string[], string[], uint256[])
+    {
         uint256 arrayLength = episodes.length;
         address[] memory episodeAddress = new address[](arrayLength);
-        string[] memory episodeNames = new string[](arrayLength);
-        string[] memory episodeTitleImages = new string[](arrayLength);
+        string[] memory episodeTitles = new string[](arrayLength);
+        string[] memory episodeThumbnail = new string[](arrayLength);
         uint256[] memory episodePrices = new uint256[](arrayLength);
 
         for(uint256 i = 0 ; i < arrayLength ; i++) {
-            episodeAddress[i] = address(episodes[i]);
-            episodeNames[i] = episodes[i].name();
-            episodeTitleImages[i] = episode[i].titleImage();
-            episodePrices[i] = episode[i].price();
+            Episode episode = Episode(episodes[i]);
+            episodeAddress[i] = address(episode);
+            episodeTitles[i] = episode.title();
+            episodeThumbnail[i] = episode.titleImage();
+            episodePrices[i] = episode.price();
         }
 
-        return (episodeAddress, episodeNames, episodeTitleImages, episodePrices);
+        return (episodeAddress, episodeTitles, episodeThumbnail, episodePrices);
     }
 
-    function getTranslationLanguageList() public view return (string[]) {
-        string[] memory translationLanguages = new string[](translators.length);
-
-        for(uint256 i = 0 ; i < translators.length ; i++) {
-            translationLanguages[i] = translators[i].language;
+    function getTotalPurchasedPxlAmount()
+        public
+        view
+        returns (uint256)
+    {
+        uint256 amount;
+        for(uint256 i = 0 ; i < episodes.length ; i++) {
+            amount = amount.add(episodes[i].getPurchasedAmount());
         }
+        return amount;
+    }
 
-        return translationLanguages;
-    } */
+    function isFunding()
+        public
+        view
+        returns (bool)
+    {
+        return fund[fund.length - 1].isOnFunding();
+    }
 
-    event ChangeExternalAddress(address _addr, string _name);
-    event ChangeDistributionRate(address _addr, string _name);
-    event ChangeContentDescription(address _addr, string _name);
-    event RegisterContents(address _addr, string _name);
+    function getFundDistributeAmount()
+        public
+        view
+        returns (address[], uint256[])
+    {
+        if(fund.length == 0) {
+            return (new address[](0), new uint256[](0));
+        } else {
+            uint256 arrayLength;
+            for(uint256 i = 0 ; i < fund.length ; i++) {
+                arrayLength = arrayLength.add(fund[i].supports().length);
+            }
+
+            address[] memory supporter = new address[](arrayLength);
+            uint256[] memory pxlAmount = new uint256[](arrayLength);
+
+
+            for(uint256 i = 0 ; i < fund.length ; i++) {
+                address[] memory tempAddress = new address[](fund[i].supports().length);
+                uint256[] memory tempAmount = new uint256[](fund[i].supports().length);
+
+                (tempAddress, tempAmount) = fund[i].getDistributeAmount();
+
+                uint256 idx;
+                for(uint256 j = 0 ; j < fund[i].supports().length ; j ++) {
+                    supporter[idx] = tempAddress[j];
+                    pxlAmount[idx] = tempAmount[j];
+                    idx = idx.add(1);
+                }
+            }
+            return (supporter, pxlAmount);
+        }
+    }
+
+    function getDistributionRate()
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 returnRate;
+        returnRate = returnRate.add(council.cdRate());
+        returnRate = returnRate.add(council.deposit());
+        returnRate = returnRate.add(council.userPaybackRate());
+
+        for(uint256 i = 0 ; i < fund.length ; i++){
+            returnRate = returnRate.add(fund[i].distributionRate());
+        }
+        return returnRate;
+    }
+
+    event RegisterContents(address _sender, string _name);
+    event CreateFund(address _sender, address _contractAddr);
+    event CreateEpisode(address _sender, address _contractAddr);
+    event ChangeExternalAddress(address _sender, string _name);
 }
