@@ -53,6 +53,7 @@ contract SponsorshipPool {
         uint256 _countOfRelease,
         uint256 _fundEndTime,
         uint256 _distributionRate)
+        public
     {
         contentAddress = _contentAddress;
         writerAddress = _writerAddress;
@@ -71,6 +72,8 @@ contract SponsorshipPool {
             if (supports[i].user == msg.sender) {
                 supports[i].voteResult[releasedCount] = _interrupt;
                 success = true;
+
+                emit Voting(msg.sender, _interrupt);
             }
         }
 
@@ -100,8 +103,10 @@ contract SponsorshipPool {
 
         if (getInterruptVoteRate() >= 50) {
             countOfRelease = countOfRelease.add(1);
+            emit ReleaseMonthly(false);
         } else {
             pxlToken.safeTransfer(writerAddress, releaseAmount);
+            emit ReleaseMonthly(true);
         }
         releasedCount = releasedCount.add(1);
         lastReleaseTime = lastReleaseTime.add(releaseInterval);
@@ -115,7 +120,7 @@ contract SponsorshipPool {
         return total;
     }
 
-    function getDistributeAmount(uint256 _total) external returns(address, uint256) {
+    function getDistributeAmount(uint256 _total) external view returns(address[], uint256[]) {
         require(msg.sender == contentAddress);
         if (supports.length == 0) {
             return (new address[](0), new uint256[](0));
@@ -165,4 +170,7 @@ contract SponsorshipPool {
         }
         return (user, investment, supportRefund);
     }
+
+    event Voting(address user, bool interrupt);
+    event ReleaseMonthly(bool success);
 }
