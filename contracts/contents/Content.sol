@@ -48,12 +48,9 @@ contract Content is ExtendsOwnable {
         address _councilAddress
     )
         public
+        validAddress(_writer) validString(_title) validAddress(_synopsis)
+        validString(_thumbnail) validString(_titleImage) validAddress(_councilAddress)
     {
-        require(bytes(_title).length > 0 && bytes(_titleImage).length > 0 &&
-            bytes(_genres).length > 0 && bytes(_thumbnail).length > 0);
-        require(_writer != address(0) && _writer != address(this));
-        require(_councilAddress != address(0) && _councilAddress != address(this));
-
         title = _title;
         writer = _writer;
         synopsis = _synopsis;
@@ -86,7 +83,7 @@ contract Content is ExtendsOwnable {
         titleImage = _titleImage;
         marketerRate = _marketerRate;
 
-        emit RegisterContents(msg.sender, "reset content");
+        emit RegisterContents(msg.sender, "update content");
     }
 
     function setCouncil(address _councilAddress)
@@ -103,56 +100,6 @@ contract Content is ExtendsOwnable {
     {
         writer = _writerAddr;
         emit ChangeExternalAddress(writer, "writer");
-    }
-
-    function setContentTitle(string _title)
-        external
-        contentOwner validString(_title)
-    {
-        title = _title;
-        emit ChangeContentDescription(msg.sender, "content title");
-    }
-
-    function setSynopsis(string _synopsis)
-        external
-        contentOwner validString(_synopsis)
-    {
-        synopsis = _synopsis;
-        emit ChangeContentDescription(msg.sender, "synopsis");
-    }
-
-    function setGenres(string _genres)
-        external
-        contentOwner validString(_genres)
-    {
-        genres = _genres;
-        emit ChangeContentDescription(msg.sender, "genres");
-    }
-
-    function setTitleImage(string _imagePath)
-        external
-        contentOwner
-        validString(_imagePath)
-    {
-        titleImage = _imagePath;
-        emit ChangeContentDescription(msg.sender, "title image");
-    }
-
-    function setThumbnail(string _imagePath)
-        external
-        contentOwner
-        validString(_thumbnail)
-    {
-        thumbnail = _imagePath;
-        emit ChangeContentDescription(msg.sender, "thumbnail");
-    }
-
-    function setMarketerRate(uint256 _marketerRate)
-        external
-        contentOwner
-    {
-        marketerRate = _marketerRate;
-        emit ChangeDistributionRate(msg.sender, "marketer rate");
     }
 
     function addFund(
@@ -175,18 +122,18 @@ contract Content is ExtendsOwnable {
             _startTime, _endTime, _distributionRate, _imagePath, _description);
 
         fund.push(contractAddress);
-        emit CreateContract(msg.sender, contractAddress, "fund");
+        emit CreateFund(msg.sender, contractAddress);
     }
 
-    function addEpisode(string _thumbnail, uint256 _price)
+    function addEpisode(string, _title, string _thumbnail, uint256 _price)
         external
-        contentOwner validString(_thumbnail)
+        contentOwner validString(_thumbnail) validString(_title);
     {
         address contractAddress = new Episode(
-            writer, _thumbnail, _price, address(this), getCouncilAddress());
+            _title, writer, _thumbnail, _price, address(this), getCouncilAddress());
 
         episodes.push(contractAddress);
-        emit CreateContract(msg.sender, contractAddress, "episode");
+        emit CreateEpisode(msg.sender, contractAddress);
     }
 
     function getPxlTokenAddress()
@@ -305,9 +252,8 @@ contract Content is ExtendsOwnable {
         return returnRate;
     }
 
-    event ChangeExternalAddress(address _sender, string _name);
-    event ChangeDistributionRate(address _sender, string _name);
-    event ChangeContentDescription(address _sender, string _name);
     event RegisterContents(address _sender, string _name);
-    event CreateContract(address _sender, address _contractAddr, string _contractName);
+    event CreateFund(address _sender, address _contractAddr);
+    event CreateEpisode(address _sender, address _contractAddr);
+    event ChangeExternalAddress(address _sender, string _name);
 }

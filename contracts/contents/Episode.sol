@@ -46,12 +46,11 @@ contract Episode is ExtendsOwnable {
         uint256 _price,
         address _contentAddress,
         address _councilAddress
-    ) public {
-        require(bytes(_title).length > 0 && bytes(_thumbnail).length > 0);
-        require(_writer != address(0) && _writer != address(this));
-        require(_contentAddress != address(0) && _contentAddress != address(this));
-        require(_councilAddress != address(0) && _councilAddress != address(this));
-
+    )
+        public
+        validAddress(_writer) validString(_title) validString(_thumbnail)
+        validAddress(_contentAddress) validAddress(_councilAddress)
+    {
         content = Content(_contentAddress);
         require(content.writer() == _writer);
 
@@ -84,14 +83,6 @@ contract Episode is ExtendsOwnable {
         emit RegisterContents(msg.sender, "update episode");
     }
 
-    function setTitle(string _title)
-        external
-        contentOwner validString(_title)
-    {
-        title = _title;
-        emit ChangeContentDescription(msg.sender, "episode title");
-    }
-
     function setWriter(address _writerAddr)
         external
         contentOwner validAddress(_writerAddr)
@@ -102,22 +93,6 @@ contract Episode is ExtendsOwnable {
         emit ChangeExternalAddress(msg.sender, "writer");
     }
 
-    function setThumbnail(string _imagePath)
-        external
-        contentOwner validString(_imagePath)
-    {
-        thumbnail = _imagePath;
-        emit ChangeContentDescription(msg.sender, "title image");
-    }
-
-    function setPrice(uint256 _price)
-        external
-        contentOwner
-    {
-        price = _price;
-        emit ChangeContentDescription(msg.sender, "price");
-    }
-
     function setUrls(string[] _urls)
         external
         contentOwner
@@ -125,7 +100,7 @@ contract Episode is ExtendsOwnable {
         require(_urls.length > 0);
 
         url = _url;
-        emit ChangeContentDescription(msg.sender, "image urls");
+        emit AddEpisodeImages(msg.sender, url.length);
     }
 
     function changeUrl(uint256 _idx, string _url)
@@ -135,7 +110,7 @@ contract Episode is ExtendsOwnable {
         require(url.length > _idx);
 
         url[_idx] = _url;
-        emit ChangeContentDescription(msg.sender, "change image");
+        emit ChangeEpisodeImage(msg.sender, _idx);
     }
 
     function setContentAddress(address _addr)
@@ -188,9 +163,9 @@ contract Episode is ExtendsOwnable {
         emit EpisodePurchase(msg.sender, _buyer, title);
     }
 
-    event ChangeExternalAddress(address _addr, string _name);
-    event ChangeDistributionRate(address _addr, uint256 _rate);
-    event ChangeContentDescription(address _addr, string _name);
     event RegisterContents(address _addr, string _name);
+    event AddEpisodeImages(address _addr, uint256 _imageLength);
+    event ChangeEpisodeImage(address _addr, uint256 _imageIndex);
+    event ChangeExternalAddress(address _addr, string _name);
     event EpisodePurchase(address _sender, address _buyer, string _name);
 }

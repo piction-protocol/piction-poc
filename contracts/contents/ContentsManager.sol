@@ -9,7 +9,7 @@ contract ContentsManager is ExtendsOwnable {
 
     mapping (address => bool) isRegistered;
 
-    address[] public cotentsAddress;
+    address[] public contentsAddress;
     address public council;
 
     modifier validAddress(address _account) {
@@ -25,9 +25,8 @@ contract ContentsManager is ExtendsOwnable {
 
     constructor(address _councilAddr)
         public
+        validAddress(_councilAddr)
     {
-        require(_councilAddr != address(0) && _councilAddr != address(this));
-
         council = _councilAddr;
     }
 
@@ -39,17 +38,16 @@ contract ContentsManager is ExtendsOwnable {
         emit ChangeExternalAddress(msg.sender, "council");
     }
 
-    function setChildContentsManagerAddress(uint256 _count, address _contentsMangerAddr)
+    function setChildCouncilAddress(uint256 _count, address _councilAddr)
         external
-        onlyOwner validAddress(_contentsMangerAddr)
+        onlyOwner validAddress(_councilAddr)
     {
         uint256 changeNumber;
-        for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
-            if(changeNumber < _count) {
-                if(address(cotentsAddress[i].contentsManager()) != _contentsMangerAddr ) {
-                    cotentsAddress[i].setContentsManager(_contentsMangerAddr);
+        for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
+            if(changeNumber < _count &&
+                address(contentsAddress[i].council()) != _councilAddr) {
+                    contentsAddress[i].setCouncil(_councilAddr);
                     changeNumber = changeNumber.add(1);
-                }
             }
         }
     }
@@ -67,10 +65,8 @@ contract ContentsManager is ExtendsOwnable {
         onlyOwner validString(_title) validAddress(_writer) validString(_synopsis)
         validString(_genres) validString(_thumbnail) validString(_titleImage)
     {
-        Council council = Council(councilAddress);
-
         address contractAddress = new Content(
-            _title, _writer, _synopsis, _genres, _thumbnail, _titleImage, _marketerRate, address(this));
+            _title, _writer, _synopsis, _genres, _thumbnail, _titleImage, _marketerRate, council);
 
         contentsAddress.push(contractAddress);
         isRegistered[contractAddress] = true;
@@ -84,8 +80,8 @@ contract ContentsManager is ExtendsOwnable {
         returns (address[])
     {
         uint256 arrayLength;
-        for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
-            Content content = Content(cotentsAddress[i]);
+        for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
+            Content content = Content(contentsAddress[i]);
             if (_writerAddr = content.writer()) {
                 arrayLength = arrayLength.add(1);
             }
@@ -94,8 +90,8 @@ contract ContentsManager is ExtendsOwnable {
         address[] memory addr = new address[](arrayLength);
 
         uint256 idx;
-        for(uint256 i = 0 ; i < cotentsAddress.length ; i++) {
-            Content content = Content(cotentsAddress[i]);
+        for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
+            Content content = Content(contentsAddress[i]);
             if (_writerAddr = content.writer()) {
                 addr[idx] = address(content);
                 idx = idx.add(1);
