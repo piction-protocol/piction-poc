@@ -38,20 +38,6 @@ contract ContentsManager is ExtendsOwnable {
         emit ChangeExternalAddress(msg.sender, "council");
     }
 
-    function setChildCouncilAddress(uint256 _count, address _councilAddr)
-        external
-        onlyOwner validAddress(_councilAddr)
-    {
-        uint256 changeNumber;
-        for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
-            if(changeNumber < _count &&
-                address(contentsAddress[i].council()) != _councilAddr) {
-                    contentsAddress[i].setCouncil(_councilAddr);
-                    changeNumber = changeNumber.add(1);
-            }
-        }
-    }
-
     function addContents(
         string _title,
         address _writer,
