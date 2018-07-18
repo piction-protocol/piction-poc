@@ -172,6 +172,22 @@ contract SponsorshipPool {
         return (user, investment, supportRefund);
     }
 
+    function getSupportsLength()
+        external
+        view
+        returns (uint256)
+    {
+        return supports.length;
+    }
+
+    function getDistributionRate()
+        external
+        view
+        returns (uint256)
+    {
+        return distributionRate;
+    }
+
     event Voting(address user, bool interrupt);
     event ReleaseMonthly(bool success);
 }

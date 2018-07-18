@@ -63,7 +63,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
         address _from,
         uint256 _value,
         address _token,
-        bytes _data)
+        string _data)
         public
         validAddress(_from)
         validAddress(_token)
@@ -108,7 +108,7 @@ contract Fund is ExtendsOwnable, ContractReceiver, SponsorshipPool {
 
     function getSupportDetail(uint256 _maxcap, uint256 _raisedAmount, uint256 _amount)
         private
-        view
+        pure
         returns (uint256, uint256)
     {
         uint256 d1 = _maxcap.sub(_raisedAmount);

@@ -4,7 +4,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/access/RoleManager.sol";
 import "contracts/council/Council.sol";
-import "contracts/contents/Content.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
 contract Episode is ExtendsOwnable {
@@ -14,13 +13,13 @@ contract Episode is ExtendsOwnable {
 
     mapping (address => bool) buyUser;
 
-    string[] private url;
+
     string public title;
     address public writer;
     string public thumbnail;
     uint256 public price;
+    string private jsonImages;
     uint256 public buyCount;
-    Content public content;
     Council public council;
 
     modifier contentOwner() {
@@ -44,16 +43,12 @@ contract Episode is ExtendsOwnable {
         address _writer,
         string _thumbnail,
         uint256 _price,
-        address _contentAddress,
         address _councilAddress
     )
         public
-        validAddress(_writer) validString(_title) validString(_thumbnail)
-        validAddress(_contentAddress) validAddress(_councilAddress)
+        validAddress(_writer) validString(_title)
+        validString(_thumbnail) validAddress(_councilAddress)
     {
-        content = Content(_contentAddress);
-        require(content.writer() == _writer);
-
         title = _title;
         writer = _writer;
         thumbnail = _thumbnail;
@@ -65,72 +60,38 @@ contract Episode is ExtendsOwnable {
 
     function updateEpisode(
         string _title,
-        address _writer,
         string _thumbnail,
         uint256 _price
     )
         external
         contentOwner
-        validString(_title) validAddress(_writer) validString(_thumbnail)
+        validString(_title) validString(_thumbnail)
     {
-        require(content.writer() == _writer);
-
         title = _title;
-        writer = _writer;
         thumbnail = _thumbnail;
         price = _price;
 
         emit RegisterContents(msg.sender, "update episode");
     }
 
-    function setWriter(address _writerAddr)
-        external
-        contentOwner validAddress(_writerAddr)
-    {
-        require(content.writer() == _writerAddr);
-
-        writer = _writerAddr;
-        emit ChangeExternalAddress(msg.sender, "writer");
-    }
-
-    function setUrls(string[] _urls)
+    function setImages(string _jsonImages)
         external
         contentOwner
     {
-        require(_urls.length > 0);
+        require(bytes(_jsonImages).length > 0);
 
-        url = _url;
-        emit AddEpisodeImages(msg.sender, url.length);
-    }
-
-    function changeUrl(uint256 _idx, string _url)
-        external
-        contentOwner validString(_url)
-    {
-        require(url.length > _idx);
-
-        url[_idx] = _url;
-        emit ChangeEpisodeImage(msg.sender, _idx);
-    }
-
-    function setContentAddress(address _addr)
-        external
-        contentOwner validAddress(_addr)
-    {
-        content = Content(_addr);
-        require(content.writer() == writer);
-
-        emit ChangeExternalAddress(msg.sender, "Content");
+        jsonImages = _jsonImages;
+        emit SetEpisodeImages(msg.sender, jsonImages);
     }
 
     function getImages()
         external
         view
-        returns (string[])
+        returns (string)
     {
         require(getIsPurchased(msg.sender));
 
-        return url;
+        return jsonImages;
     }
 
     function getPurchasedAmount()
@@ -164,7 +125,7 @@ contract Episode is ExtendsOwnable {
     }
 
     event RegisterContents(address _addr, string _name);
-    event AddEpisodeImages(address _addr, uint256 _imageLength);
+    event SetEpisodeImages(address _addr, string _jsonImages);
     event ChangeEpisodeImage(address _addr, uint256 _imageIndex);
     event ChangeExternalAddress(address _addr, string _name);
     event EpisodePurchase(address _sender, address _buyer, string _name);

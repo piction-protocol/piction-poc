@@ -42,21 +42,19 @@ contract Content is ExtendsOwnable {
         address _writer,
         string _synopsis,
         string _genres,
-        string _thumbnail,
-        string _titleImage,
         uint256 _marketerRate,
         address _councilAddress
     )
         public
-        validAddress(_writer) validString(_title) validAddress(_synopsis)
-        validString(_thumbnail) validString(_titleImage) validAddress(_councilAddress)
+        validAddress(_writer) validString(_title) validString(_synopsis) validAddress(_councilAddress)
     {
         title = _title;
         writer = _writer;
         synopsis = _synopsis;
         genres = _genres;
-        thumbnail = _thumbnail;
-        titleImage = _titleImage;
+        thumbnail = "empty";
+        titleImage = "empty";
+        marketerRate = _marketerRate;
         council = Council(_councilAddress);
 
         emit RegisterContents(msg.sender, "initializing content");
@@ -64,7 +62,6 @@ contract Content is ExtendsOwnable {
 
     function updateContent(
         string _title,
-        address _writer,
         string _synopsis,
         string _genres,
         string _thumbnail,
@@ -72,11 +69,10 @@ contract Content is ExtendsOwnable {
         uint256 _marketerRate
     )
         external
-        contentOwner validAddress(_writer) validString(_title)
+        contentOwner validString(_title) validString(_synopsis)
         validString(_titleImage) validString(_genres) validString(_thumbnail)
     {
         title = _title;
-        writer = _writer;
         synopsis = _synopsis;
         genres = _genres;
         thumbnail = _thumbnail;
@@ -125,12 +121,12 @@ contract Content is ExtendsOwnable {
         emit CreateFund(msg.sender, contractAddress);
     }
 
-    function addEpisode(string, _title, string _thumbnail, uint256 _price)
+    function addEpisode(string _title, string _thumbnail, uint256 _price)
         external
-        contentOwner validString(_thumbnail) validString(_title);
+        contentOwner validString(_thumbnail) validString(_title)
     {
         address contractAddress = new Episode(
-            _title, writer, _thumbnail, _price, address(this), getCouncilAddress());
+            _title, writer, _thumbnail, _price, getCouncilAddress());
 
         episodes.push(contractAddress);
         emit CreateEpisode(msg.sender, contractAddress);
@@ -160,26 +156,12 @@ contract Content is ExtendsOwnable {
         return address(council);
     }
 
-    function getEpisodeDetail()
+    function getEpisodeAddress()
         public
         view
-        returns (address[], string[], string[], uint256[])
+        returns (address[])
     {
-        uint256 arrayLength = episodes.length;
-        address[] memory episodeAddress = new address[](arrayLength);
-        string[] memory episodeTitles = new string[](arrayLength);
-        string[] memory episodeThumbnail = new string[](arrayLength);
-        uint256[] memory episodePrices = new uint256[](arrayLength);
-
-        for(uint256 i = 0 ; i < arrayLength ; i++) {
-            Episode episode = Episode(episodes[i]);
-            episodeAddress[i] = address(episode);
-            episodeTitles[i] = episode.title();
-            episodeThumbnail[i] = episode.titleImage();
-            episodePrices[i] = episode.price();
-        }
-
-        return (episodeAddress, episodeTitles, episodeThumbnail, episodePrices);
+        return episodes;
     }
 
     function getTotalPurchasedPxlAmount()
@@ -189,7 +171,7 @@ contract Content is ExtendsOwnable {
     {
         uint256 amount;
         for(uint256 i = 0 ; i < episodes.length ; i++) {
-            amount = amount.add(episodes[i].getPurchasedAmount());
+            amount = amount.add(Episode(episodes[i]).getPurchasedAmount());
         }
         return amount;
     }
@@ -199,10 +181,10 @@ contract Content is ExtendsOwnable {
         view
         returns (bool)
     {
-        return fund[fund.length - 1].isOnFunding();
+        return Fund(fund[fund.length - 1]).isOnFunding();
     }
 
-    function getFundDistributeAmount()
+    function getFundDistributeAmount(uint256 _amount)
         public
         view
         returns (address[], uint256[])
@@ -212,21 +194,21 @@ contract Content is ExtendsOwnable {
         } else {
             uint256 arrayLength;
             for(uint256 i = 0 ; i < fund.length ; i++) {
-                arrayLength = arrayLength.add(fund[i].supports().length);
+                arrayLength = arrayLength.add(Fund(fund[i]).getSupportsLength());
             }
 
             address[] memory supporter = new address[](arrayLength);
             uint256[] memory pxlAmount = new uint256[](arrayLength);
 
+            uint256 idx;
+            for(uint256 k = 0 ; k < fund.length ; k++) {
+                Fund fundObject = Fund(fund[k]);
+                address[] memory tempAddress = new address[](fundObject.getSupportsLength());
+                uint256[] memory tempAmount = new uint256[](fundObject.getSupportsLength());
 
-            for(uint256 i = 0 ; i < fund.length ; i++) {
-                address[] memory tempAddress = new address[](fund[i].supports().length);
-                uint256[] memory tempAmount = new uint256[](fund[i].supports().length);
+                (tempAddress, tempAmount) = fundObject.getDistributeAmount(_amount);
 
-                (tempAddress, tempAmount) = fund[i].getDistributeAmount();
-
-                uint256 idx;
-                for(uint256 j = 0 ; j < fund[i].supports().length ; j ++) {
+                for(uint256 j = 0 ; j < fundObject.getSupportsLength() ; j ++) {
                     supporter[idx] = tempAddress[j];
                     pxlAmount[idx] = tempAmount[j];
                     idx = idx.add(1);
@@ -243,11 +225,11 @@ contract Content is ExtendsOwnable {
     {
         uint256 returnRate;
         returnRate = returnRate.add(council.cdRate());
-        returnRate = returnRate.add(council.deposit());
+        returnRate = returnRate.add(council.depositRate());
         returnRate = returnRate.add(council.userPaybackRate());
 
         for(uint256 i = 0 ; i < fund.length ; i++){
-            returnRate = returnRate.add(fund[i].distributionRate());
+            returnRate = returnRate.add(Fund(fund[i]).getDistributionRate());
         }
         return returnRate;
     }
