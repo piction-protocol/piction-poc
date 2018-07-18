@@ -18,6 +18,7 @@ contract Council is ExtendsOwnable {
     address public roleManager;
     address public contentsManager;
     address public pixelDistributor;
+    address public marketer;
 
     modifier validRange(uint256 _value) {
         require(_value > 0);
@@ -107,6 +108,12 @@ contract Council is ExtendsOwnable {
         pixelDistributor = _pixelDistributor;
 
         emit ChangeAddress(msg.sender, "pixel distributor", _pixelDistributor);
+    }
+
+    function setMarketer(address _marketer) external onlyOwner validAddress(_marketer) {
+        marketer = _marketer;
+
+        emit ChangeAddress(msg.sender, "marketer", _marketer);
     }
 
     event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRegistrationFee, address _token);
