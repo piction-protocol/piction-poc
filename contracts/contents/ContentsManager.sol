@@ -45,13 +45,10 @@ contract ContentsManager is ExtendsOwnable {
         address _writer,
         string _synopsis,
         string _genres,
-        //string _thumbnail,
-        //string _titleImage,
         uint256 _marketerRate
     )
         external
-        onlyOwner validString(_title) validAddress(_writer) validString(_synopsis)
-        validString(_genres) //validString(_thumbnail) validString(_titleImage)
+        onlyOwner validString(_title) validAddress(_writer) validString(_synopsis) validString(_genres) 
     {
         address contractAddress = new Content(
             _title, _writer, _synopsis, _genres, _marketerRate, council);
