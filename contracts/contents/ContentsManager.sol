@@ -1,11 +1,13 @@
 pragma solidity ^0.4.24;
 
 import "contracts/utils/ExtendsOwnable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/council/Council.sol";
 import "contracts/contents/Content.sol";
 
 contract ContentsManager is ExtendsOwnable {
+    using SafeMath for uint256;
 
     mapping (address => bool) isRegistered;
 
@@ -34,7 +36,7 @@ contract ContentsManager is ExtendsOwnable {
         external
         onlyOwner validAddress(_councilAddr)
     {
-        council = _councilAddress;
+        council = _councilAddr;
         emit ChangeExternalAddress(msg.sender, "council");
     }
 
@@ -43,16 +45,13 @@ contract ContentsManager is ExtendsOwnable {
         address _writer,
         string _synopsis,
         string _genres,
-        string _thumbnail,
-        string _titleImage,
         uint256 _marketerRate
     )
         external
-        onlyOwner validString(_title) validAddress(_writer) validString(_synopsis)
-        validString(_genres) validString(_thumbnail) validString(_titleImage)
+        onlyOwner validString(_title) validAddress(_writer) validString(_synopsis) validString(_genres) 
     {
         address contractAddress = new Content(
-            _title, _writer, _synopsis, _genres, _thumbnail, _titleImage, _marketerRate, council);
+            _title, _writer, _synopsis, _genres, _marketerRate, council);
 
         contentsAddress.push(contractAddress);
         isRegistered[contractAddress] = true;
@@ -67,8 +66,8 @@ contract ContentsManager is ExtendsOwnable {
     {
         uint256 arrayLength;
         for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
-            Content content = Content(contentsAddress[i]);
-            if (_writerAddr = content.writer()) {
+            Content contentA = Content(contentsAddress[i]);
+            if (contentA.writer() == _writerAddr) {
                 arrayLength = arrayLength.add(1);
             }
         }
@@ -76,10 +75,10 @@ contract ContentsManager is ExtendsOwnable {
         address[] memory addr = new address[](arrayLength);
 
         uint256 idx;
-        for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
-            Content content = Content(contentsAddress[i]);
-            if (_writerAddr = content.writer()) {
-                addr[idx] = address(content);
+        for(uint256 j = 0 ; j < contentsAddress.length ; j++) {
+            Content contentB = Content(contentsAddress[j]);
+            if (contentB.writer() == _writerAddr) {
+                addr[idx] = address(contentB);
                 idx = idx.add(1);
             }
         }
