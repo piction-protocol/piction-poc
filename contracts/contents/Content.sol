@@ -1,27 +1,15 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-
 import "contracts/contents/Episode.sol";
-import "contracts/council/Council.sol";
-import "contracts/supporter/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
-import "contracts/utils/ArrayLib.sol";
 
 contract Content is ExtendsOwnable {
-    using SafeMath for uint256;
-    using ArrayLib for *;
 
-    string public title;
+    string public record;
     address public writer;
-    string public synopsis;
-    string public genres;
-    string public thumbnail;
-    string public titleImage;
-    address[] public funds;
     uint256 public marketerRate;
     address[] public episodes;
-    Council public council;
+    address public roleManager;
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
@@ -40,208 +28,46 @@ contract Content is ExtendsOwnable {
     }
 
     constructor(
-        string _title,
+        string _record,
         address _writer,
-        string _synopsis,
-        string _genres,
         uint256 _marketerRate,
-        address _councilAddress
+        address _roleManager
     )
     public
-    validAddress(_writer) validString(_title) validString(_synopsis) validAddress(_councilAddress)
+    validAddress(_writer) validString(_record) validAddress(_roleManager)
     {
-        title = _title;
+        record = _record;
         writer = _writer;
-        synopsis = _synopsis;
-        genres = _genres;
-        thumbnail = "empty";
-        titleImage = "empty";
         marketerRate = _marketerRate;
-        council = Council(_councilAddress);
+        roleManager = _roleManager;
 
         emit RegisterContents(msg.sender, "initializing content");
     }
 
     function updateContent(
-        string _title,
-        string _synopsis,
-        string _genres,
-        string _thumbnail,
-        string _titleImage,
+        string _record,
         uint256 _marketerRate
     )
     external
-    contentOwner validString(_title) validString(_synopsis)
-    validString(_titleImage) validString(_genres) validString(_thumbnail)
+    contentOwner validString(_record)
     {
-        title = _title;
-        synopsis = _synopsis;
-        genres = _genres;
-        thumbnail = _thumbnail;
-        titleImage = _titleImage;
+        record = _record;
         marketerRate = _marketerRate;
 
         emit RegisterContents(msg.sender, "update content");
     }
 
-    function setCouncil(address _councilAddress)
+    function addEpisode(string _record, uint256 _price)
     external
-    onlyOwner validAddress(_councilAddress)
-    {
-        council = Council(_councilAddress);
-        emit ChangeExternalAddress(msg.sender, "council");
-    }
-
-    function setWriter(address _writerAddr)
-    external
-    contentOwner validAddress(_writerAddr)
-    {
-        writer = _writerAddr;
-        emit ChangeExternalAddress(writer, "writer");
-    }
-
-    function addFund(
-        uint256 _numberOfRelease,
-        uint256 _maxcap,
-        uint256 _softcap,
-        uint256 _startTime,
-        uint256 _endTime,
-        uint256 _distributionRate,
-        string _imagePath,
-        string _description
-    )
-    external
-    contentOwner validString(_imagePath) validString(_description)
-    {
-        require(getDistributionRate().add(_distributionRate) > 100);
-
-        address contractAddress = new Fund(
-            address(this), writer, getCouncilAddress(), _numberOfRelease, _maxcap, _softcap,
-            _startTime, _endTime, _distributionRate, _imagePath, _description);
-
-        funds.push(contractAddress);
-        emit CreateFund(msg.sender, contractAddress);
-    }
-
-    function addEpisode(string _title, string _thumbnail, uint256 _price)
-    external
-    contentOwner validString(_thumbnail) validString(_title)
+    contentOwner validString(_record)
     {
         address contractAddress = new Episode(
-            _title, writer, _thumbnail, _price, getCouncilAddress());
+            _record, writer, _price, roleManager);
 
         episodes.push(contractAddress);
         emit CreateEpisode(msg.sender, contractAddress);
     }
 
-    function getPxlTokenAddress()
-    public
-    view
-    returns (address)
-    {
-        return council.token();
-    }
-
-    function getRoleManagerAddress()
-    public
-    view
-    returns (address)
-    {
-        return council.roleManager();
-    }
-
-    function getCouncilAddress()
-    public
-    view
-    returns (address)
-    {
-        return address(council);
-    }
-
-    function getEpisodeAddress()
-    public
-    view
-    returns (address[])
-    {
-        return episodes;
-    }
-
-    function getTotalPurchasedPxlAmount()
-    public
-    view
-    returns (uint256)
-    {
-        uint256 amount;
-        for (uint256 i = 0; i < episodes.length; i++) {
-            amount = amount.add(Episode(episodes[i]).getPurchasedAmount());
-        }
-        return amount;
-    }
-
-    function isFunding()
-    public
-    view
-    returns (bool)
-    {
-        return Fund(funds[funds.length - 1]).isOnFunding();
-    }
-
-    function getFundDistributeAmount(uint256 _amount)
-    public
-    view
-    returns (address[], uint256[])
-    {
-        uint256 totalSupportCount = getTotalFundCount();
-        address[] memory supporters = new address[](totalSupportCount);
-        uint256[] memory investedAmounts = new uint256[](totalSupportCount);
-
-        uint256 idx;
-        for (uint256 i = 0; i < funds.length; i++) {
-            Fund fund = Fund(funds[i]);
-            uint256 supportsCount = fund.getSupportsLength();
-            address[] memory _supporters = new address[](supportsCount);
-            uint256[] memory _investedAmounts = new uint256[](supportsCount);
-
-            (_supporters, _investedAmounts) = fund.getDistributeAmount(_amount);
-
-            supporters.merge(idx, _supporters);
-            investedAmounts.merge(idx, _investedAmounts);
-
-            idx = idx.add(supportsCount);
-        }
-
-        return (supporters, investedAmounts);
-    }
-
-    function getTotalFundCount()
-    private
-    view
-    returns (uint256 totalSupportCount)
-    {
-        for (uint256 i = 0; i < funds.length; i++) {
-            Fund fund = Fund(funds[i]);
-            totalSupportCount = totalSupportCount.add(fund.getSupportsLength());
-        }
-    }
-
-    function getDistributionRate()
-    internal
-    view
-    returns (uint256)
-    {
-        uint256 returnRate;
-        returnRate = returnRate.add(council.cdRate());
-        returnRate = returnRate.add(council.depositRate());
-        returnRate = returnRate.add(council.userPaybackRate());
-
-        for (uint256 i = 0; i < funds.length; i++) {
-            returnRate = returnRate.add(Fund(funds[i]).getDistributionRate());
-        }
-        return returnRate;
-    }
-
     event RegisterContents(address _sender, string _name);
-    event CreateFund(address _sender, address _contractAddr);
     event CreateEpisode(address _sender, address _contractAddr);
-    event ChangeExternalAddress(address _sender, string _name);
 }
