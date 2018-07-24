@@ -3,9 +3,10 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/access/RoleManager.sol";
+import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
-contract Episode is ExtendsOwnable {
+contract Episode is ExtendsOwnable, ValidValue {
     using SafeMath for uint256;
 
     string public constant ROLE_NAME = "episode_purchase_manager";
@@ -21,17 +22,6 @@ contract Episode is ExtendsOwnable {
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
-        _;
-    }
-
-    modifier validAddress(address _account) {
-        require(_account != address(0));
-        require(_account != address(this));
-        _;
-    }
-
-    modifier validString(string _str) {
-        require(bytes(_str).length > 0);
         _;
     }
 

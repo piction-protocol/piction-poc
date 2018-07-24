@@ -4,24 +4,14 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/council/Council.sol";
 import "contracts/contents/Content.sol";
+import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
-contract ContentsManager is ExtendsOwnable {
+contract ContentsManager is ExtendsOwnable, ValidValue {
     using SafeMath for uint256;
 
     address[] public contentsAddress;
     address public council;
-
-    modifier validAddress(address _account) {
-        require(_account != address(0));
-        require(_account != address(this));
-        _;
-    }
-
-    modifier validString(string _str) {
-        require(bytes(_str).length > 0);
-        _;
-    }
 
     constructor(address _councilAddr)
         public

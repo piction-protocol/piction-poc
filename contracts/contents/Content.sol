@@ -1,9 +1,10 @@
 pragma solidity ^0.4.24;
 
 import "contracts/contents/Episode.sol";
+import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
-contract Content is ExtendsOwnable {
+contract Content is ExtendsOwnable, ValidValue {
 
     string public record;
     address public writer;
@@ -13,17 +14,6 @@ contract Content is ExtendsOwnable {
 
     modifier contentOwner() {
         require(writer == msg.sender || owners[msg.sender]);
-        _;
-    }
-
-    modifier validAddress(address _account) {
-        require(_account != address(0));
-        require(_account != address(this));
-        _;
-    }
-
-    modifier validString(string _str) {
-        require(bytes(_str).length > 0);
         _;
     }
 
