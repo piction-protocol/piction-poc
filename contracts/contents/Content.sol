@@ -45,8 +45,8 @@ contract Content is ExtendsOwnable {
         uint256 _marketerRate,
         address _councilAddress
     )
-        public
-        validAddress(_writer) validString(_title) validString(_synopsis) validAddress(_councilAddress)
+    public
+    validAddress(_writer) validString(_title) validString(_synopsis) validAddress(_councilAddress)
     {
         title = _title;
         writer = _writer;
@@ -68,9 +68,9 @@ contract Content is ExtendsOwnable {
         string _titleImage,
         uint256 _marketerRate
     )
-        external
-        contentOwner validString(_title) validString(_synopsis)
-        validString(_titleImage) validString(_genres) validString(_thumbnail)
+    external
+    contentOwner validString(_title) validString(_synopsis)
+    validString(_titleImage) validString(_genres) validString(_thumbnail)
     {
         title = _title;
         synopsis = _synopsis;
@@ -83,16 +83,16 @@ contract Content is ExtendsOwnable {
     }
 
     function setCouncil(address _councilAddress)
-        external
-        onlyOwner validAddress(_councilAddress)
+    external
+    onlyOwner validAddress(_councilAddress)
     {
         council = Council(_councilAddress);
         emit ChangeExternalAddress(msg.sender, "council");
     }
 
     function setWriter(address _writerAddr)
-        external
-        contentOwner validAddress(_writerAddr)
+    external
+    contentOwner validAddress(_writerAddr)
     {
         writer = _writerAddr;
         emit ChangeExternalAddress(writer, "writer");
@@ -108,8 +108,8 @@ contract Content is ExtendsOwnable {
         string _imagePath,
         string _description
     )
-        external
-        contentOwner validString(_imagePath) validString(_description)
+    external
+    contentOwner validString(_imagePath) validString(_description)
     {
         require(getDistributionRate().add(_distributionRate) > 100);
 
@@ -122,8 +122,8 @@ contract Content is ExtendsOwnable {
     }
 
     function addEpisode(string _title, string _thumbnail, uint256 _price)
-        external
-        contentOwner validString(_thumbnail) validString(_title)
+    external
+    contentOwner validString(_thumbnail) validString(_title)
     {
         address contractAddress = new Episode(
             _title, writer, _thumbnail, _price, getCouncilAddress());
@@ -133,102 +133,116 @@ contract Content is ExtendsOwnable {
     }
 
     function getPxlTokenAddress()
-        public
-        view
-        returns (address)
+    public
+    view
+    returns (address)
     {
         return council.token();
     }
 
     function getRoleManagerAddress()
-        public
-        view
-        returns (address)
+    public
+    view
+    returns (address)
     {
         return council.roleManager();
     }
 
     function getCouncilAddress()
-        public
-        view
-        returns (address)
+    public
+    view
+    returns (address)
     {
         return address(council);
     }
 
     function getEpisodeAddress()
-        public
-        view
-        returns (address[])
+    public
+    view
+    returns (address[])
     {
         return episodes;
     }
 
     function getTotalPurchasedPxlAmount()
-        public
-        view
-        returns (uint256)
+    public
+    view
+    returns (uint256)
     {
         uint256 amount;
-        for(uint256 i = 0 ; i < episodes.length ; i++) {
+        for (uint256 i = 0; i < episodes.length; i++) {
             amount = amount.add(Episode(episodes[i]).getPurchasedAmount());
         }
         return amount;
     }
 
     function isFunding()
-        public
-        view
-        returns (bool)
+    public
+    view
+    returns (bool)
     {
         return Fund(fund[fund.length - 1]).isOnFunding();
     }
 
     function getFundDistributeAmount(uint256 _amount)
-        public
-        view
-        returns (address[], uint256[])
+    public
+    view
+    returns (address[], uint256[])
     {
-        if(fund.length == 0) {
-            return (new address[](0), new uint256[](0));
-        } else {
-            uint256 arrayLength;
-            for(uint256 i = 0 ; i < fund.length ; i++) {
-                arrayLength = arrayLength.add(Fund(fund[i]).getSupportsLength());
-            }
+        uint256 totalSupportCount = getTotalFundCount(funds);
+        address[] memory supporters = new address[](totalSupportCount);
+        uint256[] memory investedAmounts = new uint256[](totalSupportCount);
 
-            address[] memory supporter = new address[](arrayLength);
-            uint256[] memory pxlAmount = new uint256[](arrayLength);
+        uint256 idx;
+        for (uint256 i = 0; i < funds.length; i++) {
+            uint256 supportsCount = funds[i].supports().length;
+            address[] memory _supporters = new address[](supportsCount);
+            uint256[] memory _investedAmounts = new uint256[](supportsCount);
 
-            uint256 idx;
-            for(uint256 k = 0 ; k < fund.length ; k++) {
-                Fund fundObject = Fund(fund[k]);
-                address[] memory tempAddress = new address[](fundObject.getSupportsLength());
-                uint256[] memory tempAmount = new uint256[](fundObject.getSupportsLength());
+            (_supporters, _investedAmounts) = funds[i].getDistributeAmount();
+            mergeFunds(idx, supporters, investedAmounts, _supporters, _investedAmounts);
 
-                (tempAddress, tempAmount) = fundObject.getDistributeAmount(_amount);
+            idx = idx.add(supportsCount);
+        }
 
-                for(uint256 j = 0 ; j < fundObject.getSupportsLength() ; j ++) {
-                    supporter[idx] = tempAddress[j];
-                    pxlAmount[idx] = tempAmount[j];
-                    idx = idx.add(1);
-                }
-            }
-            return (supporter, pxlAmount);
+        return (supporters, investedAmounts);
+    }
+
+    function getTotalFundCount(Fund[] funds)
+    private
+    returns (uint256 totalSupportCount)
+    {
+        uint256 totalSupportCount;
+        for (uint256 i = 0; i < funds.length; i++) {
+            Fund fund = funds[i];
+            totalSupportCount = arrayLength.add(fund.supports().length);
+        }
+
+        return totalSupportCount;
+    }
+
+    function mergeFunds(uint256 startIdx, address[] supporters, uint256[] investedAmounts, address[] _supporters, uint256[] _investedAmounts)
+    private
+    {
+        uint idx = startIdx;
+        for (uint256 i = 0; j < _supporters.length; i++) {
+            supporters[idx] = _supporters[i];
+            investedAmounts[idx] = _investedAmounts[i];
+            idx = idx.add(1);
         }
     }
 
     function getDistributionRate()
-        internal
-        view
-        returns (uint256)
+    internal
+    view
+    returns (uint256)
     {
         uint256 returnRate;
         returnRate = returnRate.add(council.cdRate());
         returnRate = returnRate.add(council.depositRate());
         returnRate = returnRate.add(council.userPaybackRate());
 
-        for(uint256 i = 0 ; i < fund.length ; i++){
+        for (uint256 i = 0; i < fund.length; i++) {
             returnRate = returnRate.add(Fund(fund[i]).getDistributionRate());
         }
         return returnRate;
