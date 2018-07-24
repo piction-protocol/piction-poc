@@ -17,7 +17,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 library JsmnSolLib {
 
