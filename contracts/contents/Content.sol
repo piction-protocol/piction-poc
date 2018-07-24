@@ -6,9 +6,11 @@ import "contracts/contents/Episode.sol";
 import "contracts/council/Council.sol";
 import "contracts/supporter/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
+import "contracts/utils/ArrayLib.sol";
 
 contract Content is ExtendsOwnable {
     using SafeMath for uint256;
+    using ArrayLib for *;
 
     string public title;
     address public writer;
@@ -16,7 +18,7 @@ contract Content is ExtendsOwnable {
     string public genres;
     string public thumbnail;
     string public titleImage;
-    address[] public fund;
+    address[] public funds;
     uint256 public marketerRate;
     address[] public episodes;
     Council public council;
@@ -117,7 +119,7 @@ contract Content is ExtendsOwnable {
             address(this), writer, getCouncilAddress(), _numberOfRelease, _maxcap, _softcap,
             _startTime, _endTime, _distributionRate, _imagePath, _description);
 
-        fund.push(contractAddress);
+        funds.push(contractAddress);
         emit CreateFund(msg.sender, contractAddress);
     }
 
@@ -181,7 +183,7 @@ contract Content is ExtendsOwnable {
     view
     returns (bool)
     {
-        return Fund(fund[fund.length - 1]).isOnFunding();
+        return Fund(funds[funds.length - 1]).isOnFunding();
     }
 
     function getFundDistributeAmount(uint256 _amount)
@@ -189,18 +191,21 @@ contract Content is ExtendsOwnable {
     view
     returns (address[], uint256[])
     {
-        uint256 totalSupportCount = getTotalFundCount(funds);
+        uint256 totalSupportCount = getTotalFundCount();
         address[] memory supporters = new address[](totalSupportCount);
         uint256[] memory investedAmounts = new uint256[](totalSupportCount);
 
         uint256 idx;
         for (uint256 i = 0; i < funds.length; i++) {
-            uint256 supportsCount = funds[i].supports().length;
+            Fund fund = Fund(funds[i]);
+            uint256 supportsCount = fund.getSupportsLength();
             address[] memory _supporters = new address[](supportsCount);
             uint256[] memory _investedAmounts = new uint256[](supportsCount);
 
-            (_supporters, _investedAmounts) = funds[i].getDistributeAmount();
-            mergeFunds(idx, supporters, investedAmounts, _supporters, _investedAmounts);
+            (_supporters, _investedAmounts) = fund.getDistributeAmount(_amount);
+
+            supporters.merge(idx, _supporters);
+            investedAmounts.merge(idx, _investedAmounts);
 
             idx = idx.add(supportsCount);
         }
@@ -208,27 +213,14 @@ contract Content is ExtendsOwnable {
         return (supporters, investedAmounts);
     }
 
-    function getTotalFundCount(Fund[] funds)
+    function getTotalFundCount()
     private
+    view
     returns (uint256 totalSupportCount)
     {
-        uint256 totalSupportCount;
         for (uint256 i = 0; i < funds.length; i++) {
-            Fund fund = funds[i];
-            totalSupportCount = arrayLength.add(fund.supports().length);
-        }
-
-        return totalSupportCount;
-    }
-
-    function mergeFunds(uint256 startIdx, address[] supporters, uint256[] investedAmounts, address[] _supporters, uint256[] _investedAmounts)
-    private
-    {
-        uint idx = startIdx;
-        for (uint256 i = 0; j < _supporters.length; i++) {
-            supporters[idx] = _supporters[i];
-            investedAmounts[idx] = _investedAmounts[i];
-            idx = idx.add(1);
+            Fund fund = Fund(funds[i]);
+            totalSupportCount = totalSupportCount.add(fund.getSupportsLength());
         }
     }
 
@@ -242,8 +234,8 @@ contract Content is ExtendsOwnable {
         returnRate = returnRate.add(council.depositRate());
         returnRate = returnRate.add(council.userPaybackRate());
 
-        for (uint256 i = 0; i < fund.length; i++) {
-            returnRate = returnRate.add(Fund(fund[i]).getDistributionRate());
+        for (uint256 i = 0; i < funds.length; i++) {
+            returnRate = returnRate.add(Fund(funds[i]).getDistributionRate());
         }
         return returnRate;
     }
