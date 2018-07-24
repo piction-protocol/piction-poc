@@ -1,18 +1,14 @@
 pragma solidity ^0.4.24;
 
+import "contracts/utils/ValidValue.sol";
+
 /**
  * @title Marketer contract
  *
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
-contract Marketer {
+contract Marketer is ValidValue {
   mapping (bytes32 => address) marketerInfo;
-
-  modifier validAddress(address _account) {
-      require(_account != address(0));
-      require(_account != address(this));
-      _;
-  }
 
   function getMarketerKey() public validAddress(msg.sender) returns(bytes32) {
       bytes32 key = bytes32(keccak256(abi.encodePacked(msg.sender)));

@@ -1,13 +1,14 @@
 pragma solidity ^0.4.24;
 
 import "contracts/utils/ExtendsOwnable.sol";
+import "contracts/utils/ValidValue.sol";
 
 /**
  * @title Council contract
  *
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
-contract Council is ExtendsOwnable {
+contract Council is ExtendsOwnable, ValidValue {
     uint256 public cdRate;
     uint256 public depositRate;
     uint256 public initialDeposit;
@@ -19,17 +20,6 @@ contract Council is ExtendsOwnable {
     address public contentsManager;
     address public pixelDistributor;
     address public marketer;
-
-    modifier validRange(uint256 _value) {
-        require(_value > 0);
-        _;
-    }
-
-    modifier validAddress(address _account) {
-        require(_account != address(0));
-        require(_account != address(this));
-        _;
-    }
 
     constructor(
         uint256 _cdRate,
