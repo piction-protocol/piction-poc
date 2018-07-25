@@ -19,6 +19,7 @@ contract Council is ExtendsOwnable, ValidValue {
     address public token;
     address public roleManager;
     address public contentsManager;
+    address public fundManager;
     address public pixelDistributor;
     address public marketer;
 
@@ -99,6 +100,12 @@ contract Council is ExtendsOwnable, ValidValue {
         contentsManager = _contentsManager;
 
         emit ChangeAddress(msg.sender, "contents manager", _contentsManager);
+    }
+
+    function setFundManager(address _fundManager) external onlyOwner validAddress(_fundManager) {
+        fundManager = _fundManager;
+
+        emit ChangeAddress(msg.sender, "fund manager", _fundManager);
     }
 
     function setPixelDistributor(address _pixelDistributor) external onlyOwner validAddress(_pixelDistributor) {
