@@ -15,6 +15,7 @@ contract Council is ExtendsOwnable, ValidValue {
     uint256 public userPaybackRate;
     uint256 public reportRegistrationFee;
     address public userPaybackPool;
+    address public depositPool;
     address public token;
     address public roleManager;
     address public contentsManager;
@@ -80,6 +81,12 @@ contract Council is ExtendsOwnable, ValidValue {
         userPaybackPool = _userPaybackPool;
 
         emit ChangeAddress(msg.sender, "user payback pool", _userPaybackPool);
+    }
+
+    function setDepositPool(address _depositPool) external onlyOwner validAddress(_depositPool) {
+        depositPool = _depositPool;
+
+        emit ChangeAddress(msg.sender, "deposit pool", _depositPool);
     }
 
     function setRoleManager(address _roleManager) external onlyOwner validAddress(_roleManager) {
