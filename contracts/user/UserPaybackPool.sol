@@ -2,7 +2,6 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
-import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/token/ContractReceiver.sol";
@@ -19,7 +18,6 @@ import "contracts/utils/BlockTimeMs.sol";
 contract UserPaybackPool is ContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
-    using Math for uint256;
     using BlockTimeMs for uint256;
 
     struct PaybackInfo {
@@ -52,12 +50,14 @@ contract UserPaybackPool is ContractReceiver, ValidValue {
         validAddress(_from)
         validAddress(_token)
     {
-        addPayback(_from, _value, _token);
+        addPayback(_from, _value, _token, _data);
     }
 
-    function addPayback(address _from, uint256 _value, address _token) private {
+    function addPayback(address _from, uint256 _value, address _token, string _user) private {
         ERC20 token = ERC20(Council(councilAddress).token());
         require(address(token) == _token);
+
+        address user = parseAddr(_user);
 
         uint256 paymentTime = block.timestamp.getMs();
 
@@ -65,17 +65,17 @@ contract UserPaybackPool is ContractReceiver, ValidValue {
 
         bool already = false;
         for(uint i = 0; i < paybackInfo.length; i++) {
-            if (paybackInfo[i].user == _from && lastReleaseTime <= paymentTime) {
+            if (paybackInfo[i].user == user && lastReleaseTime <= paymentTime) {
                 already = true;
                 paybackInfo[i].paybackAmount = paybackInfo[i].paybackAmount.add(_value);
             }
         }
 
         if (!already) {
-            paybackInfo.push(PaybackInfo(_from, _value, paymentTime, false));
+            paybackInfo.push(PaybackInfo(user, _value, paymentTime, false));
         }
 
-        emit AddPayback(_from, _value, paymentTime);
+        emit AddPayback(user, _value, paymentTime);
     }
 
     function releaseMonthly() external {
@@ -107,6 +107,6 @@ contract UserPaybackPool is ContractReceiver, ValidValue {
         emit ReleaseMonthly(releaseTime, releaseAmount);
     }
 
-    event AddPayback(address _from, uint256 _value, uint256 _lastPaymentTime);
+    event AddPayback(address _user, uint256 _value, uint256 _lastPaymentTime);
     event ReleaseMonthly(uint256 _releaseTime, uint256 _releaseAmount);
 }
