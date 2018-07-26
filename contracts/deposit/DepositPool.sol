@@ -14,7 +14,7 @@ import "contracts/utils/ValidValue.sol";
 
 /**
  * @title DepositPool
- * @dev 작품 초기 업로드 시 필요한 보증금의 적립과 판매량의 특정비율을 적립.
+ * @dev 작품 초기 업로드 시 필요한 보증금의 적립과 판매금의 특정비율을 적립.
  *      신고자에 대한 보상으로 특정 금액을 전송.
  *      작품 완결 시 작가에게 전액 전송.
  */
@@ -24,7 +24,6 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver {
     using ParseLib for string;
 
     CouncilInterface council;
-
     mapping (address => uint256) contentDeposit;
 
     /**
