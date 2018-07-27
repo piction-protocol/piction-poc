@@ -56,7 +56,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver {
     /**
     * @dev receiveApproval의 구현, token을 전송 받고 Content 별로 잔액을 기록함
     */
-    function addDeposit(address _from, uint256 _value, address _token, string _data) {
+    function addDeposit(address _from, uint256 _value, address _token, string _data) private {
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
@@ -72,7 +72,11 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver {
     * @param _content 신고한 작품 주소
     * @param _reporter 신고자 주소
     */
-    function reportReward(address _content, address _reporter) validAddress(_content) validAddress(_reporter) {
+    function reportReward(address _content, address _reporter)
+        validAddress(_content)
+        validAddress(_reporter)
+        external
+    {
         require(address(council) == msg.sender);
         require(contentDeposit[_content] > 0);
 
@@ -90,8 +94,10 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver {
     * @dev 작품 완결 시 호출하는 정산 구현
     * @param _content 정산을 원하는 작품 주소
     */
-    function release(address _content) validAddress(_content) {
+    function release(address _content) validAddress(_content) external {
         //작품 완결 시 서포터 비율 가져오고 정산 후 작가에게 정산
+        // 누가 실행 시켜야 하는가??
+
         //ref pixelDistributor
         //call FundManager -> return fund[]
 
