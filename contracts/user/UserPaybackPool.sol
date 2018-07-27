@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/council/Council.sol";
+import "contracts/council/CouncilInterface.sol";
 import "contracts/utils/BlockTimeMs.sol";
 import "contracts/utils/ParseLib.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -31,8 +31,9 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         mapping (address => bool) released;
     }
 
+    CouncilInterface council;
+
     uint256 currentIndex;
-    address councilAddress;
     PaybackPool[] paybackPool;
     uint256 releaseInterval;
     uint256 lastReleaseTime;
@@ -41,7 +42,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         address _councilAddress)
         public
     {
-        councilAddress = _councilAddress;
+        council = CouncilInterface(_councilAddress);
         releaseInterval = 600000; //for test 10min
     }
 
@@ -67,7 +68,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     function addPayback(address _from, uint256 _value, address _token, string _user) private {
-        ERC20 token = ERC20(Council(councilAddress).token());
+        ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
         address user = _user.parseAddr();
@@ -89,7 +90,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     function releaseMonthly() external onlyOwner {
         require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
-        ERC20 token = ERC20(Council(councilAddress).token());
+        ERC20 token = ERC20(council.getToken());
         require(token.balanceOf(address(this)) >= paybackPool[currentIndex].totalReleaseAmount);
 
         uint256 totalReleaseAmount = paybackPool[currentIndex].totalReleaseAmount;
