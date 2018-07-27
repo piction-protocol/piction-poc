@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
+import "contracts/supporter/SponsorshipPool.sol";
 import "contracts/council/Council.sol";
-import "contracts/supporter/FundData.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -17,6 +17,12 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     using SafeERC20 for ERC20;
     using TimeLib for *;
 
+    struct Supporter {
+        address user;
+        uint256 investment;
+        uint256 collection;
+    }
+
     uint256 startTime;
     uint256 endTime;
     string detail;
@@ -26,11 +32,12 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     address council;
 
     uint256 fundRise;
-    FundData.Supporter[] supporters;
-    FundData.Pool[] pools;
+    Supporter[] supporters;
     uint256 poolSize;
     uint256 releaseInterval;
     uint256 distributionRate;
+
+    SponsorshipPool public sponsorshipPool;
 
     constructor(
         address _content,
@@ -44,6 +51,10 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         string _detail)
     public validAddress(_content) validAddress(_writer) validAddress(_council) {
         require(_startTime > TimeLib.currentTime());
+        require(_endTime > _startTime);
+        require(_poolSize > 0);
+        require(_releaseInterval > 0);
+        require(distributionRate <= 100);
 
         startTime = _startTime;
         endTime = _endTime;
@@ -58,111 +69,51 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     }
 
     function support(address _from, uint256 _value, address _token) private {
-        require(isOnFunding());
+        require(TimeLib.currentTime().between(startTime, endTime));
 
         ERC20 token = ERC20(Council(council).token());
         require(address(token) == _token);
 
-        FundData.Supporter memory supporter = findSupporter(_from);
-        if (supporter.user == 0) {
-            supporters.push(FundData.Supporter(_from, _value, 0));
+        uint index;
+        bool success;
+        (index, success) = findSupporterIndex(_from);
+        if (success) {
+            supporters[index].investment = supporters[index].investment.add(_value);
         } else {
-            supporter.investment = supporter.investment.add(_value);
+            supporters.push(Supporter(_from, _value, 0));
         }
         fundRise = fundRise.add(_value);
 
         emit Support(_from, _value);
     }
 
-    function findSupporter(address _supporter) private view returns (FundData.Supporter){
-        FundData.Supporter memory supporter;
-        for (uint i = 0; i < supporters.length; i++) {
-            if (supporters[i].user == _supporter) {
-                supporter = supporters[i];
-                break;
-            }
-        }
-        return supporter;
+    function createPool() external {
+        require(TimeLib.currentTime() < endTime);
+        require(fundRise > 0);
+
+        sponsorshipPool = new SponsorshipPool(fundRise, poolSize, releaseInterval);
     }
 
-    function isOnFunding() public view returns (bool) {
-        return TimeLib.currentTime().between(startTime, endTime);
-    }
-
-    event Support(address _from, uint256 _amount);
-
-    function createPool(uint _poolSize, uint _amount, uint _intervalTime) private {
-        uint firstDistributionTime = TimeLib.currentTime().add(_intervalTime);
-        uint poolAmount = _amount.div(_poolSize);
-        for (uint i = 0; i < _poolSize; i++) {
-            addPool(poolAmount, firstDistributionTime.add(i.mul(_intervalTime)));
-        }
-        uint remainder = _amount.sub(poolAmount.mul(_poolSize));
-        if (remainder > 0) {
-            pools[pools.length - 1].amount = pools[pools.length - 1].amount.add(remainder);
-        }
-    }
-
-    function addPool(uint _amount, uint distributionTime) private {
-        FundData.Pool memory pool = FundData.Pool(_amount, distributionTime, 0, FundData.PoolState.PENDING);
-        pools.push(pool);
-    }
-
-    function release() external {
-        uint amount;
-        for (uint i = 0; i < pools.length; i++) {
-            FundData.Pool memory pool = pools[i];
-            if (pool.distributionTime < TimeLib.currentTime() && pool.state == FundData.PoolState.PENDING) {
-                pool.distributedTime = TimeLib.currentTime();
-                pool.state = FundData.PoolState.PAID;
-                amount.add(pool.amount);
-
-                emit Release(pool.amount);
-            }
-        }
+    function releasePool() external validAddress(sponsorshipPool) {
+        uint amount = sponsorshipPool.release();
         ERC20 token = ERC20(Council(council).token());
         token.safeTransfer(writer, amount);
     }
 
-    function vote(uint poolIndex) external returns (bool) {
-        FundData.Pool storage pool = pools[poolIndex];
-        pool.voting[msg.sender] = true;
+    function vote() external validAddress(sponsorshipPool) {
+        require(isSupporter(msg.sender));
 
-        uint votingCount;
-        for (uint256 i = 0; i < supporters.length; i++) {
-            votingCount.add(isVoting(pool, supporters[i]));
-        }
-
+        sponsorshipPool.vote(msg.sender);
+        address[] memory _supporters = new address[](supporters.length);
+        (_supporters,) = getSupporters();
+        uint votingCount = sponsorshipPool.getVotingCount(_supporters);
         if (supporters.length.div(2) <= votingCount) {
-            pool.state = FundData.PoolState.CANCEL_PAYMENT;
-            uint distributionTime = pools[pools.length - 1].distributionTime.add(releaseInterval);
-            pools.push(FundData.Pool(pool.amount, distributionTime, 0, FundData.PoolState.PENDING));
+            uint cancelAmount = sponsorshipPool.cancelPool();
+            sponsorshipPool.addPool(cancelAmount);
         }
     }
 
-    function isVoting(FundData.Pool storage _pool, FundData.Supporter storage _supporter) private view returns (uint){
-        return _pool.voting[_supporter.user] ? 1 : 0;
-    }
-
-    function getTotalInvestment() public view returns (uint256) {
-        uint256 total;
-        for (uint256 i = 0; i < supporters.length; i++) {
-            total = total.add(supporters[i].investment);
-        }
-        return total;
-    }
-
-    function getTotalCollection() public view returns (uint256) {
-        uint256 total;
-        for (uint256 i = 0; i < supporters.length; i++) {
-            total = total.add(supporters[i].collection);
-        }
-        return total;
-    }
-
-    function getDistributeAmount(uint256 _total) external view returns (address[], uint256[]) {
-        require(msg.sender == content);
-
+    function getDistributeAmount(uint256 _total) public view returns (address[], uint256[]) {
         address[] memory _supporters = new address[](supporters.length);
         uint256[] memory _amounts = new uint256[](supporters.length);
 
@@ -180,9 +131,9 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         return (_supporters, _amounts);
     }
 
-    function getSupporters() external view returns (address[], uint256[]) {
-        address[] memory user = new address[](supporters.length.sub(1));
-        uint256[] memory investment = new uint256[](supporters.length.sub(1));
+    function getSupporters() public view returns (address[], uint256[]) {
+        address[] memory user = new address[](supporters.length - 1);
+        uint256[] memory investment = new uint256[](supporters.length - 1);
 
         uint256 supportersIndex = 0;
         for (uint i = 0; i < supporters.length; i++) {
@@ -194,14 +145,41 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         return (user, investment);
     }
 
-    function getSupportersLength() external view returns (uint256) {
-        return supporters.length;
-    }
-
-    function getDistributionRate() external view returns (uint256){
+    function getDistributionRate() public view returns (uint256){
         return distributionRate;
     }
 
-    event Voting(address user, bool interrupt);
-    event Release(uint amount);
+    function getTotalInvestment() private view returns (uint256) {
+        uint256 total;
+        for (uint256 i = 0; i < supporters.length; i++) {
+            total = total.add(supporters[i].investment);
+        }
+        return total;
+    }
+
+    function getTotalCollection() private view returns (uint256) {
+        uint256 total;
+        for (uint256 i = 0; i < supporters.length; i++) {
+            total = total.add(supporters[i].collection);
+        }
+        return total;
+    }
+
+    function findSupporterIndex(address _supporter) private view returns (uint, bool){
+        for (uint i = 0; i < supporters.length; i++) {
+            if (supporters[i].user == _supporter) {
+                return (i, true);
+            }
+        }
+    }
+
+    function isSupporter(address _supporter) private view returns (bool){
+        for (uint i = 0; i < supporters.length; i++) {
+            if (supporters[i].user == _supporter) {
+                return true;
+            }
+        }
+    }
+
+    event Support(address _from, uint256 _amount);
 }
