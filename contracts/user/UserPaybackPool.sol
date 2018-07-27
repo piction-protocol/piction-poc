@@ -8,6 +8,7 @@ import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/council/Council.sol";
 import "contracts/utils/BlockTimeMs.sol";
+import "contracts/utils/ParseLib.sol";
 
 /**
  * @title UserPaybackPool contract
@@ -19,6 +20,7 @@ contract UserPaybackPool is ContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using BlockTimeMs for uint256;
+    using ParseLib for string;
 
     struct PaybackInfo {
         address user;
@@ -57,7 +59,7 @@ contract UserPaybackPool is ContractReceiver, ValidValue {
         ERC20 token = ERC20(Council(councilAddress).token());
         require(address(token) == _token);
 
-        address user = parseAddr(_user);
+        address user = ParseLib.parseAddr(_user);
 
         uint256 paymentTime = block.timestamp.getMs();
 
