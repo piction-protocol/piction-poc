@@ -9,6 +9,7 @@ import "contracts/utils/ValidValue.sol";
 import "contracts/council/Council.sol";
 import "contracts/utils/BlockTimeMs.sol";
 import "contracts/utils/ParseLib.sol";
+import "contracts/utils/ExtendsOwnable.sol";
 
 /**
  * @title UserPaybackPool contract
@@ -16,7 +17,7 @@ import "contracts/utils/ParseLib.sol";
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
 
-contract UserPaybackPool is ContractReceiver, ValidValue {
+contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using BlockTimeMs for uint256;
@@ -86,7 +87,7 @@ contract UserPaybackPool is ContractReceiver, ValidValue {
         emit AddPayback(user, _value, paymentTime);
     }
 
-    function releaseMonthly() external {
+    function releaseMonthly() external onlyOwner {
         require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
         ERC20 token = ERC20(Council(councilAddress).token());
         require(token.balanceOf(address(this)) >= paybackPool[currentIndex].totalReleaseAmount);
