@@ -27,9 +27,9 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     uint256 endTime;
     string detail;
 
+    address council;
     address content;
     address writer;
-    address council;
 
     uint256 fundRise;
     Supporter[] supporters;
@@ -40,9 +40,9 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     SponsorshipPool public sponsorshipPool;
 
     constructor(
+        address _council,
         address _content,
         address _writer,
-        address _council,
         uint256 _startTime,
         uint256 _endTime,
         uint256 _poolSize,
@@ -56,6 +56,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         require(_releaseInterval > 0);
         require(distributionRate <= 100);
 
+        council = _council;
         startTime = _startTime;
         endTime = _endTime;
         detail = _detail;
