@@ -112,6 +112,6 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     event AddPayback(address _user, uint256 _currentIndex, uint256 _value);
-    event CreatePaybackPool(uint256 _currentIndex, uint256 _createTime);
+    event CreatePaybackPool(uint256 _currentIndex);
     event Release(address _user, uint256 _currentIndex, uint256 _releaseAmount);
 }
