@@ -1,13 +1,10 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-
 import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/supporter/Fund.sol";
 import "contracts/utils/ValidValue.sol";
 
 contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
-    using SafeMath for uint256;
 
     mapping(address => address[]) funds;
     address council;

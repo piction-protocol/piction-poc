@@ -92,7 +92,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     }
 
     function createPool() external {
-        require(sponsorshipPool == 0);
+        require(address(sponsorshipPool) == address(0));
         require(TimeLib.currentTime() < endTime);
         require(fundRise > 0);
 
