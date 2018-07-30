@@ -24,28 +24,26 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using ParseLib for string;
 
     struct PaybackPool {
-        address[] user;
-        uint256 releaseTime;
-        uint256 totalReleaseAmount;
-        bool totalReleased;
+        uint256 createTime;
         mapping (address => uint256) paybackInfo;
         mapping (address => bool) released;
     }
+    PaybackPool[] paybackPool;
 
     CouncilInterface council;
 
     uint256 currentIndex;
-    PaybackPool[] paybackPool;
     uint256 releaseInterval;
-    uint256 lastReleaseTime;
+
+    mapping (address => uint256) lastReleaseTime; // 유저별 릴리즈 interval
 
     constructor(
         address _councilAddress)
         public
+        validAddress(_councilAddress)
     {
         council = CouncilInterface(_councilAddress);
-        releaseInterval = 600000; //for test 10min
-        paybackPool.push(PaybackPool(new address[](0)));
+        releaseInterval = 10 minutes;//600000; //for test 10min
     }
 
     function receiveApproval(
@@ -62,111 +60,56 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     function createPaybackPool() private {
         currentIndex = currentIndex.add(1);
-        paybackPool.push(PaybackPool(new address[](0)));
-
         uint256 createTime = block.timestamp.getMs();
 
-        emit AddPaybackPool(currentIndex, createTime);
+        paybackPool.push(PaybackPool(createTime));
+
+        emit CreatePaybackPool(currentIndex);
     }
 
     function addPayback(address _from, uint256 _value, address _token, string _user) private {
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
-        address user = _user.parseAddr();
-
-        token.safeTransferFrom(_from, address(this), _value);
-
-        if (paybackPool[currentIndex].paybackInfo[user] == 0) {
-            paybackPool[currentIndex].paybackInfo[user] = _value;
-            paybackPool[currentIndex].released[user] = false;
-            paybackPool[currentIndex].user.push(user);
-        } else {
-            paybackPool[currentIndex].paybackInfo[user] = paybackPool[currentIndex].paybackInfo[user].add(_value);
-        }
-        paybackPool[currentIndex].totalReleaseAmount = paybackPool[currentIndex].totalReleaseAmount.add(_value);
-        uint256 paymentTime = block.timestamp.getMs();
-
-        emit AddPayback(user, _value, paymentTime);
-    }
-
-    function releaseByCount(uint256 _releaseIndex, uint256 _count) external onlyOwner {
-        require(!paybackPool[_releaseIndex].totalReleased);// 이 인덱스가 릴리즈가 다 됐는지
-        require(_count <= 30); // 릴리즈 갯수제한?
-        require(paybackPool.length - 1 >= _releaseIndex); // Out of range 방지
-
-        require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
-        ERC20 token = ERC20(council.getToken());
-        require(token.balanceOf(address(this)) >= paybackPool[_releaseIndex].totalReleaseAmount);
-
-        // 다음 paybackpool이 없으면 풀 생성
-        if (paybackPool.length - 1 == _releaseIndex) {
+        // 현재 paybackpool 의 생성 시간이 30일 지났으면 새로 생성
+        if (block.timestamp.getMs() >= paybackPool[currentIndex].createTime.add(30 days)) {
             createPaybackPool();
         }
 
-        uint256 currentReleased; // 현재 릴리즈한 갯수. _count보다 적어야 함
-        bool releaseComplete; // 마지막항목이 릴리즈 됐는지
-        for(uint i = 0; i < paybackPool[_releaseIndex].user.length; i++) {
-            if (currentReleased < _count) { // 갯수만큼만
-                address user = paybackPool[_releaseIndex].user[i];
-                bool released = paybackPool[_releaseIndex].released[user];
-                uint256 paybackAmount = paybackPool[currentIndex].paybackInfo[user];
+        token.safeTransferFrom(_from, address(this), _value);
 
+        address user = _user.parseAddr();
+        paybackPool[currentIndex].paybackInfo[user] = paybackPool[currentIndex].paybackInfo[user].add(_value);
+
+        emit AddPayback(user, currentIndex, _value);
+    }
+
+    function release() public validAddress(msg.sender) {
+        ERC20 token = ERC20(council.getToken());
+        require(block.timestamp.getMs() >= lastReleaseTime[msg.sender].add(releaseInterval)); // 릴리즈 주기
+
+        lastReleaseTime[msg.sender] = block.timestamp.getMs();
+
+        for (uint256 i = 0; i < paybackPool.length; i++) {
+            if (block.timestamp.getMs() >= paybackPool[i].createTime.add(30 days)) { // 30일 지난것만
+                bool released = paybackPool[i].released[msg.sender];
                 if (!released) {
-                    token.safeTransfer(user, paybackAmount);
-                    paybackPool[currentIndex].released[user] = true; // 이 항목은 릴리즈가 됨
-                    currentReleased = currentReleased.add(1); // 현재 릴리즈 갯수 증가
+                    uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
+                    paybackPool[i].released[msg.sender] = true;
+                    
+                    token.safeTransfer(msg.sender, paybackAmount);
 
-                    if (i == paybackPool[_releaseIndex].user.length - 1) { // last release
-                        paybackPool[currentIndex].totalReleased = true;
-                    }
+                    emit Release(msg.sender, i, paybackAmount);
                 }
             }
         }
-
-        uint256 releaseTime = block.timestamp.getMs();
-        paybackPool[_releaseIndex].releaseTime = releaseTime;
-        lastReleaseTime = releaseTime;
-    }
-
-    function releaseMonthly() external onlyOwner {
-        require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
-        ERC20 token = ERC20(council.getToken());
-        require(token.balanceOf(address(this)) >= paybackPool[currentIndex].totalReleaseAmount);
-
-        uint256 totalReleaseAmount = paybackPool[currentIndex].totalReleaseAmount;
-
-        for(uint i = 0; i < paybackPool[currentIndex].user.length; i++) {
-            address user = paybackPool[currentIndex].user[i];
-            bool released = paybackPool[currentIndex].released[user];
-            uint256 paybackAmount = paybackPool[currentIndex].paybackInfo[user];
-
-            if (!released) {
-              token.safeTransfer(user, paybackAmount);
-            }
-        }
-
-        uint256 releaseTime = block.timestamp.getMs();
-        paybackPool[currentIndex].releaseTime = releaseTime;
-        lastReleaseTime = releaseTime;
-
-        createPaybackPool();
-
-        emit ReleaseMonthly(releaseTime, totalReleaseAmount);
     }
 
     function getCurrentIndex() public view returns(uint256) {
         return currentIndex;
     }
 
-    function getPaybackInfo(address _user) public validAddress(_user) view returns(uint256, bool) {
-        uint256 paybackAmount = paybackPool[currentIndex].paybackInfo[_user];
-        bool released = paybackPool[currentIndex].released[_user];
-
-        return (paybackAmount, released);
-    }
-
-    event AddPayback(address _user, uint256 _value, uint256 _lastPaymentTime);
-    event AddPaybackPool(uint256 _currentIndex, uint256 _createTime);
-    event ReleaseMonthly(uint256 _releaseTime, uint256 _releaseAmount);
+    event AddPayback(address _user, uint256 _currentIndex, uint256 _value);
+    event CreatePaybackPool(uint256 _currentIndex, uint256 _createTime);
+    event Release(address _user, uint256 _currentIndex, uint256 _releaseAmount);
 }
