@@ -49,9 +49,5 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
         return Fund(_fund).distribution(_total);
     }
 
-    function getSupportCount(address _fund) external view returns (uint256) {
-        return Fund(_fund).getSupportCount();
-    }
-
     event RegisterFund(address _content, address _fund);
 }
