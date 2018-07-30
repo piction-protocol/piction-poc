@@ -1,193 +1,113 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
-import "openzeppelin-solidity/contracts/math/Math.sol";
+import "contracts/utils/TimeLib.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-import "contracts/council/Council.sol";
-import "contracts/utils/BlockTimeMs.sol";
-
-contract SponsorshipPool {
-    using SafeERC20 for ERC20;
+contract SponsorshipPool is Ownable {
     using SafeMath for uint256;
-    using Math for uint256;
-    using BlockTimeMs for uint256;
+    using TimeLib for *;
 
-    struct Supporter {
-        address user;
-        uint256 investment;
-        uint256 collection;
-        bool refund;
-        mapping (uint256 => bool) voteResult;
+    enum PoolState {PENDING, PAID, CANCEL_PAYMENT}
+
+    struct Pool {
+        uint256 amount;
+        uint256 distributionTime;
+        uint256 distributedTime;
+        PoolState state;
+        mapping(address => bool) voting;
     }
-    //작품주소
-    address contentAddress;
-    //작가주소
-    address writerAddress;
-    //위원회 주소
-    address councilAddress;
-    //참여한 서포터 목록
-    Supporter[] supports;
-    //모집된 금액
-    uint256 fundRise;
-    //변경될 수 있는 지급해야할 횟수
-    uint256 countOfRelease;
-    //처음 지정한 지급해야할 횟수
-    uint256 originCountOfRelease;
-    //지급된 횟수
-    uint256 releasedCount;
-    //지급 간격
-    uint256 releaseInterval;
-    //이전에 지급된 시간
-    uint256 lastReleaseTime;
-    //자금모집이 종료된 시간
-    uint256 fundEndTime;
-    //서포터의 비율
-    uint256 distributionRate;
+
+    Pool[] pools;
+    uint256 interval;
 
     constructor(
-        address _contentAddress,
-        address _writerAddress,
-        address _councilAddress,
-        uint256 _countOfRelease,
-        uint256 _fundEndTime,
-        uint256 _distributionRate)
-        public
-    {
-        contentAddress = _contentAddress;
-        writerAddress = _writerAddress;
-        councilAddress = _councilAddress;
-        countOfRelease = _countOfRelease;
-        originCountOfRelease = _countOfRelease;
-        lastReleaseTime = _fundEndTime;
-        distributionRate = _distributionRate;
-
-        releaseInterval = 600000; //for test 10min
+        uint256 _amount,
+        uint256 _size,
+        uint256 _interval)
+    public {
+        interval = _interval;
+        createPool(_amount, _size);
     }
 
-    function voting(bool _interrupt) external returns (bool) {
-        bool success = false;
-        for(uint i = 0; i < supports.length; i++) {
-            if (supports[i].user == msg.sender) {
-                supports[i].voteResult[releasedCount] = _interrupt;
-                success = true;
+    function createPool(uint256 _amount, uint256 _size) private {
+        uint256 poolAmount = _amount.div(_size);
+        for (uint256 i = 0; i < _size; i++) {
+            addPool(poolAmount);
+        }
+        uint256 remainder = _amount.sub(poolAmount.mul(_size));
+        if (remainder > 0) {
+            pools[pools.length - 1].amount = pools[pools.length - 1].amount.add(remainder);
+        }
+    }
 
-                emit Voting(msg.sender, _interrupt);
+    function getCurrentIndex() private view returns (uint, bool){
+        for (uint256 i = 0; i < pools.length; i++) {
+            uint256 startTime = pools[i].distributionTime;
+            uint256 endTime = pools[i].distributionTime.sub(interval);
+            if (TimeLib.currentTime().between(startTime, endTime)) {
+                return (i, true);
             }
         }
-
-        return success;
     }
 
-    function getInterruptVoteRate() private view returns (uint256) {
-        uint256 interruptCount;
-        for(uint i = 0; i < supports.length; i++) {
-            if(supports[i].voteResult[releasedCount]) {
-                interruptCount = interruptCount.add(1);
-            }
-        }
-
-        if (interruptCount == 0) {
-            return 0;
-        }
-
-        return interruptCount.div(supports.length).mul(100);
-    }
-
-    function releaseMonthly() external {
-        require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
-        require(countOfRelease >= releasedCount);
-        uint256 releaseAmount = fundRise.div(originCountOfRelease);
-        ERC20 token = ERC20(Council(councilAddress).token());
-        require(token.balanceOf(address(this)) >= releaseAmount);
-
-        if (getInterruptVoteRate() >= 50) {
-            countOfRelease = countOfRelease.add(1);
-            emit ReleaseMonthly(false);
+    function addPool(uint256 _amount) public onlyOwner {
+        uint256 distributionTime;
+        if (pools.length == 0) {
+            distributionTime = TimeLib.currentTime().add(interval);
         } else {
-            token.safeTransfer(writerAddress, releaseAmount);
-            emit ReleaseMonthly(true);
+            distributionTime = pools[pools.length - 1].distributionTime.add(interval);
         }
-        releasedCount = releasedCount.add(1);
-        lastReleaseTime = lastReleaseTime.add(releaseInterval);
+        pools.push(Pool(_amount, distributionTime, 0, PoolState.PENDING));
     }
 
-    function getTotalInvestment() public view returns (uint256) {
-        uint256 total;
-        for (uint256 i = 0; i < supports.length; i++) {
-            total = total.add(supports[i].investment);
+    function cancelPool() external onlyOwner returns (uint){
+        uint256 index;
+        bool success;
+        (index, success) = getCurrentIndex();
+        if (success) {
+            pools[index].state = PoolState.CANCEL_PAYMENT;
+            return pools[index].amount;
         }
-        return total;
     }
 
-    function getDistributeAmount(uint256 _total) external view returns(address[], uint256[]) {
-        require(msg.sender == contentAddress);
-        if (supports.length == 0) {
-            return (new address[](0), new uint256[](0));
-        }
+    function release() external onlyOwner returns (uint256 _amount){
+        for (uint256 i = 0; i < pools.length; i++) {
+            Pool memory pool = pools[i];
+            if (pool.distributionTime < TimeLib.currentTime() && pool.state == PoolState.PENDING) {
+                pool.distributedTime = TimeLib.currentTime();
+                pool.state = PoolState.PAID;
+                _amount.add(pool.amount);
 
-        address[] memory support = new address[](supports.length);
-        uint256[] memory amount = new uint256[](supports.length);
-
-        uint256 totalInvestment = getTotalInvestment();
-        uint256[] memory rate = new uint256[](supports.length);
-        uint256 remainCollection;
-        for(uint256 i = 0; i < supports.length; i++) {
-            rate[i] = totalInvestment.div(supports[i].investment);
-            remainCollection = remainCollection.add(supports[i].investment.sub(supports[i].collection));
-        }
-
-        for (uint256 j = 0; j < supports.length; j++) {
-            support[j] = supports[j].user;
-            if (remainCollection == 0) {
-                amount[j] = _total.div(distributionRate).div(rate[j]);
-            } else {
-                uint256 rateAmount = _total.div(rate[j]);
-                uint256 remainAmount = supports[j].investment.sub(supports[j].collection);
-                amount[j] = rateAmount.min256(remainAmount);
+                emit Release(pool.amount);
             }
         }
-
-        return (support, amount);
     }
 
-    function getSupports()
-        external
-        view
-        returns (address[], uint256[], bool[])
-    {
-        address[] memory user = new address[](supports.length.sub(1));
-        uint256[] memory investment = new uint256[](supports.length.sub(1));
-        bool[] memory supportRefund = new bool[](supports.length.sub(1));
-
-        uint256 supportsIndex = 0;
-        for(uint i = 0; i < supports.length; i++) {
-            user[supportsIndex] = supports[i].user;
-            investment[supportsIndex] = supports[i].investment;
-            supportRefund[supportsIndex] = supports[i].refund;
-
-            supportsIndex = supportsIndex.add(1);
+    function vote(address _user) external onlyOwner {
+        uint256 index;
+        bool success;
+        (index, success) = getCurrentIndex();
+        if (success) {
+            pools[index].voting[_user] = true;
         }
-        return (user, investment, supportRefund);
     }
 
-    function getSupportsLength()
-        external
-        view
-        returns (uint256)
-    {
-        return supports.length;
+    function getVotingCount(address[] _users) public view returns (uint256 _count) {
+        uint256 index;
+        bool success;
+        (index, success) = getCurrentIndex();
+        if (success) {
+            for (uint256 i = 0; i < _users.length; i++) {
+                _count.add(isVoting(index, _users[i]));
+            }
+        }
     }
 
-    function getDistributionRate()
-        external
-        view
-        returns (uint256)
-    {
-        return distributionRate;
+    function isVoting(uint256 poolIndex, address _user) private view returns (uint){
+        return pools[poolIndex].voting[_user] ? 1 : 0;
     }
 
     event Voting(address user, bool interrupt);
-    event ReleaseMonthly(bool success);
+    event Release(uint256 amount);
 }
