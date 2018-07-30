@@ -75,7 +75,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         ERC20 token = ERC20(Council(council).token());
         require(address(token) == _token);
 
-        uint index;
+        uint256 index;
         bool success;
         (index, success) = findSupporterIndex(_from);
         if (success) {
@@ -96,7 +96,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     }
 
     function releasePool() external validAddress(sponsorshipPool) {
-        uint amount = sponsorshipPool.release();
+        uint256 amount = sponsorshipPool.release();
         ERC20 token = ERC20(Council(council).token());
         token.safeTransfer(writer, amount);
     }
@@ -107,9 +107,9 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         sponsorshipPool.vote(msg.sender);
         address[] memory _supporters = new address[](supporters.length);
         (_supporters,) = getSupporters();
-        uint votingCount = sponsorshipPool.getVotingCount(_supporters);
+        uint256 votingCount = sponsorshipPool.getVotingCount(_supporters);
         if (supporters.length.div(2) <= votingCount) {
-            uint cancelAmount = sponsorshipPool.cancelPool();
+            uint256 cancelAmount = sponsorshipPool.cancelPool();
             sponsorshipPool.addPool(cancelAmount);
         }
     }
@@ -137,7 +137,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         uint256[] memory investment = new uint256[](supporters.length - 1);
 
         uint256 supportersIndex = 0;
-        for (uint i = 0; i < supporters.length; i++) {
+        for (uint256 i = 0; i < supporters.length; i++) {
             user[supportersIndex] = supporters[i].user;
             investment[supportersIndex] = supporters[i].investment;
 
@@ -167,7 +167,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     }
 
     function findSupporterIndex(address _supporter) private view returns (uint, bool){
-        for (uint i = 0; i < supporters.length; i++) {
+        for (uint256 i = 0; i < supporters.length; i++) {
             if (supporters[i].user == _supporter) {
                 return (i, true);
             }
@@ -175,7 +175,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     }
 
     function isSupporter(address _supporter) private view returns (bool){
-        for (uint i = 0; i < supporters.length; i++) {
+        for (uint256 i = 0; i < supporters.length; i++) {
             if (supporters[i].user == _supporter) {
                 return true;
             }

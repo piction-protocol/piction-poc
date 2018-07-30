@@ -22,7 +22,7 @@ contract SponsorshipPool is Ownable {
     }
 
     Pool[] pools;
-    uint interval;
+    uint256 interval;
 
     constructor(
         uint256 _amount,
@@ -33,29 +33,29 @@ contract SponsorshipPool is Ownable {
         createPool(_amount, _size);
     }
 
-    function createPool(uint _amount, uint _size) private {
-        uint poolAmount = _amount.div(_size);
-        for (uint i = 0; i < _size; i++) {
+    function createPool(uint256 _amount, uint256 _size) private {
+        uint256 poolAmount = _amount.div(_size);
+        for (uint256 i = 0; i < _size; i++) {
             addPool(poolAmount);
         }
-        uint remainder = _amount.sub(poolAmount.mul(_size));
+        uint256 remainder = _amount.sub(poolAmount.mul(_size));
         if (remainder > 0) {
             pools[pools.length - 1].amount = pools[pools.length - 1].amount.add(remainder);
         }
     }
 
     function getCurrentIndex() private view returns (uint, bool){
-        for (uint i = 0; i < pools.length; i++) {
-            uint startTime = pools[i].distributionTime;
-            uint endTime = pools[i].distributionTime.sub(interval);
+        for (uint256 i = 0; i < pools.length; i++) {
+            uint256 startTime = pools[i].distributionTime;
+            uint256 endTime = pools[i].distributionTime.sub(interval);
             if (TimeLib.currentTime().between(startTime, endTime)) {
                 return (i, true);
             }
         }
     }
 
-    function addPool(uint _amount) public onlyOwner {
-        uint distributionTime;
+    function addPool(uint256 _amount) public onlyOwner {
+        uint256 distributionTime;
         if (pools.length == 0) {
             distributionTime = TimeLib.currentTime().add(interval);
         } else {
@@ -65,7 +65,7 @@ contract SponsorshipPool is Ownable {
     }
 
     function cancelPool() external onlyOwner returns (uint){
-        uint index;
+        uint256 index;
         bool success;
         (index, success) = getCurrentIndex();
         if (success) {
@@ -74,8 +74,8 @@ contract SponsorshipPool is Ownable {
         }
     }
 
-    function release() external onlyOwner returns (uint _amount){
-        for (uint i = 0; i < pools.length; i++) {
+    function release() external onlyOwner returns (uint256 _amount){
+        for (uint256 i = 0; i < pools.length; i++) {
             Pool memory pool = pools[i];
             if (pool.distributionTime < TimeLib.currentTime() && pool.state == PoolState.PENDING) {
                 pool.distributedTime = TimeLib.currentTime();
@@ -88,7 +88,7 @@ contract SponsorshipPool is Ownable {
     }
 
     function vote(address _user) external onlyOwner {
-        uint index;
+        uint256 index;
         bool success;
         (index, success) = getCurrentIndex();
         if (success) {
@@ -96,21 +96,21 @@ contract SponsorshipPool is Ownable {
         }
     }
 
-    function getVotingCount(address[] _users) public view returns (uint _count) {
-        uint index;
+    function getVotingCount(address[] _users) public view returns (uint256 _count) {
+        uint256 index;
         bool success;
         (index, success) = getCurrentIndex();
         if (success) {
-            for (uint i = 0; i < _users.length; i++) {
+            for (uint256 i = 0; i < _users.length; i++) {
                 _count.add(isVoting(index, _users[i]));
             }
         }
     }
 
-    function isVoting(uint poolIndex, address _user) private view returns (uint){
+    function isVoting(uint256 poolIndex, address _user) private view returns (uint){
         return pools[poolIndex].voting[_user] ? 1 : 0;
     }
 
     event Voting(address user, bool interrupt);
-    event Release(uint amount);
+    event Release(uint256 amount);
 }
