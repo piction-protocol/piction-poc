@@ -44,8 +44,9 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
         return funds[_content];
     }
 
-    function getDistributeAmount(address _fund, uint256 _total) external view returns (address[], uint256[]) {
-        return Fund(_fund).getDistributeAmount(_total);
+    // TODO: pixelDistributor 권한 체크 해야 함
+    function distribution(address _fund, uint256 _total) external returns (address[], uint256[]) {
+        return Fund(_fund).distribution(_total);
     }
 
     function getSupportCount(address _fund) external view returns (uint256) {

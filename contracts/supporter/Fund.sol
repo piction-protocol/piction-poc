@@ -22,6 +22,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         address user;
         uint256 investment;
         uint256 collection;
+        uint256 distributionRate;
     }
 
     uint256 startTime;
@@ -83,7 +84,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         if (success) {
             supporters[index].investment = supporters[index].investment.add(_value);
         } else {
-            supporters.push(Supporter(_from, _value, 0));
+            supporters.push(Supporter(_from, _value, 0, 0));
         }
         fundRise = fundRise.add(_value);
         token.safeTransferFrom(_from, address(this), _value);
@@ -91,12 +92,23 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         emit Support(_from, _value);
     }
 
-    function createPool() external {
+    function startDistribution() external {
         require(address(sponsorshipPool) == address(0));
         require(TimeLib.currentTime() < endTime);
         require(fundRise > 0);
 
+        setDistributionRate();
         sponsorshipPool = new SponsorshipPool(fundRise, poolSize, releaseInterval);
+    }
+
+    function setDistributionRate() private {
+        uint256 totalInvestment;
+        for (uint256 i = 0; i < supporters.length; i++) {
+            totalInvestment = totalInvestment.add(supporters[i].investment);
+        }
+        for (i = 0; i < supporters.length; i++) {
+            supporters[i].distributionRate = totalInvestment.div(supporters[i].investment);
+        }
     }
 
     function releasePool() external validAddress(sponsorshipPool) {
@@ -119,21 +131,20 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         }
     }
 
-    function getDistributeAmount(uint256 _total) public view returns (address[], uint256[]) {
+    function distribution(uint256 _total) external returns (address[], uint256[]) {
         address[] memory _supporters = new address[](supporters.length);
         uint256[] memory _amounts = new uint256[](supporters.length);
 
-        uint256 totalInvestment = getTotalInvestment();
-        uint256 totalRemain = totalInvestment.sub(getTotalCollection());
-        uint256 distributeAmount = (totalRemain == 0) ? _total.div(distributionRate) : _total;
         for (uint256 i = 0; i < supporters.length; i++) {
             _supporters[i] = supporters[i].user;
-            uint256 rate = totalInvestment.div(supporters[i].investment);
-            uint256 rateAmount = distributeAmount.div(rate);
-            uint256 remainAmount = supporters[i].investment.sub(supporters[i].collection);
-            _amounts[i] = rateAmount.min256(remainAmount);
+            uint256 remain = supporters[i].investment.sub(supporters[i].collection);
+            if (remain == 0) {
+                _amounts[i] = _total.div(distributionRate).div(supporters[i].distributionRate);
+            } else {
+                _amounts[i] = _total.div(supporters[i].distributionRate).min256(remain);
+                supporters[i].collection = supporters[i].collection.add(_amounts[i]);
+            }
         }
-
         return (_supporters, _amounts);
     }
 
@@ -157,22 +168,6 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 
     function getDistributionRate() public view returns (uint256){
         return distributionRate;
-    }
-
-    function getTotalInvestment() private view returns (uint256) {
-        uint256 total;
-        for (uint256 i = 0; i < supporters.length; i++) {
-            total = total.add(supporters[i].investment);
-        }
-        return total;
-    }
-
-    function getTotalCollection() private view returns (uint256) {
-        uint256 total;
-        for (uint256 i = 0; i < supporters.length; i++) {
-            total = total.add(supporters[i].collection);
-        }
-        return total;
     }
 
     function findSupporterIndex(address _supporter) private view returns (uint, bool){
