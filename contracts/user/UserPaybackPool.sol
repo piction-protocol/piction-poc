@@ -45,6 +45,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     {
         council = CouncilInterface(_councilAddress);
         releaseInterval = 600000; //for test 10min
+        paybackPool.push(PaybackPool(new address[](0)));
     }
 
     function receiveApproval(
@@ -57,12 +58,11 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         validAddress(_token)
     {
         addPayback(_from, _value, _token, _data);
-        paybackPool.push(PaybackPool(new address[](0), 0, 0));
     }
 
     function createPaybackPool() private {
         currentIndex = currentIndex.add(1);
-        paybackPool.push(PaybackPool(new address[](0), 0, 0));
+        paybackPool.push(PaybackPool(new address[](0)));
 
         uint256 createTime = block.timestamp.getMs();
 
