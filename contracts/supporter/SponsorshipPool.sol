@@ -62,9 +62,7 @@ contract SponsorshipPool is Ownable {
     }
 
     function cancelPool() external onlyOwner returns (uint){
-        uint256 index;
-        bool success;
-        (index, success) = getCurrentIndex();
+        (uint256 index, bool success) = getCurrentIndex();
         if (success) {
             pools[index].state = PoolState.CANCEL_PAYMENT;
             return pools[index].amount;
@@ -85,18 +83,14 @@ contract SponsorshipPool is Ownable {
     }
 
     function vote(address _user) external onlyOwner {
-        uint256 index;
-        bool success;
-        (index, success) = getCurrentIndex();
+        (uint256 index, bool success) = getCurrentIndex();
         if (success) {
             pools[index].voting[_user] = true;
         }
     }
 
     function getVotingCount(address[] _users) public view returns (uint256 _count) {
-        uint256 index;
-        bool success;
-        (index, success) = getCurrentIndex();
+        (uint256 index, bool success) = getCurrentIndex();
         if (success) {
             for (uint256 i = 0; i < _users.length; i++) {
                 _count.add(isVoting(index, _users[i]));

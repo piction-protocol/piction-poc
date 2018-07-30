@@ -76,9 +76,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         ERC20 token = ERC20(CouncilInterface(council).getToken());
         require(address(token) == _token);
 
-        uint256 index;
-        bool success;
-        (index, success) = findSupporterIndex(_from);
+        (uint256 index, bool success) = findSupporterIndex(_from);
         if (success) {
             supporters[index].investment = supporters[index].investment.add(_value);
         } else {
@@ -119,8 +117,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         require(isSupporter(msg.sender));
 
         sponsorshipPool.vote(msg.sender);
-        address[] memory _supporters = new address[](supporters.length);
-        (_supporters,) = getSupporters();
+        (address[] memory _supporters,) = getSupporters();
         uint256 votingCount = sponsorshipPool.getVotingCount(_supporters);
         if (supporters.length.div(2) <= votingCount) {
             uint256 cancelAmount = sponsorshipPool.cancelPool();
@@ -157,10 +154,6 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
             supportersIndex = supportersIndex.add(1);
         }
         return (user, investment);
-    }
-
-    function getSupportCount() public view returns (uint256) {
-        return supporters.length;
     }
 
     function getDistributionRate() public view returns (uint256){
