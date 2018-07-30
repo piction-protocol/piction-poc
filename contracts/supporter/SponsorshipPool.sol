@@ -3,12 +3,10 @@ pragma solidity ^0.4.24;
 import "contracts/council/Council.sol";
 import "contracts/utils/TimeLib.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract SponsorshipPool is Ownable {
     using Math for uint256;
-    using SafeMath for uint256;
     using TimeLib for *;
 
     enum PoolState {PENDING, PAID, CANCEL_PAYMENT}
