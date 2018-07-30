@@ -1,8 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "contracts/supporter/SponsorshipPool.sol";
-// TODO: council interface 처리
-import "contracts/council/Council.sol";
+import "contracts/council/CouncilInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -74,8 +73,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
     function support(address _from, uint256 _value, address _token) private {
         require(TimeLib.currentTime().between(startTime, endTime));
 
-        // TODO: council interface 처리
-        ERC20 token = ERC20(Council(council).token());
+        ERC20 token = ERC20(CouncilInterface(council).getToken());
         require(address(token) == _token);
 
         uint256 index;
@@ -113,8 +111,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 
     function releasePool() external validAddress(sponsorshipPool) {
         uint256 amount = sponsorshipPool.release();
-        // TODO: council interface 처리
-        ERC20 token = ERC20(Council(council).token());
+        ERC20 token = ERC20(CouncilInterface(council).getToken());
         token.safeTransfer(writer, amount);
     }
 
