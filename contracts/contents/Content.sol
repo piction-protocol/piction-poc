@@ -73,8 +73,6 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
     external
     onlyOwner validString(_record) validEpisodeLength(_index)
     {
-        require(bytes(episodes[_index].record).length > 0);
-
         episodes[_index].record = _record;
         episodes[_index].price = _price;
 
@@ -106,8 +104,12 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
         return episodes.length;
     }
 
-    function getEpisodeDetail(uint256 _index) public view returns (string, uint256, uint256)
+    function getEpisodeDetail(uint256 _index)
+        public
+        view
+        returns (string, uint256, uint256)
     {
+        require(msg.sender == writer || buyUser[msg.sender]); 
         return (episodes[_index].record, episodes[_index].price, episodes[_index].buyCount);
     }
 
