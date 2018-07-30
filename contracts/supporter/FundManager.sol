@@ -49,4 +49,6 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
     function getDistributeAmount(address _fund, uint256 _total) public view returns (address[], uint256[]) {
         return Fund(_fund).getDistributeAmount(_total);
     }
+
+    event RegisterFund(address _content, address _fund);
 }

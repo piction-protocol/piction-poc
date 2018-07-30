@@ -6,5 +6,4 @@ contract FundManagerInterface {
 
     function getDistributeAmount(address _fund, uint256 _total) public view returns (address[], uint256[]);
 
-    event RegisterFund(address _content, address _fund);
 }
