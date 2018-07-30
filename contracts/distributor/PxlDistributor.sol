@@ -73,7 +73,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             uint256 compareAmount = _value;
 
             //cd amount
-            tempVar = getRateToPxlAmount(compareAmount, council.getCdRate());
+            tempVar = getRateToPxlAmount(_value, council.getCdRate());
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
@@ -81,7 +81,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             );
 
             //user payback pool amount
-            tempVar = getRateToPxlAmount(compareAmount, council.getUserPaybackRate());
+            tempVar = getRateToPxlAmount(_value, council.getUserPaybackRate());
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
@@ -89,7 +89,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             );
 
             //deposit amount
-            tempVar = getRateToPxlAmount(compareAmount, council.getDepositRate());
+            tempVar = getRateToPxlAmount(_value, council.getDepositRate());
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
@@ -98,7 +98,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
 
             // marketer amount
             if(getJsonToMarketerAddr(tokens, _jsonData) != address(0)) {
-                tempVar = getRateToPxlAmount(compareAmount, ContentInterface(getJsonToContentAddr(tokens, _jsonData)).getMarketerRate());
+                tempVar = getRateToPxlAmount(_value, ContentInterface(getJsonToContentAddr(tokens, _jsonData)).getMarketerRate());
                 compareAmount = compareAmount.sub(tempVar);
                 distribution.push(
                     DistributionDetail(
