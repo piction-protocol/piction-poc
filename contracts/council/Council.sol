@@ -16,6 +16,7 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
     uint256 userPaybackRate;
     uint256 reportRegistrationFee;
     uint256 reportRewardRate;
+    uint256 marketerDefaultRate;
     address userPaybackPool;
     address depositPool;
     address token;
@@ -32,6 +33,7 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         uint256 _userPaybackRate,
         uint256 _reportRegistrationFee,
         uint256 _reportRewardRate,
+        uint256 _marketerDefaultRate,
         address _token)
         public
         validRange(_cdRate)
@@ -40,6 +42,7 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         validRange(_userPaybackRate)
         validRange(_reportRegistrationFee)
         validRange(_reportRewardRate)
+        validRange(_marketerDefaultRate)
         validAddress(_token)
     {
         cdRate = _cdRate;
@@ -48,9 +51,10 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         userPaybackRate = _userPaybackRate;
         reportRegistrationFee = _reportRegistrationFee;
         reportRewardRate = _reportRewardRate;
+        marketerDefaultRate = _marketerDefaultRate;
         token = _token;
 
-        emit RegisterCouncil(msg.sender, _cdRate, _depositRate, _initialDeposit, _userPaybackRate, _reportRegistrationFee, _reportRewardRate, _token);
+        emit RegisterCouncil(msg.sender, _cdRate, _depositRate, _initialDeposit, _userPaybackRate, _reportRegistrationFee, _reportRewardRate, _marketerDefaultRate, _token);
     }
 
     function setCdRate(uint256 _cdRate) external onlyOwner validRange(_cdRate) {
@@ -111,6 +115,16 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
 
     function getReportRewardRate() view external returns (uint256) {
         return reportRewardRate;
+    }
+
+    function setMarketerDefaultRate(uint256 _marketerDefaultRate) external onlyOwner validRange(_marketerDefaultRate) {
+        marketerDefaultRate = _marketerDefaultRate;
+
+        emit ChangeDistributionRate(msg.sender, "marketer default rate", _marketerDefaultRate);
+    }
+
+    function getMarketerDefaultRate() view external returns (uint256) {
+        return marketerDefaultRate;
     }
 
     function setUserPaybackPool(address _userPaybackPool) external onlyOwner validAddress(_userPaybackPool) {
@@ -187,7 +201,7 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         return marketer;
     }
 
-    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRegistrationFee, uint256 _reportRewardRate, address _token);
+    event RegisterCouncil(address _sender, uint256 _cdRate, uint256 _deposit, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRegistrationFee, uint256 _reportRewardRate, uint256 _marketerDefaultRate, address _token);
     event ChangeDistributionRate(address _sender, string _name, uint256 _value);
     event ChangeAddress(address _sender, string addressName, address _addr);
 }
