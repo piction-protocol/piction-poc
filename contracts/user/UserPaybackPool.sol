@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/council/CouncilInterface.sol";
-import "contracts/utils/BlockTimeMs.sol";
+import "contracts/utils/TimeLib.sol";
 import "contracts/utils/ParseLib.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
@@ -20,7 +20,7 @@ import "contracts/utils/ExtendsOwnable.sol";
 contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
-    using BlockTimeMs for uint256;
+    using TimeLib for *;
     using ParseLib for string;
 
     struct PaybackPool {
@@ -62,7 +62,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         if (paybackPool.length > 0) { // paybackpool이 없으면 currentIndex 0으로 유지
             currentIndex = currentIndex.add(1);
         }
-        uint256 createTime = block.timestamp.getMs();
+        uint256 createTime = TimeLib.currentTime();
 
         paybackPool.push(PaybackPool(createTime));
 
@@ -74,7 +74,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         require(address(token) == _token);
 
         // 현재 paybackpool 의 생성 시간이 30일 지났으면 새로 생성
-        if (block.timestamp.getMs() >= paybackPool[currentIndex].createTime.add(30 days)) {
+        if (TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(30 days)) {
             createPaybackPool();
         }
 
@@ -88,12 +88,12 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     function release() public validAddress(msg.sender) {
         ERC20 token = ERC20(council.getToken());
-        require(block.timestamp.getMs() >= lastReleaseTime[msg.sender].add(releaseInterval)); // 릴리즈 주기
+        require(TimeLib.currentTime() >= lastReleaseTime[msg.sender].add(releaseInterval)); // 릴리즈 주기
 
-        lastReleaseTime[msg.sender] = block.timestamp.getMs();
+        lastReleaseTime[msg.sender] = TimeLib.currentTime();
 
         for (uint256 i = 0; i < paybackPool.length; i++) {
-            if (block.timestamp.getMs() >= paybackPool[i].createTime.add(30 days)) { // 30일 지난것만
+            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(30 days)) { // 30일 지난것만
                 bool released = paybackPool[i].released[msg.sender];
                 if (!released) {
                     uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
