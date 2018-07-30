@@ -66,7 +66,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         // paid contents
         if(_value > 0) {
             require(token.balanceOf(_from) >= _value);
-            transferDistributePxl(address(this), _value, false, _jsonData);
+            token.safeTransferFrom(_from, address(this), _value);
 
             uint256 i;
             uint256 tempVar;
@@ -140,22 +140,16 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     {
         uint256 tempVar;
         uint256 compareAmount;
-        address[] memory fundAddress = new address[](
-            FundManagerInterface(council.getFundManager()).getFunds(getJsonToContentAddr(_tokens, _jsonData)).length);
-        fundAddress = FundManagerInterface(council.getFundManager()).getFunds(getJsonToContentAddr(_tokens, _jsonData));
+        address[] memory fundAddress = FundManagerInterface(council.getFundManager()).getFunds(getJsonToContentAddr(_tokens, _jsonData));
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
             if(compareAmount >= _amount) {
                 break;
             }
-            address[] memory supporterAddress = new address[](
-                FundManagerInterface(council.getFundManager()).getSupportCount(fundAddress[i]));
-            uint256[] memory supporterAmount = new uint256[](
-                FundManagerInterface(council.getFundManager()).getSupportCount(fundAddress[i]));
+            address[] memory supporterAddress;
+            uint256[] memory supporterAmount;
 
-            (supporterAddress, supporterAmount) = FundManagerInterface(
-                council.getFundManager()).distribution(
-                    FundManagerInterface(council.getFundManager()).getFunds(getJsonToContentAddr(_tokens, _jsonData))[i], compareAmount);
+            (supporterAddress, supporterAmount) = FundManagerInterface(council.getFundManager()).distribution(fundAddress[i]);
 
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
                 tempVar = supporterAmount[j];
@@ -163,7 +157,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
                 distribution.push(DistributionDetail(supporterAddress[j], tempVar, false, ""));
             }
         }
-
         return compareAmount;
     }
 
