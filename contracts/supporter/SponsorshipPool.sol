@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "contracts/council/Council.sol";
 import "contracts/utils/TimeLib.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
