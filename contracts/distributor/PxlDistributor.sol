@@ -136,28 +136,23 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
 
     function supportersAmount(JsmnSolLib.Token[] _tokens, string _jsonData, uint256 _amount)
         private
-        returns (uint256)
+        returns (uint256 compareAmount)
     {
-        uint256 tempVar;
-        uint256 compareAmount;
-        address[] memory fundAddress = FundManagerInterface(council.getFundManager()).getFunds(getJsonToContentAddr(_tokens, _jsonData));
+        FundManagerInterface fund = FundManagerInterface(council.getFundManager());
+        address[] memory fundAddress = fund.getFunds(getJsonToContentAddr(_tokens, _jsonData));
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
             if(compareAmount >= _amount) {
                 break;
             }
-            address[] memory supporterAddress;
-            uint256[] memory supporterAmount;
-
-            (supporterAddress, supporterAmount) = FundManagerInterface(council.getFundManager()).distribution(fundAddress[i]);
+            
+            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i]);
 
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-                tempVar = supporterAmount[j];
-                compareAmount = compareAmount.add(tempVar);
-                distribution.push(DistributionDetail(supporterAddress[j], tempVar, false, ""));
+                compareAmount = compareAmount.add(supporterAmount[j]);
+                distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, ""));
             }
         }
-        return compareAmount;
     }
 
     function getJsonToCdAddr(JsmnSolLib.Token[] _tokens, string _jsonData)
