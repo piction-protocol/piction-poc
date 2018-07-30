@@ -26,6 +26,7 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
         uint256 _distributionRate,
         string _detail)
     external {
+        // TODO: 콘텐츠 작성자인지 확인 필요
         Fund fund = new Fund(
             council,
             _content,
