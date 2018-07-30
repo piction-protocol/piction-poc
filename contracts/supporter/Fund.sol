@@ -84,6 +84,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
             supporters.push(Supporter(_from, _value, 0));
         }
         fundRise = fundRise.add(_value);
+        token.safeTransferFrom(_from, address(this), _value);
 
         emit Support(_from, _value);
     }
