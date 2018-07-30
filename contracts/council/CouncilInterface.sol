@@ -6,6 +6,8 @@ interface CouncilInterface {
     function getInitialDeposit() external view returns (uint256);
     function getUserPaybackRate() external view returns (uint256);
     function getReportRegistrationFee() view external returns (uint256);
+    function getReportRewardRate() view external returns (uint256);
+    function getMarketerDefaultRate() view external returns (uint256);
     function getUserPaybackPool() external view returns (address);
     function getDepositPool() external view returns (address);
     function getToken() external view returns (address);
