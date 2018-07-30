@@ -6,4 +6,6 @@ contract FundManagerInterface {
 
     function getDistributeAmount(address _fund, uint256 _total) external view returns (address[], uint256[]);
 
+    function getSupportCount() public view returns (uint256);
+
 }

@@ -151,6 +151,10 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
         return (user, investment);
     }
 
+    function getSupportCount() public view returns (uint256) {
+        return supporters.length;
+    }
+
     function getDistributionRate() public view returns (uint256){
         return distributionRate;
     }
