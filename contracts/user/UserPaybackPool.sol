@@ -27,6 +27,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         address[] user;
         uint256 releaseTime;
         uint256 totalReleaseAmount;
+        bool totalReleased;
         mapping (address => uint256) paybackInfo;
         mapping (address => bool) released;
     }
@@ -56,6 +57,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         validAddress(_token)
     {
         addPayback(_from, _value, _token, _data);
+        paybackPool.push(PaybackPool(new address[](0), 0, 0));
     }
 
     function createPaybackPool() private {
@@ -86,6 +88,44 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         uint256 paymentTime = block.timestamp.getMs();
 
         emit AddPayback(user, _value, paymentTime);
+    }
+
+    function releaseByCount(uint256 _releaseIndex, uint256 _count) external onlyOwner {
+        require(!paybackPool[_releaseIndex].totalReleased);// 이 인덱스가 릴리즈가 다 됐는지
+        require(_count <= 30); // 릴리즈 갯수제한?
+        require(paybackPool.length - 1 >= _releaseIndex); // Out of range 방지
+
+        require(block.timestamp.getMs() >= lastReleaseTime.add(releaseInterval));
+        ERC20 token = ERC20(council.getToken());
+        require(token.balanceOf(address(this)) >= paybackPool[_releaseIndex].totalReleaseAmount);
+
+        // 다음 paybackpool이 없으면 풀 생성
+        if (paybackPool.length - 1 == _releaseIndex) {
+            createPaybackPool();
+        }
+
+        uint256 currentReleased; // 현재 릴리즈한 갯수. _count보다 적어야 함
+        bool releaseComplete; // 마지막항목이 릴리즈 됐는지
+        for(uint i = 0; i < paybackPool[_releaseIndex].user.length; i++) {
+            if (currentReleased < _count) { // 갯수만큼만
+                address user = paybackPool[_releaseIndex].user[i];
+                bool released = paybackPool[_releaseIndex].released[user];
+                uint256 paybackAmount = paybackPool[currentIndex].paybackInfo[user];
+
+                if (!released) {
+                    token.safeTransfer(user, paybackAmount);
+                    paybackPool[currentIndex].released[user] = true; // 이 항목은 릴리즈가 됨
+                    currentReleased = currentReleased.add(1); // 현재 릴리즈 갯수 증가
+
+                    if (i == paybackPool[_releaseIndex].user.length - 1) { // last release
+                        paybackPool[currentIndex].totalReleased = true;
+                    }
+                }
+            }
+        }
+
+        paybackPool[_releaseIndex].releaseTime = releaseTime;
+        lastReleaseTime = releaseTime;
     }
 
     function releaseMonthly() external onlyOwner {
