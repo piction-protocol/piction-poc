@@ -124,6 +124,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
             }
         }
 
+        uint256 releaseTime = block.timestamp.getMs();
         paybackPool[_releaseIndex].releaseTime = releaseTime;
         lastReleaseTime = releaseTime;
     }
