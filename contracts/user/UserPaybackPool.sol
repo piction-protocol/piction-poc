@@ -59,7 +59,9 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     function createPaybackPool() private {
-        currentIndex = currentIndex.add(1);
+        if (paybackPool.length > 0) { // paybackpool이 없으면 currentIndex 0으로 유지
+            currentIndex = currentIndex.add(1);
+        }
         uint256 createTime = block.timestamp.getMs();
 
         paybackPool.push(PaybackPool(createTime));
