@@ -86,7 +86,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         emit AddPayback(user, currentIndex, _value);
     }
 
-    function release() public validAddress(msg.sender) {
+    function release() public {
         ERC20 token = ERC20(council.getToken());
         require(TimeLib.currentTime() >= lastReleaseTime[msg.sender].add(releaseInterval)); // 릴리즈 주기
 
