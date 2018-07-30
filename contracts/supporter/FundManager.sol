@@ -42,11 +42,11 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
         emit RegisterFund(_content, fund);
     }
 
-    function getFunds(address _content) public returns (address[]) {
+    function getFunds(address _content) external returns (address[]) {
         return funds[_content];
     }
 
-    function getDistributeAmount(address _fund, uint256 _total) public view returns (address[], uint256[]) {
+    function getDistributeAmount(address _fund, uint256 _total) external view returns (address[], uint256[]) {
         return Fund(_fund).getDistributeAmount(_total);
     }
 
