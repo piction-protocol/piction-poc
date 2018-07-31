@@ -68,7 +68,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             require(token.balanceOf(_from) >= _value);
             token.safeTransferFrom(_from, address(this), _value);
 
-            uint256 i;
             uint256 tempVar;
             uint256 compareAmount = _value;
 
@@ -120,7 +119,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             }
 
             // transfer
-            for(i  = 0 ; i < distribution.length ; i ++) {
+            for(uint256 i  = 0 ; i < distribution.length ; i ++) {
                 transferDistributePxl(
                     distribution[i].transferAddress,
                     distribution[i].tokenAmount,
@@ -145,7 +144,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             if(compareAmount >= _amount) {
                 break;
             }
-            
+
             (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i]);
 
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
