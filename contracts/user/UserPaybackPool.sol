@@ -10,6 +10,7 @@ import "contracts/council/CouncilInterface.sol";
 import "contracts/utils/TimeLib.sol";
 import "contracts/utils/ParseLib.sol";
 import "contracts/utils/ExtendsOwnable.sol";
+import "contracts/access/RoleManager.sol";
 
 /**
  * @title UserPaybackPool contract
@@ -22,6 +23,8 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using SafeMath for uint256;
     using TimeLib for *;
     using ParseLib for string;
+
+    string public constant ROLE_NAME = "PXL_DISTRIBUTOR";
 
     struct PaybackPool {
         uint256 createTime;
@@ -70,6 +73,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     function addPayback(address _from, uint256 _value, address _token, string _user) private {
+        require(RoleManager(council.getRoleManager()).isAccess(msg.sender, ROLE_NAME));
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
