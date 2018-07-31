@@ -73,12 +73,12 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     function addPayback(address _from, uint256 _value, address _token, string _user) private {
-        require(RoleManager(council.getRoleManager()).isAccess(msg.sender, ROLE_NAME));
+        require(RoleManager(council.getRoleManager()).isAccess(_from, ROLE_NAME));
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
         // 현재 paybackpool 의 생성 시간이 30일 지났으면 새로 생성
-        if (TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(30 days)) {
+        if (paybackPool.length == 0 || TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(createPoolInterval)) {
             createPaybackPool();
         }
 
