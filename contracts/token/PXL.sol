@@ -86,15 +86,71 @@ contract PXL is StandardToken, CustomToken, ExtendsOwnable {
         return super.transfer(_to, _value);
     }
 
-    function approveAndCall(address _to, uint256 _value, string _jsonData) public returns (bool) {
+    function approveAndCall(address _to, uint256 _value, string _data) public returns (bool) {
         require(isTransferable || owners[msg.sender]);
         require(_to != address(0) && _to != address(this));
         require(balances[msg.sender] >= _value);
 
         if(approve(_to, _value) && isContract(_to)) {
             ContractReceiver receiver = ContractReceiver(_to);
-            receiver.receiveApproval(msg.sender, _value, address(this), _jsonData);
-            emit ApproveAndCall(msg.sender, _to, _value, _jsonData);
+            receiver.receiveApproval(msg.sender, _value, address(this), _data);
+            emit ApproveAndCall(msg.sender, _to, _value, _data);
+
+            return true;
+        }
+    }
+
+    function approveAndCall(address _to, uint256 _value, address _address) public returns (bool) {
+        require(isTransferable || owners[msg.sender]);
+        require(_to != address(0) && _to != address(this));
+        require(balances[msg.sender] >= _value);
+
+        if(approve(_to, _value) && isContract(_to)) {
+            ContractReceiver receiver = ContractReceiver(_to);
+            receiver.receiveApproval(msg.sender, _value, address(this), _address);
+            emit ApproveAndCall(msg.sender, _to, _value, _address);
+
+            return true;
+        }
+    }
+
+    function approveAndCall(address _to, uint256 _value, uint256 _number) public returns (bool) {
+        require(isTransferable || owners[msg.sender]);
+        require(_to != address(0) && _to != address(this));
+        require(balances[msg.sender] >= _value);
+
+        if(approve(_to, _value) && isContract(_to)) {
+            ContractReceiver receiver = ContractReceiver(_to);
+            receiver.receiveApproval(msg.sender, _value, address(this), _number);
+            emit ApproveAndCall(msg.sender, _to, _value, _number);
+
+            return true;
+        }
+    }
+
+    function approveAndCall(address _to, uint256 _value, bytes32 _bytes) public returns (bool) {
+        require(isTransferable || owners[msg.sender]);
+        require(_to != address(0) && _to != address(this));
+        require(balances[msg.sender] >= _value);
+
+        if(approve(_to, _value) && isContract(_to)) {
+            ContractReceiver receiver = ContractReceiver(_to);
+            receiver.receiveApproval(msg.sender, _value, address(this), _bytes);
+            emit ApproveAndCall(msg.sender, _to, _value, _bytes);
+
+            return true;
+        }
+    }
+
+    function approveAndCall(address _to, uint256 _value, address _cd, address _content, uint256 _index, address _marketer) public returns (bool) {
+        require(isTransferable || owners[msg.sender]);
+        require(_to != address(0) && _to != address(this));
+        require(balances[msg.sender] >= _value);
+
+        if(approve(_to, _value) && isContract(_to)) {
+            ContractReceiver receiver = ContractReceiver(_to);
+            receiver.receiveApproval(msg.sender, _value, address(this), _cd, _content, _index, _marketer);
+            emit ApproveAndCall(msg.sender, _to, _value, _to, _content, _index, _marketer);
 
             return true;
         }
