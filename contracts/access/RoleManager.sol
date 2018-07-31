@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/access/rbac/RBAC.sol"
+import "openzeppelin-solidity/contracts/access/rbac/RBAC.sol";
 
 contract RoleManager is Ownable, RBAC {
   function addAddressToRole(address _operator, string _roleName)
