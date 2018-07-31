@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "contracts/token/CustomToken.sol";
 import "contracts/council/CouncilInterface.sol";
 import "contracts/contents/ContentInterface.sol";
-import "contracts/marketer/Marketer.sol";
+import "contracts/marketer/MarketerInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/utils/ValidValue.sol";
@@ -205,7 +205,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         view
         returns (address)
     {
-        return Marketer(council.getMarketer()).getMarketerAddress(_key);
+        return MarketerInterface(council.getMarketer()).getMarketerAddress(_key);
     }
 
     function getJsonToValue(string  _jsonData, uint256 _arrayLength, uint256 _valueIndex)
