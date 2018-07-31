@@ -109,7 +109,7 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
         view
         returns (string, uint256, uint256)
     {
-        require(msg.sender == writer || buyUser[msg.sender]); 
+        require(msg.sender == writer || episodes[_index].buyUser[msg.sender]);
         return (episodes[_index].record, episodes[_index].price, episodes[_index].buyCount);
     }
 
