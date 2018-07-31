@@ -37,15 +37,19 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     uint256 currentIndex;
     uint256 releaseInterval;
+    uint256 createPoolInterval;
 
     mapping (address => uint256) lastReleaseTime; // 유저별 릴리즈 interval
 
     constructor(
-        address _councilAddress)
+        address _councilAddress,
+        uint256 _createPoolInterval)
         public
         validAddress(_councilAddress)
+        validRange(_createPoolInterval)
     {
         council = CouncilInterface(_councilAddress);
+        createPoolInterval = _createPoolInterval * 1 days;
         releaseInterval = 10 minutes;//600000; //for test 10min
     }
 
