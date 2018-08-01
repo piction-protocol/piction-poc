@@ -8,7 +8,7 @@
             style="max-width: 20rem;"
             class="mb-2">
       <p class="card-text">
-        {{content.description}}
+        {{content.synopsis}}
       </p>
     </b-card>
   </router-link>
