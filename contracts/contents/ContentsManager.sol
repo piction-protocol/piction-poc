@@ -32,7 +32,7 @@ contract ContentsManager is ContractReceiver, ValidValue {
 
     function addContents(
         string _record,
-        uint256 _marketerRate
+        uint256 _marketerRate       // 마케터 비율 설정 유,무를 확인 필요
     )
         external
         validString(_record)
@@ -89,6 +89,14 @@ contract ContentsManager is ContractReceiver, ValidValue {
         initialDeposit[_from] = _value;
 
         emit ContentInitialDeposit(_from, _value);
+    }
+
+    function getInitialDeposit(address _writer)
+        public
+        view
+        returns (uint256)
+    {
+        return initialDeposit[_writer];
     }
 
     function transferInitialDeposit(address _writer, address _content)
