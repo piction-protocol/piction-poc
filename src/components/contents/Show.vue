@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :form="form"
+      :record="record"
       action="show"
       submitText="Edit"
       @onSubmit="onSubmit"></Form>
@@ -10,14 +10,14 @@
 
 <script>
   import Form from './Form'
-  import {formData} from './helper'
+  import {record} from './helper'
 
   export default {
     props: ['content_id'],
     components: {Form},
     data() {
       return {
-        form: formData(),
+        record: record(),
       }
     },
     methods: {
@@ -25,14 +25,9 @@
         this.$router.push({name: 'edit-content', params: {content_id: this.content_id}});
       }
     },
-    created() {
-      const instance = this.$contract.content;
-      instance.getTitle(this.content_id).then(r => this.form.title = r);
-      instance.getThumbnail(this.content_id).then(r => this.form.thumbnail = r);
-      instance.getSynopsis(this.content_id).then(r => this.form.synopsis = r);
-      instance.getGenres(this.content_id).then(r => this.form.genres = r);
-      instance.getMarketerRate(this.content_id).then(r => this.form.marketerRate = r);
-      instance.getTranslatorRate(this.content_id).then(r => this.form.translatorRate = r);
+    async created() {
+      await this.$contract.contentInterface.getRecord(this.content_id)
+        .then(r => this.record = JSON.parse(r));
     }
   }
 </script>

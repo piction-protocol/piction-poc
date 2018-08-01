@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :form="form"
+      :record="record"
       action="new"
       submitText="Create"
       @onSubmit="onSubmit"></Form>
@@ -10,29 +10,22 @@
 
 <script>
   import Form from './Form'
-  import {formData, genres} from './helper'
+  import {record, genres} from './helper'
 
   export default {
     components: {Form},
     data() {
       return {
-        form: formData(),
+        record: record(),
       }
     },
     methods: {
-      async onSubmit(form) {
+      async onSubmit(record) {
         this.$loading('Uploading...');
         try {
-          let contrat = await this.$contract.content.deploy([
-            form.title,
-            this.$root.account,
-            form.synopsis,
-            form.genres,
-            form.thumbnail,
-            form.marketerRate,
-            form.translatorRate
-          ]);
-          this.$router.push({name: 'show-content', params: {content_id: contrat._address}})
+          let contract = await this.$contract.contentsManager.addContents(record);
+          let address = contract.events['RegisterContents'].returnValues._contentAddress;
+          this.$router.push({name: 'show-content', params: {content_id: address}})
         } catch (e) {
           alert(e)
         }
@@ -40,7 +33,7 @@
       },
     },
     created() {
-      this.form.genres = genres[0].value
+      this.record.genres = genres[0].value
     }
   }
 </script>

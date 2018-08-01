@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :form="form"
+      :record="record"
       action="edit"
       submitText="Edit"
       @onSubmit="onSubmit"></Form>
@@ -10,29 +10,21 @@
 
 <script>
   import Form from './Form'
-  import {formData} from './helper'
+  import {record} from './helper'
 
   export default {
     components: {Form},
     props: ['content_id'],
     data() {
       return {
-        form: formData()
+        record: record(),
       }
     },
     methods: {
-      async onSubmit(form) {
+      async onSubmit(record, marketerRate) {
         this.$loading('Uploading...');
         try {
-          await this.$contract.content.update([
-            form.title,
-            this.$root.account,
-            form.synopsis,
-            form.genres,
-            form.thumbnail,
-            form.marketerRate,
-            form.translatorRate
-          ]);
+          await this.$contract.contentInterface.updateContent(this.content_id, record);
           this.$router.push({name: 'show-content', params: {content_id: this.content_id}})
         } catch (e) {
           alert(e)
@@ -41,13 +33,8 @@
       },
     },
     created() {
-      const instance = this.$contract.content;
-      instance.getTitle(this.content_id).then(r => this.form.title = r);
-      instance.getThumbnail(this.content_id).then(r => this.form.thumbnail = r);
-      instance.getSynopsis(this.content_id).then(r => this.form.synopsis = r);
-      instance.getGenres(this.content_id).then(r => this.form.genres = r);
-      instance.getMarketerRate(this.content_id).then(r => this.form.marketerRate = r);
-      instance.getTranslatorRate(this.content_id).then(r => this.form.translatorRate = r);
+      this.$contract.contentInterface.getRecord(this.content_id)
+        .then(r => this.record = JSON.parse(r));
     }
   }
 </script>

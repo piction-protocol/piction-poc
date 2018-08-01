@@ -8,7 +8,7 @@
                       :disabled="disabled"
                       required
                       type="text"
-                      v-model="form.title"
+                      v-model="record.title"
                       placeholder="Enter title">
         </b-form-input>
       </b-form-group>
@@ -16,13 +16,13 @@
                     label-for="thumbnail"
                     description="">
         <img class="preview form-control"
-             v-if="form.thumbnail"
-             :src="form.thumbnail">
+             v-if="record.thumbnail"
+             :src="record.thumbnail">
         <b-form-file id="thumbnail"
                      :disabled="disabled"
                      :required="action == 'new'"
                      @change="onChangeImage"
-                     :state="Boolean(form.thumbnail)"
+                     :state="Boolean(record.thumbnail)"
                      placeholder="Click here upload image"></b-form-file>
       </b-form-group>
       <b-form-group label="Synopsis:"
@@ -32,7 +32,7 @@
                          :disabled="disabled"
                          required
                          type="text"
-                         v-model="form.synopsis"
+                         v-model="record.synopsis"
                          placeholder="Enter synopsis"
                          :rows="2"
                          :max-rows="3">
@@ -44,7 +44,7 @@
         <b-form-radio-group id="genres"
                             :disabled="disabled"
                             required
-                            v-model="form.genres"
+                            v-model="record.genres"
                             :options="options">
         </b-form-radio-group>
       </b-form-group>
@@ -55,19 +55,8 @@
                       :disabled="disabled"
                       required
                       type="number"
-                      v-model="form.marketerRate"
+                      v-model="record.marketerRate"
                       placeholder="Set marketer distribution rate">
-        </b-form-input>
-      </b-form-group>
-      <b-form-group label="Translator distribution rate:"
-                    label-for="translatorRate"
-                    description="">
-        <b-form-input id="translatorRate"
-                      :disabled="disabled"
-                      required
-                      type="number"
-                      v-model="form.translatorRate"
-                      placeholder="Set translator distribution rate">
         </b-form-input>
       </b-form-group>
       <div align="center">
@@ -81,10 +70,10 @@
   import {genres} from './helper'
 
   export default {
-    props: ['form', 'action', 'submitText'],
+    props: ['record', 'action', 'submitText'],
     data() {
       return {
-        options: genres,
+        options: genres
       }
     },
     computed: {
@@ -95,14 +84,14 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
-        this.$emit('onSubmit', this.form);
+        this.$emit('onSubmit', this.record);
       },
       async onChangeImage(event) {
         this.$loading('Uploading...');
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         var dimensions = await this.$utils.getImageDimensions(url);
         console.log(dimensions)
-        this.form.thumbnail = url;
+        this.record.thumbnail = url;
         this.$loading.close();
       },
     },

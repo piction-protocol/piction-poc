@@ -1,11 +1,10 @@
-export function formData() {
+export function record() {
   return {
     title: null,
     synopsis: null,
     thumbnail: null,
     genres: null,
-    marketerRate: 0,
-    translatorRate: 0
+    marketerRate: 0
   }
 }
 
