@@ -16,4 +16,5 @@ interface CouncilInterface {
     function getFundManager() external view returns (address);
     function getPixelDistributor() external view returns (address);
     function getMarketer() external view returns (address);
+    function getReport() external view returns (address);
 }
