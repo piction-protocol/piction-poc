@@ -1,25 +1,38 @@
 import Account from './abi-class/Account.js'
 import Content from './abi-class/Content.js'
+import ContentInterface from './abi-class/ContentInterface.js'
+import ContentsManager from './abi-class/ContentsManager.js'
 import accountSource from '../../build/contracts/Account.json'
 import contentSource from '../../build/contracts/Content.json'
+import contentsManagerSource from '../../build/contracts/ContentsManager.json'
+import ContentInterfaceSource from '../../build/contracts/ContentInterface.json'
 
 const PictionNetworkPlugin = {
   install(Vue, options) {
     Vue.prototype.$contract = {};
 
-    const account = new Account(
+    Vue.prototype.$contract.account = new Account(
       accountSource.abi,
-      accountSource.networks['3'].address,
+      accountSource.networks['4447'].address,
       options.account
     )
-    Vue.prototype.$contract.account = account
 
-    const content = new Content(
+    Vue.prototype.$contract.content = new Content(
       contentSource.abi,
       options.account,
       contentSource.bytecode
     )
-    Vue.prototype.$contract.content = content
+
+    Vue.prototype.$contract.contentsManager = new ContentsManager(
+      contentsManagerSource.abi,
+      contentsManagerSource.networks['4447'].address,
+      options.account
+    )
+
+    Vue.prototype.$contract.contentInterface = new ContentInterface(
+      ContentInterfaceSource.abi,
+      options.account
+    )
 
     Vue.prototype.$utils = {
       getImageDimensions(dataUri) {
