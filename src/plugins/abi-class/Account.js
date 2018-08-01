@@ -15,10 +15,6 @@ class Account {
   createAccount(userName) {
     return this._contract.methods.createAccount(userName).send();
   }
-
-  clone() {
-    return this._contract.clone();
-  }
 }
 
 export default Account;
