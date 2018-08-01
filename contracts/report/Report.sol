@@ -70,7 +70,6 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     function addRegistrationFee(address _from, uint256 _value, address _token) private {
         require(council.getReportRegistrationFee() == _value);
         require(registrationFee[msg.sender].amount == 0);
-        require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
