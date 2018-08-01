@@ -53,6 +53,10 @@ contract ContentsManager is ContractReceiver, ValidValue {
         emit RegisterContents(contractAddress, contentsAddress.length);
     }
 
+    function getContents() external view returns (address[]){
+        return contentsAddress;
+    }
+
     function getWriterContentsAddress(address _writer)
         external
         view
