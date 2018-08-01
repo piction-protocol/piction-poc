@@ -2,7 +2,9 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Web3 from 'web3'
 
-web3 = new Web3(web3.currentProvider);
+var provider = new Web3.providers.HttpProvider("http://127.0.0.1:9545");
+web3 = new Web3(provider);
+// web3 = new Web3(web3.currentProvider);
 import Vue from 'vue'
 import App from './App'
 import PictionNetworkPlugin from './plugins/piction-network-plugin'
@@ -53,9 +55,9 @@ Vue.use(Toast);
     components: {App},
     template: '<App/>',
     created() {
-      web3.currentProvider.publicConfigStore.on('update', (provider) => {
-        if (this.account != provider.selectedAddress.toLowerCase()) this.reload();
-      });
+      // web3.currentProvider.publicConfigStore.on('update', (provider) => {
+      //   if (this.account != provider.selectedAddress.toLowerCase()) this.reload();
+      // });
     }
   });
 })()
