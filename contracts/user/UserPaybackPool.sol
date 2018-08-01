@@ -106,7 +106,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
                 if (!released) {
                     uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
                     paybackPool[i].released[msg.sender] = true;
-                    
+
                     token.safeTransfer(msg.sender, paybackAmount);
 
                     emit Release(msg.sender, i, paybackAmount);
@@ -117,6 +117,22 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     function getCurrentIndex() public view returns(uint256) {
         return currentIndex;
+    }
+
+    function getPaybackInfo() public view returns(uint256[], address[], uint256[], bool[]) {
+        uint256[] memory poolIndex = new uint256[](paybackPool.length);
+        address[] memory user = new address[](paybackPool.length);
+        uint256[] memory paybackAmount = new uint256[](paybackPool.length);
+        bool[] memory released = new bool[](paybackPool.length);
+
+        for (uint256 i = 0; i < paybackPool.length; i++) {
+            poolIndex[i] = i;
+            user[i] = msg.sender;
+            paybackAmount[i] = paybackPool[i].paybackInfo[msg.sender];
+            released[i] = paybackPool[i].released[msg.sender];
+        }
+
+        return (poolIndex, user, paybackAmount, released);
     }
 
     event AddPayback(address _user, uint256 _currentIndex, uint256 _value);
