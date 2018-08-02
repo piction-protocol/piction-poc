@@ -11,6 +11,10 @@ class ContentsManager {
     return this._contract.methods.getContents().call();
   }
 
+  getWriterContentsAddress(address) {
+    return this._contract.methods.getWriterContentsAddress(address).call();
+  }
+
   addContents(record) {
     return this._contract.methods.addContents(JSON.stringify(record), BigNumber(record.marketerRate)).send();
   }
