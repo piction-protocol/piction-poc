@@ -6,6 +6,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/council/CouncilInterface.sol";
+import "contracts/deposit/DepositPoolInterface.sol";
 //import "contracts/council/FundManagerInterface.sol";
 //import "contracts/council/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -18,7 +19,7 @@ import "contracts/utils/ValidValue.sol";
  *      신고자에 대한 보상으로 특정 금액을 전송.
  *      작품 완결 시 서포터 정산 후 작가에게 잔액 전송.
  */
-contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver {
+contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoolInterface {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using ParseLib for string;
@@ -65,6 +66,14 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver {
         token.safeTransferFrom(_from, address(this), _value);
 
         emit AddDeposit(_from, _value, _token, _data);
+    }
+
+    /**
+    * @dev 현재 기록된 Content의 Deposit 금액을 반환
+    * @param _content 확인하고자 하는 Content 주소
+    */
+    function getContentDeposit(address _content) external view returns(uint256) {
+        return contentDeposit[_content];
     }
 
     /**

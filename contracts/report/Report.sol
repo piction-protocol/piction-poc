@@ -8,6 +8,7 @@ import "contracts/token/ContractReceiver.sol";
 import "contracts/council/CouncilInterface.sol";
 
 import "contracts/report/ReportInterface.sol";
+import "contracts/deposit/DepositPoolInterface.sol";
 
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -87,6 +88,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     function sendReport(address _content, string _detail) external validString(_detail) {
         require(registrationFee[msg.sender].amount > 0);
         require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
+        require(DepositPoolInterface(council.getDepositPool()).getContentDeposit(_content) > 0);
 
         reports.push(ReportData(_content, msg.sender, _detail, false));
 
