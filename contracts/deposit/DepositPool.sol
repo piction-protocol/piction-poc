@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/council/CouncilInterface.sol";
 import "contracts/deposit/DepositPoolInterface.sol";
+import "contracts/report/ReportInterface.sol";
 //import "contracts/council/FundManagerInterface.sol";
 //import "contracts/council/Fund.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -107,6 +108,10 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     * @param _content 정산을 원하는 작품 주소
     */
     function release(address _content) validAddress(_content) external {
+
+        //신고 건이 있으면 완결처리되지 않음
+        require(ReportInterface(council.getReport()).getReportCount(_content) == 0);
+        
         //작품 완결 시 서포터 비율 가져오고 정산 후 작가에게 정산
         // 누가 실행 시켜야 하는가??
 

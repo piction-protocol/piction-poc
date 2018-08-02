@@ -118,6 +118,18 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     }
 
     /**
+    * @dev 작품의 신고 건수가 있는지 확인
+    * @param _content 확인할 작품의 주소
+    */
+    function getReportCount(address _content) external view returns(uint256 count){
+        for(uint256 i = 0; i < reports.length; i++) {
+            if (reports[i].content == _content) {
+                count = count.add(1);
+            }
+        }
+    }
+
+    /**
     * @dev 신고 처리 완료 후 호출하는 메소드, deduction나 DepositPool의 reportReward 처리 후 호출
     * @param _index 신고 목록의 인덱스
     */
