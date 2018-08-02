@@ -44,7 +44,7 @@ contract("UserPaybackPool", (accounts) => {
     });
 
     describe("AddPayback", () => {
-        it("add Payback a user.", async () => {
+        it("add payback for one user.", async () => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
@@ -63,12 +63,16 @@ contract("UserPaybackPool", (accounts) => {
             released.should.be.equal(false);
         });
 
-        it("add Payback many users.", async () => {
+        it("add payback for multiple users.", async () => {
             const purchaseAmount = new BigNumber(2 * decimals);
 
-            users.forEach( async (user) => {
-                await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+            const addPaybackPromise = new Promise( async (resolve, reject) => {
+                users.forEach( async (user) => {
+                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+                    resolve();
+                });
             });
+            await addPaybackPromise;
 
             users.forEach( async (user, i) => {
                 const paybackInfoUser = await userPaybackPool.getPaybackInfo.call({from: user}).should.be.fulfilled;
@@ -85,7 +89,7 @@ contract("UserPaybackPool", (accounts) => {
             });
         });
 
-        it("add Payback duplicate user in same pool", async () => {
+        it("add payback to same pool for same user.", async () => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
@@ -105,13 +109,13 @@ contract("UserPaybackPool", (accounts) => {
             released.should.be.equal(false);
         });
 
-        it("add Payback next pool", async () => {
+        it("add payback to next pool.", async () => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
             await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
 
-            const testPromise = new Promise( async (resolve, reject) => {
+            const addPaybackPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
                     await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
                     const currentIndex = await userPaybackPool.getCurrentIndex.call().should.be.fulfilled;
@@ -131,16 +135,136 @@ contract("UserPaybackPool", (accounts) => {
                         released.should.be.equal(false);
 
                         if (paybackInfoUser[0].length - 1 == i) {
-                          resolve();
+                            resolve();
                         }
                     });
                 }, 2000);
             });
-            await testPromise;
+            await addPaybackPromise;
         });
     });
 
     describe("Release", () => {
+        beforeEach("Setup payback", async () => {
+            const purchaseAmount = new BigNumber(2 * decimals);
+            const user = users[0];
 
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+        });
+
+        it("release by a user", async () => {
+            const user = users[0];
+            const purchaseAmount = new BigNumber(2 * decimals);
+
+            const beforeBalance = await token.balanceOf(user);
+
+            const releasePromise = new Promise( async (resolve, reject) => {
+                setTimeout( async() => {
+                    await userPaybackPool.release({from: user}).should.be.fulfilled;
+
+                    resolve();
+                }, 2000);
+            });
+            await releasePromise;
+
+            const paybackInfoUser = await userPaybackPool.getPaybackInfo.call({from: user}).should.be.fulfilled;
+
+            paybackInfoUser[0].forEach( (info, i) => {
+                const poolIndex = paybackInfoUser[0][i];
+                const userAddress = paybackInfoUser[1][i];
+                const paybackAmount = paybackInfoUser[2][i];
+                const released = paybackInfoUser[3][i];
+
+                poolIndex.should.be.bignumber.equal(i);
+                userAddress.should.be.equal(user);
+                paybackAmount.should.be.bignumber.equal(purchaseAmount);
+                released.should.be.equal(true);
+            });
+
+            const afterBalance = await token.balanceOf(user);
+            afterBalance.sub(beforeBalance).should.be.bignumber.equal(purchaseAmount);
+        });
+
+        it("release without already released.", async () => {
+            const user = users[0];
+            const purchaseAmount = new BigNumber(2 * decimals);
+
+            const releasePromise1 = new Promise( async (resolve, reject) => {
+                setTimeout( async() => {
+                    await userPaybackPool.release({from: user}).should.be.fulfilled;
+
+                    resolve();
+                }, 2000);
+            });
+            await releasePromise1;
+
+            const beforeBalance = await token.balanceOf(user);
+
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+
+            const releasePromise2 = new Promise( async (resolve, reject) => {
+                setTimeout( async() => {
+                    await userPaybackPool.release({from: user}).should.be.fulfilled;
+
+                    resolve();
+                }, 2000);
+            });
+            await releasePromise2;
+
+            const afterBalance = await token.balanceOf(user);
+            afterBalance.sub(beforeBalance).should.be.bignumber.equal(purchaseAmount);
+        });
+
+        it("release for multiple pool.", async () => {
+            const user = users[0];
+            const purchaseAmount = new BigNumber(2 * decimals);
+
+            const beforeBalance = await token.balanceOf(user);
+
+            const addPaybackPromise = new Promise( async (resolve, reject) => {
+                setTimeout( async() => {
+                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+
+                    resolve();
+                }, 2000);
+            });
+            await addPaybackPromise;
+
+            const currentIndex = await userPaybackPool.getCurrentIndex.call().should.be.fulfilled;
+            currentIndex.should.be.bignumber.equal(1);
+
+            const paybackInfoUser = await userPaybackPool.getPaybackInfo.call({from: user}).should.be.fulfilled;
+
+            const paybackInfoPromise = new Promise( async (resolve, reject) => {
+                paybackInfoUser[0].forEach( (info, i) => {
+                    const poolIndex = paybackInfoUser[0][i];
+                    const userAddress = paybackInfoUser[1][i];
+                    const paybackAmount = paybackInfoUser[2][i];
+                    const released = paybackInfoUser[3][i];
+
+                    poolIndex.should.be.bignumber.equal(i);
+                    userAddress.should.be.equal(user);
+                    paybackAmount.should.be.bignumber.equal(purchaseAmount);
+                    released.should.be.equal(false);
+
+                    if (paybackInfoUser[0].length - 1 == i) {
+                        resolve();
+                    }
+                });
+            });
+            await paybackInfoPromise;
+
+            const releasePromise = new Promise( async (resolve, reject) => {
+                setTimeout( async() => {
+                    await userPaybackPool.release({from: user}).should.be.fulfilled;
+
+                    resolve();
+                }, 2000);
+            });
+            await releasePromise;
+
+            const afterBalance = await token.balanceOf(user);
+            afterBalance.sub(beforeBalance).should.be.bignumber.equal(purchaseAmount * 2);
+        });
     });
 });
