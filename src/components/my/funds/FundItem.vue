@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card :title="`${content.title} <b-badge>New</b-badge>`"
+    <b-card :title="content.title"
             img-alt="Image"
             img-top
             tag="article"
