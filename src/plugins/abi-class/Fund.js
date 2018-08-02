@@ -1,0 +1,14 @@
+class Fund {
+  constructor(abi, from) {
+    this._contract = new web3.eth.Contract(abi);
+    this._contract.options.from = from;
+    this._contract.options.gas = 6000000;
+  }
+
+  getInfo(address) {
+    this._contract.options.address = address;
+    return this._contract.methods.info().call()
+  }
+}
+
+export default Fund;
