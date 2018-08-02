@@ -81,7 +81,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
-        // 현재 paybackpool 의 생성 시간이 30일 지났으면 새로 생성
+        // 현재 paybackpool 의 생성 시간이 createPoolInterval만큼 지났으면 새로 생성
         if (paybackPool.length == 0 || TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(createPoolInterval)) {
             createPaybackPool();
         }
@@ -101,7 +101,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         lastReleaseTime[msg.sender] = TimeLib.currentTime();
 
         for (uint256 i = 0; i < paybackPool.length; i++) {
-            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(createPoolInterval)) { // createPoolInterval 지난것만
+            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(createPoolInterval)) { // createPoolInterval만큼 지난것만
                 bool released = paybackPool[i].released[msg.sender];
                 if (!released) {
                     uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
