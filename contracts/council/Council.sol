@@ -4,6 +4,9 @@ import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/council/CouncilInterface.sol";
 
+import "contracts/report/ReportInterface.sol";
+import "contracts/deposit/DepositPoolInterface.sol";
+
 /**
  * @title Council contract
  *
@@ -27,17 +30,22 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
     struct PictionAddress {
         address userPaybackPool;
         address depositPool;
+        address pixelDistributor;
+        address marketer;
+        address report;
+    }
+
+    struct ManagerAddress {
         address roleManager;
         address contentsManager;
         address fundManager;
-        address pixelDistributor;
-        address marketer;
     }
 
     address token;
     PictionValue pictionValue;
     PictionRate pictionRate;
     PictionAddress pictionAddress;
+    ManagerAddress managerAddress;
 
     constructor(
         address _token)
@@ -79,27 +87,63 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         emit InitialRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate, _marketerDefaultRate);
     }
 
-    function initialAddress(
+    function initialPictionAddress(
         address _userPaybackPool,
         address _depositPool,
-        address _roleManager,
-        address _contentsManager,
-        address _fundManager,
         address _pixelDistributor,
-        address _marketer)
+        address _marketer,
+        address _report)
         external onlyOwner
         validAddress(_userPaybackPool)
         validAddress(_depositPool)
+        validAddress(_pixelDistributor)
+        validAddress(_marketer)
+        validAddress(_report) {
+
+        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report);
+
+        emit InitialAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report);
+    }
+
+    function initialManagerAddress(
+        address _roleManager,
+        address _contentsManager,
+        address _fundManager)
+        external onlyOwner
         validAddress(_roleManager)
         validAddress(_contentsManager)
         validAddress(_fundManager)
-        validAddress(_pixelDistributor)
-        validAddress(_marketer) {
+    {
 
-        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _roleManager, _contentsManager, _fundManager, _pixelDistributor, _marketer);
+        managerAddress = ManagerAddress(_roleManager, _contentsManager, _fundManager);
 
-        emit InitialAddress(_userPaybackPool, _depositPool, _roleManager, _contentsManager, _fundManager, _pixelDistributor, _marketer);
+        emit InitialManagerAddress(_roleManager, _contentsManager, _fundManager);
     }
+
+    /**
+    * @dev Report 목록의 신고를 처리함
+    * @param _index Report의 reports 인덱스 값
+    * @param _content Content의 주소
+    * @param _reporter Reporter의 주소
+    * @param _deductionRate 신고자의 RegFee를 차감시킬 비율, 0이면 Reward를 지급함, 50(논의)이상이면 block처리함
+    */
+    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate)
+        external
+        onlyOwner
+        validAddress(_content)
+        validAddress(_reporter)
+    {
+        if (_deductionRate > 0) {
+            ReportInterface(pictionAddress.report).deduction(_reporter, _deductionRate, _deductionRate >= 50? true:false);
+        } else {
+            DepositPoolInterface(pictionAddress.depositPool).reportReward(_content, _reporter);
+        }
+
+        ReportInterface(pictionAddress.report).completeReport(_index);
+
+        emit Judge(_index, _content, _reporter, _deductionRate);
+    }
+
 
     function getToken() external view returns (address) {
         return token;
@@ -196,33 +240,33 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
     }
 
     function setRoleManager(address _roleManager) external onlyOwner validAddress(_roleManager) {
-        pictionAddress.roleManager = _roleManager;
+        managerAddress.roleManager = _roleManager;
 
         emit ChangeAddress(msg.sender, "role manager", _roleManager);
     }
 
     function getRoleManager() external view returns (address) {
-        return pictionAddress.roleManager;
+        return managerAddress.roleManager;
     }
 
     function setContentsManager(address _contentsManager) external onlyOwner validAddress(_contentsManager) {
-        pictionAddress.contentsManager = _contentsManager;
+        managerAddress.contentsManager = _contentsManager;
 
         emit ChangeAddress(msg.sender, "contents manager", _contentsManager);
     }
 
     function getContentsManager() external view returns (address) {
-        return pictionAddress.contentsManager;
+        return managerAddress.contentsManager;
     }
 
     function setFundManager(address _fundManager) external onlyOwner validAddress(_fundManager) {
-        pictionAddress.fundManager = _fundManager;
+        managerAddress.fundManager = _fundManager;
 
         emit ChangeAddress(msg.sender, "fund manager", _fundManager);
     }
 
     function getFundManager() external view returns (address) {
-        return pictionAddress.fundManager;
+        return managerAddress.fundManager;
     }
 
     function setPixelDistributor(address _pixelDistributor) external onlyOwner validAddress(_pixelDistributor) {
@@ -245,10 +289,22 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         return pictionAddress.marketer;
     }
 
+    function setReport(address _report) external onlyOwner validAddress(_report) {
+        pictionAddress.report = _report;
+
+        emit ChangeAddress(msg.sender, "report", _report);
+    }
+
+    function getReport() external view returns (address) {
+        return pictionAddress.report;
+    }
+
     event RegisterCouncil(address _sender, address _token);
     event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee);
     event InitialRate(uint256 _cdRate, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRewardRate, uint256 _marketerDefaultRate);
-    event InitialAddress(address _userPaybackPool, address _depositPool, address _roleManager, address _contentsManager, address _fundManager, address _pixelDistributor, address _marketer);
+    event InitialAddress(address _userPaybackPool, address _depositPool, address _pixelDistributor, address _marketer, address _report);
+    event InitialManagerAddress(address _depositPool, address _roleManager, address _contentsManager);
     event ChangeDistributionRate(address _sender, string _name, uint256 _value);
     event ChangeAddress(address _sender, string addressName, address _addr);
+    event Judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate);
 }
