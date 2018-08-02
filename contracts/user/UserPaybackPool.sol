@@ -101,7 +101,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         lastReleaseTime[msg.sender] = TimeLib.currentTime();
 
         for (uint256 i = 0; i < paybackPool.length; i++) {
-            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(30 days)) { // 30일 지난것만
+            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(createPoolInterval)) { // createPoolInterval 지난것만
                 bool released = paybackPool[i].released[msg.sender];
                 if (!released) {
                     uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
