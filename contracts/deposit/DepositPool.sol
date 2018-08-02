@@ -32,7 +32,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     * @dev 생성자
     * @param _councilAddress 위원회 주소
     */
-    constructor(address _councilAddress) public {
+    constructor(address _councilAddress) public validAddress(_councilAddress) {
         council = CouncilInterface(_councilAddress);
     }
 

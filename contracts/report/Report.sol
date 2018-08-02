@@ -50,7 +50,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @dev 생성자
     * @param _councilAddress 위원회 주소
     */
-    constructor(address _councilAddress) public {
+    constructor(address _councilAddress) public validAddress(_councilAddress) {
         council = CouncilInterface(_councilAddress);
     }
 
@@ -135,6 +135,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     function completeReport(uint256 _index) external {
         require(msg.sender == address(council));
         require(_index < reports.length);
+        require(!reports[_index].complete);
 
         reports[_index].complete = true;
 
@@ -189,7 +190,6 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @dev 신고자가 자신이 맞긴 등록금을 확인
     */
     function getRegFee() external view returns(uint256, uint256, uint256) {
-        require(registrationFee[msg.sender].amount > 0);
         return (registrationFee[msg.sender].amount,
             registrationFee[msg.sender].lockTime,
             registrationFee[msg.sender].blockTime);
