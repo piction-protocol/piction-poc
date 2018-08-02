@@ -16,10 +16,13 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Toast from 'vue2-toast';
 import 'vue2-toast/lib/toast.css';
+import Datetime from 'vue-datetime'
+import 'vue-datetime/dist/vue-datetime.css'
 
 Vue.config.productionTip = false
 
 Vue.use(BootstrapVue);
+Vue.use(Datetime)
 Vue.use(Toast);
 
 (async () => {
