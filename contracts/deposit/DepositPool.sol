@@ -87,15 +87,18 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         external
     {
         require(address(council) == msg.sender);
-        require(contentDeposit[_content] > 0);
 
-        ERC20 token = ERC20(council.getToken());
-        uint256 amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(100);
+        uint256 amount;
+        if (contentDeposit[_content] > 0) {
+            ERC20 token = ERC20(council.getToken());
+            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(100);
 
-        require(token.balanceOf(address(this)) >= amount);
-        contentDeposit[_content] = contentDeposit[_content].sub(amount);
-        token.safeTransfer(_reporter, amount);
-
+            require(token.balanceOf(address(this)) >= amount);
+            contentDeposit[_content] = contentDeposit[_content].sub(amount);
+            token.safeTransfer(_reporter, amount);
+        } else {
+            amount = 0;
+        }
         emit ReportReward(_content, _reporter, amount);
     }
 
