@@ -70,14 +70,6 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     }
 
     /**
-    * @dev 현재 기록된 Content의 Deposit 금액을 반환
-    * @param _content 확인하고자 하는 Content 주소
-    */
-    function getContentDeposit(address _content) external view returns(uint256) {
-        return contentDeposit[_content];
-    }
-
-    /**
     * @dev 위원회가 호출하는 보상지급 처리
     * @param _content 신고한 작품 주소
     * @param _reporter 신고자 주소
@@ -111,7 +103,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
 
         //신고 건이 있으면 완결처리되지 않음
         require(ReportInterface(council.getReport()).getReportCount(_content) == 0);
-        
+
         //작품 완결 시 서포터 비율 가져오고 정산 후 작가에게 정산
         // 누가 실행 시켜야 하는가??
 

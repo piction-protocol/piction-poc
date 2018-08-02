@@ -88,7 +88,6 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     function sendReport(address _content, string _detail) external validString(_detail) {
         require(registrationFee[msg.sender].amount > 0);
         require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
-        require(DepositPoolInterface(council.getDepositPool()).getContentDeposit(_content) > 0);
 
         reports.push(ReportData(_content, msg.sender, _detail, false));
 
@@ -121,7 +120,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @dev 작품의 신고 건수가 있는지 확인
     * @param _content 확인할 작품의 주소
     */
-    function getReportCount(address _content) external view returns(uint256 count){
+    function getReportCount(address _content) external view returns(uint256 count) {
         for(uint256 i = 0; i < reports.length; i++) {
             if (reports[i].content == _content) {
                 count = count.add(1);
