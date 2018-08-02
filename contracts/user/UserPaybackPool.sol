@@ -49,7 +49,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         validRange(_createPoolInterval)
     {
         council = CouncilInterface(_councilAddress);
-        createPoolInterval = _createPoolInterval * 1 days;
+        createPoolInterval = _createPoolInterval * 1 seconds;
         releaseInterval = 10 minutes;//600000; //for test 10min
     }
 
