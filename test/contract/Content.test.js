@@ -184,7 +184,7 @@ contract("Content", function (accounts) {
 
                 let i = 0;
                 buyusers.forEach(async(user) => {
-                    const isBuying = await content.checkBuyer.call(episodeLength - 1, user, {from: user});
+                    const isBuying = await content.isPurchasedEpisode.call(episodeLength - 1, user, {from: user});
                     isBuying.should.be.equal(false);
 
                     await content.episodePurchase(
@@ -208,7 +208,7 @@ contract("Content", function (accounts) {
             it("get episode detail role", async () => {
                 const episodeLength = await content.getEpisodeLength.call({from: writer});
 
-                const isBuying = await content.checkBuyer.call(episodeLength - 1, buyusers[0], {from: buyusers[0]});
+                const isBuying = await content.isPurchasedEpisode.call(episodeLength - 1, buyusers[0], {from: buyusers[0]});
                 isBuying.should.be.equal(true);
 
                 const episodeDetailBuyuserOk = await content.getEpisodeDetail.call(episodeLength - 1, {from: buyusers[0]}).should.be.fulfilled;
