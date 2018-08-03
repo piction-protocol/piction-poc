@@ -213,8 +213,6 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
         emit ReturnRegFee(msg.sender, tempAmount);
     }
 
-
-
     /**
     * @dev 신고자가 자신이 맞긴 등록금을 확인
     */
