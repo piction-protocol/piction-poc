@@ -95,7 +95,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
 
             // marketer amount
             if(ParseLib.getJsonToMarketerAddr(tokens, _jsonData) != address(0)) {
-                tempVar = getRateToPxlAmount(_value, ContentInterface(ParseLib.getJsonToContentAddr(tokens, _jsonData)).getMarketerRate());
+                tempVar = getRateToPxlAmount(_value, getMarketerRate(tokens, _jsonData));
                 compareAmount = compareAmount.sub(tempVar);
                 distribution.push(
                     DistributionDetail(
@@ -166,12 +166,14 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         return _amount.mul(_rate).div(100);
     }
 
-    function getMarketerAddress(bytes32 _key)
+    function getMarketerRate(JsmnSolLib.Token[] _tokens, string _jsonData)
         private
         view
-        returns (address)
+        returns (uint256 rate)
     {
-        return MarketerInterface(council.getMarketer()).getMarketerAddress(_key);
+        uint256 contentRate = ContentInterface(ParseLib.getJsonToContentAddr(tokens, _jsonData)).getMarketerRate();
+
+        rate = (contentRate > 0) ? contentRate : council.getMarketerDefaultRate();
     }
 
     function transferDistributePxl(address _to, uint256 _amount, bool _isCustom, string _param)
