@@ -12,7 +12,6 @@ import "contracts/marketer/MarketerInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/utils/JsmnSolLib.sol";
 import "contracts/utils/ParseLib.sol";
 
 contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
@@ -49,7 +48,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         uint256 returnValue;
         JsmnSolLib.Token[] memory tokens;
 
-        (returnValue, tokens) = getJsonToTokens(_jsonData, PURCHASE_PARAM_COUNT);
+        (returnValue, tokens) = ParseLib.getJsonToTokens(_jsonData, PURCHASE_PARAM_COUNT);
 
         if(returnValue > 0) {
             emit InvalidJsonParameter(msg.sender, _value);
@@ -59,9 +58,8 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         // clear DistributionDetail array
         clearDistributionDetail();
 
-        require(customValidAddress(getJsonToCdAddr(tokens, _jsonData)));
-        require(customValidAddress(getJsonToContentAddr(tokens, _jsonData)));
-        require(customValidAddress(getJsonToMarketerAddr(tokens, _jsonData)));
+        require(customValidAddress(ParseLib.getJsonToCdAddr(tokens, _jsonData)));
+        require(customValidAddress(ParseLib.getJsonToContentAddr(tokens, _jsonData)));
 
         // paid contents
         if(_value > 0) {
@@ -76,7 +74,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
-                    getJsonToCdAddr(tokens, _jsonData), tempVar, false, "")
+                    ParseLib.getJsonToCdAddr(tokens, _jsonData), tempVar, false, "")
             );
 
             //user payback pool amount
@@ -92,28 +90,28 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
-                    council.getDepositPool(), tempVar, true, ParseLib.addressToString(getJsonToContentAddr(tokens, _jsonData)))
+                    council.getDepositPool(), tempVar, true, ParseLib.addressToString(ParseLib.getJsonToContentAddr(tokens, _jsonData)))
             );
 
             // marketer amount
-            if(getJsonToMarketerAddr(tokens, _jsonData) != address(0)) {
-                tempVar = getRateToPxlAmount(_value, ContentInterface(getJsonToContentAddr(tokens, _jsonData)).getMarketerRate());
+            if(ParseLib.getJsonToMarketerAddr(tokens, _jsonData) != address(0)) {
+                tempVar = getRateToPxlAmount(_value, ContentInterface(ParseLib.getJsonToContentAddr(tokens, _jsonData)).getMarketerRate());
                 compareAmount = compareAmount.sub(tempVar);
                 distribution.push(
                     DistributionDetail(
-                        getJsonToMarketerAddr(tokens, _jsonData), tempVar, false, "")
+                        ParseLib.getJsonToMarketerAddr(tokens, _jsonData), tempVar, false, "")
                 );
             }
 
             //supporter amount
-            compareAmount = compareAmount.sub(supportersAmount(tokens, _jsonData, compareAmount));
+            //compareAmount = compareAmount.sub(supportersAmount(tokens, _jsonData, compareAmount));
 
             // cp amount
             if(compareAmount > 0) {
                 distribution.push(
                     DistributionDetail(
                         ContentInterface(
-                            getJsonToContentAddr(tokens, _jsonData)).getWriter(), compareAmount, false, "")
+                            ParseLib.getJsonToContentAddr(tokens, _jsonData)).getWriter(), compareAmount, false, "")
                 );
                 compareAmount = 0;
             }
@@ -130,7 +128,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         }
 
         // update episode purchase
-        ContentInterface(getJsonToContentAddr(tokens, _jsonData)).episodePurchase(getJsonToEpisodeIndex(tokens, _jsonData), _from, _value);
+        ContentInterface(ParseLib.getJsonToContentAddr(tokens, _jsonData)).episodePurchase(ParseLib.getJsonToEpisodeIndex(tokens, _jsonData), _from, _value);
     }
 
     function supportersAmount(JsmnSolLib.Token[] _tokens, string _jsonData, uint256 _amount)
@@ -138,7 +136,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         returns (uint256 compareAmount)
     {
         FundManagerInterface fund = FundManagerInterface(council.getFundManager());
-        address[] memory fundAddress = fund.getFunds(getJsonToContentAddr(_tokens, _jsonData));
+        address[] memory fundAddress = fund.getFunds(ParseLib.getJsonToContentAddr(_tokens, _jsonData));
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
             if(compareAmount >= _amount) {
@@ -152,38 +150,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
                 distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, ""));
             }
         }
-    }
-
-    function getJsonToCdAddr(JsmnSolLib.Token[] _tokens, string _jsonData)
-        private
-        pure
-        returns (address)
-    {
-        return ParseLib.parseAddr(getTokenToValue(_tokens, _jsonData, 2));
-    }
-
-    function getJsonToContentAddr(JsmnSolLib.Token[] _tokens, string _jsonData)
-        private
-        pure
-        returns (address)
-    {
-        return ParseLib.parseAddr(getTokenToValue(_tokens, _jsonData, 4));
-    }
-
-    function getJsonToEpisodeIndex(JsmnSolLib.Token[] _tokens, string _jsonData)
-        private
-        pure
-        returns (uint256)
-    {
-        return uint256(ParseLib.parseInt(getTokenToValue(_tokens, _jsonData, 6)));
-    }
-
-    function getJsonToMarketerAddr(JsmnSolLib.Token[] _tokens, string _jsonData)
-        private
-        view
-        returns (address)
-    {
-        return getMarketerAddress(ParseLib.stringToBytes32(getTokenToValue(_tokens, _jsonData, 8)));
     }
 
     function clearDistributionDetail()
@@ -206,43 +172,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         returns (address)
     {
         return MarketerInterface(council.getMarketer()).getMarketerAddress(_key);
-    }
-
-    function getJsonToValue(string  _jsonData, uint256 _arrayLength, uint256 _valueIndex)
-        private
-        pure
-        returns (string)
-    {
-        uint256 returnValue;
-        JsmnSolLib.Token[] memory tokens;
-
-        (returnValue, tokens) = getJsonToTokens(_jsonData, _arrayLength);
-
-        return getTokenToValue(tokens, _jsonData, _valueIndex);
-    }
-
-    function getJsonToTokens(string _jsonData, uint256 _arrayLength)
-        private
-        pure
-        returns (uint256, JsmnSolLib.Token[])
-    {
-        uint256 returnValue;
-        uint256 actualNum;
-        JsmnSolLib.Token[] memory tokens;
-
-        (returnValue, tokens, actualNum) = JsmnSolLib.parse(_jsonData, _arrayLength);
-
-        return (returnValue, tokens);
-    }
-
-    function getTokenToValue(JsmnSolLib.Token[] _tokens, string  _jsonData, uint256 _index)
-        private
-        pure
-        returns (string)
-    {
-        JsmnSolLib.Token memory t = _tokens[_index];
-
-        return JsmnSolLib.getBytes(_jsonData, t.start, t.end);
     }
 
     function transferDistributePxl(address _to, uint256 _amount, bool _isCustom, string _param)
