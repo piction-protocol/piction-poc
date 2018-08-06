@@ -15,7 +15,8 @@
             <div>Reward distribution rate : {{fund.distributionRate}}%</div>
             <hr>
             <div>{{fund.detail}}</div>
-            <router-link :to="{ name: 'episodes', params: { content_id: content.id }}" class="font-italic float-right">more
+            <router-link :to="{ name: 'show-fund', params: { content_id: content.id, fund_id: fund.id }}"
+                         class="font-italic float-right">more
             </router-link>
           </b-list-group-item>
         </b-list-group>
@@ -45,20 +46,20 @@
     async created() {
       let funds = await this.$contract.fundManager.getFunds(this.content.id);
       funds.forEach(async address => {
-        await this.$contract.fund.getInfo(address).then(r => {
-          let fund = {};
-          fund.id = address;
-          fund.startTime = moment(Number(r[0])).format('YYYY-MM-DD HH:mm')
-          fund.endTime = moment(Number(r[1])).format('YYYY-MM-DD HH:mm')
-          fund.fundRise = Number(r[2]);
-          fund.poolSize = Number(r[3]);
-          fund.releaseInterval = Number(r[4]) / (60 * 60 * 1000);
-          fund.distributionRate = Number(r[5]);
-          fund.detail = r[6];
-          this.funds.push(fund);
-        });
+        let obj = await this.$contract.fund.getInfo(address);
+        let fund = {};
+        fund.id = address;
+        fund.startTime = moment(Number(obj[0])).format('YYYY-MM-DD HH:mm')
+        fund.endTime = moment(Number(obj[1])).format('YYYY-MM-DD HH:mm')
+        fund.fundRise = Number(obj[2]) / Math.pow(10, 18);
+        fund.poolSize = Number(obj[3]);
+        fund.releaseInterval = Number(obj[4]) / (60 * 60 * 1000);
+        fund.distributionRate = Number(obj[5]);
+        fund.detail = obj[6];
+        this.funds.push(fund);
+        this.fundable = Number(obj[1]) < new Date().getTime();
       });
-      if (funds.length == 0 || funds[funds.length - 1].endTime < new Date().getTime()) {
+      if (funds.length == 0) {
         this.fundable = true;
       }
     }
