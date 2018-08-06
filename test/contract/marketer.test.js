@@ -22,7 +22,7 @@ contract("Marketer", function (accounts) {
 
     it("generate marketerKey and check the key.", async () => {
         const marketerKey = await marketer.generateMarketerKey.call({from: marketerUser});
-        await marketer.setMarketerKey(marketerUser, marketerKey, {from: owner});
+        await marketer.setMarketerKey(marketerKey, {from: marketerUser});
 
         const marketerAddress = await marketer.getMarketerAddress.call(marketerKey, {from: owner});
         marketerAddress.should.be.equal(marketerUser);

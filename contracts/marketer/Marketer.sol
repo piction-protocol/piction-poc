@@ -1,15 +1,13 @@
 pragma solidity ^0.4.24;
 
-import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/marketer/MarketerInterface.sol";
-import "contracts/utils/ValidValue.sol";
 
 /**
  * @title Marketer contract
  *
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
-contract Marketer is ExtendsOwnable, MarketerInterface, ValidValue {
+contract Marketer is MarketerInterface {
     mapping (bytes32 => address) marketerInfo;
 
     function generateMarketerKey() public returns(bytes32) {
@@ -17,8 +15,8 @@ contract Marketer is ExtendsOwnable, MarketerInterface, ValidValue {
         return key;
     }
 
-    function setMarketerKey(address _marketer, bytes32 _key) external onlyOwner validAddress(_marketer) {
-        marketerInfo[_key] = _marketer;
+    function setMarketerKey(bytes32 _key) external {
+        marketerInfo[_key] = msg.sender;
     }
 
     function getMarketerAddress(bytes32 _key) public view returns(address) {
