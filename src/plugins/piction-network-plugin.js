@@ -1,3 +1,6 @@
+import PXL from './abi-class/PXL.js'
+import pxlSource from '../../build/contracts/PXL.json'
+
 import Account from './abi-class/Account.js'
 import accountSource from '../../build/contracts/Account.json'
 
@@ -16,12 +19,21 @@ import fundSource from '../../build/contracts/Fund.json'
 import FundManager from './abi-class/FundManager.js'
 import fundManagerSource from '../../build/contracts/FundManager.json'
 
+import SupporterPool from './abi-class/SupporterPool.js'
+import supporterPoolSource from '../../build/contracts/SupporterPool.json'
+
 
 const PictionNetworkPlugin = {
   install(Vue, options) {
     Vue.prototype.$contract = {};
 
     var network = '4447';
+
+    Vue.prototype.$contract.pxl = new PXL(
+      pxlSource.abi,
+      pxlSource.networks[network].address,
+      options.account
+    )
 
     Vue.prototype.$contract.account = new Account(
       accountSource.abi,
@@ -57,6 +69,11 @@ const PictionNetworkPlugin = {
       options.account
     )
 
+    Vue.prototype.$contract.supporterPool = new SupporterPool(
+      supporterPoolSource.abi,
+      options.account
+    )
+
 
     Vue.prototype.$utils = {
       getImageDimensions(dataUri) {
@@ -67,6 +84,11 @@ const PictionNetworkPlugin = {
           };
           i.src = dataUri
         })
+      },
+      structArrayToJson(_result, _fields) {
+        var result = new Array(_result[0].length).fill().map(() => JSON.parse('{}'));
+        _fields.forEach((f, i) => _result[i].forEach((v, j) => result[j][f] = v));
+        return result;
       }
     }
   }
