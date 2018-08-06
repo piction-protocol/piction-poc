@@ -53,7 +53,7 @@
                       required
                       type="range"
                       v-model="record.distributionRate"
-                      min="0" max="100" step="1">
+                      min="1" max="100" step="1">
         </b-form-input>
       </b-form-group>
 
