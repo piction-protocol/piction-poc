@@ -182,7 +182,6 @@ contract("Content", function (accounts) {
                 const episodeLength = await content.getEpisodeLength.call({from: writer});
                 const roleCheck = await roleManager.isAccess.call(distributor, "PXL_DISTRIBUTOR", {from: owner});
 
-                let i = 0;
                 buyusers.forEach(async(user) => {
                     const isBuying = await content.isPurchasedEpisode.call(episodeLength - 1, user, {from: user});
                     isBuying.should.be.equal(false);
@@ -194,7 +193,6 @@ contract("Content", function (accounts) {
                         {from: distributor}
                     ).should.be.fulfilled;
 
-                    i++;
                     roleCheck.should.be.equal(true);
                 });
 
@@ -202,7 +200,7 @@ contract("Content", function (accounts) {
 
                 episodeDetail[0].should.be.equal(episode2);
                 episodeDetail[1].should.be.bignumber.equal(episodePrice);
-                episodeDetail[2].should.be.bignumber.equal(i);
+                episodeDetail[2].should.be.bignumber.equal(buyusers.length);
             });
 
             it("get episode detail role", async () => {
