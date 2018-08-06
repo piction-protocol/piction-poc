@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "contracts/supporter/SponsorshipPool.sol";
+import "contracts/supporter/SupporterPool.sol";
 import "contracts/council/CouncilInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -38,7 +38,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 	uint256 releaseInterval;
 	uint256 distributionRate;
 
-	SponsorshipPool public sponsorshipPool;
+	SupporterPool public supporterPool;
 
 	constructor(
 		address _council,
@@ -58,6 +58,8 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		require(distributionRate <= 100);
 
 		council = _council;
+		content = _content;
+		writer = _writer;
 		startTime = _startTime;
 		endTime = _endTime;
 		detail = _detail;
@@ -82,19 +84,23 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		} else {
 			supporters.push(Supporter(_from, _value, 0, 0));
 		}
+
 		fundRise = fundRise.add(_value);
 		token.safeTransferFrom(_from, address(this), _value);
 
 		emit Support(_from, _value);
 	}
 
-	function startDistribution() external {
-		require(address(sponsorshipPool) == address(0));
-		require(TimeLib.currentTime() < endTime);
+	function createSupporterPool() external {
+		require(address(supporterPool) == address(0));
+		require(TimeLib.currentTime() > endTime);
 		require(fundRise > 0);
 
 		setDistributionRate();
-		sponsorshipPool = new SponsorshipPool(fundRise, poolSize, releaseInterval);
+		supporterPool = new SupporterPool(council, writer, fundRise, poolSize, releaseInterval);
+
+		ERC20 token = ERC20(CouncilInterface(council).getToken());
+		token.safeTransfer(supporterPool, fundRise);
 	}
 
 	function setDistributionRate() private {
@@ -107,21 +113,15 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		}
 	}
 
-	function releasePool() external validAddress(sponsorshipPool) {
-		uint256 amount = sponsorshipPool.release();
-		ERC20 token = ERC20(CouncilInterface(council).getToken());
-		token.safeTransfer(writer, amount);
-	}
-
-	function vote() external validAddress(sponsorshipPool) {
+	function vote() external validAddress(supporterPool) {
 		require(isSupporter(msg.sender));
 
-		sponsorshipPool.vote(msg.sender);
-		(address[] memory _supporters,) = getSupporters();
-		uint256 votingCount = sponsorshipPool.getVotingCount(_supporters);
+		supporterPool.vote(msg.sender);
+		(address[] memory _supporters,,,) = getSupporters();
+		uint256 votingCount = supporterPool.getVotingCount(_supporters);
 		if (supporters.length.div(2) <= votingCount) {
-			uint256 cancelAmount = sponsorshipPool.cancelPool();
-			sponsorshipPool.addPool(cancelAmount);
+			uint256 cancelAmount = supporterPool.cancelDistribution();
+			supporterPool.addDistribution(cancelAmount);
 		}
 	}
 
@@ -142,22 +142,23 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		return (_supporters, _amounts);
 	}
 
-	function getSupporters() public view returns (address[], uint256[]) {
-		address[] memory user = new address[](supporters.length - 1);
-		uint256[] memory investment = new uint256[](supporters.length - 1);
+	function getSupporters() public view returns (address[], uint256[], uint256[], uint256[]) {
+		address[] memory _user = new address[](supporters.length);
+		uint256[] memory _investment = new uint256[](supporters.length);
+		uint256[] memory _collection = new uint256[](supporters.length);
+		uint256[] memory _distributionRate = new uint256[](supporters.length);
 
-		uint256 supportersIndex = 0;
 		for (uint256 i = 0; i < supporters.length; i++) {
-			user[supportersIndex] = supporters[i].user;
-			investment[supportersIndex] = supporters[i].investment;
-
-			supportersIndex = supportersIndex.add(1);
+			_user[i] = supporters[i].user;
+			_investment[i] = supporters[i].investment;
+			_collection[i] = supporters[i].collection;
+			_distributionRate[i] = supporters[i].distributionRate;
 		}
-		return (user, investment);
+		return (_user, _investment, _collection, _distributionRate);
 	}
 
-	function info() external view returns (uint256, uint256, uint256, uint256, uint256, uint256, string){
-		return (startTime, endTime, fundRise, poolSize, releaseInterval, distributionRate, detail);
+	function info() external view returns (uint256, uint256, uint256, uint256, uint256, uint256, string, address){
+		return (startTime, endTime, fundRise, poolSize, releaseInterval, distributionRate, detail, supporterPool);
 	}
 
 
