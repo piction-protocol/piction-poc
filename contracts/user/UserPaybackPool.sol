@@ -37,15 +37,19 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     uint256 currentIndex;
     uint256 releaseInterval;
+    uint256 createPoolInterval;
 
     mapping (address => uint256) lastReleaseTime; // 유저별 릴리즈 interval
 
     constructor(
-        address _councilAddress)
+        address _councilAddress,
+        uint256 _createPoolInterval)
         public
         validAddress(_councilAddress)
+        validRange(_createPoolInterval)
     {
         council = CouncilInterface(_councilAddress);
+        createPoolInterval = _createPoolInterval * 1 seconds;
         releaseInterval = 10 minutes;//600000; //for test 10min
     }
 
@@ -73,12 +77,12 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     function addPayback(address _from, uint256 _value, address _token, string _user) private {
-        require(RoleManager(council.getRoleManager()).isAccess(msg.sender, ROLE_NAME));
+        require(RoleManager(council.getRoleManager()).isAccess(_from, ROLE_NAME));
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
-        // 현재 paybackpool 의 생성 시간이 30일 지났으면 새로 생성
-        if (TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(30 days)) {
+        // 현재 paybackpool 의 생성 시간이 createPoolInterval만큼 지났으면 새로 생성
+        if (paybackPool.length == 0 || TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(createPoolInterval)) {
             createPaybackPool();
         }
 
@@ -97,12 +101,12 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         lastReleaseTime[msg.sender] = TimeLib.currentTime();
 
         for (uint256 i = 0; i < paybackPool.length; i++) {
-            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(30 days)) { // 30일 지난것만
+            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(createPoolInterval)) { // createPoolInterval만큼 지난것만
                 bool released = paybackPool[i].released[msg.sender];
                 if (!released) {
                     uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
                     paybackPool[i].released[msg.sender] = true;
-                    
+
                     token.safeTransfer(msg.sender, paybackAmount);
 
                     emit Release(msg.sender, i, paybackAmount);
@@ -113,6 +117,22 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     function getCurrentIndex() public view returns(uint256) {
         return currentIndex;
+    }
+
+    function getPaybackInfo() public view returns(uint256[], address[], uint256[], bool[]) {
+        uint256[] memory poolIndex = new uint256[](paybackPool.length);
+        address[] memory user = new address[](paybackPool.length);
+        uint256[] memory paybackAmount = new uint256[](paybackPool.length);
+        bool[] memory released = new bool[](paybackPool.length);
+
+        for (uint256 i = 0; i < paybackPool.length; i++) {
+            poolIndex[i] = i;
+            user[i] = msg.sender;
+            paybackAmount[i] = paybackPool[i].paybackInfo[msg.sender];
+            released[i] = paybackPool[i].released[msg.sender];
+        }
+
+        return (poolIndex, user, paybackAmount, released);
     }
 
     event AddPayback(address _user, uint256 _currentIndex, uint256 _value);
