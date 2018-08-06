@@ -11,6 +11,7 @@ import EpisodeIndex from '@/components/episodes/Index'
 import ViewerIndex from '@/components/viewer/Index'
 // fund
 import FundNew from '@/components/funds/New'
+import FundShow from '@/components/funds/Show'
 // my
 import MyIndex from '@/components/my/Index'
 import MyInfoIndex from '@/components/my/info/Index'
@@ -36,6 +37,7 @@ const router = new Router({
     {path: '/trends', name: 'trends', component: ContentIndex},
     // funds
     {path: '/contents/:content_id/funds/new', name: 'new-fund', component: FundNew, props: true},
+    {path: '/contents/:content_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
     // my
     {
       path: '/my', component: MyIndex,
