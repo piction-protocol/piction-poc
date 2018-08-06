@@ -114,8 +114,8 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
     }
 
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount)
-    external
-    validAddress(_buyer) validEpisodeLength(_index)
+        external
+        validAddress(_buyer) validEpisodeLength(_index)
     {
         require(RoleManager(roleManager).isAccess(msg.sender, ROLE_NAME));
         require(!episodes[_index].buyUser[_buyer]);
