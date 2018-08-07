@@ -25,7 +25,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 	}
 
 	uint256 startTime;
-	uint256 endTime;
+	uint256 public endTime;
 	string detail;
 
 	address council;
