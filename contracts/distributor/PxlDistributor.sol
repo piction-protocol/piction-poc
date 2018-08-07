@@ -171,7 +171,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         view
         returns (uint256 rate)
     {
-        uint256 contentRate = ContentInterface(ParseLib.getJsonToContentAddr(tokens, _jsonData)).getMarketerRate();
+        uint256 contentRate = ContentInterface(ParseLib.getJsonToContentAddr(_tokens, _jsonData)).getMarketerRate();
 
         rate = (contentRate > 0) ? contentRate : council.getMarketerDefaultRate();
     }
