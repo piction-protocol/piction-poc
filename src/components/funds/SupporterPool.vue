@@ -7,7 +7,17 @@
                 @click="distribution">{{distributableAmount}}PXL distribution
       </b-button>
     </h4>
-    <b-table striped hover :items="computedDistributions" :small="true"></b-table>
+    <b-table striped hover :fields="fields" :items="computedDistributions" :small="true">
+      <template slot="amount" slot-scope="row">{{row.value}}</template>
+      <template slot="distributionTime" slot-scope="row">{{row.value}}</template>
+      <template slot="distributedTime" slot-scope="row">{{row.value}}</template>
+      <template slot="state" slot-scope="row">{{row.value}}</template>
+      <template slot="vote" slot-scope="row">
+        <b-button :disabled="row.item.disable" variant="primary" size="sm" @click.stop="vote(row.index)">
+          {{row.item.votingCount}} vote
+        </b-button>
+      </template>
+    </b-table>
   </div>
 </template>
 
@@ -18,20 +28,21 @@
   import BigNumber from 'bignumber.js'
 
   export default {
-    props: ['fund', 'fund_id'],
+    props: ['fund'],
     computed: {
       computedDistributions() {
         let distributions = [];
-        this.distributions.forEach(distribution => {
+        this.distributions.forEach((distribution) => {
           let obj = {};
-          obj.amount = `${(BigNumber(distribution.amount).div(Math.pow(10, 18)))} PXL`;
-          obj.distributionTime = moment(Number(distribution.distributionTime)).format('YYYY-MM-DD HH:mm');
-          if (distribution.distributedTime > 0) {
-            obj.distributedTime = moment(Number(distribution.distributedTime)).format('YYYY-MM-DD HH:mm');
-          } else {
-            obj.distributedTime = null;
-          }
+          obj.amount = `${this.$utils.toPXL(distribution.amount)} PXL`;
+          obj.distributionTime = this.$utils.dateFmt(Number(distribution.distributionTime));
+          obj.distributedTime = this.$utils.dateFmt(Number(distribution.distributedTime));
           obj.state = this.getStateString(distribution.state);
+          obj.votingCount = distribution.votingCount;
+          if (!moment().isBetween(Number(distribution.distributionTime - this.fund.releaseInterval), Number(distribution.distributionTime)) ||
+            this.getStateString(distribution.state) != 'PENDING' || distribution.isVoting) {
+            obj.disable = true;
+          }
           distributions.push(obj)
         })
         return distributions;
@@ -45,6 +56,13 @@
     },
     data() {
       return {
+        fields: [
+          {key: 'amount', label: 'Amount'},
+          {key: 'distributionTime', label: 'distributionTime'},
+          {key: 'distributedTime', label: 'distributedTime'},
+          {key: 'state', label: 'state'},
+          {key: 'vote', label: 'vote'},
+        ],
         distributions: [],
         supporterPool: 0,
         supported: false,
@@ -68,6 +86,14 @@
         }
         this.$router.go(this.$router.path)
       },
+      vote: async function (index) {
+        try {
+          await this.$contract.supporterPool.vote(this.fund.supporterPool, index);
+        } catch (e) {
+          alert(e)
+        }
+        this.$router.go(this.$router.path)
+      },
       getStateString: function (state) {
         if (state == 0) {
           return 'PENDING';
@@ -83,7 +109,9 @@
     async created() {
       if (Number(this.fund.supporterPool) > 0) {
         let distributions = await this.$contract.supporterPool.getDistributions(this.fund.supporterPool);
-        this.distributions = await this.$utils.structArrayToJson(distributions, ['amount', 'distributionTime', 'distributedTime', 'state']);
+        distributions = await this.$utils.structArrayToJson(distributions,
+          ['amount', 'distributionTime', 'distributedTime', 'state', 'votingCount', 'isVoting']);
+        this.distributions = distributions;
 
         this.distributableAmount = new BigNumber(0)
         await this.distributions.forEach(distribution => {
