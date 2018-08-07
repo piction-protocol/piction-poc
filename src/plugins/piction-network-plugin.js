@@ -1,3 +1,6 @@
+import moment from 'moment';
+import BigNumber from 'bignumber.js'
+
 import PXL from './abi-class/PXL.js'
 import pxlSource from '../../build/contracts/PXL.json'
 
@@ -89,6 +92,12 @@ const PictionNetworkPlugin = {
         var result = new Array(_result[0].length).fill().map(() => JSON.parse('{}'));
         _fields.forEach((f, i) => _result[i].forEach((v, j) => result[j][f] = v));
         return result;
+      },
+      dateFmt: function (timestamp) {
+        return (timestamp && timestamp > 0) ? moment(timestamp).format('YYYY-MM-DD HH:mm') : null;
+      },
+      toPXL: function (amount) {
+        return BigNumber(amount).div(Math.pow(10, 18)).toString();
       }
     }
   }
