@@ -25,6 +25,8 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 		uint256 distributionRate;
 	}
 
+	uint256 decimals = 18;
+
 	uint256 startTime;
 	uint256 public endTime;
 	string detail;
@@ -56,7 +58,7 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 		require(_endTime > _startTime);
 		require(_poolSize > 0);
 		require(_releaseInterval > 0);
-		require(distributionRate <= 100);
+		require(distributionRate <= 10 ** decimals);
 
 		council = _council;
 		content = _content;
@@ -110,7 +112,7 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 			totalInvestment = totalInvestment.add(supporters[i].investment);
 		}
 		for (i = 0; i < supporters.length; i++) {
-			supporters[i].distributionRate = supporters[i].investment.div(totalInvestment).mul(100);
+			supporters[i].distributionRate = supporters[i].investment.div(totalInvestment).mul(10 ** decimals);
 		}
 	}
 
@@ -122,9 +124,10 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 			_supporters[i] = supporters[i].user;
 			uint256 remain = supporters[i].investment.sub(supporters[i].collection);
 			if (remain == 0) {
-				_amounts[i] = _total.div(distributionRate).div(supporters[i].distributionRate);
+				_amounts[i] = _total.mul(distributionRate).div(10 ** decimals);
+				_amounts[i] = _amounts[i].mul(supporters[i].distributionRate).div(10 ** decimals);
 			} else {
-				_amounts[i] = _total.div(supporters[i].distributionRate).min256(remain);
+				_amounts[i] = _total.mul(supporters[i].distributionRate).div(10 ** decimals).min256(remain);
 				supporters[i].collection = supporters[i].collection.add(_amounts[i]);
 			}
 		}
