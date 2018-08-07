@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "contracts/council/CouncilInterface.sol";
+import "contracts/supporter/FundInterface.sol";
 import "contracts/utils/TimeLib.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
@@ -19,6 +20,7 @@ contract SupporterPool is Ownable {
 		uint256 distributableTime;
 		uint256 distributedTime;
 		State state;
+		uint256 votingCount;
 		mapping(address => bool) voting;
 	}
 
@@ -26,15 +28,18 @@ contract SupporterPool is Ownable {
 	address council;
 	address writer;
 	uint256 interval;
+	FundInterface fundInterface;
 
 	constructor(
 		address _council,
+		address _fundInterface,
 		address _writer,
 		uint256 _amount,
 		uint256 _size,
 		uint256 _interval)
 	public {
 		council = _council;
+		fundInterface = FundInterface(_fundInterface);
 		writer = _writer;
 		interval = _interval;
 		initialize(_amount, _size);
@@ -51,22 +56,21 @@ contract SupporterPool is Ownable {
 		}
 	}
 
-	function addDistribution(uint256 _amount) public onlyOwner {
+	function addDistribution(uint256 _amount) private {
 		uint256 _distributableTime;
 		if (distributions.length == 0) {
 			_distributableTime = TimeLib.currentTime().add(interval);
 		} else {
 			_distributableTime = distributions[distributions.length - 1].distributableTime.add(interval);
 		}
-		distributions.push(Distribution(_amount, _distributableTime, 0, State.PENDING));
+		distributions.push(Distribution(_amount, _distributableTime, 0, State.PENDING, 0));
 	}
 
-	function cancelDistribution() external onlyOwner returns (uint){
-		(uint256 index, bool success) = getCurrentIndex();
-		if (success) {
-			distributions[index].state = State.CANCEL_PAYMENT;
-			return distributions[index].amount;
-		}
+	function cancelDistribution(uint _index) private returns (uint256){
+		require(distributions.length > _index);
+
+		distributions[_index].state = State.CANCEL_PAYMENT;
+		return distributions[_index].amount;
 	}
 
 	function distribution() external {
@@ -82,53 +86,50 @@ contract SupporterPool is Ownable {
 		}
 	}
 
-	function getDistributions() public view returns (uint256[], uint256[], uint256[], uint256[]) {
+	function getDistributions() public view returns (uint256[], uint256[], uint256[], uint256[], uint256[], bool[]) {
 		uint256[] memory _amount = new uint256[](distributions.length);
 		uint256[] memory _distributableTime = new uint256[](distributions.length);
 		uint256[] memory _distributedTime = new uint256[](distributions.length);
 		uint256[] memory _state = new uint256[](distributions.length);
+		uint256[] memory _votingCount = new uint256[](distributions.length);
+		bool[] memory _isVoting = new bool[](distributions.length);
 
 		for (uint256 i = 0; i < distributions.length; i++) {
 			_amount[i] = distributions[i].amount;
 			_distributableTime[i] = distributions[i].distributableTime;
 			_distributedTime[i] = distributions[i].distributedTime;
 			_state[i] = uint256(distributions[i].state);
+			_votingCount[i] = distributions[i].votingCount;
+			_isVoting[i] = isVoting(i);
 		}
-		return (_amount, _distributableTime, _distributedTime, _state);
-	}
-
-	function getCurrentIndex() private view returns (uint, bool){
-		for (uint256 i = 0; i < distributions.length; i++) {
-			uint256 startTime = distributions[i].distributableTime;
-			uint256 endTime = distributions[i].distributableTime.sub(interval);
-			if (TimeLib.currentTime().between(startTime, endTime)) {
-				return (i, true);
-			}
-		}
+		return (_amount, _distributableTime, _distributedTime, _state, _votingCount, _isVoting);
 	}
 
 	function distributable(Distribution memory _distribution) private view returns (bool) {
 		return _distribution.distributableTime <= TimeLib.currentTime() && _distribution.state == State.PENDING && _distribution.amount > 0;
 	}
 
-	function vote(address _user) external onlyOwner {
-		(uint256 index, bool success) = getCurrentIndex();
-		if (success) {
-			distributions[index].voting[_user] = true;
-		}
-	}
+	function vote(uint256 _index) external returns (bool) {
+		require(fundInterface.isSupporter(msg.sender));
+		require(distributions.length > _index);
+		require(distributions[_index].state == State.PENDING);
+		uint256 votableTime = distributions[_index].distributableTime;
+		require(TimeLib.currentTime().between(votableTime.sub(interval), votableTime));
 
-	function getVotingCount(address[] _users) public view returns (uint256 _count) {
-		(uint256 index, bool success) = getCurrentIndex();
-		if (success) {
-			for (uint256 i = 0; i < _users.length; i++) {
-				_count.add(isVoting(index, _users[i]));
+		if (distributions[_index].voting[msg.sender]) {
+			revert();
+		} else {
+			distributions[_index].voting[msg.sender] = true;
+			distributions[_index].votingCount = distributions[_index].votingCount.add(1);
+			if (fundInterface.getSupporterCount().div(2) <= distributions[_index].votingCount) {
+				uint256 cancelAmount = cancelDistribution(_index);
+				addDistribution(cancelAmount);
 			}
 		}
 	}
 
-	function isVoting(uint256 poolIndex, address _user) private view returns (uint){
-		return distributions[poolIndex].voting[_user] ? 1 : 0;
+	function isVoting(uint256 _index) public view returns (bool){
+		return distributions[_index].voting[msg.sender];
 	}
 
 	event Voting(address user, bool interrupt);

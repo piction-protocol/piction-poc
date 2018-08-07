@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "contracts/supporter/SupporterPool.sol";
 import "contracts/council/CouncilInterface.sol";
+import "contracts/supporter/FundInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -11,7 +12,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
+contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 	using Math for uint256;
 	using SafeMath for uint256;
 	using SafeERC20 for ERC20;
@@ -97,7 +98,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		require(fundRise > 0);
 
 		setDistributionRate();
-		supporterPool = new SupporterPool(council, writer, fundRise, poolSize, releaseInterval);
+		supporterPool = new SupporterPool(council, address(this), writer, fundRise, poolSize, releaseInterval);
 
 		ERC20 token = ERC20(CouncilInterface(council).getToken());
 		token.safeTransfer(supporterPool, fundRise);
@@ -109,19 +110,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 			totalInvestment = totalInvestment.add(supporters[i].investment);
 		}
 		for (i = 0; i < supporters.length; i++) {
-			supporters[i].distributionRate = totalInvestment.div(supporters[i].investment);
-		}
-	}
-
-	function vote() external validAddress(supporterPool) {
-		require(isSupporter(msg.sender));
-
-		supporterPool.vote(msg.sender);
-		(address[] memory _supporters,,,) = getSupporters();
-		uint256 votingCount = supporterPool.getVotingCount(_supporters);
-		if (supporters.length.div(2) <= votingCount) {
-			uint256 cancelAmount = supporterPool.cancelDistribution();
-			supporterPool.addDistribution(cancelAmount);
+			supporters[i].distributionRate = supporters[i].investment.div(totalInvestment).mul(100);
 		}
 	}
 
@@ -157,6 +146,10 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		return (_user, _investment, _collection, _distributionRate);
 	}
 
+	function getSupporterCount() public view returns (uint256) {
+		return supporters.length;
+	}
+
 	function info() external view returns (uint256, uint256, uint256, uint256, uint256, uint256, string, address){
 		return (startTime, endTime, fundRise, poolSize, releaseInterval, distributionRate, detail, supporterPool);
 	}
@@ -170,7 +163,7 @@ contract Fund is ContractReceiver, ExtendsOwnable, ValidValue {
 		}
 	}
 
-	function isSupporter(address _supporter) private view returns (bool){
+	function isSupporter(address _supporter) public view returns (bool){
 		for (uint256 i = 0; i < supporters.length; i++) {
 			if (supporters[i].user == _supporter) {
 				return true;
