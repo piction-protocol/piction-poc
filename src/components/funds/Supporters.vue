@@ -46,18 +46,13 @@
         }
         this.$router.go(this.$router.path)
       },
-      handleSubmit() {
-        this.names.push(this.name)
-        this.clearName()
-        this.$refs.modal.hide()
-      }
     },
     async created() {
       let supporters = await this.$contract.fund.getSupporters(this.fund_id);
       supporters = this.$utils.structArrayToJson(supporters, ['address', 'investment', 'withdraw', 'distributionRate']);
       supporters.forEach(obj => {
-        obj.investment = `${BigNumber(obj.investment).div(Math.pow(10, 18))} PXL`;
-        obj.withdraw = `${BigNumber(obj.withdraw).div(Math.pow(10, 18))} PXL`;
+        obj.investment = `${this.$utils.toPXL(obj.investment)} PXL`;
+        obj.withdraw = `${this.$utils.toPXL(obj.withdraw)} PXL`;
         obj.distributionRate = `${obj.distributionRate * 100}%`;
       })
       this.supporters = supporters;
