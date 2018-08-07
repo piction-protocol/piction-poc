@@ -34,7 +34,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     mapping (address => Registration) registrationFee;
 
     //신고자 등록금 잠금 시간
-    uint256 interval = 10 minutes; //for test
+    uint256 interval = 30000; //for test
 
     //신고내용과 처리유무
     struct ReportData {
@@ -70,12 +70,12 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     */
     function addRegistrationFee(address _from, uint256 _value, address _token) private {
         require(council.getReportRegistrationFee() == _value);
-        require(registrationFee[msg.sender].amount == 0);
+        require(registrationFee[_from].amount == 0);
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
-        registrationFee[msg.sender].amount = _value;
-        registrationFee[msg.sender].lockTime = TimeLib.currentTime().add(interval);
+        registrationFee[_from].amount = _value;
+        registrationFee[_from].lockTime = TimeLib.currentTime().add(interval);
         token.safeTransferFrom(_from, address(this), _value);
 
         emit AddRegistrationFee(_from, _value, _token);
@@ -85,7 +85,11 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @dev 신고자가 어떤 작품에 대해 신고를 함, 위원회의 보증금 변경과 관계없이 동작함(추후 논의)
     * @param _detail 신고정보
     */
-    function sendReport(address _content, string _detail) external validString(_detail) {
+    function sendReport(address _content, string _detail)
+        external
+        validAddress(_content)
+        validString(_detail)
+    {
         require(registrationFee[msg.sender].amount > 0);
         require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
 
@@ -117,12 +121,38 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     }
 
     /**
-    * @dev 작품의 신고 건수가 있는지 확인
+    * @dev 작품의 신고 건수 조회
     * @param _content 확인할 작품의 주소
     */
     function getReportCount(address _content) external view returns(uint256 count) {
         for(uint256 i = 0; i < reports.length; i++) {
             if (reports[i].content == _content) {
+                count = count.add(1);
+            }
+        }
+    }
+
+    /**
+    * @dev 작품의 신고 중 처리되지 않은 건수 조회
+    * @param _content 확인할 작품의 주소
+    */
+    function getUncompletedReport(address _content) external view returns(uint256 count) {
+        for(uint256 i = 0; i < reports.length; i++) {
+            if (reports[i].content == _content
+                && reports[i].complete == false) {
+                count = count.add(1);
+            }
+        }
+    }
+
+    /**
+    * @dev 신고자의 신고 중 처리되지 않은 건수 조회
+    * @param _reporter 확인할 신고자의 주소
+    */
+    function getUncompletedReporter(address _reporter) private view returns(uint256 count) {
+        for(uint256 i = 0; i < reports.length; i++) {
+            if (reports[i].reporter == _reporter
+                && reports[i].complete == false) {
                 count = count.add(1);
             }
         }
@@ -176,6 +206,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     function returnRegFee() external {
         require(registrationFee[msg.sender].amount > 0);
         require(registrationFee[msg.sender].lockTime < TimeLib.currentTime());
+        require(getUncompletedReporter(msg.sender) == 0);
 
         ERC20 token = ERC20(council.getToken());
         uint256 tempAmount = registrationFee[msg.sender].amount;
