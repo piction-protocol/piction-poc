@@ -1,11 +1,22 @@
 <template>
-  <div>
-    <b-nav tabs>
-      <router-link active-class="active" class="nav-link" to="/my" exact>Info</router-link>
-      <router-link active-class="active" class="nav-link" to="/my/funds" exact>Fund</router-link>
-    </b-nav>
-    <br>
-    <router-view/>
+  <div role="group">
+    <label for="inputLive">Name:</label>
+    <b-form-input id="inputLive"
+                  v-model.trim="name"
+                  type="text"
+                  :disabled="registered"
+                  :state="nameState"
+                  aria-describedby="inputLiveHelp inputLiveFeedback"
+                  placeholder="Enter your name"></b-form-input>
+    <b-form-invalid-feedback id="inputLiveFeedback">
+      <!-- This will only be shown if the preceeding input has an invalid state -->
+      Enter at least 3 letters
+    </b-form-invalid-feedback>
+    <b-form-text id="inputLiveHelp">
+      <!-- this is a form text block (formerly known as help block) -->
+      Your full name.
+    </b-form-text>
+    <b-button :disabled="!nameState" v-if="!registered" variant="success" @click="submit()">Submit</b-button>
   </div>
 </template>
 

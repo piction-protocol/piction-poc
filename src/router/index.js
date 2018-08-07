@@ -9,8 +9,13 @@ import ContentEdit from '@/components/contents/Edit'
 import EpisodeIndex from '@/components/episodes/Index'
 // viewer
 import ViewerIndex from '@/components/viewer/Index'
+// fund
+import FundNew from '@/components/funds/New'
+import FundShow from '@/components/funds/Show'
 // my
 import MyIndex from '@/components/my/Index'
+import MyInfoIndex from '@/components/my/info/Index'
+import MyFundIndex from '@/components/my/funds/Index'
 
 Vue.use(Router)
 
@@ -30,8 +35,17 @@ const router = new Router({
     {path: '/contents/:content_id/episodes/:episode_id', name: 'viewer', component: ViewerIndex, props: true},
     // trends
     {path: '/trends', name: 'trends', component: ContentIndex},
+    // funds
+    {path: '/contents/:content_id/funds/new', name: 'new-fund', component: FundNew, props: true},
+    {path: '/contents/:content_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
     // my
-    {path: '/my', name: 'my', component: MyIndex},
+    {
+      path: '/my', component: MyIndex,
+      children: [
+        {path: '', name: 'my', component: MyInfoIndex},
+        {path: 'funds', name: 'funds', component: MyFundIndex},
+      ]
+    },
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
