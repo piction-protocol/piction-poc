@@ -25,6 +25,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         string param;
     }
 
+    uint256 public constant DECIMALS = 10 ** 18;
     uint256 public constant PURCHASE_PARAM_COUNT = 9;
 
     ERC20 token;
@@ -104,7 +105,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             }
 
             //supporter amount
-            //compareAmount = compareAmount.sub(supportersAmount(tokens, _jsonData, compareAmount));
+            compareAmount = compareAmount.sub(supportersAmount(tokens, _jsonData, compareAmount));
 
             // cp amount
             if(compareAmount > 0) {
@@ -163,7 +164,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         pure
         returns (uint256)
     {
-        return _amount.mul(_rate).div(100);
+        return _amount.mul(_rate).div(DECIMALS);
     }
 
     function getMarketerRate(JsmnSolLib.Token[] _tokens, string _jsonData)
