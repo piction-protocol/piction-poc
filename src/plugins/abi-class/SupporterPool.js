@@ -14,6 +14,16 @@ class SupporterPool {
     this._contract.options.address = address;
     return this._contract.methods.distribution().send()
   }
+
+  vote(address, index) {
+    this._contract.options.address = address;
+    return this._contract.methods.vote(index).send()
+  }
+
+  isVoting(address, index) {
+    this._contract.options.address = address;
+    return this._contract.methods.isVoting(index).call()
+  }
 }
 
 export default SupporterPool;
