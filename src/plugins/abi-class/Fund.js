@@ -14,6 +14,11 @@ class Fund {
     this._contract.options.address = address;
     return this._contract.methods.getSupporters().call()
   }
+
+  createSupporterPool(address) {
+    this._contract.options.address = address;
+    return this._contract.methods.createSupporterPool().send()
+  }
 }
 
 export default Fund;
