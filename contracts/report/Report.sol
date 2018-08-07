@@ -85,7 +85,11 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @dev 신고자가 어떤 작품에 대해 신고를 함, 위원회의 보증금 변경과 관계없이 동작함(추후 논의)
     * @param _detail 신고정보
     */
-    function sendReport(address _content, string _detail) external validString(_detail) {
+    function sendReport(address _content, string _detail)
+        external
+        validAddress(_content)
+        validString(_detail)
+    {
         require(registrationFee[msg.sender].amount > 0);
         require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
 
