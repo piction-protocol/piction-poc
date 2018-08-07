@@ -51,9 +51,10 @@
       let supporters = await this.$contract.fund.getSupporters(this.fund_id);
       supporters = this.$utils.structArrayToJson(supporters, ['address', 'investment', 'withdraw', 'distributionRate']);
       supporters.forEach(obj => {
+        console.log(obj.distributionRate)
         obj.investment = `${this.$utils.toPXL(obj.investment)} PXL`;
         obj.withdraw = `${this.$utils.toPXL(obj.withdraw)} PXL`;
-        obj.distributionRate = `${obj.distributionRate * 100}%`;
+        obj.distributionRate = `${obj.distributionRate / Math.pow(10, 18) * 100}%`;
       })
       this.supporters = supporters;
     }

@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js'
+
 class FundManager {
   constructor(abi, address, from) {
     this._contract = new web3.eth.Contract(abi, address);
@@ -8,7 +10,7 @@ class FundManager {
   addFund(contentAddress, writerAddress, startTime, endTime, poolSize, interval, distributionRate, detail) {
     console.log(contentAddress, writerAddress, startTime, endTime, poolSize, interval, distributionRate, detail)
     return this._contract.methods.addFund(
-      contentAddress, writerAddress, startTime, endTime, poolSize, interval, distributionRate, detail
+      contentAddress, writerAddress, startTime, endTime, poolSize, interval, BigNumber(distributionRate * Math.pow(10, 18)), detail
     ).send();
   }
 

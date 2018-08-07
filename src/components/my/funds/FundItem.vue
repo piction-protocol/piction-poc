@@ -51,10 +51,10 @@
         fund.id = address;
         fund.startTime = moment(Number(obj[0])).format('YYYY-MM-DD HH:mm')
         fund.endTime = moment(Number(obj[1])).format('YYYY-MM-DD HH:mm')
-        fund.fundRise = Number(obj[2]) / Math.pow(10, 18);
+        fund.fundRise = this.$utils.toPXL(obj[2]);
         fund.poolSize = Number(obj[3]);
         fund.releaseInterval = Number(obj[4]) / (60 * 60 * 1000);
-        fund.distributionRate = Number(obj[5]);
+        fund.distributionRate = Number(obj[5]) / Math.pow(10, 18) * 100;
         fund.detail = obj[6];
         this.funds.push(fund);
         this.fundable = Number(obj[1]) < new Date().getTime();

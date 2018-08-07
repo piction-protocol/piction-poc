@@ -46,14 +46,14 @@
         </b-form-input>
       </b-form-group>
 
-      <b-form-group :label="`Reward distribution rate: ${record.distributionRate}%`"
+      <b-form-group :label="`Reward distribution rate: ${record.distributionRate * 100}%`"
                     label-for="distributionRate"
                     description="">
         <b-form-input id="distributionRate"
                       required
                       type="range"
                       v-model="record.distributionRate"
-                      min="1" max="100" step="1">
+                      min="0.01" max="1" step="0.01">
         </b-form-input>
       </b-form-group>
 

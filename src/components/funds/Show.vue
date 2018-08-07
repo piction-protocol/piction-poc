@@ -6,7 +6,7 @@
       <div>{{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}</div>
       <div>Number of distributions : {{fund.poolSize}}</div>
       <div>Distribution interval : {{fund.releaseInterval / (60 * 60 * 1000)}} hour</div>
-      <div>Reward distribution rate : {{fund.distributionRate}}%</div>
+      <div>Reward distribution rate : {{fund.distributionRate / Math.pow(10, 18) * 100}}%</div>
     </b-alert>
     <Supporters :fund_id="fund_id" :supportable="supportable"/>
     <SupporterPool v-if="fund.id" :fund="fund"/>
