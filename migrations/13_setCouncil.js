@@ -4,6 +4,7 @@ var DepositPool = artifacts.require("DepositPool");
 var RoleManager = artifacts.require("RoleManager");
 var ContentsManager = artifacts.require("ContentsManager");
 var FundManager = artifacts.require("FundManager");
+var AccountManager = artifacts.require("AccountManager");
 var PxlDistributor = artifacts.require("PxlDistributor");
 var Marketer = artifacts.require("Marketer");
 var Report = artifacts.require("Report");
@@ -22,7 +23,10 @@ module.exports = function (deployer) {
     instance.initialManagerAddress(
       RoleManager.address,
       ContentsManager.address,
-      FundManager.address
+      FundManager.address,
+      AccountManager.address
     );
+
+    console.log(`Council.address : ${Council.address}`)
   });
 };
