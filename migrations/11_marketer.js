@@ -1,6 +1,5 @@
-var Report = artifacts.require("Report");
-var Council = artifacts.require("Council");
+var Marketer = artifacts.require("Marketer");
 
-module.exports = function (deployer) {
-  deployer.deploy(Report, Council.address);
+module.exports = function(deployer) {
+  deployer.deploy(Marketer);
 };
