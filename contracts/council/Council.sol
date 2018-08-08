@@ -39,6 +39,7 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         address roleManager;
         address contentsManager;
         address fundManager;
+        address accountManager;
     }
 
     address token;
@@ -108,16 +109,18 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
     function initialManagerAddress(
         address _roleManager,
         address _contentsManager,
-        address _fundManager)
+        address _fundManager,
+        address _accountManager)
         external onlyOwner
         validAddress(_roleManager)
         validAddress(_contentsManager)
         validAddress(_fundManager)
+        validAddress(_accountManager)
     {
 
-        managerAddress = ManagerAddress(_roleManager, _contentsManager, _fundManager);
+        managerAddress = ManagerAddress(_roleManager, _contentsManager, _fundManager, _accountManager);
 
-        emit InitialManagerAddress(_roleManager, _contentsManager, _fundManager);
+        emit InitialManagerAddress(_roleManager, _contentsManager, _fundManager, _accountManager);
     }
 
     /**
@@ -269,6 +272,16 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         return managerAddress.fundManager;
     }
 
+    function setAccountManager(address _accountManager) external onlyOwner validAddress(_accountManager) {
+        managerAddress.accountManager = _accountManager;
+
+        emit ChangeAddress(msg.sender, "account manager", _accountManager);
+    }
+
+    function getAccountManager() external view returns (address) {
+        return managerAddress.accountManager;
+    }
+
     function setPixelDistributor(address _pixelDistributor) external onlyOwner validAddress(_pixelDistributor) {
         pictionAddress.pixelDistributor = _pixelDistributor;
 
@@ -303,7 +316,7 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
     event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee);
     event InitialRate(uint256 _cdRate, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRewardRate, uint256 _marketerDefaultRate);
     event InitialAddress(address _userPaybackPool, address _depositPool, address _pixelDistributor, address _marketer, address _report);
-    event InitialManagerAddress(address _depositPool, address _roleManager, address _contentsManager);
+    event InitialManagerAddress(address _depositPool, address _roleManager, address _contentsManager, address _accountManager);
     event ChangeDistributionRate(address _sender, string _name, uint256 _value);
     event ChangeAddress(address _sender, string addressName, address _addr);
     event Judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate);

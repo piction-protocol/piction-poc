@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-contract Account {
+contract AccountManager {
 
     mapping (string => address) userNameToAddress;
     mapping (address => string) addressToUserName;

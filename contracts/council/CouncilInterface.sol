@@ -14,6 +14,7 @@ interface CouncilInterface {
     function getRoleManager() external view returns (address);
     function getContentsManager() external view returns (address);
     function getFundManager() external view returns (address);
+    function getAccountManager() external view returns (address);
     function getPixelDistributor() external view returns (address);
     function getMarketer() external view returns (address);
     function getReport() external view returns (address);
