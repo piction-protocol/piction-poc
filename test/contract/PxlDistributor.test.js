@@ -11,6 +11,8 @@ var PxlDistributor = artifacts.require("PxlDistributor");
 var Marketer = artifacts.require("Marketer");
 var Report = artifacts.require("Report");
 
+const colors = require('colors/safe');
+
 const BigNumber = web3.BigNumber;
 
 require("chai")
@@ -161,13 +163,14 @@ contract("PxlDistributor", function (accounts) {
             //===========================    콘텐츠 생성 종료    ===========================
 
             //===========================    펀드 생성 시작    ===========================
-            const startTime = Date.now() + 3000;    // 현재시간 +5초
+            const startTime = Date.now() + 3000;    // 현재시간 +3초
+            const endTime = startTime + 5000;      //펀드 종료 시간 = 시작시간 + 5초
 
             await fundManager.addFund(
                 content.address,
                 writer,
                 startTime,
-                startTime + 10000,
+                endTime,
                 1,
                 600,
                 5 * decimals,
@@ -182,6 +185,7 @@ contract("PxlDistributor", function (accounts) {
 
             fund = Fund.at(fundAddress[0]);
 
+            //펀드 시작시간 +3초 뒤 투자 시작
             const supportTokenPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
                     await token.approveAndCall(
@@ -209,11 +213,12 @@ contract("PxlDistributor", function (accounts) {
             });
             await supportTokenPromise;
 
+            //펀드 종료시간 +2초 뒤 서포터 풀 생성
             const startPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
                     await fund.createSupporterPool({from: writer});
                     resolve();
-                }, 15000);
+                }, 10000);
             });
             await startPromise;
             //===========================    펀드 생성 종료    ===========================
@@ -234,6 +239,7 @@ contract("PxlDistributor", function (accounts) {
             episodeDetail[1].should.be.bignumber.equal(episodePrice);
             episodeDetail[2].should.be.bignumber.equal(0);
 
+            // 무료 에피소드
             await content.addEpisode(
                 episodeRecord,
                 0,
@@ -251,7 +257,7 @@ contract("PxlDistributor", function (accounts) {
         });
 
         it("purchase episode", async() => {
-            const marketerRate = 0.1 * decimals;;
+            const marketerRate = 0.1 * decimals;
 
             const marketerKey = await marketers.generateMarketerKey.call({from:marketer1});
             await marketers.setMarketerKey(String(marketerKey), {from: marketer1});
@@ -288,29 +294,28 @@ contract("PxlDistributor", function (accounts) {
             const distributorAmount = await token.balanceOf.call(distributor.address, {from: owner});
             const userpaybackAmount = await token.balanceOf.call(userPayback.address, {from: owner});
 
-            console.log(supporterAmount.toNumber() / decimals);
-            console.log(supporter2Amount.toNumber() / decimals);
-            console.log(supporter3Amount.toNumber() / decimals);
-            console.log(writerAmount.toNumber() / decimals);
-            console.log(cdAmount.toNumber() / decimals);
-            console.log(marketerAmount.toNumber() / decimals);
-            console.log(depositAmount.toNumber() / decimals);
-            console.log(userpaybackAmount.toNumber() / decimals);
-            console.log(distributorAmount.toNumber() / decimals);
+            const buyerDetail = await content.getEpisodeDetail.call(0, {from: user});
 
-            const resultAmount = (supporterAmount.toNumber() / decimals) + (supporter2Amount.toNumber() / decimals)
-            +(supporter3Amount.toNumber() / decimals)+(writerAmount.toNumber() / decimals)+(cdAmount.toNumber() / decimals)
-            +(marketerAmount.toNumber() / decimals)+(depositAmount.toNumber() / decimals) - (initialDeposit / decimals)
-            +(userpaybackAmount.toNumber() / decimals);
-
-            console.log(resultAmount);
+            console.log();
+            console.log(colors.yellow.bold("\t========== Pxl distribution amount =========="));
+            console.log(colors.yellow("\tepisode price : " + buyerDetail[1].toNumber() / decimals));
+            console.log(colors.yellow("\tcdAmount(15%) : " + cdAmount.toNumber() / decimals));
+            console.log(colors.yellow("\tuserpaybackAmount(2%) : " + userpaybackAmount.toNumber() / decimals));
+            console.log(colors.yellow("\tdepositAmount(3% + with initial deposit) : " + depositAmount.toNumber() / decimals));
+            console.log(colors.yellow("\tmarketerAmount(10%) : " + marketerAmount.toNumber() / decimals));
+            console.log(colors.yellow("\tsupporter1 Amount : " + supporterAmount.toNumber() / decimals));
+            console.log(colors.yellow("\tsupporter2 Amount : " + supporter2Amount.toNumber() / decimals));
+            console.log(colors.yellow("\tsupporter3 Amount : " + supporter3Amount.toNumber() / decimals));
+            console.log(colors.yellow("\twriter Amount : " + writerAmount.toNumber() / decimals));
+            console.log(colors.yellow("\tPXL Distributor Amount : " + distributorAmount.toNumber() / decimals));
+            console.log();
+            console.log();
 
             //마케터 주소 확인
             marketerAddress.should.be.equal(marketer1);
 
             // 분배 된 pixel 양 확인
             distributorAmount.should.be.bignumber.equal(0);
-            //writerAmount.should.be.bignumber.equal(0);
             cdAmount.should.be.bignumber.equal(episodePrice * cdRate / decimals);
             marketerAmount.should.be.bignumber.equal(episodePrice * marketerRate / decimals);
             userpaybackAmount.should.be.bignumber.equal(episodePrice * userPaybackRate / decimals);
@@ -319,9 +324,7 @@ contract("PxlDistributor", function (accounts) {
             supporter3Amount.should.be.bignumber.not.equal(0);
             (depositAmount - initialDeposit).should.be.bignumber.equal(episodePrice * depositRate / decimals);
 
-
             //구매 정보 확인
-            const buyerDetail = await content.getEpisodeDetail.call(0, {from: user});
             buyerDetail[0].should.be.equal(episodeRecord);
             buyerDetail[1].should.be.bignumber.equal(episodePrice);
             buyerDetail[2].should.be.bignumber.equal(1);
@@ -329,7 +332,7 @@ contract("PxlDistributor", function (accounts) {
 
         it("change marketer rate", async () => {
             const marketerRate = 0;
-            const compareAmount = new BigNumber(1.5 * decimals);
+            const compareAmount = new BigNumber(1.5 * decimals);    //위원회 기본 비율
 
             await content.updateContent(
                 contentRecord,
@@ -362,6 +365,11 @@ contract("PxlDistributor", function (accounts) {
             );
 
             const marketerAmount = await token.balanceOf.call(marketer2, {from: owner});
+            console.log();
+            console.log(colors.yellow("\tmarketer amount(default rate) : " + marketerAmount.toNumber() / decimals));
+            console.log();
+            console.log();
+
             marketerAmount.should.be.bignumber.equal(compareAmount);
         });
 
@@ -404,6 +412,13 @@ contract("PxlDistributor", function (accounts) {
             ).should.be.fulfilled;
 
             const purchaseInfo = await content.getEpisodeDetail.call(1, {from: freeUser}).should.be.fulfilled;
+
+            console.log();
+            console.log(colors.yellow("\tfree episode purchase info.."));
+            console.log(colors.yellow("\tepisode price : " + purchaseInfo[1]));
+            console.log(colors.yellow("\tepisode purchase count : " + purchaseInfo[2]));
+            console.log();
+            console.log();
 
             purchaseInfo[1].should.be.bignumber.equal(0);
             purchaseInfo[2].should.be.bignumber.equal(1);
