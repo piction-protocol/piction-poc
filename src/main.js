@@ -19,6 +19,7 @@ import Toast from 'vue2-toast';
 import 'vue2-toast/lib/toast.css';
 import Datetime from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
+import councilSource from '../build/contracts/Council.json'
 import councilInterfaceSource from '../build/contracts/CouncilInterface.json'
 
 Vue.config.productionTip = false
@@ -32,12 +33,19 @@ Vue.use(Toast);
   if (accounts.length == 0) {
     alert('Log in to the Metamask.')
   }
-  const council = new web3.eth.Contract(councilInterfaceSource.abi, process.env.COUNCIL_ADDRESS);
+  const network = '4447';
+  const council = new web3.eth.Contract(councilInterfaceSource.abi, councilSource.networks[network].address);
   const account = accounts[0].toLowerCase();
   const pxl = await council.methods.getToken().call();
   const contentsManager = await council.methods.getContentsManager().call();
   const fundManager = await council.methods.getFundManager().call();
   const accountManager = await council.methods.getAccountManager().call();
+  console.log('=== address info ===')
+  console.log(`account : ${account}`)
+  console.log(`pxl : ${pxl}`)
+  console.log(`contentsManager : ${contentsManager}`)
+  console.log(`fundManager : ${fundManager}`)
+  console.log(`accountManager : ${accountManager}`)
 
   Vue.use(PictionNetworkPlugin, {
     account: account,
