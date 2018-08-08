@@ -16,7 +16,7 @@
       <!-- this is a form text block (formerly known as help block) -->
       Your full name.
     </b-form-text>
-    <b-button :disabled="!nameState" v-if="!registered" variant="success" @click="submit()">Submit</b-button>
+    <b-button :disabled="!nameState" v-if="!registered" variant="success" @click="submit()">Airdrop 1,000 PXL</b-button>
   </div>
 </template>
 

@@ -12,6 +12,7 @@
           <router-link active-class="active" class="nav-link" to="/my">My</router-link>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
+          <b-nav-item style="margin-right: 10px;"><b class="pxl">{{pxl}} PXL</b></b-nav-item>
           <b-nav-form>
             <b-button variant="outline-success" class="my-2 my-sm-0" :to="{name:'new-content'}">Create</b-button>
           </b-nav-form>
@@ -24,6 +25,15 @@
 <script>
   export default {
     name: 'Navi',
+    data() {
+      return {
+        pxl: 0,
+      }
+    },
+    async created() {
+      let pxl = await this.$contract.pxl.balanceOf(this.$root.account);
+      this.pxl = this.$utils.toPXL(pxl);
+    }
   }
 </script>
 
@@ -31,5 +41,10 @@
 <style scoped>
   nav {
     border-bottom: 1px solid #ff6e27;
+  }
+
+  .pxl {
+    color: #ff6e27;
+    font-size: 1.2em;
   }
 </style>
