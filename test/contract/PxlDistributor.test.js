@@ -273,12 +273,21 @@ contract("PxlDistributor", function (accounts) {
 
             const userAmount = await token.balanceOf.call(user, {from: owner});
 
-            await token.approveAndCall(
+            const before = await web3.eth.getBalance(user);
+            const result = await token.approveAndCall(
                 distributor.address,
                 episodePrice,
                 purchaseJson,
-                {from: user}
+                {from: user, gasPrice: 1000000000}
             );
+            const after = await web3.eth.getBalance(user);
+
+            console.log();
+            console.log(colors.yellow.bold("\t========== Content purchase gas usage(1 Gwei) =========="));
+            console.log(colors.yellow("\tbefor ether : " + before / decimals + " Ether"));
+            console.log(colors.yellow("\tafter ether : " + after / decimals + " Ether"));
+            console.log(colors.yellow("\tActual Tx Cost/Fee : " + (before - after) / decimals + " Ether"));
+            console.log();
 
             const cdRate = await council.getCdRate();
             const depositRate = await council.getDepositRate();
