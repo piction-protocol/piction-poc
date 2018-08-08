@@ -136,15 +136,19 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         private
         returns (uint256 compareAmount)
     {
+        uint256 amount = _amount;
+
         FundManagerInterface fund = FundManagerInterface(council.getFundManager());
         address[] memory fundAddress = fund.getFunds(ParseLib.getJsonToContentAddr(_tokens, _jsonData));
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            if(compareAmount >= _amount) {
+            amount = amount.sub(compareAmount);
+
+            if(amount == 0) {
                 break;
             }
 
-            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], _amount);
+            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
 
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
                 compareAmount = compareAmount.add(supporterAmount[j]);
