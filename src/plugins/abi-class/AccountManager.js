@@ -1,4 +1,4 @@
-class Account {
+class AccountManager {
   constructor(abi, address, from) {
     this._contract = new web3.eth.Contract(abi, address);
     this._contract.options.from = from;
@@ -17,4 +17,4 @@ class Account {
   }
 }
 
-export default Account;
+export default AccountManager;

@@ -1,11 +1,8 @@
-import moment from 'moment';
-import BigNumber from 'bignumber.js'
-
 import PXL from './abi-class/PXL.js'
 import pxlSource from '../../build/contracts/PXL.json'
 
-import Account from './abi-class/Account.js'
-import accountSource from '../../build/contracts/Account.json'
+import AccountManager from './abi-class/AccountManager.js'
+import accountManagerSource from '../../build/contracts/AccountManager.json'
 
 import Content from './abi-class/Content.js'
 import contentSource from '../../build/contracts/Content.json'
@@ -25,22 +22,19 @@ import fundManagerSource from '../../build/contracts/FundManager.json'
 import SupporterPool from './abi-class/SupporterPool.js'
 import supporterPoolSource from '../../build/contracts/SupporterPool.json'
 
-
 const PictionNetworkPlugin = {
   install(Vue, options) {
     Vue.prototype.$contract = {};
 
-    var network = '4447';
-
     Vue.prototype.$contract.pxl = new PXL(
       pxlSource.abi,
-      pxlSource.networks[network].address,
+      options.pxl,
       options.account
     )
 
-    Vue.prototype.$contract.account = new Account(
-      accountSource.abi,
-      accountSource.networks[network].address,
+    Vue.prototype.$contract.accountManager = new AccountManager(
+      accountManagerSource.abi,
+      options.accountManager,
       options.account
     )
 
@@ -57,7 +51,7 @@ const PictionNetworkPlugin = {
 
     Vue.prototype.$contract.contentsManager = new ContentsManager(
       contentsManagerSource.abi,
-      contentsManagerSource.networks[network].address,
+      options.contentsManager,
       options.account
     )
 
@@ -68,7 +62,7 @@ const PictionNetworkPlugin = {
 
     Vue.prototype.$contract.fundManager = new FundManager(
       fundManagerSource.abi,
-      fundManagerSource.networks[network].address,
+      options.fundManager,
       options.account
     )
 
@@ -76,30 +70,6 @@ const PictionNetworkPlugin = {
       supporterPoolSource.abi,
       options.account
     )
-
-
-    Vue.prototype.$utils = {
-      getImageDimensions(dataUri) {
-        return new Promise((resolved, rejected) => {
-          const i = new Image();
-          i.onload = () => {
-            resolved({w: i.width, h: i.height})
-          };
-          i.src = dataUri
-        })
-      },
-      structArrayToJson(_result, _fields) {
-        var result = new Array(_result[0].length).fill().map(() => JSON.parse('{}'));
-        _fields.forEach((f, i) => _result[i].forEach((v, j) => result[j][f] = v));
-        return result;
-      },
-      dateFmt: function (timestamp) {
-        return (timestamp && timestamp > 0) ? moment(timestamp).format('YYYY-MM-DD HH:mm') : null;
-      },
-      toPXL: function (amount) {
-        return BigNumber(amount).div(Math.pow(10, 18)).toString();
-      }
-    }
   }
 }
 

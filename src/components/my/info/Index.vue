@@ -35,8 +35,8 @@
     },
     methods: {
       async submit() {
-        const userName = await this.$contract.account.getUserName(this.$root.account);
-        const address = await this.$contract.account.getUserAddress(this.name);
+        const userName = await this.$contract.accountManager.getUserName(this.$root.account);
+        const address = await this.$contract.accountManager.getUserAddress(this.name);
         if (userName) {
           this.$toast.center('이미 등록된 주소입니다');
         } else if (address > 0) {
@@ -44,7 +44,7 @@
         } else {
           this.$loading('loading...');
           try {
-            await this.$contract.account.createAccount(this.name);
+            await this.$contract.accountManager.createAccount(this.name);
             window.location.reload()
           } catch (e) {
             alert(e)
@@ -54,7 +54,7 @@
       },
     },
     async created() {
-      this.name = await this.$contract.account.getUserName(this.$root.account);
+      this.name = await this.$contract.accountManager.getUserName(this.$root.account);
       this.registered = (this.name != null && this.name.length > 0);
     }
   }
