@@ -71,6 +71,7 @@
     },
     methods: {
       createSupporterPool: async function () {
+        this.$loading('loading...');
         try {
           await this.$contract.fund.createSupporterPool(this.fund.id);
         } catch (e) {
@@ -79,6 +80,7 @@
         this.$router.go(this.$router.path)
       },
       distribution: async function () {
+        this.$loading('loading...');
         try {
           await this.$contract.supporterPool.distribution(this.fund.supporterPool);
         } catch (e) {
@@ -87,6 +89,7 @@
         this.$router.go(this.$router.path)
       },
       vote: async function (index) {
+        this.$loading('loading...');
         try {
           await this.$contract.supporterPool.vote(this.fund.supporterPool, index);
         } catch (e) {

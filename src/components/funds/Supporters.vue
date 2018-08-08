@@ -34,11 +34,13 @@
         this.supportAmount = 10;
       },
       async support(evt) {
-        evt.preventDefault()
+        evt.preventDefault();
         if (!Number(this.supportAmount) || Number(this.supportAmount) == 0) {
           alert('Please enter your PXL amount')
           return;
         }
+        this.$refs.modal.hide();
+        this.$loading('loading...');
         try {
           await this.$contract.pxl.approveAndCall(this.fund_id, this.supportAmount, '');
         } catch (e) {
