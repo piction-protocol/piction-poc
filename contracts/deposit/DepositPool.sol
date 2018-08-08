@@ -25,6 +25,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     using SafeMath for uint256;
     using ParseLib for string;
 
+    uint256 DECIMALS = 10 ** 18;
+
     CouncilInterface council;
     mapping (address => uint256) contentDeposit;
 
@@ -85,6 +87,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     function reportReward(address _content, address _reporter)
         validAddress(_content)
         validAddress(_reporter)
+        validRate(council.getReportRewardRate())
         external
     {
         require(address(council) == msg.sender);
@@ -92,7 +95,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         uint256 amount;
         if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
-            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(100);
+            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
 
             require(token.balanceOf(address(this)) >= amount);
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
