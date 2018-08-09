@@ -112,7 +112,7 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 			totalInvestment = totalInvestment.add(supporters[i].investment);
 		}
 		for (i = 0; i < supporters.length; i++) {
-			supporters[i].distributionRate = supporters[i].investment.div(totalInvestment).mul(10 ** decimals);
+			supporters[i].distributionRate = (10 ** decimals).mul(supporters[i].investment).div(totalInvestment);
 		}
 	}
 

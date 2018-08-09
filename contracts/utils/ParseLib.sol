@@ -131,7 +131,7 @@ library ParseLib {
 
     function getJsonToMarketerAddr(JsmnSolLib.Token[] _tokens, string _jsonData)
         internal
-        view
+        pure
         returns (address)
     {
         return parseAddr(getTokenToValue(_tokens, _jsonData, 8));

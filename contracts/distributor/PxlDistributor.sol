@@ -25,6 +25,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         string param;
     }
 
+    uint256 public constant DECIMALS = 10 ** 18;
     uint256 public constant PURCHASE_PARAM_COUNT = 9;
 
     ERC20 token;
@@ -104,7 +105,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             }
 
             //supporter amount
-            //compareAmount = compareAmount.sub(supportersAmount(tokens, _jsonData, compareAmount));
+            compareAmount = compareAmount.sub(supportersAmount(tokens, _jsonData, compareAmount));
 
             // cp amount
             if(compareAmount > 0) {
@@ -135,15 +136,19 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         private
         returns (uint256 compareAmount)
     {
+        uint256 amount = _amount;
+
         FundManagerInterface fund = FundManagerInterface(council.getFundManager());
         address[] memory fundAddress = fund.getFunds(ParseLib.getJsonToContentAddr(_tokens, _jsonData));
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            if(compareAmount >= _amount) {
+            amount = amount.sub(compareAmount);
+
+            if(amount == 0) {
                 break;
             }
 
-            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], _amount);
+            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
 
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
                 compareAmount = compareAmount.add(supporterAmount[j]);
@@ -163,7 +168,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         pure
         returns (uint256)
     {
-        return _amount.mul(_rate).div(100);
+        return _amount.mul(_rate).div(DECIMALS);
     }
 
     function getMarketerRate(JsmnSolLib.Token[] _tokens, string _jsonData)
