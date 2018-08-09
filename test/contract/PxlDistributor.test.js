@@ -38,6 +38,7 @@ contract("PxlDistributor", function (accounts) {
 
     const initialDeposit = new BigNumber(100 * decimals);
     const reportRegistrationFee = new BigNumber(10 * decimals);
+
     const cdRate = 0.15 * decimals;
     const depositRate = 0.03 * decimals;
     const userPaybackRate = 0.02 * decimals;
@@ -46,8 +47,8 @@ contract("PxlDistributor", function (accounts) {
 
     const userPaybackPoolInterval = 86400;
 
-    const contentRecord = '{"title": "권짱님의 스트레스!!","genres": "액션, 판타지","synopsis": "요괴가 지니고 있는 능력으로 합법적 무력을 행사하고 사회적 문제를 해결하는 단체, \'연옥학원\'. 빼앗긴 심장과 기억을 되찾기 위해 연옥학원에 들어간 좀비, 블루의 모험이 다시 시작된다! 더욱 파워풀한 액션으로 돌아온 연옥학원, 그 두 번째 이야기!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
-    const episodeRecord = '{"title": "똥쟁이님의 신발 구매???????","genres": "일상","synopsis": "여기 이 남자를 보시라! 뭘 해도 어그로 가 끌리는 미친 존재감! 낙천적이며 교활하기 까지한 티이모 유저 제인유와 그의 친구들의 좌충우돌 스토리!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
+    const contentRecord = '{"title": "리오의 스트레스!!","genres": "액션, 판타지","synopsis": "요괴가 지니고 있는 능력으로 합법적 무력을 행사하고 사회적 문제를 해결하는 단체, \'연옥학원\'. 빼앗긴 심장과 기억을 되찾기 위해 연옥학원에 들어간 좀비, 블루의 모험이 다시 시작된다! 더욱 파워풀한 액션으로 돌아온 연옥학원, 그 두 번째 이야기!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
+    const episodeRecord = '{"title": "하랑이의 신발 구매???????","genres": "일상","synopsis": "여기 이 남자를 보시라! 뭘 해도 어그로 가 끌리는 미친 존재감! 낙천적이며 교활하기 까지한 티이모 유저 제인유와 그의 친구들의 좌충우돌 스토리!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
 
     const episodePrice = new BigNumber(10 * decimals);
 
@@ -64,28 +65,151 @@ contract("PxlDistributor", function (accounts) {
     let marketers;
     let reporter;
 
+    let beforeBalance;
+    let afterBalance;
+    let txFee;
+    let accumulate = 0;
 
     before("Initial setup", async() => {
         //===========================    컨트랙트 배포 시작    ===========================
-        token = await PXL.new(initialBalance, {from: owner});
-        council = await Council.new(token.address, {from: owner});
-        userPayback = await UserPaybackPool.new(council.address, userPaybackPoolInterval, {from: owner});
-        deposit = await DepositPool.new(council.address, {from: owner});
-        roleManager = await RoleManager.new({from: owner});
-        contentsManager = await ContentsManager.new(council.address, {from: owner});
-        fundManager = await FundManager.new(council.address, {from: owner});
-        distributor = await PxlDistributor.new(council.address, {from: owner});
-        marketers = await Marketer.new({from: owner});
-        reporter = await Report.new(council.address, {from: owner});
+        console.log();
+        console.log(colors.magenta.bold("\t========== Deploy contract gas usage(1 Gwei) =========="));
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        token = await PXL.new(initialBalance, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\ttoken contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        council = await Council.new(token.address, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tcouncil contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        userPayback = await UserPaybackPool.new(council.address, userPaybackPoolInterval, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tuserPaybackPool contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        deposit = await DepositPool.new(council.address, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tdepositPool contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        roleManager = await RoleManager.new({from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\troleManager contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        contentsManager = await ContentsManager.new(council.address, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tcontentsManager contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        fundManager = await FundManager.new(council.address, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tfundManager contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        distributor = await PxlDistributor.new(council.address, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tpxlDistributor contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        marketers = await Marketer.new({from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tmarketers contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        reporter = await Report.new(council.address, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\treporter contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+        console.log(colors.blue.bgWhite.bold("\tDeploy contract total Amount : " + accumulate / decimals + " Ether"));
+        console.log();
+        console.log();
         //===========================    컨트랙트 배포 종료   ===========================
 
 
         //===========================    위원회 초기 값 설정 시작    ===========================
+        console.log();
+        console.log(colors.magenta.bold("\t========== Council initial setting gas usage(1 Gwei) =========="));
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
         await council.initialValue(
             initialDeposit,
             reportRegistrationFee,
-            {from: owner}
+            {from: owner, gasPrice: 1000000000}
         );
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = txFee;
+        console.log(colors.magenta("\tinitialValue"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
 
         await council.initialRate(
             cdRate,
@@ -93,8 +217,17 @@ contract("PxlDistributor", function (accounts) {
             userPaybackRate,
             reportRewardRate,
             marketerDefaultRate,
-            {from: owner}
+            {from: owner, gasPrice: 1000000000}
         );
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tinitialRate"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
 
         await council.initialPictionAddress(
             userPayback.address,
@@ -102,52 +235,184 @@ contract("PxlDistributor", function (accounts) {
             distributor.address,
             marketers.address,
             reporter.address,
-            {from: owner}
-        ).should.be.fulfilled;
+            {from: owner, gasPrice: 1000000000}
+        );
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tinitialPictionAddress"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
 
         await council.initialManagerAddress(
             roleManager.address,
             contentsManager.address,
             fundManager.address,
-            {from: owner}
-        ).should.be.fulfilled;
+            {from: owner, gasPrice: 1000000000}
+        );
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tinitialManagerAddress"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+        console.log(colors.blue.bgWhite.bold("\tCouncil initial setting total Amount : " + accumulate / decimals + " Ether"));
+        console.log();
+        console.log();
         //===========================    위원회 초기 값 설정 종료    ===========================
 
 
         //===========================    PxlDistributor 권한 등록 시작    ===========================
-        await roleManager.addAddressToRole(distributor.address, "PXL_DISTRIBUTOR", {from: owner});
-        //===========================    PxlDistributor 권한 등록 시작    ===========================
+        console.log();
+        console.log(colors.magenta.bold("\t========== Add role gas usage(1 Gwei) =========="));
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await roleManager.addAddressToRole(distributor.address, "PXL_DISTRIBUTOR", {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = txFee;
+        console.log(colors.magenta("\tpxlDistributor add role"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+        console.log(colors.blue.bgWhite.bold("\tAdd role total Amount : " + accumulate / decimals + " Ether"));
+        console.log();
+        console.log();
+        //===========================    PxlDistributor 권한 등록 종료    ===========================
 
 
         //===========================    토큰 전송 시작    ===========================
-        token.unlock({from: owner}).should.be.fulfilled;
+        console.log();
+        console.log(colors.magenta.bold("\t========== Token transfer gas usage(1 Gwei) =========="));
 
-        token.transfer(writer, 100 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(supporter, 500 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(user, 1000 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(user2, 1000 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(supporter2, 500 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(supporter3, 300 * decimals, {from: owner}).should.be.fulfilled;
-        //===========================    토큰 전송 시작    ===========================
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.unlock({from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = txFee;
+        console.log(colors.magenta("\ttoken unlock"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(writer, 100 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(100pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(supporter, 500 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(500pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(user, 1000 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(1,000pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(user2, 1000 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(1,000pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(supporter2, 500 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(500pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(supporter3, 300 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(300pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+        console.log();
+        console.log(colors.blue.bgWhite.bold("\tToken transfer total Amount : " + accumulate / decimals + " Ether"));
+        console.log();
+        console.log();
+        //===========================    토큰 전송 종료    ===========================
     });
 
     describe("PXL distribution", async() => {
         before("contents & fund", async () => {
-            const marketerRate = 0.1 * decimals;;
+            const marketerRate = 0.1 * decimals;
 
             //===========================    콘텐츠 생성 시작    ===========================
+            console.log();
+            console.log(colors.magenta.bold("\t========== Add content gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(writer);
+
             await token.approveAndCall(
                 contentsManager.address,
                 initialDeposit,
                 "",
-                {from: writer}
+                {from: writer, gasPrice: 1000000000}
             ).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(writer);
+            txFee = beforeBalance - afterBalance;
+            accumulate =  txFee;
+            console.log(colors.magenta("\ttransfer CP initial deposit"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+            console.log();
+
+            beforeBalance = await web3.eth.getBalance(writer);
 
             await contentsManager.addContents(
                 contentRecord,
                 marketerRate,
-                {from: writer}
+                {from: writer, gasPrice: 1000000000}
             ).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(writer);
+            txFee = beforeBalance - afterBalance;
+            accumulate = accumulate + txFee;
+            console.log(colors.magenta("\tadd contents"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+            console.log();
+            console.log(colors.blue.bgWhite.bold("\tAdd content total Amount : " + accumulate / decimals + " Ether"));
+            console.log();
+            console.log();
 
             const writerContents = await contentsManager.getWriterContentsAddress.call(writer, {from: writer});
             content = Content.at(writerContents[0][0]);
@@ -166,6 +431,11 @@ contract("PxlDistributor", function (accounts) {
             const startTime = Date.now() + 3000;    // 현재시간 +3초
             const endTime = startTime + 5000;      //펀드 종료 시간 = 시작시간 + 5초
 
+            console.log();
+            console.log(colors.magenta.bold("\t========== Add fund gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(writer);
+
             await fundManager.addFund(
                 content.address,
                 writer,
@@ -174,9 +444,16 @@ contract("PxlDistributor", function (accounts) {
                 1,
                 600,
                 5 * decimals,
-                "권짱의 스트레스에 투자하라!!!",
-                {from: writer}
+                "리오의 스트레스에 투자하라!!!",
+                {from: writer, gasPrice: 1000000000}
             );
+
+            afterBalance = await web3.eth.getBalance(writer);
+            txFee = beforeBalance - afterBalance;
+            accumulate =  txFee;
+            console.log(colors.magenta("\tadd fund"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+            console.log();
 
             const fundAddress = await fundManager.getFunds.call(content.address, {from: writer});
             const fundLength = fundAddress.length;
@@ -188,26 +465,54 @@ contract("PxlDistributor", function (accounts) {
             //펀드 시작시간 +3초 뒤 투자 시작
             const supportTokenPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
-                    await token.approveAndCall(
-                        fund.address,
-                        500 * decimals,
-                        "",
-                        {from: supporter}
-                    );
+                    beforeBalance = await web3.eth.getBalance(supporter);
 
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
                         "",
-                        {from: supporter2}
+                        {from: supporter, gasPrice: 1000000000}
                     );
+
+                    afterBalance = await web3.eth.getBalance(supporter);
+                    txFee = beforeBalance - afterBalance;
+                    accumulate = accumulate + txFee;
+                    console.log(colors.magenta("\tsupporter1 (500pxl)"));
+                    console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+                    console.log();
+
+                    beforeBalance = await web3.eth.getBalance(supporter2);
+
+                    await token.approveAndCall(
+                        fund.address,
+                        500 * decimals,
+                        "",
+                        {from: supporter2, gasPrice: 1000000000}
+                    );
+
+                    afterBalance = await web3.eth.getBalance(supporter2);
+                    txFee = beforeBalance - afterBalance;
+                    accumulate = accumulate + txFee;
+                    console.log(colors.magenta("\tsupporter2 (500pxl)"));
+                    console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+                    console.log();
+
+                    beforeBalance = await web3.eth.getBalance(supporter2);
 
                     await token.approveAndCall(
                         fund.address,
                         300 * decimals,
                         "",
-                        {from: supporter3}
+                        {from: supporter3, gasPrice: 1000000000}
                     );
+
+                    afterBalance = await web3.eth.getBalance(supporter3);
+                    txFee = beforeBalance - afterBalance;
+                    accumulate = accumulate + txFee;
+                    console.log(colors.magenta("\tsupporter3 (300pxl)"));
+                    console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+                    console.log();
+
                     resolve();
                 }, 5000);
             });
@@ -216,20 +521,46 @@ contract("PxlDistributor", function (accounts) {
             //펀드 종료시간 +2초 뒤 서포터 풀 생성
             const startPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
-                    await fund.createSupporterPool({from: writer});
+                    beforeBalance = await web3.eth.getBalance(writer);
+
+                    await fund.createSupporterPool({from: writer, gasPrice: 1000000000});
+
+                    afterBalance = await web3.eth.getBalance(writer);
+                    txFee = beforeBalance - afterBalance;
+                    accumulate = accumulate + txFee;
+                    console.log(colors.magenta("\tcreate supporter pool"));
+                    console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+                    console.log();
+
                     resolve();
                 }, 10000);
             });
             await startPromise;
+
+            console.log(colors.blue.bgWhite.bold("\tAdd fund total Amount : " + accumulate / decimals + " Ether"));
+            console.log();
+            console.log();
             //===========================    펀드 생성 종료    ===========================
 
 
             //===========================    에피소드 생성 시작    ===========================
+            console.log();
+            console.log(colors.magenta.bold("\t========== Add episode gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(writer);
+
             await content.addEpisode(
                 episodeRecord,
                 episodePrice,
-                {from: writer}
+                {from: writer, gasPrice: 1000000000}
             );
+
+            afterBalance = await web3.eth.getBalance(writer);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee;
+            console.log(colors.magenta("\tadd episode"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+            console.log();
 
             const episodeLength = await content.getEpisodeLength.call({from: writer});
             const episodeDetail = await content.getEpisodeDetail.call(0, {from: writer});
@@ -240,11 +571,24 @@ contract("PxlDistributor", function (accounts) {
             episodeDetail[2].should.be.bignumber.equal(0);
 
             // 무료 에피소드
+
+            beforeBalance = await web3.eth.getBalance(writer);
+
             await content.addEpisode(
                 episodeRecord,
                 0,
-                {from: writer}
+                {from: writer, gasPrice: 1000000000}
             );
+
+            afterBalance = await web3.eth.getBalance(writer);
+            txFee = beforeBalance - afterBalance;
+            accumulate = accumulate + txFee;
+            console.log(colors.magenta("\tadd episode(free episode)"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+            console.log();
+            console.log(colors.blue.bgWhite.bold("\tAdd episode total Amount : " + accumulate / decimals + " Ether"));
+            console.log();
+            console.log();
 
             const episodeLength1 = await content.getEpisodeLength.call({from: writer});
             const episodeDetail1 = await content.getEpisodeDetail.call(1, {from: writer});
@@ -273,20 +617,26 @@ contract("PxlDistributor", function (accounts) {
 
             const userAmount = await token.balanceOf.call(user, {from: owner});
 
-            const before = await web3.eth.getBalance(user);
-            const result = await token.approveAndCall(
+            console.log();
+            console.log(colors.magenta.bold("\t========== Purchase episode gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(user);
+
+            await token.approveAndCall(
                 distributor.address,
                 episodePrice,
                 purchaseJson,
                 {from: user, gasPrice: 1000000000}
             );
-            const after = await web3.eth.getBalance(user);
 
+            afterBalance = await web3.eth.getBalance(user);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee;
+            console.log(colors.magenta("\tpurchase episode"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
             console.log();
-            console.log(colors.yellow.bold("\t========== Content purchase gas usage(1 Gwei) =========="));
-            console.log(colors.yellow("\tbefor ether : " + before / decimals + " Ether"));
-            console.log(colors.yellow("\tafter ether : " + after / decimals + " Ether"));
-            console.log(colors.yellow("\tActual Tx Cost/Fee : " + (before - after) / decimals + " Ether"));
+            console.log(colors.blue.bgWhite.bold("\tPurchase episode total Amount : " + accumulate / decimals + " Ether"));
+            console.log();
             console.log();
 
             const cdRate = await council.getCdRate();
@@ -346,7 +696,7 @@ contract("PxlDistributor", function (accounts) {
             await content.updateContent(
                 contentRecord,
                 marketerRate,
-                {from: writer}
+                {from: writer, gasPrice: 1000000000}
             ).should.be.fulfilled;
 
             const rate = await content.getMarketerRate.call({from: writer});
@@ -370,7 +720,7 @@ contract("PxlDistributor", function (accounts) {
                 distributor.address,
                 episodePrice,
                 purchaseJson,
-                {from: user2}
+                {from: user2, gasPrice: 1000000000}
             );
 
             const marketerAmount = await token.balanceOf.call(marketer2, {from: owner});
@@ -398,7 +748,7 @@ contract("PxlDistributor", function (accounts) {
                 distributor.address,
                 episodePrice,
                 purchaseJson,
-                {from: user2}
+                {from: user2, gasPrice: 1000000000}
             ).should.be.rejected;
         });
 
@@ -412,13 +762,28 @@ contract("PxlDistributor", function (accounts) {
 
             const purchaseJson = JSON.stringify(tempJson);
 
+            console.log();
+            console.log(colors.magenta.bold("\t========== Purchase free episode gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(freeUser);
+
             //무료 컨텐츠의 경우 에피소드 구매 목록만 업데이트
             await token.approveAndCall(
                 distributor.address,
                 0,
                 purchaseJson,
-                {from: freeUser}
+                {from: freeUser, gasPrice: 1000000000}
             ).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(freeUser);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee;
+            console.log(colors.magenta("\tpurchase episode"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether"));
+            console.log();
+            console.log(colors.blue.bgWhite.bold("\tPurchase free episode total Amount : " + accumulate / decimals + " Ether"));
+            console.log();
+            console.log();
 
             const purchaseInfo = await content.getEpisodeDetail.call(1, {from: freeUser}).should.be.fulfilled;
 
