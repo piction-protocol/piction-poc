@@ -36,7 +36,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     mapping (address => Registration) registrationFee;
 
     //신고자 등록금 잠금 시간
-    uint256 interval = 30000; //for test
+    uint256 interval = 10000; //for test
 
     //신고내용과 처리유무
     struct ReportData {
