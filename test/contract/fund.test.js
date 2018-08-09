@@ -39,9 +39,7 @@ contract("Fund", function (accounts) {
         council = await Council.new(token.address, {from: owner});
         roleManager = await RoleManager.new({from: owner});
 
-        await roleManager.addAddressToRole(pxlDistributor, "PXL_DISTRIBUTOR", {from: owner});
         await council.setRoleManager(roleManager.address, {from: owner});
-
         content = await Content.new(record, writer, marketerRate, roleManager.address);
 
         await token.unlock({from: owner});
@@ -195,7 +193,7 @@ contract("Fund", function (accounts) {
             const createPoolPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async () => {
                     fundAddresses.forEach( async (address, i) => {
-                        let fund = await Fund.at(address);
+                        const fund = await Fund.at(address);
                         await fund.createSupporterPool();
 
                         if (fundAddresses.length - 1 == i) {
@@ -214,10 +212,14 @@ contract("Fund", function (accounts) {
             const supporterPoolAddress = await fund.supporterPool.call();
             const supporterPool = await SupporterPool.at(supporterPoolAddress)
 
+            const beforeDistributions = await supporterPool.getDistributions();
+
             await supporterPool.vote(0, {from: supporter});
 
-            const isVoting = await supporterPool.isVoting(0, {from: supporter});
+            const afterDistributions = await supporterPool.getDistributions();
+            afterDistributions[0].should.have.length(beforeDistributions[0].length + 1);
 
+            const isVoting = await supporterPool.isVoting(0, {from: supporter});
             isVoting.should.be.equal(true);
         });
     });
