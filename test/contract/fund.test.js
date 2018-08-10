@@ -1,3 +1,5 @@
+const { timer } = require("../helpers/timer");
+
 const Pxl = artifacts.require("PXL");
 const FundManager = artifacts.require("FundManager");
 const Fund = artifacts.require("Fund")
@@ -81,25 +83,20 @@ contract("Fund", function (accounts) {
             const beforeSupporterBalance = await token.balanceOf(supporter);
             const beforeFundBalance = await token.balanceOf(fund.address);
 
-            const supportPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+            await timer(1500);
 
-                    const afterSupporterBalance = await token.balanceOf(supporter);
-                    const afterFundBalance = await token.balanceOf(fund.address);
+            await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
 
-                    beforeSupporterBalance.sub(afterSupporterBalance).should.be.bignumber.equal(supportAmount);
-                    afterFundBalance.should.be.bignumber.equal(supportAmount);
+            const afterSupporterBalance = await token.balanceOf(supporter);
+            const afterFundBalance = await token.balanceOf(fund.address);
 
-                    const supportInfo = await fund.getSupporters();
+            beforeSupporterBalance.sub(afterSupporterBalance).should.be.bignumber.equal(supportAmount);
+            afterFundBalance.should.be.bignumber.equal(supportAmount);
 
-                    supportInfo[0][0].should.be.equal(supporter);
-                    supportInfo[1][0].should.be.bignumber.equal(supportAmount);
+            const supportInfo = await fund.getSupporters();
 
-                    resolve();
-                }, 1500);
-            });
-            await supportPromise;
+            supportInfo[0][0].should.be.equal(supporter);
+            supportInfo[1][0].should.be.bignumber.equal(supportAmount);
         });
 
         it("several users supports.", async () => {
@@ -107,16 +104,16 @@ contract("Fund", function (accounts) {
             const supporters = users;
             const fund = await Fund.at(fundAddresses[0]);
 
-            const supportPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    supporters.forEach( async (supporter, i) => {
-                        await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+            await timer(1000);
 
-                        if (supporters.length - 1 == i) {
-                            resolve();
-                        }
-                    });
-                }, 1000);
+            const supportPromise = new Promise( async (resolve, reject) => {
+                supporters.forEach( async (supporter, i) => {
+                    await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+
+                    if (supporters.length - 1 == i) {
+                        resolve();
+                    }
+                });
             });
             await supportPromise;
 
@@ -142,28 +139,24 @@ contract("Fund", function (accounts) {
             const supportAmount = new BigNumber(4 * decimals);
             const supporter = users[0];
 
-            const addFundPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    const startTime = Date.now() + 500;
-                    const endTime = startTime + 2000;
-                    const poolSize = 5;
-                    const releaseInterval = 2000;
-                    const distributationRate = 10 * decimals;
-                    const detail = "1234";
+            await timer(3000);
 
-                    await fundManager.addFund(
-                        content.address,
-                        writer,
-                        startTime,
-                        endTime,
-                        poolSize,
-                        releaseInterval,
-                        distributationRate,
-                        detail, {from: owner}).should.be.fulfilled;
-                    resolve();
-                }, 3000);
-            });
-            await addFundPromise;
+            const startTime = Date.now() + 500;
+            const endTime = startTime + 2000;
+            const poolSize = 5;
+            const releaseInterval = 2000;
+            const distributationRate = 10 * decimals;
+            const detail = "1234";
+
+            await fundManager.addFund(
+                content.address,
+                writer,
+                startTime,
+                endTime,
+                poolSize,
+                releaseInterval,
+                distributationRate,
+                detail, {from: owner}).should.be.fulfilled;
 
             fundAddresses = await fundManager.getFunds.call(content.address);
 
@@ -172,35 +165,28 @@ contract("Fund", function (accounts) {
             const fundAddress = fundAddresses[lastIndex];
             const fund = await Fund.at(fundAddress);
 
-            const supportPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+            await timer(1500);
+            await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
 
-                    const supportInfo = await fund.getSupporters();
+            const supportInfo = await fund.getSupporters();
 
-                    supportInfo[0][0].should.be.equal(supporter);
-                    supportInfo[1][0].should.be.bignumber.equal(supportAmount);
-
-                    resolve();
-                }, 1500);
-            });
-            await supportPromise;
+            supportInfo[0][0].should.be.equal(supporter);
+            supportInfo[1][0].should.be.bignumber.equal(supportAmount);
         });
     });
 
     describe("Vote", () => {
         before("create supporter pool", async () => {
+            await timer(3000);
             const createPoolPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    fundAddresses.forEach( async (address, i) => {
-                        const fund = await Fund.at(address);
-                        await fund.createSupporterPool();
+                fundAddresses.forEach( async (address, i) => {
+                    const fund = await Fund.at(address);
+                    await fund.createSupporterPool();
 
-                        if (fundAddresses.length - 1 == i) {
-                            resolve();
-                        }
-                    });
-                }, 3000);
+                    if (fundAddresses.length - 1 == i) {
+                        resolve();
+                    }
+                });
             });
             await createPoolPromise;
         });
@@ -232,13 +218,8 @@ contract("Fund", function (accounts) {
 
             const beforeWriterBalance = await token.balanceOf(writer);
 
-            const distributionPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    await supporterPool.distribution();
-                    resolve();
-                }, 1000);
-            });
-            await distributionPromise
+            await timer(1000);
+            await supporterPool.distribution();
 
             const afterWriterBalance = await token.balanceOf(writer);
 
@@ -257,13 +238,8 @@ contract("Fund", function (accounts) {
 
             const beforeWriterBalance = await token.balanceOf(writer);
 
-            const distributionPromise = new Promise( async (resolve, reject) => {
-                setTimeout( async () => {
-                    await supporterPool.distribution();
-                    resolve();
-                }, 1000);
-            });
-            await distributionPromise
+            await timer(1000);
+            await supporterPool.distribution();
 
             const afterWriterBalance = await token.balanceOf(writer);
 
