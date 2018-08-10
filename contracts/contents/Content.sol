@@ -12,6 +12,7 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
 
     struct Episode {
         string record;
+        string cuts;
         uint256 price;
         uint256 buyCount;
         mapping (address => bool) buyUser;
@@ -23,7 +24,7 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
     string public record;
     address public writer;
     uint256 public marketerRate;
-    Episode[] public episodes;
+    Episode[] episodes;
 
     modifier validEpisodeLength(uint256 _index) {
         require(episodes.length > _index);
@@ -60,20 +61,21 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
         emit ChangeContent(msg.sender, "update content");
     }
 
-    function addEpisode(string _record, uint256 _price)
+    function addEpisode(string _record, string _cuts, uint256 _price)
     external
-    onlyOwner validString(_record)
+    onlyOwner validString(_record) validString(_cuts)
     {
-        episodes.push(Episode(_record, _price, 0));
+        episodes.push(Episode(_record, _cuts, _price, 0));
 
         emit RegisterEpisode(msg.sender, "add episode", (episodes.length.sub(1)));
     }
 
-    function updateEpisode(uint256 _index, string _record, uint256 _price)
+    function updateEpisode(uint256 _index, string _record, string _cuts, uint256 _price)
     external
-    onlyOwner validString(_record) validEpisodeLength(_index)
+    onlyOwner validString(_record) validString(_cuts) validEpisodeLength(_index)
     {
         episodes[_index].record = _record;
+        episodes[_index].cuts = _cuts;
         episodes[_index].price = _price;
 
         emit ChangeEpisode(msg.sender, "update episode", _index);
@@ -105,12 +107,21 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
     }
 
     function getEpisodeDetail(uint256 _index)
-        public
+        external
         view
         returns (string, uint256, uint256)
     {
-        require(msg.sender == writer || episodes[_index].buyUser[msg.sender]);
         return (episodes[_index].record, episodes[_index].price, episodes[_index].buyCount);
+    }
+
+    function getEpisodeCuts(uint256 _index)
+        external
+        view
+        returns (string result)
+    {
+        if(msg.sender == writer || episodes[_index].buyUser[msg.sender]) {
+            result = episodes[_index].cuts;
+        }
     }
 
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount)
