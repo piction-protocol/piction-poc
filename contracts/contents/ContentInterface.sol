@@ -9,7 +9,7 @@ contract ContentInterface {
     function getWriter() public view returns (address);
     function getMarketerRate() public view returns (uint256);
     function getEpisodeLength() public view returns (uint256);
-    function getEpisodeDetail(uint256 _index) external view returns (string, uint256, uint256);
+    function getEpisodeDetail(uint256 _index) external view returns (string, uint256, uint256, bool);
     function getEpisodeCuts(uint256 _index) external view returns (string result);
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount) external;
     event RegisterContent(address _sender, string _name);
