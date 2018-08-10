@@ -1,3 +1,5 @@
+const { forEachAsync } = require("../helpers/forEachAsync");
+
 var PXL = artifacts.require("PXL");
 var Council = artifacts.require("Council");
 var RoleManager = artifacts.require("RoleManager");
@@ -30,6 +32,7 @@ contract("Content", function (accounts) {
     const updateRecord = '{"title": "님명님의 검은사막~~~","genres": "판타지, 성인","synopsis": "매달리던 알바도 짤리고 직업도 없는 채 나이만 먹은 채 30. 이런 나에게 어느 날, 어플 하나로 부자가 될 기회가 찾아왔다. 슈퍼카 건물주 여자 모든 것을 내손에 넣을 수 있다고?","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
     const episode1 = '{"title": "호롤로로로로님의 게임시간!!!!!","genres": "게임, 일상","synopsis": "여기 이 남자를 보시라! 뭘 해도 어그로 가 끌리는 미친 존재감! 낙천적이며 교활하기 까지한 티이모 유저 제인유와 그의 친구들의 좌충우돌 스토리!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
     const episode2 = '{"title": "똥쟁이님의 신발 구매???????","genres": "일상","synopsis": "여기 이 남자를 보시라! 뭘 해도 어그로 가 끌리는 미친 존재감! 낙천적이며 교활하기 까지한 티이모 유저 제인유와 그의 친구들의 좌충우돌 스토리!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
+    const imageUrl = '{"cuts": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg,https://www.battlecomics.co.kr/webtoons/467"}';
 
     let token;
     let council;
@@ -66,7 +69,8 @@ contract("Content", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                "",
+                [],
+                0,
                 {from: writer}
             ).should.be.fulfilled;
 
@@ -136,6 +140,7 @@ contract("Content", function (accounts) {
             before("create episode", async() => {
                 await content.addEpisode(
                     episode1,
+                    imageUrl,
                     episodePrice,
                     {from: writer}
                 ).should.be.fulfilled;
@@ -144,45 +149,49 @@ contract("Content", function (accounts) {
             it("check ownable", async() => {
                 await content.addEpisode(
                     episode1,
+                    imageUrl,
                     episodePrice,
                     {from: owner}
                 ).should.be.rejected;
 
-                await content.getEpisodeDetail.call(
-                    0,
-                    {from: testuser}
-                ).should.be.rejected;
+                const empty = await content.getEpisodeCuts.call(0, {from: testuser}).should.be.fulfilled;
+                empty.should.be.equal("");
 
                 const episodeLength = await content.getEpisodeLength.call({from: writer});
                 const episodeDetail = await content.getEpisodeDetail.call(0, {from: writer});
+                const episodeCuts = await content.getEpisodeCuts.call(0, {from: writer});
 
                  episodeLength.should.be.bignumber.equal(1);
                  episodeDetail[0].should.be.equal(episode1);
                  episodeDetail[1].should.be.bignumber.equal(episodePrice);
                  episodeDetail[2].should.be.bignumber.equal(0);
+                 episodeCuts.should.be.equal(imageUrl);
             });
 
             it("add episode", async() => {
                 await content.addEpisode(
                     episode2,
+                    imageUrl,
                     episodePrice,
                     {from: writer}
                 ).should.be.fulfilled;
 
                 const episodeLength = await content.getEpisodeLength.call({from: writer});
                 const episodeDetail = await content.getEpisodeDetail.call(episodeLength - 1, {from: writer});
+                const episodeCuts = await content.getEpisodeCuts.call(episodeLength - 1, {from: writer});
 
                 episodeLength.should.be.bignumber.equal(2);
                 episodeDetail[0].should.be.equal(episode2);
                 episodeDetail[1].should.be.bignumber.equal(episodePrice);
                 episodeDetail[2].should.be.bignumber.equal(0);
+                episodeCuts.should.be.equal(imageUrl);
             });
 
             it("episode purchase", async() => {
                 const episodeLength = await content.getEpisodeLength.call({from: writer});
                 const roleCheck = await roleManager.isAccess.call(distributor, "PXL_DISTRIBUTOR", {from: owner});
 
-                buyusers.forEach(async(user) => {
+                await forEachAsync(buyusers, async (user) => {
                     const isBuying = await content.isPurchasedEpisode.call(episodeLength - 1, user, {from: user});
                     isBuying.should.be.equal(false);
 
@@ -203,17 +212,19 @@ contract("Content", function (accounts) {
                 episodeDetail[2].should.be.bignumber.equal(buyusers.length);
             });
 
-            it("get episode detail role", async () => {
+            it("get episode image", async () => {
                 const episodeLength = await content.getEpisodeLength.call({from: writer});
 
                 const isBuying = await content.isPurchasedEpisode.call(episodeLength - 1, buyusers[0], {from: buyusers[0]});
                 isBuying.should.be.equal(true);
 
-                const episodeDetailBuyuserOk = await content.getEpisodeDetail.call(episodeLength - 1, {from: buyusers[0]}).should.be.fulfilled;
-                const episodeDetailBuyuserReject = await content.getEpisodeDetail.call(episodeLength - 2, {from: buyusers[0]}).should.be.rejected;
-                const episodeDetailTestuser = await content.getEpisodeDetail.call(episodeLength - 1, {from: testuser}).should.be.rejected;
+                const episodeDetailBuyuserOk = await content.getEpisodeCuts.call(episodeLength - 1, {from: buyusers[0]}).should.be.fulfilled;
+                const episodeDetailBuyuserEmpty = await content.getEpisodeCuts.call(episodeLength - 2, {from: buyusers[0]}).should.be.fulfilled;
+                const episodeDetailTestuser = await content.getEpisodeCuts.call(episodeLength - 1, {from: testuser}).should.be.fulfilled;
 
-                episodeDetailBuyuserOk[2].should.be.bignumber.equal(3);
+                episodeDetailBuyuserOk.should.be.equal(imageUrl);
+                episodeDetailBuyuserEmpty.should.be.equal("");
+                episodeDetailTestuser.should.be.equal("");
             });
         });
     });
