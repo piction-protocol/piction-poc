@@ -1,4 +1,5 @@
 const { timer } = require("../helpers/timer");
+const { forEachAsync } = require("../helpers/forEachAsync");
 
 const Pxl = artifacts.require("PXL");
 const FundManager = artifacts.require("FundManager");
@@ -48,7 +49,7 @@ contract("Fund", function (accounts) {
 
         await token.transfer(writer, initialUserBalance, {from: owner});
 
-        users.forEach( async (user) => {
+        await forEachAsync(users, async (user) => {
             await token.transfer(user, initialUserBalance, {from: owner});
         });
 
@@ -106,33 +107,19 @@ contract("Fund", function (accounts) {
 
             await timer(1000);
 
-            const supportPromise = new Promise( async (resolve, reject) => {
-                supporters.forEach( async (supporter, i) => {
-                    await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
-
-                    if (supporters.length - 1 == i) {
-                        resolve();
-                    }
-                });
+            await forEachAsync(supporters, async (supporter) => {
+                await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
             });
-            await supportPromise;
 
             const supportInfo = await fund.getSupporters();
 
-            const supportInfoPromise = new Promise( async (resolve, reject) => {
-                supportInfo[0].forEach( async (info, i) => {
-                    const supporter = supportInfo[0][i];
-                    const investment = supportInfo[1][i];
+            await forEachAsync(supportInfo[0], async (info, i) => {
+                const supporter = supportInfo[0][i];
+                const investment = supportInfo[1][i];
 
-                    supporter.should.be.equal(supporters[i]);
-                    investment.should.be.bignumber.equal(supportAmount);
-
-                    if (supportInfo[0].length - 1 == i) {
-                        resolve();
-                    }
-                });
+                supporter.should.be.equal(supporters[i]);
+                investment.should.be.bignumber.equal(supportAmount);
             });
-            await supportInfoPromise;
         });
 
         it("supports to next fund.", async () => {
@@ -178,17 +165,11 @@ contract("Fund", function (accounts) {
     describe("Vote", () => {
         before("create supporter pool", async () => {
             await timer(3000);
-            const createPoolPromise = new Promise( async (resolve, reject) => {
-                fundAddresses.forEach( async (address, i) => {
-                    const fund = await Fund.at(address);
-                    await fund.createSupporterPool();
 
-                    if (fundAddresses.length - 1 == i) {
-                        resolve();
-                    }
-                });
+            await forEachAsync(fundAddresses, async (address) => {
+                const fund = await Fund.at(address);
+                await fund.createSupporterPool();
             });
-            await createPoolPromise;
         });
 
         it ("voting on first fund", async () => {
