@@ -16,9 +16,6 @@
         <b-badge :variant="row.item.state.variant">{{row.item.state.label}}</b-badge>
       </template>
     </b-table>
-    <!--<FundItem v-for="fund in funds"-->
-    <!--:fund="fund"-->
-    <!--:key="fund.fund_id"/>-->
   </div>
 </template>
 
