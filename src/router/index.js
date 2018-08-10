@@ -7,6 +7,7 @@ import ContentShow from '@/components/contents/Show'
 import ContentEdit from '@/components/contents/Edit'
 // episodes
 import EpisodeIndex from '@/components/episodes/Index'
+import EpisodeNew from '@/components/episodes/New'
 // viewer
 import ViewerIndex from '@/components/viewer/Index'
 // fund
@@ -16,7 +17,7 @@ import FundShow from '@/components/funds/Show'
 // my
 import MyIndex from '@/components/my/Index'
 import MyInfoIndex from '@/components/my/info/Index'
-import MyFundIndex from '@/components/my/funds/Index'
+import MyContentsIndex from '@/components/my/contents/Index'
 
 Vue.use(Router)
 
@@ -32,6 +33,7 @@ const router = new Router({
     // episodes
     {path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'},
     {path: '/contents/:content_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
+    {path: '/contents/:content_id/episodes/new', name: 'new-episode', component: EpisodeNew, props: true},
     // viewer
     {path: '/contents/:content_id/episodes/:episode_id', name: 'viewer', component: ViewerIndex, props: true},
     // trends
@@ -44,7 +46,7 @@ const router = new Router({
       path: '/my', component: MyIndex,
       children: [
         {path: '', name: 'my', component: MyInfoIndex},
-        {path: 'funds', name: 'my-funds', component: MyFundIndex},
+        {path: 'contents', name: 'my-contents', component: MyContentsIndex},
       ]
     },
     // not found

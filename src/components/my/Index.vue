@@ -2,7 +2,7 @@
   <div>
     <b-nav tabs>
       <router-link active-class="active" class="nav-link" to="/my" exact>Info</router-link>
-      <router-link active-class="active" class="nav-link" to="/my/funds" exact>Fund</router-link>
+      <router-link active-class="active" class="nav-link" to="/my/contents" exact>Contents</router-link>
     </b-nav>
     <br>
     <router-view/>

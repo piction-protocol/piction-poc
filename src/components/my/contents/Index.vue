@@ -1,16 +1,16 @@
 <template>
   <div>
-    <FundItem v-for="content in contents"
-                 :content="content"
-                 :key="content.id"/>
+    <Item v-for="content in contents"
+          :content="content"
+          :key="content.id"/>
   </div>
 </template>
 
 <script>
-  import FundItem from './FundItem'
+  import Item from './Item'
 
   export default {
-    components: {FundItem},
+    components: {Item},
     data() {
       return {
         contents: [],
