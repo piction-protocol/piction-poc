@@ -62,8 +62,10 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     * @dev receiveApproval의 구현, token을 전송 받고 Content 별로 잔액을 기록함
     */
     function addDeposit(address _from, uint256 _value, address _token, address[] _data) private {
+        require(_date.length > 0);
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
+
 
         address content = _data[0];
         contentDeposit[content] = contentDeposit[content].add(_value);

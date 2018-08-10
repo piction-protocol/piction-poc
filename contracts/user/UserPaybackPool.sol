@@ -79,6 +79,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
     function addPayback(address _from, uint256 _value, address _token, address[] _user) private {
         require(RoleManager(council.getRoleManager()).isAccess(_from, ROLE_NAME));
+        require(_user.length > 0);
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
