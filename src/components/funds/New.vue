@@ -106,7 +106,7 @@
             this.record.interval * hour,
             this.record.distributionRate,
             this.record.description);
-          this.$router.push({name: 'funds'})
+          this.$router.push({name: 'my-funds'})
         } catch (e) {
           alert(e);
         }

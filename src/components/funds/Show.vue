@@ -2,6 +2,8 @@
   <div>
     <h3>{{content ? content.title : ''}}</h3>
     <b-alert show>
+      <div>{{fund.detail}}</div>
+      <hr>
       <div><b>Amount raised : {{$utils.toPXL(fund.fundRise)}} PXL</b></div>
       <div>{{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}</div>
       <div>Number of distributions : {{fund.poolSize}}</div>
