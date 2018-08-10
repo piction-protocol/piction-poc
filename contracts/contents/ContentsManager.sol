@@ -77,7 +77,7 @@ contract ContentsManager is ContractReceiver, ValidValue {
         }
     }
 
-    function receiveApproval(address _from, uint256 _value, address _token, string  _jsonData)
+    function receiveApproval(address _from, uint256 _value, address _token, address[] _address, uint256 _index)
         public
         validAddress(_from) validAddress(_token)
     {
@@ -106,10 +106,14 @@ contract ContentsManager is ContractReceiver, ValidValue {
         require(token.balanceOf(address(this)) >= initialDeposit[_writer]);
         require(council.getDepositPool() != address(0));
 
+        address[] memory contentAddr = new address[](1);
+        contentAddr[0] = _content;
+
         CustomToken(address(token)).approveAndCall(
             council.getDepositPool(),
             initialDeposit[_writer],
-            ParseLib.addressToString(_content));
+            contentAddr,
+            0);
 
         emit TransferInitialDeposit(_writer, _content, initialDeposit[_writer]);
     }
