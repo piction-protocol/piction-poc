@@ -4,12 +4,12 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+import "contracts/contents/ContentInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/council/CouncilInterface.sol";
 import "contracts/deposit/DepositPoolInterface.sol";
 import "contracts/report/ReportInterface.sol";
-//import "contracts/council/FundManagerInterface.sol";
-//import "contracts/council/Fund.sol";
+import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ParseLib.sol";
 import "contracts/utils/ValidValue.sol";
@@ -24,6 +24,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using ParseLib for string;
+
+    uint256 DECIMALS = 10 ** 18;
 
     CouncilInterface council;
     mapping (address => uint256) contentDeposit;
@@ -92,7 +94,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         uint256 amount;
         if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
-            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(100);
+            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
 
             require(token.balanceOf(address(this)) >= amount);
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
@@ -103,32 +105,57 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         emit ReportReward(_content, _reporter, amount);
     }
 
+    function getReportRate(address _content) external view returns(uint256) {
+        return contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
+    }
+
     /**
     * @dev 작품 완결 시 호출하는 정산 구현
     * @param _content 정산을 원하는 작품 주소
     */
     function release(address _content) validAddress(_content) external {
-
         //신고 건이 있으면 완결처리되지 않음
         require(ReportInterface(council.getReport()).getUncompletedReport(_content) == 0);
+        require(contentDeposit[_content] > 0);
+        ERC20 token = ERC20(council.getToken());
+        require(token.balanceOf(address(this)) >= contentDeposit[_content]);
 
-        //작품 완결 시 서포터 비율 가져오고 정산 후 작가에게 정산
-        // 누가 실행 시켜야 하는가??
+        FundManagerInterface fund = FundManagerInterface(council.getFundManager());
 
-        //ref pixelDistributor
-        //call FundManager -> return fund[]
+        address[] memory fundAddress = fund.getFunds(_content);
+        
+        uint256 compareAmount;
+        uint256 amount = contentDeposit[_content];
 
-        //for(fund) fund.비율(contentDeposit[_content]) -> return (address[], amount[])
-        // local(address[], amount[]) add (address[], amount[])
-        //safeTransfer (address[](supporter), amount[])
-        // emit Release
+        for(uint256 i = 0 ; i < fundAddress.length ; i ++){
+            amount = amount.sub(compareAmount);
 
-        // if(contentDeposit[_content] > 0)
-        //safeTransfer writerAddress contentDeposit[_content]
-        // emit Release
+            if(amount == 0) {
+                break;
+            }
+
+             (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
+
+            //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
+            for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
+                compareAmount = compareAmount.add(supporterAmount[j]);
+                contentDeposit[_content] = contentDeposit[_content].sub(supporterAmount[j]);
+                token.safeTransfer(supporterAddress[j], supporterAmount[j]);
+                emit Release(_content, supporterAddress[j], supporterAmount[j]);
+            }
+        }
+
+        if (amount > 0) {
+            contentDeposit[_content] = contentDeposit[_content].sub(amount);
+            address writer = ContentInterface(_content).getWriter();
+            token.safeTransfer(writer, amount);
+            emit Release(_content, writer, amount);
+        }
+
+        require(contentDeposit[_content] == 0);
     }
 
     event AddDeposit(address _from, uint256 _value, address _token, string _data);
     event ReportReward(address _content, address _reporter, uint256 _amount);
-    event Release(address _to, uint256 _amount);
+    event Release(address _content, address _to, uint256 _amount);
 }

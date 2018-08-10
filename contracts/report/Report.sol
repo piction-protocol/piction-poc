@@ -19,6 +19,8 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
+    uint256 DECIMALS = 10 ** 18;
+
     //위원회
     CouncilInterface council;
 
@@ -34,7 +36,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     mapping (address => Registration) registrationFee;
 
     //신고자 등록금 잠금 시간
-    uint256 interval = 30000; //for test
+    uint256 interval = 10000; //for test
 
     //신고내용과 처리유무
     struct ReportData {
@@ -182,11 +184,12 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
         external
         validAddress(_reporter)
         validRange(_rate)
+        validRate(_rate)
     {
         require(msg.sender == address(council));
         require(registrationFee[_reporter].amount > 0);
 
-        uint256 result = registrationFee[_reporter].amount.mul(_rate).div(100);
+        uint256 result = registrationFee[_reporter].amount.mul(_rate).div(DECIMALS);
         registrationFee[_reporter].amount = registrationFee[_reporter].amount.sub(result);
 
         ERC20 token = ERC20(council.getToken());

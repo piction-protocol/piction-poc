@@ -60,7 +60,9 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
 	}
 
 	function distribution(address _fund, uint256 _total) external returns (address[], uint256[]) {
-		require(msg.sender == CouncilInterface(council).getPixelDistributor());
+		require(
+			msg.sender == CouncilInterface(council).getPixelDistributor()
+			|| msg.sender == CouncilInterface(council).getDepositPool());
 
 		return Fund(_fund).distribution(_total);
 	}

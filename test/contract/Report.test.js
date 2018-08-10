@@ -6,6 +6,7 @@ var ContentsManager = artifacts.require("ContentsManager");
 var Content = artifacts.require("Content");
 var DepositPool = artifacts.require("DepositPool");
 var Report = artifacts.require("Report");
+var FundManager = artifacts.require("FundManager");
 
 const BigNumber = web3.BigNumber;
 
@@ -27,7 +28,7 @@ contract("Report", function (accounts) {
     const initialDepositToken = new BigNumber(100 * decimals);
 
     const recordAa = '{"title": "권짱님의 스트레스!!","genres": "액션, 판타지","synopsis": "요괴가 지니고 있는 능력으로 합법적 무력을 행사하고 사회적 문제를 해결하는 단체, \'연옥학원\'. 빼앗긴 심장과 기억을 되찾기 위해 연옥학원에 들어간 좀비, 블루의 모험이 다시 시작된다! 더욱 파워풀한 액션으로 돌아온 연옥학원, 그 두 번째 이야기!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
-    const marketerRate = 10;
+    const marketerRate = 0.1 * decimals;
 
     const reportDetail = "신고합니다. 불건전 컨텐츠입니다.";
 
@@ -37,6 +38,7 @@ contract("Report", function (accounts) {
     let depositPool;
     let contentsManager;
     let report;
+    let fundManager;
 
     let content
 
@@ -47,12 +49,14 @@ contract("Report", function (accounts) {
         depositPool = await DepositPool.new(council.address, {from: owner});
         contentsManager = await ContentsManager.new(council.address, {from: owner});
         report = await Report.new(council.address, {from: owner});
+        fundManager = await FundManager.new(council.address, {from: owner});
 
         await council.initialValue(initialDepositToken, initialDepositToken, {from: owner}).should.be.fulfilled;
         await council.setRoleManager(roleManager.address, {from: owner}).should.be.fulfilled;
         await council.setReport(report.address, {from: owner}).should.be.fulfilled;
         await council.setDepositPool(depositPool.address, {from: owner}).should.be.fulfilled;
-        await council.setReportRewardRate(50, {from: owner}).should.be.fulfilled;
+        await council.setReportRewardRate(0.5 * decimals, {from: owner}).should.be.fulfilled;
+        await council.setFundManager(fundManager.address, {from: owner}).should.be.fulfilled;
 
         token.unlock({from: owner}).should.be.fulfilled;
 
@@ -143,12 +147,12 @@ contract("Report", function (accounts) {
 
     describe("judge", () => {
         it("judge now", async () => {
-            council.judge(0, content, reporter, 10, {from: owner}).should.be.fulfilled;
+            council.judge(0, content, reporter, 0.1 * decimals, {from: owner}).should.be.fulfilled;
         });
 
         it("check judge and deduction", async () => {
             const result = await report.getRegFee.call({from: reporter});
-            let value = initialDepositToken * (10/100);
+            let value = initialDepositToken * 0.1;
             result[0].should.be.bignumber.equal(initialDepositToken - value);
 
             const contractAmount = await token.balanceOf.call(report.address, {from: owner});
@@ -189,12 +193,14 @@ contract("Report", function (accounts) {
         it("second judge now", async () => {
             const fromReporterBalance = await token.balanceOf.call(reporter, {from: owner});
             const fromDopositBalance = await depositPool.getDeposit.call(content);
-            council.judge(1, content, reporter, 0, {from: owner}).should.be.fulfilled;
+
+            await council.judge(1, content, reporter, 0, {from: owner}).should.be.fulfilled;
+
             const afterReporterBalance = await token.balanceOf.call(reporter, {from: owner});
             const afterDopositBalance = await depositPool.getDeposit.call(content);
 
             const rate = await council.getReportRewardRate.call();
-            const value = fromDopositBalance * (rate/100);
+            const value = fromDopositBalance * (rate/decimals);
 
             afterReporterBalance.should.be.bignumber.equal(fromReporterBalance.toNumber() + value);
             afterDopositBalance.should.be.bignumber.equal(fromDopositBalance.toNumber() - value);
@@ -235,9 +241,9 @@ contract("Report", function (accounts) {
     describe("third judge and deduction and block", () => {
         it("third judge now", async () => {
             const fromResult = await report.getRegFee.call({from: reporter});
-            council.judge(2, content, reporter, 60, {from: owner}).should.be.fulfilled;
+            await council.judge(2, content, reporter, 0.6 * decimals, {from: owner}).should.be.fulfilled;
             const afterResult = await report.getRegFee.call({from: reporter});
-            let value = fromResult[0] * (60/100);
+            let value = fromResult[0] * 0.6;
 
             afterResult[0].should.be.bignumber.equal(fromResult[0].toNumber() - value);
         });
@@ -259,26 +265,26 @@ contract("Report", function (accounts) {
                 setTimeout( async() => {
                     await report.sendReport(content, reportDetail, {from: reporter}).should.be.fulfilled;
                     resolve();
-                }, 35000);
+                }, 12000);
             });
             await blockReleasePromise;
         });
     });
 
     describe("check ending", () => {
-        it("check deposit return", async () => {
+        it("check deposit return rejected", async () => {
             await depositPool.release(content).should.be.rejected;
         });
 
-        it("check reportRegFee return", async () => {
+        it("check reportRegFee return rejected", async () => {
             await report.returnRegFee({from: reporter}).should.be.rejected;
         });
 
         it("ending judge now", async () => {
             const fromResult = await report.getRegFee.call({from: reporter});
-            council.judge(3, content, reporter, 10, {from: owner}).should.be.fulfilled;
+            await council.judge(3, content, reporter, 0.1 * decimals, {from: owner}).should.be.fulfilled;
             const afterResult = await report.getRegFee.call({from: reporter});
-            let value = fromResult[0] * (10/100);
+            let value = fromResult[0] * 0.1;
 
             afterResult[0].should.be.bignumber.equal(fromResult[0].toNumber() - value);
         });
