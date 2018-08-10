@@ -22,7 +22,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         address transferAddress;
         uint256 tokenAmount;
         bool isCustomToken;
-        address[] param;
+        address param;
     }
 
     uint256 public constant DECIMALS = 10 ** 18;
@@ -66,32 +66,28 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             uint256 tempVar;
             uint256 compareAmount = _value;
 
-            address[] memory params = new address[](1);
-
             //cd amount
             tempVar = getRateToPxlAmount(_value, council.getCdRate());
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
-                    cdAddr, tempVar, false, getEmptyArray())
+                    cdAddr, tempVar, false, address(0))
             );
 
             //user payback pool amount
-            params[0] = _from;
             tempVar = getRateToPxlAmount(_value, council.getUserPaybackRate());
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
-                    council.getUserPaybackPool(), tempVar, true, params)
+                    council.getUserPaybackPool(), tempVar, true, _from)
             );
 
             //deposit amount
-            params[0] = contentAddr;
             tempVar = getRateToPxlAmount(_value, council.getDepositRate());
             compareAmount = compareAmount.sub(tempVar);
             distribution.push(
                 DistributionDetail(
-                    council.getDepositPool(), tempVar, true, params)
+                    council.getDepositPool(), tempVar, true, contentAddr)
             );
 
             // marketer amount
@@ -100,7 +96,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
                 compareAmount = compareAmount.sub(tempVar);
                 distribution.push(
                     DistributionDetail(
-                        marketerAddr, tempVar, false, getEmptyArray())
+                        marketerAddr, tempVar, false, address(0))
                 );
             }
 
@@ -111,7 +107,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             if(compareAmount > 0) {
                 distribution.push(
                     DistributionDetail(
-                        ContentInterface(contentAddr).getWriter(), compareAmount, false, getEmptyArray())
+                        ContentInterface(contentAddr).getWriter(), compareAmount, false, address(0))
                 );
                 compareAmount = 0;
             }
@@ -151,7 +147,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
 
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
                 compareAmount = compareAmount.add(supporterAmount[j]);
-                distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, getEmptyArray()));
+                distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, address(0)));
             }
         }
     }
@@ -160,13 +156,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         private
     {
         delete distribution;
-    }
-
-    function getEmptyArray()
-        private
-        returns (address[] memory temp)
-    {
-        temp = new address[](0);
     }
 
     function getRateToPxlAmount(uint256 _amount, uint256 _rate)
@@ -188,11 +177,13 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     }
 
 
-    function transferDistributePxl(address _to, uint256 _amount, bool _isCustom, address[] _param)
+    function transferDistributePxl(address _to, uint256 _amount, bool _isCustom, address _param)
         private
     {
         if(_isCustom) {
-            CustomToken(address(token)).approveAndCall(_to, _amount, _param, 0);
+            address[] memory addr = new address[](1);
+            addr[0] = _param;
+            CustomToken(address(token)).approveAndCall(_to, _amount, addr, 0);
         } else {
             token.safeTransfer(_to, _amount);
         }
