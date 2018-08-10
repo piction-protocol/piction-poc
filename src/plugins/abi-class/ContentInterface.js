@@ -21,6 +21,35 @@ class ContentsManager {
     this._contract.options.address = address;
     return this._contract.methods.getMarketerRate().call();
   }
+
+  addEpisode(address, record, cuts, price) {
+    this._contract.options.address = address;
+    return this._contract.methods.addEpisode(
+      JSON.stringify(record),
+      JSON.stringify(cuts),
+      BigNumber(price * Math.pow(10, 18))
+    ).send();
+  }
+
+  updateEpisode(address, index, record, cuts, price) {
+    this._contract.options.address = address;
+    return this._contract.methods.updateEpisode(
+      index,
+      JSON.stringify(record),
+      JSON.stringify(cuts),
+      BigNumber(price * Math.pow(10, 18))
+    ).send();
+  }
+
+  getEpisodeLength(address) {
+    this._contract.options.address = address;
+    return this._contract.methods.getEpisodeLength().call();
+  }
+
+  getEpisodeDetail(address, index) {
+    this._contract.options.address = address;
+    return this._contract.methods.getEpisodeDetail(index).call();
+  }
 }
 
 export default ContentsManager;
