@@ -49,7 +49,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         address _from,
         uint256 _value,
         address _token,
-        string _data)
+        address[] _data,
+        uint256 _index)
         public
         validAddress(_from)
         validAddress(_token)
@@ -60,15 +61,15 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     /**
     * @dev receiveApproval의 구현, token을 전송 받고 Content 별로 잔액을 기록함
     */
-    function addDeposit(address _from, uint256 _value, address _token, string _data) private {
+    function addDeposit(address _from, uint256 _value, address _token, address[] _data) private {
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
-        address content = _data.parseAddr();
+        address content = _data[0];
         contentDeposit[content] = contentDeposit[content].add(_value);
         token.safeTransferFrom(_from, address(this), _value);
 
-        emit AddDeposit(_from, _value, _token, _data);
+        emit AddDeposit(_from, _value, _token);
     }
 
     /**
@@ -123,7 +124,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         FundManagerInterface fund = FundManagerInterface(council.getFundManager());
 
         address[] memory fundAddress = fund.getFunds(_content);
-        
+
         uint256 compareAmount;
         uint256 amount = contentDeposit[_content];
 
@@ -155,7 +156,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         require(contentDeposit[_content] == 0);
     }
 
-    event AddDeposit(address _from, uint256 _value, address _token, string _data);
+    event AddDeposit(address _from, uint256 _value, address _token);
     event ReportReward(address _content, address _reporter, uint256 _amount);
     event Release(address _content, address _to, uint256 _amount);
 }

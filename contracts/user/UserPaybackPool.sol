@@ -57,7 +57,8 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         address _from,
         uint256 _value,
         address _token,
-        string _data)
+        address[] _data,
+        uint256 _index)
         public
         validAddress(_from)
         validAddress(_token)
@@ -76,7 +77,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         emit CreatePaybackPool(currentIndex);
     }
 
-    function addPayback(address _from, uint256 _value, address _token, string _user) private {
+    function addPayback(address _from, uint256 _value, address _token, address[] _user) private {
         require(RoleManager(council.getRoleManager()).isAccess(_from, ROLE_NAME));
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
@@ -88,7 +89,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
         token.safeTransferFrom(_from, address(this), _value);
 
-        address user = _user.parseAddr();
+        address user = _user[0];
         paybackPool[currentIndex].paybackInfo[user] = paybackPool[currentIndex].paybackInfo[user].add(_value);
 
         emit AddPayback(user, currentIndex, _value);
