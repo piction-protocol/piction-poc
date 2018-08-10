@@ -10,6 +10,7 @@ import EpisodeIndex from '@/components/episodes/Index'
 // viewer
 import ViewerIndex from '@/components/viewer/Index'
 // fund
+import FundIndex from '@/components/funds/Index'
 import FundNew from '@/components/funds/New'
 import FundShow from '@/components/funds/Show'
 // my
@@ -34,7 +35,7 @@ const router = new Router({
     // viewer
     {path: '/contents/:content_id/episodes/:episode_id', name: 'viewer', component: ViewerIndex, props: true},
     // trends
-    {path: '/trends', name: 'trends', component: ContentIndex},
+    {path: '/funds', name: 'funds', component: FundIndex},
     // funds
     {path: '/contents/:content_id/funds/new', name: 'new-fund', component: FundNew, props: true},
     {path: '/contents/:content_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
@@ -43,7 +44,7 @@ const router = new Router({
       path: '/my', component: MyIndex,
       children: [
         {path: '', name: 'my', component: MyInfoIndex},
-        {path: 'funds', name: 'funds', component: MyFundIndex},
+        {path: 'funds', name: 'my-funds', component: MyFundIndex},
       ]
     },
     // not found
