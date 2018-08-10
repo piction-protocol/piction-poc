@@ -71,7 +71,7 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 		distributionRate = _distributionRate;
 	}
 
-	function receiveApproval(address _from, uint256 _value, address _token, string _data) public validAddress(_from) validAddress(_token) {
+	function receiveApproval(address _from, uint256 _value, address _token, address[] _data, uint256 _index) public validAddress(_from) validAddress(_token) {
 		support(_from, _value, _token);
 	}
 
