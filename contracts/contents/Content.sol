@@ -109,9 +109,9 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
     function getEpisodeDetail(uint256 _index)
         external
         view
-        returns (string, uint256, uint256)
+        returns (string, uint256, uint256, bool)
     {
-        return (episodes[_index].record, episodes[_index].price, episodes[_index].buyCount);
+        return (episodes[_index].record, episodes[_index].price, episodes[_index].buyCount, episodes[_index].buyUser[msg.sender]);
     }
 
     function getEpisodeCuts(uint256 _index)

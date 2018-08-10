@@ -2,9 +2,9 @@
   <div>
     <b-breadcrumb :items="items"/>
     <EpisodeItem v-for="episode in episodes"
-             :episode="episode"
-             :content_id="content_id"
-             :key="episode.id"/>
+                 :episode="episode"
+                 :content_id="content_id"
+                 :key="episode.id"/>
   </div>
 </template>
 
@@ -27,15 +27,19 @@
       }
     },
     methods: {},
-    created() {
-      Array(20).fill().forEach((obj, index) => {
-        let id = index + 1;
+    async created() {
+      let length = await this.$contract.contentInterface.getEpisodeLength(this.content_id);
+      Array(Number(length)).fill().forEach(async (i, index) => {
+        let result = await this.$contract.contentInterface.getEpisodeDetail(this.content_id, index);
+        let episodeRecord = JSON.parse(result[0])
+        let price = Number(result[1]);
+        let purchased = Number(result[3]);
         let episode = {
-          id: id,
-          title: `Episode ${id}`,
-          thumbnail: `http://images.battlecomics.co.kr/webtoon/677/image/image-webtoonid_677-w_720-h_360-t_20171108144640.jpg`,
-          description: `Description ${id}`,
-          writer: `skkwon`
+          id: index + 1,
+          title: episodeRecord.title,
+          thumbnail: episodeRecord.thumbnail,
+          price: price,
+          purchased: purchased,
         }
         this.episodes.push(episode);
       });
