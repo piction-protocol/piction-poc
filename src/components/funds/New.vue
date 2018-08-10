@@ -46,7 +46,7 @@
         </b-form-input>
       </b-form-group>
 
-      <b-form-group :label="`Reward distribution rate: ${record.distributionRate * 100}%`"
+      <b-form-group :label="`Reward distribution rate: ${$utils.toPercent(record.distributionRate)}%`"
                     label-for="distributionRate"
                     description="">
         <b-form-input id="distributionRate"
@@ -106,7 +106,7 @@
             this.record.interval * hour,
             this.record.distributionRate,
             this.record.description);
-          this.$router.push({name: 'funds'})
+          this.$router.push({name: 'my-contents'})
         } catch (e) {
           alert(e);
         }

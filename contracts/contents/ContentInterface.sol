@@ -10,6 +10,7 @@ contract ContentInterface {
     function getMarketerRate() public view returns (uint256);
     function getEpisodeLength() public view returns (uint256);
     function getEpisodeDetail(uint256 _index) external view returns (string, uint256, uint256);
+    function getEpisodeCuts(uint256 _index) external view returns (string result);
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount) external;
     event RegisterContent(address _sender, string _name);
     event RegisterEpisode(address _sender, string _name, uint256 _index);

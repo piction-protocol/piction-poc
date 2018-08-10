@@ -23,6 +23,12 @@ const Utils = {
       },
       toPXL: function (amount) {
         return BigNumber(amount).div(Math.pow(10, 18)).toString();
+      },
+      toDOT: function (amount) {
+        return BigNumber(amount).multipliedBy(Math.pow(10, 18)).toString();
+      },
+      toPercent: function (number) {
+        return BigNumber(number).multipliedBy(100).toString();
       }
     }
   }

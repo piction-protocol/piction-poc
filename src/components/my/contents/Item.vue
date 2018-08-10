@@ -21,7 +21,8 @@
           </b-list-group-item>
         </b-list-group>
       </p>
-      <b-button v-if="fundable" variant="primary" @click="addFund">Add fund</b-button>
+      <b-button v-if="fundable" variant="primary" @click="addFund">Add Fund</b-button>
+      <b-button v-if="fundable" variant="primary" @click="addEpisode">Add Episode</b-button>
     </b-card>
   </div>
 </template>
@@ -39,8 +40,11 @@
       }
     },
     methods: {
-      addFund: async function (evt) {
+      addFund: function () {
         this.$router.push({name: 'new-fund', params: {content_id: this.content.id}})
+      },
+      addEpisode: function() {
+        this.$router.push({name: 'new-episode', params: {content_id: this.content.id}})
       }
     },
     async created() {

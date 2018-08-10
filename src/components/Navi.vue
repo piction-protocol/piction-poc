@@ -8,7 +8,7 @@
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
           <router-link active-class="active" class="nav-link" to="/contents">Comics</router-link>
-          <router-link active-class="active" class="nav-link" to="/trends">Trends</router-link>
+          <router-link active-class="active" class="nav-link" to="/funds">Funds</router-link>
           <router-link active-class="active" class="nav-link" to="/my">My</router-link>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">

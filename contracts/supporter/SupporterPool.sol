@@ -121,7 +121,7 @@ contract SupporterPool is Ownable {
 		} else {
 			distributions[_index].voting[msg.sender] = true;
 			distributions[_index].votingCount = distributions[_index].votingCount.add(1);
-			if (fundInterface.getSupporterCount().div(2) <= distributions[_index].votingCount) {
+			if (fundInterface.getSupporterCount().mul(10 ** 18).div(2) <= distributions[_index].votingCount.mul(10 ** 18)) {
 				uint256 cancelAmount = cancelDistribution(_index);
 				addDistribution(cancelAmount);
 			}

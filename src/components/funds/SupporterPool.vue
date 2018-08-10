@@ -58,10 +58,10 @@
       return {
         fields: [
           {key: 'amount', label: 'Amount'},
-          {key: 'distributionTime', label: 'distributionTime'},
-          {key: 'distributedTime', label: 'distributedTime'},
-          {key: 'state', label: 'state'},
-          {key: 'vote', label: 'vote'},
+          {key: 'distributionTime', label: 'Distribution Time'},
+          {key: 'distributedTime', label: 'Distributed Time'},
+          {key: 'state', label: 'State'},
+          {key: 'vote', label: 'Vote'},
         ],
         distributions: [],
         supporterPool: 0,

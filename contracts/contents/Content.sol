@@ -117,10 +117,11 @@ contract Content is ContentInterface, ExtendsOwnable, ValidValue {
     function getEpisodeCuts(uint256 _index)
         external
         view
-        returns (string)
+        returns (string result)
     {
-        require(msg.sender == writer || episodes[_index].buyUser[msg.sender]);
-        return episodes[_index].cuts;
+        if(msg.sender == writer || episodes[_index].buyUser[msg.sender]) {
+            result = episodes[_index].cuts;
+        }
     }
 
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount)
