@@ -61,9 +61,8 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @param _from 토큰을 보내는 주소
     * @param _value 토큰의 양
     * @param _token 토큰의 주소
-    * @param _jsonData 전달되는 데이터
     */
-    function receiveApproval(address _from, uint256 _value, address _token, string _jsonData) public {
+    function receiveApproval(address _from, uint256 _value, address _token, address[] _address, uint256 _index) public {
         addRegistrationFee(_from, _value, _token);
     }
 

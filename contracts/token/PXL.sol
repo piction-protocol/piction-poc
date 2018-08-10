@@ -86,15 +86,15 @@ contract PXL is StandardToken, CustomToken, ExtendsOwnable {
         return super.transfer(_to, _value);
     }
 
-    function approveAndCall(address _to, uint256 _value, string _jsonData) public returns (bool) {
+    function approveAndCall(address _to, uint256 _value, address[] _address, uint256 _index) public returns (bool) {
         require(isTransferable || owners[msg.sender]);
         require(_to != address(0) && _to != address(this));
         require(balances[msg.sender] >= _value);
 
         if(approve(_to, _value) && isContract(_to)) {
             ContractReceiver receiver = ContractReceiver(_to);
-            receiver.receiveApproval(msg.sender, _value, address(this), _jsonData);
-            emit ApproveAndCall(msg.sender, _to, _value, _jsonData);
+            receiver.receiveApproval(msg.sender, _value, address(this), _address, _index);
+            emit ApproveAndCall(msg.sender, _to, _value);
 
             return true;
         }
