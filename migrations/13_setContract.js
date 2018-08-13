@@ -18,7 +18,25 @@ module.exports = function (deployer) {
     instance.transfer(AccountManager.address, amount);
   });
 
+  RoleManager.deployed().then(function (instance) {
+    instance.addAddressToRole(PxlDistributor.address, 'PXL_DISTRIBUTOR');
+  });
+
   Council.deployed().then(function (instance) {
+    const decimals = Math.pow(10, 18);
+    const cdRate = 0.15 * decimals;
+    const depositRate = 0.03 * decimals;
+    const userPaybackRate = 0.02 * decimals;
+    const reportRewardRate = 0.01 * decimals;
+    const marketerDefaultRate = 0.15 * decimals;
+
+    instance.initialRate(
+      cdRate,
+      depositRate,
+      userPaybackRate,
+      reportRewardRate,
+      marketerDefaultRate
+    );
 
     instance.initialPictionAddress(
       UserPaybackPool.address,
