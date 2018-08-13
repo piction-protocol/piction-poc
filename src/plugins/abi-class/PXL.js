@@ -15,8 +15,13 @@ class PXL {
     return this._contract.methods.balanceOf(address).call();
   }
 
-  approveAndCall(to, value, jsonData) {
+  support(to, value, jsonData) {
     return this._contract.methods.approveAndCall(to, BigNumber(value * Math.pow(10, 18)), jsonData).send()
+  }
+
+  purchase(to, value, adds, index) {
+    console.log(to, value, adds, index)
+    return this._contract.methods.approveAndCall(to, BigNumber(value), adds, index).send()
   }
 }
 

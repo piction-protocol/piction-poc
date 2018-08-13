@@ -1,33 +1,37 @@
 <template>
   <div>
     <b-breadcrumb :items="items"/>
-    <EpisodeItem v-for="episode in episodes"
-                 :episode="episode"
-                 :content_id="content_id"
-                 :key="episode.id"/>
+    <Item v-for="(episode, index) in episodes"
+          :episode="episode"
+          :content_id="content_id"
+          :index="index"
+          :key="index"/>
   </div>
 </template>
 
 <script>
-  import EpisodeItem from './EpisodeItem'
+  import Item from './Item'
 
   export default {
     props: ['content_id'],
-    components: {EpisodeItem},
+    components: {Item},
     data() {
       return {
+        content: null,
         episodes: [],
         items: [{
           text: 'Comics',
           to: {name: 'contents'}
-        }, {
-          text: `Comic ${this.content_id}`,
-          active: true
         }]
       }
     },
     methods: {},
     async created() {
+      await this.$contract.contentInterface.getRecord(this.content_id).then(record => {
+        this.content = JSON.parse(record);
+      });
+      this.items.push({text: `${this.content.title}`, active: true});
+
       let length = await this.$contract.contentInterface.getEpisodeLength(this.content_id);
       Array(Number(length)).fill().forEach(async (i, index) => {
         let result = await this.$contract.contentInterface.getEpisodeDetail(this.content_id, index);
@@ -35,7 +39,6 @@
         let price = Number(result[1]);
         let purchased = Number(result[3]);
         let episode = {
-          id: index + 1,
           title: episodeRecord.title,
           thumbnail: episodeRecord.thumbnail,
           price: price,
