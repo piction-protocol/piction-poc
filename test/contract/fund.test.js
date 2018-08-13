@@ -86,7 +86,7 @@ contract("Fund", function (accounts) {
 
             await timer(1500);
 
-            await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+            await token.approveAndCall(fund.address, supportAmount, [], 0, {from: supporter});
 
             const afterSupporterBalance = await token.balanceOf(supporter);
             const afterFundBalance = await token.balanceOf(fund.address);
@@ -108,7 +108,7 @@ contract("Fund", function (accounts) {
             await timer(1000);
 
             await forEachAsync(supporters, async (supporter) => {
-                await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+                await token.approveAndCall(fund.address, supportAmount, [], 0, {from: supporter});
             });
 
             const supportInfo = await fund.getSupporters();
@@ -153,7 +153,7 @@ contract("Fund", function (accounts) {
             const fund = await Fund.at(fundAddress);
 
             await timer(1500);
-            await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
+            await token.approveAndCall(fund.address, supportAmount, [], 0, {from: supporter});
 
             const supportInfo = await fund.getSupporters();
 
