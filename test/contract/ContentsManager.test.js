@@ -60,14 +60,16 @@ contract("ContentsManager", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                "",
+                [],
+                0,
                 {from: writerA}
             ).should.be.fulfilled;
 
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                "",
+                [],
+                0,
                 {from: writerB}
             ).should.be.fulfilled;
 
