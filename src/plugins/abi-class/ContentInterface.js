@@ -50,6 +50,11 @@ class ContentsManager {
     this._contract.options.address = address;
     return this._contract.methods.getEpisodeDetail(index).call();
   }
+
+  getEpisodeCuts(address, index) {
+    this._contract.options.address = address;
+    return this._contract.methods.getEpisodeCuts(index).call();
+  }
 }
 
 export default ContentsManager;
