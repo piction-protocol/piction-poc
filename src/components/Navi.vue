@@ -31,7 +31,7 @@
       }
     },
     async created() {
-      let pxl = await this.$contract.pxl.balanceOf(this.$root.account);
+      let pxl = await this.$contract.pxl.balanceOf(this.pictionAddress.account);
       this.pxl = this.$utils.toPXL(pxl);
     }
   }

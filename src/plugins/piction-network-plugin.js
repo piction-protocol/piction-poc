@@ -26,6 +26,8 @@ const PictionNetworkPlugin = {
   install(Vue, options) {
     Vue.prototype.$contract = {};
 
+    Vue.prototype.pictionAddress = options;
+
     Vue.prototype.$contract.pxl = new PXL(
       pxlSource.abi,
       options.pxl,

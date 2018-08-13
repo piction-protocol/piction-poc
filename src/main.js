@@ -34,26 +34,19 @@ Vue.use(Toast);
     alert('Log in to the Metamask.')
   }
   const network = '4447';
-  const council = new web3.eth.Contract(councilInterfaceSource.abi, councilSource.networks[network].address);
-  const account = accounts[0].toLowerCase();
-  const pxl = await council.methods.getToken().call();
-  const contentsManager = await council.methods.getContentsManager().call();
-  const fundManager = await council.methods.getFundManager().call();
-  const accountManager = await council.methods.getAccountManager().call();
-  console.log('=== address info ===')
-  console.log(`account : ${account}`)
-  console.log(`pxl : ${pxl}`)
-  console.log(`contentsManager : ${contentsManager}`)
-  console.log(`fundManager : ${fundManager}`)
-  console.log(`accountManager : ${accountManager}`)
+  const councilAddress = councilSource.networks[network].address;
+  const council = new web3.eth.Contract(councilInterfaceSource.abi, councilAddress);
+  const pictionAddress = {};
+  pictionAddress.council = councilAddress;
+  pictionAddress.account = accounts[0].toLowerCase();
+  pictionAddress.pxl = await council.methods.getToken().call();
+  pictionAddress.pixelDistributor = await council.methods.getPixelDistributor().call();
+  pictionAddress.contentsManager = await council.methods.getContentsManager().call();
+  pictionAddress.fundManager = await council.methods.getFundManager().call();
+  pictionAddress.accountManager = await council.methods.getAccountManager().call();
+  console.log(pictionAddress)
+  Vue.use(PictionNetworkPlugin, pictionAddress);
 
-  Vue.use(PictionNetworkPlugin, {
-    account: account,
-    pxl: pxl,
-    contentsManager: contentsManager,
-    fundManager: fundManager,
-    accountManager: accountManager
-  });
   Vue.use(FirebasePlugin, {
     apiKey: "AIzaSyAmq4aDivflyokSUzdDCPmmKBu_3LFTmkU",
     authDomain: "battlecomics-dev.firebaseapp.com",
@@ -69,9 +62,6 @@ Vue.use(Toast);
     el: '#app',
     router,
     store,
-    data: {
-      account: account
-    },
     methods: {
       reload() {
         this.$router.push('/')

@@ -99,7 +99,7 @@
         try {
           await this.$contract.fundManager.addFund(
             this.content_id,
-            this.$root.account,
+            this.pictionAddress.account,
             new Date(this.record.startTime).getTime(),
             new Date(this.record.endTime).getTime(),
             this.record.poolSize,

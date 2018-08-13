@@ -42,7 +42,7 @@
         this.$refs.modal.hide();
         this.$loading('loading...');
         try {
-          await this.$contract.pxl.approveAndCall(this.fund_id, this.supportAmount, '');
+          await this.$contract.pxl.support(this.fund_id, this.supportAmount, '');
         } catch (e) {
           alert(e)
         }

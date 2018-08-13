@@ -35,7 +35,7 @@
     },
     methods: {
       async submit() {
-        const userName = await this.$contract.accountManager.getUserName(this.$root.account);
+        const userName = await this.$contract.accountManager.getUserName(this.pictionAddress.account);
         const address = await this.$contract.accountManager.getUserAddress(this.name);
         if (userName) {
           this.$toast.center('이미 등록된 주소입니다');
@@ -54,7 +54,7 @@
       },
     },
     async created() {
-      this.name = await this.$contract.accountManager.getUserName(this.$root.account);
+      this.name = await this.$contract.accountManager.getUserName(this.pictionAddress.account);
       this.registered = (this.name != null && this.name.length > 0);
     }
   }
