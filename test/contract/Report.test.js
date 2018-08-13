@@ -69,7 +69,8 @@ contract("Report", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                "",
+                [],
+                0,
                 {from: writer}
             ).should.be.fulfilled;
         });
@@ -110,7 +111,8 @@ contract("Report", function (accounts) {
             await token.approveAndCall(
                 report.address,
                 initialDepositToken,
-                "",
+                [],
+                0,
                 {from: reporter}
             ).should.be.fulfilled;
         });
