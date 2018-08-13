@@ -10,6 +10,7 @@ var Fund = artifacts.require("Fund");
 var PxlDistributor = artifacts.require("PxlDistributor");
 var Marketer = artifacts.require("Marketer");
 var Report = artifacts.require("Report");
+var AccountManager = artifacts.require("AccountManager");
 
 const colors = require('colors/safe');
 
@@ -177,6 +178,17 @@ contract("PxlDistributor", function (accounts) {
 
         beforeBalance = await web3.eth.getBalance(owner);
 
+        accountManager = await AccountManager.new(council.address, 0, {from: owner, gasPrice: 1000000000});
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = accumulate + txFee;
+        console.log(colors.magenta("\tAccountManager contract"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+        console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
         reporter = await Report.new(council.address, {from: owner, gasPrice: 1000000000});
 
         afterBalance = await web3.eth.getBalance(owner);
@@ -252,6 +264,7 @@ contract("PxlDistributor", function (accounts) {
             roleManager.address,
             contentsManager.address,
             fundManager.address,
+            accountManager.address,
             {from: owner, gasPrice: 1000000000}
         );
 
@@ -386,7 +399,8 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDeposit,
-                "",
+                [],
+                0,
                 {from: writer, gasPrice: 1000000000}
             ).should.be.fulfilled;
 
@@ -471,7 +485,8 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
-                        "",
+                        [],
+                        0,
                         {from: supporter, gasPrice: 1000000000}
                     );
 
@@ -487,7 +502,8 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
-                        "",
+                        [],
+                        0,
                         {from: supporter2, gasPrice: 1000000000}
                     );
 
@@ -503,7 +519,8 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         300 * decimals,
-                        "",
+                        [],
+                        0,
                         {from: supporter3, gasPrice: 1000000000}
                     );
 
@@ -548,10 +565,12 @@ contract("PxlDistributor", function (accounts) {
             console.log();
             console.log(colors.magenta.bold("\t========== Add episode gas usage(1 Gwei) =========="));
 
+            const imageUrl = '{"cuts": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg,https://www.battlecomics.co.kr/webtoons/467"}';
             beforeBalance = await web3.eth.getBalance(writer);
 
             await content.addEpisode(
                 episodeRecord,
+                imageUrl,
                 episodePrice,
                 {from: writer, gasPrice: 1000000000}
             );
@@ -577,6 +596,7 @@ contract("PxlDistributor", function (accounts) {
 
             await content.addEpisode(
                 episodeRecord,
+                imageUrl,
                 0,
                 {from: writer, gasPrice: 1000000000}
             );
@@ -620,14 +640,6 @@ contract("PxlDistributor", function (accounts) {
             console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
             console.log();
 
-            const tempJson = {
-                "cdAddress": String(cd),
-                "contentAddress": String(content.address),
-                "episodeIndex": 0,
-                "marketer": String(marketerAddress)
-            };
-            const purchaseJson = JSON.stringify(tempJson);
-
             const userAmount = await token.balanceOf.call(user, {from: owner});
 
             console.log();
@@ -638,7 +650,8 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                purchaseJson,
+                [cd, content.address, marketerAddress],
+                0,
                 {from: user, gasPrice: 1000000000}
             );
 
@@ -719,20 +732,13 @@ contract("PxlDistributor", function (accounts) {
             await marketers.setMarketerKey(String(marketerKey), {from: marketer2});
             const marketerAddress = await marketers.getMarketerAddress(marketerKey, {from: marketer2});
 
-            const tempJson = {
-                "cdAddress": String(cd),
-                "contentAddress": String(content.address),
-                "episodeIndex": 0,
-                "marketer": String(marketerAddress)
-            };
-
-            const purchaseJson = JSON.stringify(tempJson);
             const userAmount = await token.balanceOf.call(user2, {from: owner});
 
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                purchaseJson,
+                [cd, content.address, marketerAddress],
+                0,
                 {from: user2, gasPrice: 1000000000}
             );
 
@@ -746,35 +752,19 @@ contract("PxlDistributor", function (accounts) {
         });
 
         it("repurchase user", async() => {
-            const tempJson = {
-                "cdAddress": String(cd),
-                "contentAddress": String(content.address),
-                "episodeIndex": 0,
-                "marketer": String(0)
-            };
-
-            const purchaseJson = JSON.stringify(tempJson);
             const userAmount = await token.balanceOf.call(user2, {from: owner});
 
             //이미 구매한 유저가 재 구매를 할 경우 revert 시킴
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                purchaseJson,
+                [cd, content.address, 0],
+                0,
                 {from: user2, gasPrice: 1000000000}
             ).should.be.rejected;
         });
 
         it("free content", async() => {
-            const tempJson = {
-                "cdAddress": String(cd),
-                "contentAddress": String(content.address),
-                "episodeIndex": 1,
-                "marketer": String(0)
-            };
-
-            const purchaseJson = JSON.stringify(tempJson);
-
             console.log();
             console.log(colors.magenta.bold("\t========== Purchase free episode gas usage(1 Gwei) =========="));
 
@@ -784,7 +774,8 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 0,
-                purchaseJson,
+                [cd, content.address, 0],
+                1,
                 {from: freeUser, gasPrice: 1000000000}
             ).should.be.fulfilled;
 
