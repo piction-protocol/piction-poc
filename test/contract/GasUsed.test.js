@@ -1,3 +1,5 @@
+const { timer } = require("../helpers/timer");
+
 var PXL = artifacts.require("PXL");
 var Council = artifacts.require("Council");
 var UserPaybackPool = artifacts.require("UserPaybackPool");
@@ -33,6 +35,7 @@ contract("PxlDistributor", function (accounts) {
     const supporter2 = accounts[8];
     const supporter3 = accounts[9];
     const freeUser = accounts[10];
+    const reporter = accounts[11];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(1000000000 * decimals);
@@ -64,7 +67,7 @@ contract("PxlDistributor", function (accounts) {
     let fund;
     let distributor;
     let marketers;
-    let reporter;
+    let report;
 
     let beforeBalance;
     let afterBalance;
@@ -189,12 +192,12 @@ contract("PxlDistributor", function (accounts) {
 
         beforeBalance = await web3.eth.getBalance(owner);
 
-        reporter = await Report.new(council.address, {from: owner, gasPrice: 1000000000});
+        report = await Report.new(council.address, {from: owner, gasPrice: 1000000000});
 
         afterBalance = await web3.eth.getBalance(owner);
         txFee = beforeBalance - afterBalance;
         accumulate = accumulate + txFee;
-        console.log(colors.magenta("\treporter contract"));
+        console.log(colors.magenta("\treport contract"));
         console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
         console.log();
         console.log(colors.blue.bgWhite.bold("\tDeploy contract total Amount : " + accumulate / decimals + " Ether (￦ " + Math.round((accumulate / decimals) * won) + ")"));
@@ -247,7 +250,7 @@ contract("PxlDistributor", function (accounts) {
             deposit.address,
             distributor.address,
             marketers.address,
-            reporter.address,
+            report.address,
             {from: owner, gasPrice: 1000000000}
         );
 
@@ -380,6 +383,18 @@ contract("PxlDistributor", function (accounts) {
         console.log(colors.magenta("\ttoken transfer(300pxl)"));
         console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
         console.log();
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
+        await token.transfer(reporter, 100 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate =  accumulate + txFee;
+        console.log(colors.magenta("\ttoken transfer(100pxl)"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+        console.log();
+
         console.log(colors.blue.bgWhite.bold("\tToken transfer total Amount : " + accumulate / decimals + " Ether (￦ " + Math.round((accumulate / decimals) * won) + ")"));
         console.log();
         console.log();
@@ -801,5 +816,160 @@ contract("PxlDistributor", function (accounts) {
             purchaseInfo[1].should.be.bignumber.equal(0);
             purchaseInfo[2].should.be.bignumber.equal(1);
         });
+    });
+    describe("Report", async() => {
+        it("reg fee", async() => {
+            console.log();
+            console.log(colors.magenta.bold("\t========== Report send regFee gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(reporter);
+
+            await token.approveAndCall(
+                report.address,
+                reportRegistrationFee,
+                [],
+                0,
+                {from: reporter, gasPrice: 1000000000}
+            ).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(reporter);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee;
+
+            console.log(colors.magenta("\tReport send regFee"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+        });
+
+        it("send report", async() => {
+            console.log();
+            console.log(colors.magenta.bold("\t========== Send report gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(reporter);
+
+            await report.sendReport(content.address, "1234567890", {from: reporter, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(reporter);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee + accumulate;
+
+            console.log(colors.magenta("\tReport send string 10"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            beforeBalance = await web3.eth.getBalance(reporter);
+
+            await report.sendReport(content.address, "1234567890", {from: reporter, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(reporter);
+            txFee = beforeBalance - afterBalance;
+            //accumulate = txFee + accumulate;
+
+            console.log(colors.magenta("\tReport send string 10"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            beforeBalance = await web3.eth.getBalance(reporter);
+
+            await report.sendReport(content.address, "12345678901234567890", {from: reporter, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(reporter);
+            txFee = beforeBalance - afterBalance;
+            //accumulate = txFee + accumulate;
+
+            console.log(colors.magenta("\tReport send string 20"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            console.log(colors.blue.bgWhite.bold("\tReport send total Amount : " + accumulate / decimals + " Ether (￦ " + Math.round((accumulate / decimals) * won) + ")"));
+            console.log();
+            console.log();
+        });
+
+        it("judge", async() => {
+            console.log();
+            console.log(colors.magenta.bold("\t========== Judge RegFee Deduction gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(owner);
+
+            await council.judge(0, content.address, reporter, 0.1 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(owner);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee;
+
+            console.log(colors.magenta("\tJudge"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            console.log();
+            console.log(colors.magenta.bold("\t========== Judge RegFee Deduction And Block gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(owner);
+
+            await council.judge(1, content.address, reporter, 0.5 * decimals, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(owner);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee + accumulate;
+
+            console.log(colors.magenta("\tJudge"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            console.log();
+            console.log(colors.magenta.bold("\t========== Judge Rewerd gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(owner);
+
+            await council.judge(2, content.address, reporter, 0, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(owner);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee + accumulate;
+
+            console.log(colors.magenta("\tJudge"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            console.log(colors.blue.bgWhite.bold("\tJudge total Amount : " + accumulate / decimals + " Ether (￦ " + Math.round((accumulate / decimals) * won) + ")"));
+            console.log();
+            console.log();
+        });
+
+        it("return", async() => {
+            await timer(12000);
+
+            console.log();
+            console.log(colors.magenta.bold("\t========== RegFee Return gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(reporter);
+
+            await report.returnRegFee({from: reporter, gasPrice: 1000000000}).should.be.fulfilled;
+
+            afterBalance = await web3.eth.getBalance(reporter);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee
+
+            console.log(colors.magenta("\tRegFee Return"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+
+            console.log();
+            console.log(colors.magenta.bold("\t========== Diposit Release gas usage(1 Gwei) =========="));
+
+            beforeBalance = await web3.eth.getBalance(writer);
+
+            await deposit.release(content.address, {from: writer, gasPrice: 1000000000})
+
+            afterBalance = await web3.eth.getBalance(writer);
+            txFee = beforeBalance - afterBalance;
+            accumulate = txFee
+
+            console.log(colors.magenta("\tRegFee Return"));
+            console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+            console.log();
+        });
+
     });
 });

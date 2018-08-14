@@ -137,8 +137,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         address[] memory fundAddress = fund.getFunds(_content);
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            amount = amount.sub(compareAmount);
-
             if(amount == 0) {
                 break;
             }
@@ -149,6 +147,8 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
                 compareAmount = compareAmount.add(supporterAmount[j]);
                 distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, address(0)));
             }
+
+            amount = amount.sub(compareAmount);
         }
     }
 

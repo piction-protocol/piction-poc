@@ -149,7 +149,7 @@ contract("Report", function (accounts) {
 
     describe("judge", () => {
         it("judge now", async () => {
-            council.judge(0, content, reporter, 0.1 * decimals, {from: owner}).should.be.fulfilled;
+            await council.judge(0, content, reporter, 0.1 * decimals, {from: owner}).should.be.fulfilled;
         });
 
         it("check judge and deduction", async () => {
@@ -292,7 +292,7 @@ contract("Report", function (accounts) {
         });
 
         it("check deposit return", async () => {
-            await depositPool.release(content).should.be.fulfilled;
+            await depositPool.release(content, {from: writer}).should.be.fulfilled;
         });
 
         it("check reportRegFee return", async () => {
