@@ -120,6 +120,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         //신고 건이 있으면 완결처리되지 않음
         require(ReportInterface(council.getReport()).getUncompletedReport(_content) == 0);
         require(contentDeposit[_content] > 0);
+        address writer = ContentInterface(_content).getWriter();
+        require(writer == msg.sender);
         ERC20 token = ERC20(council.getToken());
         require(token.balanceOf(address(this)) >= contentDeposit[_content]);
 
@@ -131,13 +133,11 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         uint256 amount = contentDeposit[_content];
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            amount = amount.sub(compareAmount);
-
             if(amount == 0) {
                 break;
             }
 
-             (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
+            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
 
             //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
             for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
@@ -146,11 +146,12 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
                 token.safeTransfer(supporterAddress[j], supporterAmount[j]);
                 emit Release(_content, supporterAddress[j], supporterAmount[j]);
             }
+
+            amount = amount.sub(compareAmount);
         }
 
         if (amount > 0) {
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
-            address writer = ContentInterface(_content).getWriter();
             token.safeTransfer(writer, amount);
             emit Release(_content, writer, amount);
         }
