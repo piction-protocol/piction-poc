@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.19;
 
 
 library BytesLib {
@@ -278,18 +278,23 @@ library BytesLib {
         return tempAddress;
     }
 
-    function toBytes(address a) internal pure returns (bytes b){
-       assembly {
-            let m := mload(0x40)
-            mstore(add(m, 20), xor(0x140000000000000000000000000000000000000000, a))
-            mstore(0x40, add(m, 52))
-            b := m
+    function toBytes(address self) internal pure returns (bytes memory bts) {
+        bts = toBytes(bytes32(uint(self) << 96), 20);
+    }
+
+    function toBytes(bytes32 self, uint8 len) internal pure returns (bytes memory bts) {
+        require(len <= 32);
+        bts = new bytes(len);
+        // Even though the bytes will allocate a full word, we don't want
+        // any potential garbage bytes in there.
+        uint data = uint(self) & ~uint(0) << (32 - len)*8;
+        assembly {
+            mstore(add(bts, /*BYTES_HEADER_SIZE*/32), data)
         }
     }
 
-    function toBytes(uint256 x) internal pure returns (bytes b) {
-        b = new bytes(32);
-        assembly { mstore(add(b, 32), x) }
+    function toBytes(uint self) internal pure returns (bytes memory bts) {
+        bts = toBytes(bytes32(self), 32);
     }
 
     function toUint(bytes _bytes, uint _start) internal  pure returns (uint256) {
