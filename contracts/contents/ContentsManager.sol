@@ -9,7 +9,7 @@ import "contracts/token/CustomToken.sol";
 import "contracts/council/CouncilInterface.sol";
 import "contracts/contents/Content.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/utils/ParseLib.sol";
+import "contracts/utils/BytesLib.sol";
 
 contract ContentsManager is ContractReceiver, ValidValue {
     using SafeMath for uint256;
@@ -32,7 +32,7 @@ contract ContentsManager is ContractReceiver, ValidValue {
 
     function addContents(
         string _record,
-        uint256 _marketerRate       // 마케터 비율 설정 유,무를 확인 필요
+        uint256 _marketerRate
     )
         external
         validString(_record)
@@ -77,7 +77,7 @@ contract ContentsManager is ContractReceiver, ValidValue {
         }
     }
 
-    function receiveApproval(address _from, uint256 _value, address _token, address[] _address, uint256 _index)
+    function receiveApproval(address _from, uint256 _value, address _token, bytes _data)
         public
         validAddress(_from) validAddress(_token)
     {
@@ -106,14 +106,12 @@ contract ContentsManager is ContractReceiver, ValidValue {
         require(token.balanceOf(address(this)) >= initialDeposit[_writer]);
         require(council.getDepositPool() != address(0));
 
-        address[] memory contentAddr = new address[](1);
-        contentAddr[0] = _content;
+        bytes memory value = BytesLib.toBytes(_content);
 
         CustomToken(address(token)).approveAndCall(
             council.getDepositPool(),
             initialDeposit[_writer],
-            contentAddr,
-            0);
+            value);
 
         emit TransferInitialDeposit(_writer, _content, initialDeposit[_writer]);
     }

@@ -12,11 +12,12 @@ import "contracts/marketer/MarketerInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/utils/ParseLib.sol";
+import "contracts/utils/BytesLib.sol";
 
 contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
+    using BytesLib for bytes;
 
     struct DistributionDetail {
         address transferAddress;
@@ -40,7 +41,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         token = ERC20(council.getToken());
     }
 
-    function receiveApproval(address _from, uint256 _value, address _token, address[]  _address, uint256 _index)
+    /* function receiveApproval(address _from, uint256 _value, address _token, address[]  _address, uint256 _index)
         public
     {
         require(address(this) != _from);
@@ -54,6 +55,92 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         address contentAddr = _address[1];
         address marketerAddr = _address[2];
         uint256 idx = _index;
+
+        require(customValidAddress(cdAddr));
+        require(customValidAddress(contentAddr));
+
+        // paid contents
+        if(_value > 0) {
+            require(token.balanceOf(_from) >= _value);
+            token.safeTransferFrom(_from, address(this), _value);
+
+            uint256 tempVar;
+            uint256 compareAmount = _value;
+
+            //cd amount
+            tempVar = getRateToPxlAmount(_value, council.getCdRate());
+            compareAmount = compareAmount.sub(tempVar);
+            distribution.push(
+                DistributionDetail(
+                    cdAddr, tempVar, false, address(0))
+            );
+
+            //user payback pool amount
+            tempVar = getRateToPxlAmount(_value, council.getUserPaybackRate());
+            compareAmount = compareAmount.sub(tempVar);
+            distribution.push(
+                DistributionDetail(
+                    council.getUserPaybackPool(), tempVar, true, _from)
+            );
+
+            //deposit amount
+            tempVar = getRateToPxlAmount(_value, council.getDepositRate());
+            compareAmount = compareAmount.sub(tempVar);
+            distribution.push(
+                DistributionDetail(
+                    council.getDepositPool(), tempVar, true, contentAddr)
+            );
+
+            // marketer amount
+            if(marketerAddr != address(0)) {
+                tempVar = getRateToPxlAmount(_value, getMarketerRate(contentAddr));
+                compareAmount = compareAmount.sub(tempVar);
+                distribution.push(
+                    DistributionDetail(
+                        marketerAddr, tempVar, false, address(0))
+                );
+            }
+
+            //supporter amount
+            compareAmount = compareAmount.sub(supportersAmount(contentAddr, compareAmount));
+
+            // cp amount
+            if(compareAmount > 0) {
+                distribution.push(
+                    DistributionDetail(
+                        ContentInterface(contentAddr).getWriter(), compareAmount, false, address(0))
+                );
+                compareAmount = 0;
+            }
+
+            // transfer
+            for(uint256 i  = 0 ; i < distribution.length ; i ++) {
+                transferDistributePxl(
+                    distribution[i].transferAddress,
+                    distribution[i].tokenAmount,
+                    distribution[i].isCustomToken,
+                    distribution[i].param
+                );
+            }
+        }
+
+        // update episode purchase
+        ContentInterface(contentAddr).episodePurchase(idx, _from, _value);
+    } */
+
+    function receiveApproval(address _from, uint256 _value, address _token, bytes _data)
+        public
+    {
+        require(address(this) != _from);
+        require(address(token) == _token);
+
+        // clear DistributionDetail array
+        clearDistributionDetail();
+
+        address cdAddr = _data.toAddress(0);
+        address contentAddr = _data.toAddress(20);
+        address marketerAddr = _data.toAddress(40);
+        uint256 idx = _data.toUint(60);
 
         require(customValidAddress(cdAddr));
         require(customValidAddress(contentAddr));
@@ -181,9 +268,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         private
     {
         if(_isCustom) {
-            address[] memory addr = new address[](1);
-            addr[0] = _param;
-            CustomToken(address(token)).approveAndCall(_to, _amount, addr, 0);
+            CustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
         } else {
             token.safeTransfer(_to, _amount);
         }
