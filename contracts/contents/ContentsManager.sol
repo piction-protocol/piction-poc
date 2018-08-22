@@ -106,12 +106,10 @@ contract ContentsManager is ContractReceiver, ValidValue {
         require(token.balanceOf(address(this)) >= initialDeposit[_writer]);
         require(council.getDepositPool() != address(0));
 
-        bytes memory value = BytesLib.toBytes(_content);
-
         CustomToken(address(token)).approveAndCall(
             council.getDepositPool(),
             initialDeposit[_writer],
-            value);
+            BytesLib.toBytes(_content));
 
         emit TransferInitialDeposit(_writer, _content, initialDeposit[_writer]);
     }
