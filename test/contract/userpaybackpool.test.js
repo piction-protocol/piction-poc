@@ -13,8 +13,10 @@ require("chai")
 contract("UserPaybackPool", (accounts) => {
     const owner = accounts[0];
     const pxlDistributor = accounts[1];
+    const deploy = accounts[10];
 
     const users = accounts.slice(2, 7);
+
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(100000 * decimals);
@@ -25,14 +27,25 @@ contract("UserPaybackPool", (accounts) => {
     let userPaybackPool;
     let roleManager;
 
+    let toAddress = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 40) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
     beforeEach("Setup contract", async () => {
-        token = await Pxl.new(initialBalance, {from: owner});
+        token = await Pxl.new({from: deploy});
         council = await Council.new(token.address, {from: owner});
         userPaybackPool = await UserPaybackPool.new(council.address, 2, {from: owner});
         roleManager = await RoleManager.new({from: owner});
 
         await roleManager.addAddressToRole(pxlDistributor, "PXL_DISTRIBUTOR", {from: owner});
         await council.setRoleManager(roleManager.address, {from: owner});
+
+        await token.transferOwnership(owner, {from: deploy}).should.be.fulfilled;
+        await token.mint(initialBalance, {from: owner}).should.be.fulfilled;
 
         await token.unlock({from: owner});
 
@@ -48,7 +61,7 @@ contract("UserPaybackPool", (accounts) => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
-            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
 
             const paybackInfoUser = await userPaybackPool.getPaybackInfo.call({from: user}).should.be.fulfilled;
 
@@ -68,7 +81,7 @@ contract("UserPaybackPool", (accounts) => {
 
             const addPaybackPromise = new Promise( async (resolve, reject) => {
                 users.forEach( async (user) => {
-                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
                     resolve();
                 });
             });
@@ -93,8 +106,8 @@ contract("UserPaybackPool", (accounts) => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
-            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
-            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
 
             const paybackInfoUser = await userPaybackPool.getPaybackInfo.call({from: user}).should.be.fulfilled;
 
@@ -113,11 +126,11 @@ contract("UserPaybackPool", (accounts) => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
-            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
 
             const addPaybackPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
-                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
                     const currentIndex = await userPaybackPool.getCurrentIndex.call().should.be.fulfilled;
                     currentIndex.should.be.bignumber.equal(1);
 
@@ -149,7 +162,7 @@ contract("UserPaybackPool", (accounts) => {
             const purchaseAmount = new BigNumber(2 * decimals);
             const user = users[0];
 
-            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
         });
 
         it("release by a user", async () => {
@@ -200,7 +213,7 @@ contract("UserPaybackPool", (accounts) => {
 
             const beforeBalance = await token.balanceOf(user);
 
-            await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+            await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
 
             const releasePromise2 = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
@@ -223,7 +236,7 @@ contract("UserPaybackPool", (accounts) => {
 
             const addPaybackPromise = new Promise( async (resolve, reject) => {
                 setTimeout( async() => {
-                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, String(user), {from: pxlDistributor}).should.be.fulfilled;
+                    await token.approveAndCall(userPaybackPool.address, purchaseAmount, toAddress(user), {from: pxlDistributor}).should.be.fulfilled;
 
                     resolve();
                 }, 2000);
