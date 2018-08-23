@@ -20,8 +20,8 @@ contract("Fund", function (accounts) {
     const owner = accounts[0];
     const pxlDistributor = accounts[1];
     const writer = accounts[2];
-
     const users = accounts.slice(3, 5);
+    const deploy = accounts[7];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(100000 * decimals);
@@ -38,12 +38,15 @@ contract("Fund", function (accounts) {
     const marketerRate = 10;
 
     before("Setup contract", async () => {
-        token = await Pxl.new(initialBalance, {from: owner});
+        token = await Pxl.new({from: deploy});
         council = await Council.new(token.address, {from: owner});
         roleManager = await RoleManager.new({from: owner});
 
         await council.setRoleManager(roleManager.address, {from: owner});
         content = await Content.new(record, writer, marketerRate, roleManager.address);
+
+        await token.transferOwnership(owner, {from: deploy}).should.be.fulfilled;
+        await token.mint(initialBalance, {from: owner}).should.be.fulfilled;
 
         await token.unlock({from: owner});
 
@@ -86,7 +89,7 @@ contract("Fund", function (accounts) {
 
             await timer(1500);
 
-            await token.approveAndCall(fund.address, supportAmount, [], 0, {from: supporter});
+            await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
 
             const afterSupporterBalance = await token.balanceOf(supporter);
             const afterFundBalance = await token.balanceOf(fund.address);
@@ -108,7 +111,7 @@ contract("Fund", function (accounts) {
             await timer(1000);
 
             await forEachAsync(supporters, async (supporter) => {
-                await token.approveAndCall(fund.address, supportAmount, [], 0, {from: supporter});
+                await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
             });
 
             const supportInfo = await fund.getSupporters();
@@ -153,7 +156,7 @@ contract("Fund", function (accounts) {
             const fund = await Fund.at(fundAddress);
 
             await timer(1500);
-            await token.approveAndCall(fund.address, supportAmount, [], 0, {from: supporter});
+            await token.approveAndCall(fund.address, supportAmount, "", {from: supporter});
 
             const supportInfo = await fund.getSupporters();
 
