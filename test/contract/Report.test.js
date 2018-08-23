@@ -43,7 +43,7 @@ contract("Report", function (accounts) {
     let content
 
     before("Contract initial setup", async() => {
-        token = await PXL.new(initialBalance, {from: owner});
+        token = await PXL.new({from: owner});
         council = await Council.new(token.address, {from: owner});
         roleManager = await RoleManager.new({from: owner});
         depositPool = await DepositPool.new(council.address, {from: owner});
@@ -58,6 +58,7 @@ contract("Report", function (accounts) {
         await council.setReportRewardRate(0.5 * decimals, {from: owner}).should.be.fulfilled;
         await council.setFundManager(fundManager.address, {from: owner}).should.be.fulfilled;
 
+        token.mint(initialBalance, {from: owner}).should.be.fulfilled;
         token.unlock({from: owner}).should.be.fulfilled;
 
         token.transfer(writer, 10000 * decimals, {from: owner}).should.be.fulfilled;
@@ -66,11 +67,12 @@ contract("Report", function (accounts) {
 
     describe("Add contents", () => {
         it("send initial deposit", async () => {
+
+
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                [],
-                0,
+                "0x0",
                 {from: writer}
             ).should.be.fulfilled;
         });
@@ -111,8 +113,7 @@ contract("Report", function (accounts) {
             await token.approveAndCall(
                 report.address,
                 initialDepositToken,
-                [],
-                0,
+                "0x0",
                 {from: reporter}
             ).should.be.fulfilled;
         });
