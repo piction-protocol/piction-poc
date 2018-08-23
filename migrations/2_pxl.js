@@ -1,5 +1,5 @@
-var Contract = artifacts.require("PXL");
+var PXL = artifacts.require("PXL");
 
 module.exports = function (deployer) {
-  deployer.deploy(Contract);
+  deployer.deploy(PXL);
 };
