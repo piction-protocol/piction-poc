@@ -41,11 +41,16 @@ Vue.use(Toast);
   pictionAddress.account = accounts[0].toLowerCase();
   pictionAddress.pxl = await council.methods.getToken().call();
   pictionAddress.pixelDistributor = await council.methods.getPixelDistributor().call();
+  pictionAddress.depositPool = await council.methods.getDepositPool().call();
   pictionAddress.contentsManager = await council.methods.getContentsManager().call();
   pictionAddress.fundManager = await council.methods.getFundManager().call();
   pictionAddress.accountManager = await council.methods.getAccountManager().call();
-  console.log(pictionAddress)
-  Vue.use(PictionNetworkPlugin, pictionAddress);
+  const pictionValue = {}
+  pictionValue.initialDeposit = Number(await council.methods.getInitialDeposit().call());
+  pictionValue.reportRegistrationFee = Number(await council.methods.getReportRegistrationFee().call());
+  console.log('pictionAddress', pictionAddress);
+  console.log('pictionValue', pictionValue);
+  Vue.use(PictionNetworkPlugin, pictionAddress, pictionValue);
 
   Vue.use(FirebasePlugin, {
     apiKey: "AIzaSyAmq4aDivflyokSUzdDCPmmKBu_3LFTmkU",

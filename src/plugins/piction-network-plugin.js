@@ -23,54 +23,55 @@ import SupporterPool from './abi-class/SupporterPool.js'
 import supporterPoolSource from '../../build/contracts/SupporterPool.json'
 
 const PictionNetworkPlugin = {
-  install(Vue, options) {
-    Vue.prototype.$contract = {};
+  install(Vue, pictionAddress, pictionValue) {
+    Vue.prototype.pictionAddress = pictionAddress;
+    Vue.prototype.pictionValue = pictionValue;
 
-    Vue.prototype.pictionAddress = options;
+    Vue.prototype.$contract = {};
 
     Vue.prototype.$contract.pxl = new PXL(
       pxlSource.abi,
-      options.pxl,
-      options.account
+      pictionAddress.pxl,
+      pictionAddress.account
     )
 
     Vue.prototype.$contract.accountManager = new AccountManager(
       accountManagerSource.abi,
-      options.accountManager,
-      options.account
+      pictionAddress.accountManager,
+      pictionAddress.account
     )
 
     Vue.prototype.$contract.content = new Content(
       contentSource.abi,
-      options.account,
+      pictionAddress.account,
       contentSource.bytecode
     )
 
     Vue.prototype.$contract.contentInterface = new ContentInterface(
       contentInterfaceSource.abi,
-      options.account
+      pictionAddress.account
     )
 
     Vue.prototype.$contract.contentsManager = new ContentsManager(
       contentsManagerSource.abi,
-      options.contentsManager,
-      options.account
+      pictionAddress.contentsManager,
+      pictionAddress.account
     )
 
     Vue.prototype.$contract.fund = new Fund(
       fundSource.abi,
-      options.account
+      pictionAddress.account
     )
 
     Vue.prototype.$contract.fundManager = new FundManager(
       fundManagerSource.abi,
-      options.fundManager,
-      options.account
+      pictionAddress.fundManager,
+      pictionAddress.account
     )
 
     Vue.prototype.$contract.supporterPool = new SupporterPool(
       supporterPoolSource.abi,
-      options.account
+      pictionAddress.account
     )
   }
 }
