@@ -14,7 +14,8 @@
         <b-navbar-nav class="ml-auto">
           <b-nav-item style="margin-right: 10px;"><b class="pxl">{{pxl}} PXL</b></b-nav-item>
           <b-nav-form>
-            <b-button variant="outline-success" class="my-2 my-sm-0" :to="{name:'new-content'}">Create</b-button>
+            <!--<b-button variant="outline-success" class="my-2 my-sm-0" :to="{name:'new-content'}">Create</b-button>-->
+            <b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">Create</b-button>
           </b-nav-form>
         </b-navbar-nav>
       </b-collapse>
@@ -23,6 +24,8 @@
 </template>
 
 <script>
+  import {BigNumber} from 'bignumber.js';
+
   export default {
     name: 'Navi',
     data() {
@@ -30,9 +33,29 @@
         pxl: 0,
       }
     },
+    methods: {
+      updatePXL: async function () {
+        let pxl = await this.$contract.pxl.balanceOf(this.pictionAddress.account);
+        this.pxl = this.$utils.toPXL(pxl);
+      },
+      newContents: async function () {
+        let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionAddress.account));
+        let initialDeposit = BigNumber(this.pictionValue.initialDeposit);
+        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
+        let message = `Initial deposit ${this.$utils.toPXL(initialDeposit)} PXL is required to register content.`;
+        if (deposit.eq(initialDeposit)) {
+          this.$router.push({name: 'new-content'});
+        } else if (pxl.lt(initialDeposit)) {
+          alert(message)
+        } else if (confirm(`${message}\nWould you like to register?`)) {
+          await this.$contract.pxl.initialDeposit(this.pictionAddress.contentsManager, this.pictionValue.initialDeposit);
+          this.updatePXL();
+          this.$router.push({name: 'new-content'});
+        }
+      }
+    },
     async created() {
-      let pxl = await this.$contract.pxl.balanceOf(this.pictionAddress.account);
-      this.pxl = this.$utils.toPXL(pxl);
+      this.updatePXL();
     }
   }
 </script>
