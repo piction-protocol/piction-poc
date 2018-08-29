@@ -24,11 +24,20 @@ module.exports = function (deployer) {
 
   Council.deployed().then(function (instance) {
     const decimals = Math.pow(10, 18);
+
+    const initialDeposit = 10 * decimals;
+    const reportRegistrationFee = 10 * decimals;
+
     const cdRate = 0.15 * decimals;
     const depositRate = 0.03 * decimals;
     const userPaybackRate = 0.02 * decimals;
     const reportRewardRate = 0.01 * decimals;
     const marketerDefaultRate = 0.15 * decimals;
+
+    instance.initialValue(
+      initialDeposit,
+      reportRegistrationFee,
+    );
 
     instance.initialRate(
       cdRate,
