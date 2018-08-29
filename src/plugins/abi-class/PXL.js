@@ -20,8 +20,11 @@ class PXL {
   }
 
   purchase(to, value, adds, index) {
-    console.log(to, value, adds, index)
     return this._contract.methods.approveAndCall(to, BigNumber(value), adds, index).send()
+  }
+
+  initialDeposit(to, value) {
+    return this._contract.methods.approveAndCall(to, BigNumber(value), [], 0).send()
   }
 }
 
