@@ -18,6 +18,10 @@ class ContentsManager {
   addContents(record) {
     return this._contract.methods.addContents(JSON.stringify(record), BigNumber(record.marketerRate)).send();
   }
+
+  getInitialDeposit(writer) {
+    return this._contract.methods.getInitialDeposit(writer).call();
+  }
 }
 
 export default ContentsManager;
