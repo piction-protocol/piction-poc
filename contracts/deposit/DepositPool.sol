@@ -11,8 +11,8 @@ import "contracts/deposit/DepositPoolInterface.sol";
 import "contracts/report/ReportInterface.sol";
 import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/utils/ExtendsOwnable.sol";
-import "contracts/utils/ParseLib.sol";
 import "contracts/utils/ValidValue.sol";
+import "contracts/utils/BytesLib.sol";
 
 /**
  * @title DepositPool
@@ -23,7 +23,8 @@ import "contracts/utils/ValidValue.sol";
 contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoolInterface {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
-    using ParseLib for string;
+    using BytesLib for bytes;
+
 
     uint256 DECIMALS = 10 ** 18;
 
@@ -49,8 +50,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         address _from,
         uint256 _value,
         address _token,
-        address[] _data,
-        uint256 _index)
+        bytes _data)
         public
         validAddress(_from)
         validAddress(_token)
@@ -61,13 +61,13 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     /**
     * @dev receiveApproval의 구현, token을 전송 받고 Content 별로 잔액을 기록함
     */
-    function addDeposit(address _from, uint256 _value, address _token, address[] _data) private {
+    function addDeposit(address _from, uint256 _value, address _token, bytes _data) private {
         require(_data.length > 0);
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
 
-        address content = _data[0];
+        address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);
         token.safeTransferFrom(_from, address(this), _value);
 

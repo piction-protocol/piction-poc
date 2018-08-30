@@ -15,6 +15,7 @@ module.exports = function (deployer) {
   // airdrop
   PXL.deployed().then(function (instance) {
     const amount = 10000000 * Math.pow(10, 18);
+    instance.mint(100000000 * Math.pow(10, 18));
     instance.transfer(AccountManager.address, amount);
   });
 
@@ -61,7 +62,5 @@ module.exports = function (deployer) {
       FundManager.address,
       AccountManager.address
     );
-
-    console.log(`Council.address : ${Council.address}`)
   });
 };

@@ -17,6 +17,7 @@ contract("ContentsManager", function (accounts) {
     const writerA = accounts[1];
     const writerB = accounts[2];
     const writerC = accounts[3];
+    const deploy = accounts[4];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(1000000000 * decimals);
@@ -37,8 +38,24 @@ contract("ContentsManager", function (accounts) {
     let contentsManager;
     let content;
 
+    let toBigNumber = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 64) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
+    let toAddress = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 40) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
     before("Contract initial setup", async() => {
-        token = await PXL.new(initialBalance, {from: owner});
+        token = await PXL.new({from: deploy});
         council = await Council.new(token.address, {from: owner});
         roleManager = await RoleManager.new({from: owner});
         depositPool = await DepositPool.new(council.address, {from: owner});
@@ -48,10 +65,12 @@ contract("ContentsManager", function (accounts) {
         await council.setRoleManager(roleManager.address, {from: owner}).should.be.fulfilled;
         await council.setDepositPool(depositPool.address, {from: owner}).should.be.fulfilled;
 
-        token.unlock({from: owner}).should.be.fulfilled;
-        token.transfer(writerA, 1000 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(writerB, 500 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(writerC, 7000 * decimals, {from: owner}).should.be.fulfilled;
+        await token.transferOwnership(owner, {from: deploy}).should.be.fulfilled;
+        await token.mint(initialBalance, {from: owner}).should.be.fulfilled;
+        await token.unlock({from: owner}).should.be.fulfilled;
+        await token.transfer(writerA, 1000 * decimals, {from: owner}).should.be.fulfilled;
+        await token.transfer(writerB, 500 * decimals, {from: owner}).should.be.fulfilled;
+        await token.transfer(writerC, 7000 * decimals, {from: owner}).should.be.fulfilled;
 
     });
 
@@ -60,16 +79,14 @@ contract("ContentsManager", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                [],
-                0,
+                "",
                 {from: writerA}
             ).should.be.fulfilled;
 
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                [],
-                0,
+                "",
                 {from: writerB}
             ).should.be.fulfilled;
 

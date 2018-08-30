@@ -36,6 +36,7 @@ contract("PxlDistributor", function (accounts) {
     const supporter3 = accounts[9];
     const freeUser = accounts[10];
     const reporter = accounts[11];
+    const deploy = accounts[12];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(1000000000 * decimals);
@@ -75,16 +76,34 @@ contract("PxlDistributor", function (accounts) {
     let accumulate = 0;
     let won = 450000;
 
+    let toBigNumber = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 64) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
+    let toAddress = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 40) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
     before("Initial setup", async() => {
         //===========================    컨트랙트 배포 시작    ===========================
         console.log();
         console.log(colors.magenta.bold("\t========== Deploy contract gas usage(1 Gwei) =========="));
 
-        beforeBalance = await web3.eth.getBalance(owner);
+        beforeBalance = await web3.eth.getBalance(deploy);
 
-        token = await PXL.new(initialBalance, {from: owner, gasPrice: 1000000000});
+        token = await PXL.new({from: deploy, gasPrice: 1000000000});
 
-        afterBalance = await web3.eth.getBalance(owner);
+        await token.transferOwnership(owner, {from: deploy, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(deploy);
         txFee = beforeBalance - afterBalance;
         accumulate = accumulate + txFee;
         console.log(colors.magenta("\ttoken contract"));
@@ -309,6 +328,18 @@ contract("PxlDistributor", function (accounts) {
 
         beforeBalance = await web3.eth.getBalance(owner);
 
+        await token.mint(initialBalance, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+
+        afterBalance = await web3.eth.getBalance(owner);
+        txFee = beforeBalance - afterBalance;
+        accumulate = txFee;
+        console.log(colors.magenta("\tmint token"));
+        console.log(colors.magenta("\tActual Tx Cost/Fee : " + txFee / decimals + " Ether (￦ " + Math.round((txFee / decimals) * won) + ")"));
+        console.log();
+
+
+        beforeBalance = await web3.eth.getBalance(owner);
+
         await token.unlock({from: owner, gasPrice: 1000000000}).should.be.fulfilled;
 
         afterBalance = await web3.eth.getBalance(owner);
@@ -414,8 +445,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDeposit,
-                [],
-                0,
+                "",
                 {from: writer, gasPrice: 1000000000}
             ).should.be.fulfilled;
 
@@ -500,8 +530,7 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
-                        [],
-                        0,
+                        "",
                         {from: supporter, gasPrice: 1000000000}
                     );
 
@@ -517,8 +546,7 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
-                        [],
-                        0,
+                        "",
                         {from: supporter2, gasPrice: 1000000000}
                     );
 
@@ -534,8 +562,7 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         300 * decimals,
-                        [],
-                        0,
+                        "",
                         {from: supporter3, gasPrice: 1000000000}
                     );
 
@@ -665,8 +692,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                [cd, content.address, marketerAddress],
-                0,
+                cd + content.address.substr(2) + marketerAddress.substr(2) + toBigNumber(0).substr(2),
                 {from: user, gasPrice: 1000000000}
             );
 
@@ -752,8 +778,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                [cd, content.address, marketerAddress],
-                0,
+                cd + content.address.substr(2) + marketerAddress.substr(2) + toBigNumber(0).substr(2),
                 {from: user2, gasPrice: 1000000000}
             );
 
@@ -773,8 +798,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                [cd, content.address, 0],
-                0,
+                cd + content.address.substr(2) + toAddress(0).substr(2) + toBigNumber(0).substr(2),
                 {from: user2, gasPrice: 1000000000}
             ).should.be.rejected;
         });
@@ -789,8 +813,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 0,
-                [cd, content.address, 0],
-                1,
+                cd + content.address.substr(2) + toAddress(0).substr(2) + toBigNumber(1).substr(2),
                 {from: freeUser, gasPrice: 1000000000}
             ).should.be.fulfilled;
 
@@ -827,8 +850,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 report.address,
                 reportRegistrationFee,
-                [],
-                0,
+                "",
                 {from: reporter, gasPrice: 1000000000}
             ).should.be.fulfilled;
 

@@ -33,6 +33,7 @@ contract("PxlDistributor", function (accounts) {
     const supporter2 = accounts[8];
     const supporter3 = accounts[9];
     const freeUser = accounts[10];
+    const deploy = accounts[11];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(1000000000 * decimals);
@@ -67,9 +68,25 @@ contract("PxlDistributor", function (accounts) {
     let reporter;
     let accountManager;
 
+    let toBigNumber = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 64) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
+    let toAddress = function bigNumberToPaddedBytes32(num) {
+        var n = num.toString(16).replace(/^0x/, '');
+        while (n.length < 40) {
+            n = "0" + n;
+        }
+        return "0x" + n;
+    }
+
     before("Initial setup", async() => {
         //===========================    컨트랙트 배포 시작    ===========================
-        token = await PXL.new(initialBalance, {from: owner, gasPrice: 1000000000});
+        token = await PXL.new({from: deploy, gasPrice: 1000000000});
         council = await Council.new(token.address, {from: owner, gasPrice: 1000000000});
         userPayback = await UserPaybackPool.new(council.address, userPaybackPoolInterval, {from: owner, gasPrice: 1000000000});
         deposit = await DepositPool.new(council.address, {from: owner, gasPrice: 1000000000});
@@ -82,13 +99,17 @@ contract("PxlDistributor", function (accounts) {
         accountManager = await AccountManager.new(council.address, 0, {from: owner, gasPrice: 1000000000});
         //===========================    컨트랙트 배포 종료   ===========================
 
+        //===========================    PXL 컨트랙트 오너 변경 및 토큰 발행 시작    ===========================
+        await token.transferOwnership(owner, {from: deploy, gasPrice: 1000000000}).should.be.fulfilled;
+        await token.mint(initialBalance, {from: owner, gasPrice: 1000000000}).should.be.fulfilled;
+        //===========================    PXL 컨트랙트 오너 변경 및 토큰 발행 종료    ===========================
 
         //===========================    위원회 초기 값 설정 시작    ===========================
         await council.initialValue(
             initialDeposit,
             reportRegistrationFee,
             {from: owner, gasPrice: 1000000000}
-        );
+        ).should.be.fulfilled;
 
         await council.initialRate(
             cdRate,
@@ -97,7 +118,7 @@ contract("PxlDistributor", function (accounts) {
             reportRewardRate,
             marketerDefaultRate,
             {from: owner, gasPrice: 1000000000}
-        );
+        ).should.be.fulfilled;
 
         await council.initialPictionAddress(
             userPayback.address,
@@ -106,7 +127,7 @@ contract("PxlDistributor", function (accounts) {
             marketers.address,
             reporter.address,
             {from: owner, gasPrice: 1000000000}
-        );
+        ).should.be.fulfilled;
 
         await council.initialManagerAddress(
             roleManager.address,
@@ -114,14 +135,12 @@ contract("PxlDistributor", function (accounts) {
             fundManager.address,
             accountManager.address,
             {from: owner, gasPrice: 1000000000}
-        );
+        ).should.be.fulfilled;
         //===========================    위원회 초기 값 설정 종료    ===========================
-
 
         //===========================    PxlDistributor 권한 등록 시작    ===========================
         await roleManager.addAddressToRole(distributor.address, "PXL_DISTRIBUTOR", {from: owner, gasPrice: 1000000000});
         //===========================    PxlDistributor 권한 등록 종료    ===========================
-
 
         //===========================    토큰 전송 시작    ===========================
         await token.unlock({from: owner, gasPrice: 1000000000}).should.be.fulfilled;
@@ -142,10 +161,9 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDeposit,
-                [],
-                0,
+                "",
                 {from: writer, gasPrice: 1000000000}
-            ).should.be.fulfilled;
+            );
 
             await contentsManager.addContents(
                 contentRecord,
@@ -195,24 +213,21 @@ contract("PxlDistributor", function (accounts) {
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
-                        [],
-                        0,
+                        "",
                         {from: supporter, gasPrice: 1000000000}
                     );
 
                     await token.approveAndCall(
                         fund.address,
                         500 * decimals,
-                        [],
-                        0,
+                        "",
                         {from: supporter2, gasPrice: 1000000000}
                     );
 
                     await token.approveAndCall(
                         fund.address,
                         300 * decimals,
-                        [],
-                        0,
+                        "",
                         {from: supporter3, gasPrice: 1000000000}
                     );
 
@@ -280,8 +295,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                [cd, content.address, marketerAddress],
-                0,
+                cd + content.address.substr(2) + marketerAddress.substr(2) + toBigNumber(0).substr(2),
                 {from: user, gasPrice: 1000000000}
             );
 
@@ -357,8 +371,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                [cd, content.address, marketerAddress],
-                0,
+                cd + content.address.substr(2) + marketerAddress.substr(2) + toBigNumber(0).substr(2),
                 {from: user2, gasPrice: 1000000000}
             );
 
@@ -378,8 +391,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 episodePrice,
-                [cd, content.address, 0],
-                0,
+                cd + content.address.substr(2) + toAddress(0).substr(2) + toBigNumber(0).substr(2),
                 {from: user2, gasPrice: 1000000000}
             ).should.be.rejected;
         });
@@ -389,8 +401,7 @@ contract("PxlDistributor", function (accounts) {
             await token.approveAndCall(
                 distributor.address,
                 0,
-                [cd, content.address, 0],
-                1,
+                cd + content.address.substr(2) + toAddress(0).substr(2) + toBigNumber(1).substr(2),
                 {from: freeUser, gasPrice: 1000000000}
             ).should.be.fulfilled;
 

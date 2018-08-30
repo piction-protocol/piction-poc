@@ -20,6 +20,7 @@ contract("Content", function (accounts) {
     const buyusers = accounts.slice(2, 5);
     const testuser = accounts[5];
     const distributor = accounts[6];
+    const deploy = accounts[7];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(1000000000 * decimals);
@@ -42,7 +43,7 @@ contract("Content", function (accounts) {
     let content;
 
     before("Initial Setup", async() => {
-        token = await PXL.new(initialBalance, {from: owner});
+        token = await PXL.new({from: deploy});
         council = await Council.new(token.address, {from: owner});
         roleManager = await RoleManager.new({from: owner});
         depositPool = await DepositPool.new(council.address, {from: owner});
@@ -53,13 +54,15 @@ contract("Content", function (accounts) {
         await council.setDepositPool(depositPool.address, {from: owner}).should.be.fulfilled;
         await roleManager.addAddressToRole(distributor, "PXL_DISTRIBUTOR", {from: owner}).should.be.fulfilled;
 
-        token.unlock({from: owner}).should.be.fulfilled;
-        token.transfer(writer, 1000 * decimals, {from: owner}).should.be.fulfilled;
-        token.transfer(testuser, 100 * decimals, {from: owner}).should.be.fulfilled;
+        await token.transferOwnership(owner, {from: deploy}).should.be.fulfilled;
+        await token.mint(initialBalance, {from: owner}).should.be.fulfilled;
+        await token.unlock({from: owner}).should.be.fulfilled;
+        await token.transfer(writer, 1000 * decimals, {from: owner}).should.be.fulfilled;
+        await token.transfer(testuser, 100 * decimals, {from: owner}).should.be.fulfilled;
         token.transfer(distributor, 500 * decimals, {from: owner}).should.be.fulfilled;
 
         buyusers.forEach( async(user) => {
-            token.transfer(user, 100 * decimals, {from: owner}).should.be.fulfilled;
+            await token.transfer(user, 100 * decimals, {from: owner}).should.be.fulfilled;
         });
 
     });
@@ -69,8 +72,7 @@ contract("Content", function (accounts) {
             await token.approveAndCall(
                 contentsManager.address,
                 initialDepositToken,
-                [],
-                0,
+                "",
                 {from: writer}
             ).should.be.fulfilled;
 

@@ -8,9 +8,10 @@ import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/council/CouncilInterface.sol";
 import "contracts/utils/TimeLib.sol";
-import "contracts/utils/ParseLib.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/access/RoleManager.sol";
+import "contracts/utils/BytesLib.sol";
+
 
 /**
  * @title UserPaybackPool contract
@@ -22,7 +23,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using TimeLib for *;
-    using ParseLib for string;
+    using BytesLib for bytes;
 
     string public constant ROLE_NAME = "PXL_DISTRIBUTOR";
 
@@ -57,8 +58,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         address _from,
         uint256 _value,
         address _token,
-        address[] _data,
-        uint256 _index)
+        bytes _data)
         public
         validAddress(_from)
         validAddress(_token)
@@ -77,9 +77,9 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         emit CreatePaybackPool(currentIndex);
     }
 
-    function addPayback(address _from, uint256 _value, address _token, address[] _user) private {
+    function addPayback(address _from, uint256 _value, address _token, bytes _data) private {
         require(RoleManager(council.getRoleManager()).isAccess(_from, ROLE_NAME));
-        require(_user.length > 0);
+
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
@@ -90,7 +90,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
 
         token.safeTransferFrom(_from, address(this), _value);
 
-        address user = _user[0];
+        address user = _data.toAddress(0);
         paybackPool[currentIndex].paybackInfo[user] = paybackPool[currentIndex].paybackInfo[user].add(_value);
 
         emit AddPayback(user, currentIndex, _value);

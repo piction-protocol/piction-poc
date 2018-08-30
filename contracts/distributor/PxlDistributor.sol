@@ -12,11 +12,12 @@ import "contracts/marketer/MarketerInterface.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/FundManagerInterface.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/utils/ParseLib.sol";
+import "contracts/utils/BytesLib.sol";
 
 contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
+    using BytesLib for bytes;
 
     struct DistributionDetail {
         address transferAddress;
@@ -40,20 +41,19 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         token = ERC20(council.getToken());
     }
 
-    function receiveApproval(address _from, uint256 _value, address _token, address[]  _address, uint256 _index)
+    function receiveApproval(address _from, uint256 _value, address _token, bytes _data)
         public
     {
         require(address(this) != _from);
         require(address(token) == _token);
-        require(_address.length >= 2);
 
         // clear DistributionDetail array
         clearDistributionDetail();
 
-        address cdAddr = _address[0];
-        address contentAddr = _address[1];
-        address marketerAddr = _address[2];
-        uint256 idx = _index;
+        address cdAddr = _data.toAddress(0);
+        address contentAddr = _data.toAddress(20);
+        address marketerAddr = _data.toAddress(40);
+        uint256 idx = _data.toUint(60);
 
         require(customValidAddress(cdAddr));
         require(customValidAddress(contentAddr));
@@ -181,9 +181,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         private
     {
         if(_isCustom) {
-            address[] memory addr = new address[](1);
-            addr[0] = _param;
-            CustomToken(address(token)).approveAndCall(_to, _amount, addr, 0);
+            CustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
         } else {
             token.safeTransfer(_to, _amount);
         }
