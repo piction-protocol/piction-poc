@@ -1,11 +1,10 @@
 <template>
   <div>
     <b-breadcrumb :items="items"/>
-    <Item v-for="(episode, index) in episodes"
+    <Item v-for="episode in episodes"
           :episode="episode"
           :content_id="content_id"
-          :index="index"
-          :key="index"/>
+          :key="episode.number"/>
   </div>
 </template>
 
@@ -39,6 +38,7 @@
         let price = Number(result[1]);
         let purchased = Number(result[3]);
         let episode = {
+          number: index,
           title: episodeRecord.title,
           thumbnail: episodeRecord.thumbnail,
           price: price,

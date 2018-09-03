@@ -14,6 +14,8 @@
 </template>
 
 <script>
+  import index from "../../store/index";
+
   export default {
     props: ['content_id', 'episode', 'index'],
     computed: {
@@ -26,16 +28,19 @@
     },
     methods: {
       view() {
-        this.$router.push({name: 'viewer', params: {content_id: this.content_id, episode_id: this.index}});
+        this.$router.push({name: 'viewer', params: {content_id: this.content_id, episode_id: this.episode.number}});
       },
       async purchase() {
         this.$loading('loading...');
         try {
-          await this.$contract.pxl.purchase(
+          const cd = this.pictionAddress.account;
+          const content = this.content_id.substr(2)
+          const marketer = this.$utils.toHexString(0).substr(2)
+          const index = this.$utils.toHexString(this.number, 64).substr(2);
+          await this.$contract.pxl.approveAndCall(
             this.pictionAddress.pixelDistributor,
             this.episode.price,
-            [this.pictionAddress.account, this.content_id, 0],
-            this.index
+            `${cd}${content}${marketer}${index}`
           );
         } catch (e) {
           alert(e);

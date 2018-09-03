@@ -15,8 +15,9 @@ module.exports = function (deployer) {
   // airdrop
   PXL.deployed().then(function (instance) {
     const amount = 10000000 * Math.pow(10, 18);
-    instance.mint(100000000 * Math.pow(10, 18));
+    instance.mint(amount);
     instance.transfer(AccountManager.address, amount);
+    instance.unlock();
   });
 
   RoleManager.deployed().then(function (instance) {

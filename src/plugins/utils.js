@@ -24,11 +24,14 @@ const Utils = {
       toPXL: function (amount) {
         return BigNumber(amount).div(Math.pow(10, 18)).toString();
       },
-      toDOT: function (amount) {
+      appendDecimals: function (amount) {
         return BigNumber(amount).multipliedBy(Math.pow(10, 18)).toString();
       },
       toPercent: function (number) {
         return BigNumber(number).multipliedBy(100).toString();
+      },
+      toHexString: function (dec, padding = 40) {
+        return BigNumber(0x10).pow(padding).plus(dec).toString(16).replace('1', '0x');
       }
     }
   }

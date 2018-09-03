@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js'
-
 class PXL {
   constructor(abi, address, from) {
     this._contract = new web3.eth.Contract(abi, address);
@@ -15,16 +13,9 @@ class PXL {
     return this._contract.methods.balanceOf(address).call();
   }
 
-  support(to, value, jsonData) {
-    return this._contract.methods.approveAndCall(to, BigNumber(value * Math.pow(10, 18)), jsonData).send()
-  }
-
-  purchase(to, value, adds, index) {
-    return this._contract.methods.approveAndCall(to, BigNumber(value), adds, index).send()
-  }
-
-  initialDeposit(to, value) {
-    return this._contract.methods.approveAndCall(to, BigNumber(value), [], 0).send()
+  approveAndCall(to, value, data) {
+    console.log(to, value, data)
+    return this._contract.methods.approveAndCall(to, value, data ? data : '0x00').send()
   }
 }
 

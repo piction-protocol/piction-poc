@@ -48,7 +48,7 @@
         } else if (pxl.lt(initialDeposit)) {
           alert(message)
         } else if (confirm(`${message}\nWould you like to register?`)) {
-          await this.$contract.pxl.initialDeposit(this.pictionAddress.contentsManager, this.pictionValue.initialDeposit);
+          await this.$contract.pxl.approveAndCall(this.pictionAddress.contentsManager, this.pictionValue.initialDeposit);
           this.updatePXL();
           this.$router.push({name: 'new-content'});
         }
