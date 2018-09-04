@@ -39,6 +39,7 @@
         this.pxl = this.$utils.toPXL(pxl);
       },
       newContents: async function () {
+        this.$loading('loading...');
         let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionAddress.account));
         let initialDeposit = BigNumber(this.pictionValue.initialDeposit);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
@@ -52,6 +53,7 @@
           this.updatePXL();
           this.$router.push({name: 'new-content'});
         }
+        this.$loading.close();
       }
     },
     async created() {
