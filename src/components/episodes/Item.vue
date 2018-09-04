@@ -17,7 +17,7 @@
   import index from "../../store/index";
 
   export default {
-    props: ['content_id', 'episode', 'index'],
+    props: ['content_id', 'episode'],
     computed: {
       buttonText() {
         return this.episode.purchased ? 'view' : `${this.$utils.toPXL(this.episode.price)} PXL`;
@@ -36,7 +36,7 @@
           const cd = this.pictionAddress.account;
           const content = this.content_id.substr(2)
           const marketer = this.$utils.toHexString(0).substr(2)
-          const index = this.$utils.toHexString(this.number, 64).substr(2);
+          const index = this.$utils.toHexString(this.episode.number, 64).substr(2);
           await this.$contract.pxl.approveAndCall(
             this.pictionAddress.pixelDistributor,
             this.episode.price,
