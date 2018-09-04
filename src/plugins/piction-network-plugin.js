@@ -22,6 +22,9 @@ import fundManagerSource from '../../build/contracts/FundManager.json'
 import SupporterPool from './abi-class/SupporterPool.js'
 import supporterPoolSource from '../../build/contracts/SupporterPool.json'
 
+import Report from './abi-class/Report.js'
+import reportSource from '../../build/contracts/Report.json'
+
 const PictionNetworkPlugin = {
   install(Vue, pictionAddress, pictionValue) {
     Vue.prototype.pictionAddress = pictionAddress;
@@ -71,6 +74,12 @@ const PictionNetworkPlugin = {
 
     Vue.prototype.$contract.supporterPool = new SupporterPool(
       supporterPoolSource.abi,
+      pictionAddress.account
+    )
+
+    Vue.prototype.$contract.report = new Report(
+      reportSource.abi,
+      pictionAddress.report,
       pictionAddress.account
     )
   }
