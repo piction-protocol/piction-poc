@@ -45,6 +45,7 @@ Vue.use(Toast);
   pictionAddress.contentsManager = await council.methods.getContentsManager().call();
   pictionAddress.fundManager = await council.methods.getFundManager().call();
   pictionAddress.accountManager = await council.methods.getAccountManager().call();
+  pictionAddress.report = await council.methods.getReport().call();
   const pictionValue = {}
   pictionValue.initialDeposit = Number(await council.methods.getInitialDeposit().call());
   pictionValue.reportRegistrationFee = Number(await council.methods.getReportRegistrationFee().call());
