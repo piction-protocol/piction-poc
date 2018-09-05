@@ -34,7 +34,6 @@
       async report() {
         this.$loading('loading...');
         let regFee = await this.$contract.report.getRegFee();
-        console.log(regFee)
         let deposit = BigNumber(regFee[0]);
         let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
