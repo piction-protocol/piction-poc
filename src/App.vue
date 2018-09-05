@@ -17,8 +17,10 @@
 </script>
 
 <style>
+  @import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+
   #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: 'Nanum Gothic', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
