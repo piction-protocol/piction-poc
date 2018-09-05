@@ -121,20 +121,22 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         return currentIndex;
     }
 
-    function getPaybackInfo() public view returns(uint256[], address[], uint256[], bool[]) {
+    function getPaybackInfo() public view returns(uint256[], uint256[], uint256[], uint256[], bool[]) {
         uint256[] memory poolIndex = new uint256[](paybackPool.length);
-        address[] memory user = new address[](paybackPool.length);
         uint256[] memory paybackAmount = new uint256[](paybackPool.length);
+        uint256[] memory createdTime = new uint256[](paybackPool.length);
+        uint256[] memory distributableTime = new uint256[](paybackPool.length);
         bool[] memory released = new bool[](paybackPool.length);
 
         for (uint256 i = 0; i < paybackPool.length; i++) {
             poolIndex[i] = i;
-            user[i] = msg.sender;
             paybackAmount[i] = paybackPool[i].paybackInfo[msg.sender];
+            createdTime[i] = paybackPool[i].createTime;
+            distributableTime[i] = paybackPool[i].createTime.add(createPoolInterval);
             released[i] = paybackPool[i].released[msg.sender];
         }
 
-        return (poolIndex, user, paybackAmount, released);
+        return (poolIndex, paybackAmount, createdTime, distributableTime, released);
     }
 
     event AddPayback(address _user, uint256 _currentIndex, uint256 _value);

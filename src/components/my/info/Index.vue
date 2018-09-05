@@ -1,61 +1,22 @@
 <template>
   <div role="group">
-    <label for="inputLive">Name:</label>
-    <b-form-input id="inputLive"
-                  v-model.trim="name"
-                  type="text"
-                  :disabled="registered"
-                  :state="nameState"
-                  aria-describedby="inputLiveHelp inputLiveFeedback"
-                  placeholder="Enter your name"></b-form-input>
-    <b-form-invalid-feedback id="inputLiveFeedback">
-      <!-- This will only be shown if the preceeding input has an invalid state -->
-      Enter at least 3 letters
-    </b-form-invalid-feedback>
-    <b-form-text id="inputLiveHelp">
-      <!-- this is a form text block (formerly known as help block) -->
-      Your full name.
-    </b-form-text>
-    <b-button :disabled="!nameState" v-if="!registered" variant="success" @click="submit()">Airdrop 1,000 PXL</b-button>
+    <Account/>
+    <hr>
+    <UserPaybackPool/>
   </div>
 </template>
 
 <script>
+  import Account from './Account'
+  import UserPaybackPool from './UserPaybackPool'
+
   export default {
-    computed: {
-      nameState() {
-        return this.name && this.name.length > 2 ? true : false
-      }
-    },
+    components: {Account, UserPaybackPool},
     data() {
-      return {
-        registered: true,
-        name: null,
-      }
+      return {}
     },
-    methods: {
-      async submit() {
-        const userName = await this.$contract.accountManager.getUserName(this.pictionAddress.account);
-        const address = await this.$contract.accountManager.getUserAddress(this.name);
-        if (userName) {
-          this.$toast.center('이미 등록된 주소입니다');
-        } else if (address > 0) {
-          this.$toast.center('이미 등록된 사용자명입니다');
-        } else {
-          this.$loading('loading...');
-          try {
-            await this.$contract.accountManager.createAccount(this.name);
-            window.location.reload()
-          } catch (e) {
-            alert(e)
-          }
-          this.$loading.close();
-        }
-      },
-    },
-    async created() {
-      this.name = await this.$contract.accountManager.getUserName(this.pictionAddress.account);
-      this.registered = (this.name != null && this.name.length > 0);
+    methods: {},
+    created() {
     }
   }
 </script>
