@@ -44,6 +44,8 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
         address reporter;
         string detail;
         bool complete;
+        bool completeValid;
+        uint256 completeAmount;
     }
     //신고 목록
     ReportData[] reports;
@@ -94,7 +96,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
         require(registrationFee[msg.sender].amount > 0);
         require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
 
-        reports.push(ReportData(_content, msg.sender, _detail, false));
+        reports.push(ReportData(_content, msg.sender, _detail, false, false, 0));
 
         emit SendReport(msg.sender, _detail);
     }
@@ -106,13 +108,45 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     function getReport(uint256 _index)
         external
         view
-        returns(address content, address reporter, string detail, bool complete)
+        returns(address content, address reporter, string detail, bool complete, bool completeValid, uint256 completeAmount)
     {
         content = reports[_index].content;
         reporter = reports[_index].reporter;
         detail = reports[_index].detail;
         complete = reports[_index].complete;
+        completeValid = reports[_index].completeValid;
+        completeAmount = reports[_index].completeAmount;
     }
+
+    /**
+    * @dev msg.sender 가 신고한 목록 인덱스 반환
+    */
+    function getUserReport()
+        external
+        view
+        returns(uint256[])
+    {
+        uint256 count = 0;
+        for(uint256 i = 0; i < reports.length; i++) {
+            if (reports[i].reporter == msg.sender) {
+                count = count.add(1);
+            }
+        }
+
+        uint256[] memory result = new uint256[](count);
+
+        uint256 resultIndex = 0;
+        for(uint256 j = 0; j < reports.length; j++) {
+            if (reports[j].reporter == msg.sender) {
+                result[resultIndex] = j;
+                resultIndex = resultIndex.add(1);
+            }
+        }
+
+        return result;
+    }
+
+
 
     /**
     * @dev 신고 목록의 길이
@@ -163,14 +197,17 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @dev 신고 처리 완료 후 호출하는 메소드, deduction나 DepositPool의 reportReward 처리 후 호출
     * @param _index 신고 목록의 인덱스
     */
-    function completeReport(uint256 _index) external {
+    function completeReport(uint256 _index, bool _valid, uint256 _resultAmount) external {
         require(msg.sender == address(council));
         require(_index < reports.length);
         require(!reports[_index].complete);
 
         reports[_index].complete = true;
+        reports[_index].completeValid = _valid;
+        reports[_index].completeAmount = _resultAmount;
 
-        emit CompleteReport(_index, reports[_index].detail);
+
+        emit CompleteReport(_index, reports[_index].detail, _valid, _resultAmount);
     }
 
     /**
@@ -184,6 +221,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
         validAddress(_reporter)
         validRange(_rate)
         validRate(_rate)
+        returns(uint256)
     {
         require(msg.sender == address(council));
         require(registrationFee[_reporter].amount > 0);
@@ -200,6 +238,8 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
         }
 
         emit Deduction(_reporter, _rate, result, _block);
+
+        return result;
     }
 
     /**
@@ -231,7 +271,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     event AddRegistrationFee(address _from, uint256 _value, address _token);
     event SendReport(address _from, string _detail);
     event ReturnRegFee(address _to, uint256 _amount);
-    event CompleteReport(uint256 _index, string _detail);
+    event CompleteReport(uint256 _index, string _detail, bool _valid, uint256 _resultAmount);
     event Deduction(address _reporter, uint256 _rate, uint256 _amount, bool _block);
 
 }

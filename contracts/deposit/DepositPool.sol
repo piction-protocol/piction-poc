@@ -91,6 +91,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
         validAddress(_content)
         validAddress(_reporter)
         external
+        returns(uint256)
     {
         require(address(council) == msg.sender);
 
@@ -106,6 +107,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
             amount = 0;
         }
         emit ReportReward(_content, _reporter, amount);
+
+        return amount;
     }
 
     function getReportRate(address _content) external view returns(uint256) {

@@ -136,13 +136,17 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         validAddress(_content)
         validAddress(_reporter)
     {
+        uint256 resultAmount;
+        bool valid;
         if (_deductionRate > 0) {
-            ReportInterface(pictionAddress.report).deduction(_reporter, _deductionRate, (_deductionRate/(10 ** 16)) >= 50 ? true:false);
+            resultAmount = ReportInterface(pictionAddress.report).deduction(_reporter, _deductionRate, (_deductionRate/(10 ** 16)) >= 50 ? true:false);
+            valid = false;
         } else {
-            DepositPoolInterface(pictionAddress.depositPool).reportReward(_content, _reporter);
+            resultAmount = DepositPoolInterface(pictionAddress.depositPool).reportReward(_content, _reporter);
+            valid = true;
         }
 
-        ReportInterface(pictionAddress.report).completeReport(_index);
+        ReportInterface(pictionAddress.report).completeReport(_index, valid, resultAmount);
 
         emit Judge(_index, _content, _reporter, _deductionRate);
     }
