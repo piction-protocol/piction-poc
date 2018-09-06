@@ -6,13 +6,14 @@
       <div>지급 된 PXL은 일정 기간 후에 출금이 가능합니다.</div>
     </b-alert>
     <b-table striped hover
+             :fields="fields"
              :items="list"
              :small="true">
       <template slot="index" slot-scope="row">{{Number(row.item.index) + 1}}</template>
-      <template slot="amount" slot-scope="row">{{$utils.toPXL(row.item.amount)}} PXL</template>
       <template slot="createdTime" slot-scope="row">{{$utils.dateFmt(Number(row.item.createdTime))}}</template>
       <template slot="distributableTime" slot-scope="row">{{$utils.dateFmt(Number(row.item.distributableTime))}}
       </template>
+      <template slot="amount" slot-scope="row">{{$utils.toPXL(row.item.amount)}} PXL</template>
       <template slot="released" slot-scope="row">{{row.item.released ? '지급완료' : '미지급'}}</template>
     </b-table>
     <b-button size="sm" variant="primary" class="form-control" @click="release"
@@ -27,6 +28,13 @@
   export default {
     data() {
       return {
+        fields: [
+          {key: 'index', label: '순번'},
+          {key: 'createdTime', label: '생성일시'},
+          {key: 'distributableTime', label: '지급일시'},
+          {key: 'amount', label: '보상'},
+          {key: 'released', label: '처리상태'},
+        ],
         list: [],
         amount: 0,
       }
