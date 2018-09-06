@@ -10,11 +10,11 @@
           <router-link active-class="active" class="nav-link" to="/contents">Comics</router-link>
           <router-link active-class="active" class="nav-link" to="/funds">Funds</router-link>
           <router-link active-class="active" class="nav-link" to="/my">My</router-link>
+          <router-link active-class="active" class="nav-link" to="/council">Council</router-link>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-item style="margin-right: 10px;"><b class="pxl">{{pxl}} PXL</b></b-nav-item>
           <b-nav-form>
-            <!--<b-button variant="outline-success" class="my-2 my-sm-0" :to="{name:'new-content'}">Create</b-button>-->
             <b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">Create</b-button>
           </b-nav-form>
         </b-navbar-nav>

@@ -31,6 +31,9 @@ import depositPoolSource from '../../build/contracts/DepositPool.json'
 import UserPaybackPool from './abi-class/UserPaybackPool.js'
 import userPaybackPoolSource from '../../build/contracts/UserPaybackPool.json'
 
+import Council from './abi-class/Council.js'
+import councilSource from '../../build/contracts/Council.json'
+
 const PictionNetworkPlugin = {
   install(Vue, pictionAddress, pictionValue) {
     Vue.prototype.pictionAddress = pictionAddress;
@@ -98,6 +101,12 @@ const PictionNetworkPlugin = {
     Vue.prototype.$contract.userPaybackPool = new UserPaybackPool(
       userPaybackPoolSource.abi,
       pictionAddress.userPaybackPool,
+      pictionAddress.account
+    )
+
+    Vue.prototype.$contract.council = new Council(
+      councilSource.abi,
+      pictionAddress.council,
       pictionAddress.account
     )
   }

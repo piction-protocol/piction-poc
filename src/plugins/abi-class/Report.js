@@ -13,6 +13,10 @@ class Report {
     return this._contract.methods.sendReport(content, detail).send();
   }
 
+  getReportsLength() {
+    return this._contract.methods.getReportsLength().call();
+  }
+
   getUserReport() {
     return this._contract.methods.getUserReport().call();
   }
