@@ -19,6 +19,7 @@ const Utils = {
         return result;
       },
       dateFmt: function (timestamp) {
+        timestamp = Number(timestamp)
         return (timestamp && timestamp > 0) ? moment(timestamp).format('YYYY-MM-DD HH:mm') : null;
       },
       toPXL: function (amount) {
