@@ -5,6 +5,7 @@
       <div>정상적인 신고의 경우 보상으로 일정 PXL이 지급됩니다.</div>
       <div>허위 신고의 경우 신고 예치금이 차감 되거나, 신고 활동이 일시 중단될 수 있습니다.</div>
       <div>신고의 처리는 위원회에서 수시로 확인하여 처리합니다.</div>
+      <div class="text-danger font-weight-bold">* 검수 대기중인 신고가 있으면 환급 신청이 불가능합니다.</div>
     </b-alert>
     <b-table striped hover
              :fields="fields"
@@ -30,7 +31,7 @@
   export default {
     computed: {
       isLock() {
-        return Number(this.regFee[1]) > new Date().getTime()
+        return this.list.find(o => !o.complete) != undefined || Number(this.regFee[1]) > new Date().getTime()
       },
       buttonText() {
         if (!this.regFee[1]) {
@@ -55,8 +56,8 @@
     },
     methods: {
       result(item) {
-        if(item.complete) {
-          if(item.completeValid) {
+        if (item.complete) {
+          if (item.completeValid) {
             return `보상 ${this.$utils.toPXL(item.completeAmount)} PXL 지급`
           } else {
             return `예치금 ${this.$utils.toPXL(item.completeAmount)} PXL 차감`
@@ -67,7 +68,11 @@
       },
       async returnRegFee() {
         this.$loading('loading...');
-        await this.$contract.report.returnRegFee();
+        try {
+          await this.$contract.report.returnRegFee();
+        } catch (e) {
+          alert(e)
+        }
         window.location.reload();
       },
     },
