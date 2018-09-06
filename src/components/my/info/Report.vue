@@ -31,7 +31,9 @@
   export default {
     computed: {
       isLock() {
-        return this.list.find(o => !o.complete) != undefined || Number(this.regFee[1]) > new Date().getTime()
+        return this.list.find(o => !o.complete) != undefined ||
+          Number(this.regFee[1]) > new Date().getTime() ||
+          Number(this.regFee[0]) == 0;
       },
       buttonText() {
         if (!this.regFee[1]) {
