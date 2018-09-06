@@ -262,7 +262,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     /**
     * @dev 신고자가 자신이 맞긴 등록금을 확인
     */
-    function getRegFee() external view returns(uint256, uint256, uint256) {
+    function getRegFee() external view returns(uint256 amount, uint256 lockTime, uint256 blockTime) {
         return (registrationFee[msg.sender].amount,
             registrationFee[msg.sender].lockTime,
             registrationFee[msg.sender].blockTime);
