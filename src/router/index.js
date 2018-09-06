@@ -18,6 +18,8 @@ import FundShow from '@/components/funds/Show'
 import MyIndex from '@/components/my/Index'
 import MyInfoIndex from '@/components/my/info/Index'
 import MyContentsIndex from '@/components/my/contents/Index'
+// council
+import CouncilIndex from '@/components/council/Index'
 
 Vue.use(Router)
 
@@ -49,6 +51,8 @@ const router = new Router({
         {path: 'contents', name: 'my-contents', component: MyContentsIndex},
       ]
     },
+    // council
+    {path: '/council', name: 'council', component: CouncilIndex},
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
