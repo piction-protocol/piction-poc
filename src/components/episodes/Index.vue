@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-breadcrumb :items="items"/>
-    <b-button variant="danger" size="sm" @click="report">report</b-button>
+    <!--<b-button variant="danger" size="sm" @click="report">report</b-button>-->
     <Item v-for="episode in episodes"
           :episode="episode"
           :content_id="content_id"
@@ -21,7 +21,7 @@
         content: null,
         episodes: [],
         items: [{
-          text: 'Comics',
+          text: '작품목록',
           to: {name: 'contents'}
         }]
       }

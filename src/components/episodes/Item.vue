@@ -1,10 +1,14 @@
 <template>
-  <div class="episode">
-    <b-row class="text-left" align-v="center">
-      <b-col cols="3"><img :src="episode.thumbnail"/></b-col>
-      <b-col>
-        <div>{{episode.title}}</div>
-        <b-button @click="episode.purchased ? view() : purchase()" variant="primary" class="float-right">
+  <div>
+    <b-row style="margin-bottom: 8px">
+      <b-col cols="3">
+        <img :src="episode.thumbnail" class="thumbnail"/>
+      </b-col>
+      <b-col style="padding: 15px">
+        <h5>{{episode.title}}</h5>
+        <b-button size="sm" @click="episode.purchased ? view() : purchase()"
+                  :variant="episode.purchased ? 'outline-primary' : 'primary'"
+                  style="width: 200px; float: right">
           {{buttonText}}
         </b-button>
       </b-col>
@@ -20,7 +24,7 @@
     props: ['content_id', 'episode'],
     computed: {
       buttonText() {
-        return this.episode.purchased ? 'view' : `${this.$utils.toPXL(this.episode.price)} PXL`;
+        return this.episode.purchased ? '소장중' : `${this.$utils.toPXL(this.episode.price)} PXL 소장하기`;
       }
     },
     data() {
@@ -52,12 +56,12 @@
 </script>
 
 <style scoped>
-  img {
+  .thumbnail {
     width: 100%;
-  }
-
-  .episode {
-    display: block;
-    padding: 2px;
+    max-height: 140px;
+    border-radius: 0.5rem;
+    background-position: center;
+    background-size: cover;
+    background-color: #e8e8e8;
   }
 </style>
