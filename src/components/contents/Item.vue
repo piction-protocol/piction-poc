@@ -1,16 +1,18 @@
 <template>
-  <router-link :to="{ name: 'episodes', params: { content_id: content.id }}" class="comic">
-    <b-card :title="content.title"
-            :img-src="content.thumbnail"
-            img-alt="Image"
-            img-top
-            tag="article"
-            style="max-width: 20rem;"
-            class="mb-2">
-      <p class="card-text">
-        {{content.synopsis}}
-      </p>
-    </b-card>
+  <router-link :to="{ name: 'episodes', params: { content_id: content.id }}">
+    <b-row style="margin-bottom: 8px">
+      <b-col cols="3">
+        <img :src="content.thumbnail" class="thumbnail"/>
+      </b-col>
+      <b-col style="padding: 15px">
+        <div>
+          <h5>{{content.title}}</h5>
+          <p>{{content.synopsis}}</p>
+          <b-badge variant="success">{{content.genres}}</b-badge>
+        </div>
+      </b-col>
+    </b-row>
+    <hr>
   </router-link>
 </template>
 
@@ -25,8 +27,19 @@
 </script>
 
 <style scoped>
-  .comic {
-    display: inline-block;
-    margin: 7px;
+  .thumbnail {
+    width: 100%;
+    border-radius: 0.5rem;
+    background-position: center;
+    background-size: cover;
+    background-color: #e8e8e8;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  a:hover {
+    text-decoration: inherit;
   }
 </style>
