@@ -17,11 +17,25 @@
         Enter at least 3 letters
       </b-form-invalid-feedback>
     </b-input-group>
+    <hr>
+    <b-row>
+      <b-col>
+        <ContentDeposit/>
+      </b-col>
+      <b-col>
+        <ReportDeposit/>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
 <script>
+  import ContentDeposit from './ContentDeposit'
+  import ReportDeposit from './ReportDeposit'
+  import {BigNumber} from 'bignumber.js';
+
   export default {
+    components: {ContentDeposit, ReportDeposit},
     computed: {
       nameState() {
         return this.name && this.name.length > 2 ? true : false
@@ -30,7 +44,7 @@
     data() {
       return {
         registered: true,
-        name: null
+        name: null,
       }
     },
     methods: {

@@ -1,6 +1,5 @@
 <template>
   <div role="group">
-    <h5>작품 신고 처리 결과</h5>
     <b-alert show variant="secondary">
       <div>정상적인 신고의 경우 보상으로 일정 PXL이 지급됩니다.</div>
       <div>허위 신고의 경우 신고 예치금이 차감 되거나, 신고 활동이 일시 중단될 수 있습니다.</div>

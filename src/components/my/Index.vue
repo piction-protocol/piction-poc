@@ -1,8 +1,10 @@
 <template>
   <div>
     <b-nav tabs>
-      <router-link active-class="active" class="nav-link" to="/my" exact>Info</router-link>
-      <router-link active-class="active" class="nav-link" to="/my/contents" exact>Contents</router-link>
+      <router-link active-class="active" class="nav-link" :to="{name: 'account'}" exact>내 정보</router-link>
+      <router-link active-class="active" class="nav-link" :to="{name: 'payback-pool'}" exact>작품 구매 보상</router-link>
+      <router-link active-class="active" class="nav-link" :to="{name: 'my-reports'}" exact>신고 처리 내역</router-link>
+      <router-link active-class="active" class="nav-link" :to="{name: 'my-contents'}" exact>내 작품</router-link>
     </b-nav>
     <br>
     <router-view/>

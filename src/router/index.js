@@ -16,7 +16,9 @@ import FundNew from '@/components/funds/New'
 import FundShow from '@/components/funds/Show'
 // my
 import MyIndex from '@/components/my/Index'
-import MyInfoIndex from '@/components/my/info/Index'
+import AccountIndex from '@/components/my/account/Index'
+import PayckbackPoolIndex from '@/components/my/paybackpool/Index'
+import MyReportIndex from '@/components/my/reports/Index'
 import MyContentsIndex from '@/components/my/contents/Index'
 // council
 import CouncilIndex from '@/components/council/Index'
@@ -47,7 +49,9 @@ const router = new Router({
     {
       path: '/my', component: MyIndex,
       children: [
-        {path: '', name: 'my', component: MyInfoIndex},
+        {path: '', name: 'account', component: AccountIndex},
+        {path: 'payback-pool', name: 'payback-pool', component: PayckbackPoolIndex},
+        {path: 'my-reports', name: 'my-reports', component: MyReportIndex},
         {path: 'contents', name: 'my-contents', component: MyContentsIndex},
       ]
     },

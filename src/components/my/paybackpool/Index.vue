@@ -1,6 +1,5 @@
 <template>
   <div role="group">
-    <h5>작품 구매 보상 지급 코인</h5>
     <b-alert show variant="secondary">
       <div>작품을 구매하게 되면 보상으로 일정 PXL이 지급됩니다.</div>
       <div>지급 된 PXL은 <span class="text-danger font-weight-bold">지급일시가 지나야 출금이 가능</span>합니다.</div>
