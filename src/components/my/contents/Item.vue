@@ -24,12 +24,14 @@
       <div align="center">
         <b-button v-if="fundable" variant="primary" @click="addFund">Add Fund</b-button>
         <b-button variant="primary" @click="addEpisode">Add Episode</b-button>
+        <b-button :disabled="releaseable" variant="primary" @click="release">Release</b-button>
       </div>
     </b-card>
   </div>
 </template>
 
 <script>
+  import {BigNumber} from 'bignumber.js';
   import moment from 'moment';
   import {Datetime} from 'vue-datetime';
 
@@ -38,7 +40,8 @@
     data() {
       return {
         funds: [],
-        fundable: false
+        fundable: false,
+        releaseable: true,
       }
     },
     methods: {
@@ -47,6 +50,15 @@
       },
       addEpisode: function () {
         this.$router.push({name: 'new-episode', params: {content_id: this.content.id}})
+      },
+      release: async function () {
+        this.$loading('loading...');
+        try {
+          await this.$contract.depositPool.release(this.content.id);
+        } catch (e) {
+          alert(e);
+        }
+        window.location.reload();
       }
     },
     async created() {
@@ -67,6 +79,10 @@
       });
       if (funds.length == 0) {
         this.fundable = true;
+      }
+      let deposit = await this.$contract.depositPool.getDeposit(this.content.id)
+      if (BigNumber(deposit).gt(0)) {
+        this.releaseable = false;
       }
     }
   }
