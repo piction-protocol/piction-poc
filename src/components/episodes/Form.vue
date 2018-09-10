@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-form @submit="onSubmit">
-      <b-form-group label="Title:"
+      <b-form-group label="회차명:"
                     label-for="title"
                     description="">
         <b-form-input id="title"
@@ -9,11 +9,11 @@
                       required
                       type="text"
                       v-model="record.title"
-                      placeholder="Enter title">
+                      placeholder="회차명을 입력하세요">
         </b-form-input>
       </b-form-group>
 
-      <b-form-group label="Thumbnail:"
+      <b-form-group label="썸네일:"
                     label-for="thumbnail"
                     description="">
         <img class="preview-thumbnail form-control"
@@ -24,10 +24,10 @@
                      :required="action == 'new'"
                      @change="onChangeThumbnail"
                      :state="Boolean(record.thumbnail)"
-                     placeholder="Click here upload image"></b-form-file>
+                     placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
       </b-form-group>
 
-      <b-form-group label="Cuts:"
+      <b-form-group label="웹툰 이미지:"
                     label-for="cuts"
                     description="">
         <div v-if="record.cuts.length > 0" class="preview-cuts form-control">
@@ -41,10 +41,10 @@
                      :required="action == 'new'"
                      @change="addCut"
                      :state="record.cuts.length > 0"
-                     placeholder="Click here upload cuts"></b-form-file>
+                     placeholder="클릭해서 웹툰 이미지를 등록하세요"></b-form-file>
       </b-form-group>
 
-      <b-form-group label="Price:"
+      <b-form-group label="판매가격:"
                     label-for="price"
                     description="">
         <b-form-input id="price"
@@ -52,7 +52,7 @@
                       required
                       type="number"
                       v-model="record.price"
-                      placeholder="Set price">
+                      placeholder="판매 가격을 입력하세요">
         </b-form-input>
       </b-form-group>
       <div align="center">

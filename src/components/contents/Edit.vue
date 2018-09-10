@@ -3,7 +3,7 @@
     <Form
       :record="record"
       action="edit"
-      submitText="Edit"
+      submitText="작품수정"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>

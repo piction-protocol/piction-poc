@@ -8,7 +8,7 @@
         <div>
           <h5>{{content.title}}</h5>
           <p>{{content.synopsis}}</p>
-          <b-badge variant="success">{{content.genres}}</b-badge>
+          <h5><b-badge variant="success">{{content.genres}}</b-badge></h5>
         </div>
       </b-col>
     </b-row>

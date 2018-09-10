@@ -1,13 +1,16 @@
 <template>
   <div>
-    <h4>Supporter Pool
+    <h5>모집금액 회수 현황
       <b-button v-if="!isCreated && isSupported" variant="primary" size="sm" @click="createSupporterPool">create
       </b-button>
       <b-button v-if="isCreated && isSupported" :disabled="distributableAmount == 0" variant="primary" size="sm"
-                @click="distribution">{{distributableAmount}}PXL distribution
+                @click="distribution">{{distributableAmount}}PXL 회수
       </b-button>
-    </h4>
-    <b-table striped hover :fields="fields" :items="computedDistributions" :small="true">
+    </h5>
+    <b-table striped hover
+             :fields="fields"
+             :items="computedDistributions"
+             :small="true">
       <template slot="amount" slot-scope="row">{{row.value}}</template>
       <template slot="distributionTime" slot-scope="row">{{row.value}}</template>
       <template slot="distributedTime" slot-scope="row">{{row.value}}</template>
@@ -57,10 +60,10 @@
     data() {
       return {
         fields: [
-          {key: 'amount', label: 'Amount'},
-          {key: 'distributionTime', label: 'Distribution Time'},
-          {key: 'distributedTime', label: 'Distributed Time'},
-          {key: 'state', label: 'State'},
+          {key: 'amount', label: '회수금액'},
+          {key: 'distributionTime', label: '회수가능일시'},
+          {key: 'distributedTime', label: '회수일시'},
+          {key: 'state', label: '회수상태'},
           {key: 'vote', label: 'Vote'},
         ],
         distributions: [],
@@ -99,11 +102,11 @@
       },
       getStateString: function (state) {
         if (state == 0) {
-          return 'PENDING';
+          return '지급대기';
         } else if (state == 1) {
-          return 'PAID';
+          return '지급완료';
         } else if (state == 2) {
-          return 'CANCEL_PAYMENT';
+          return '지급연기';
         } else {
           return null
         }

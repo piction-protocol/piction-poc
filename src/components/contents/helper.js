@@ -9,10 +9,10 @@ export function record() {
 }
 
 export const genres = [
-  {text: 'Action', value: 'Action'},
-  {text: 'Mellow', value: 'Mellow'},
-  {text: 'Drama', value: 'Drama'},
-  {text: 'Fantasy', value: 'Fantasy'},
+  {text: '액션', value: '액션'},
+  {text: '멜로', value: '멜로'},
+  {text: '드라마', value: '드라마'},
+  {text: '판타지', value: '판타지'},
   {text: 'BL', value: 'BL'},
-  {text: 'Adult', value: 'Adult'},
+  {text: '성인', value: '성인'},
 ]

@@ -1,14 +1,14 @@
 <template>
   <div>
-    <h3>{{content ? content.title : ''}}</h3>
-    <b-alert show>
+    <h5>{{content ? content.title : ''}}</h5>
+    <b-alert show variant="secondary">
       <div>{{fund.detail}}</div>
       <hr>
-      <div><b>Amount raised : {{$utils.toPXL(fund.fundRise)}} PXL</b></div>
-      <div>{{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}</div>
-      <div>Number of distributions : {{fund.poolSize}}</div>
-      <div>Distribution interval : {{fund.releaseInterval / (60 * 60 * 1000)}} hour</div>
-      <div>Reward distribution rate : {{fund.distributionRate / Math.pow(10, 18) * 100}}%</div>
+      <div><b>모집금액: {{$utils.toPXL(fund.fundRise)}} PXL</b></div>
+      <div>모집기간: {{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}</div>
+      <div>분배횟수: {{fund.poolSize}}</div>
+      <div>분배간격: {{fund.releaseInterval / (60 * 60 * 1000)}} 시간</div>
+      <div>분배비율: {{fund.distributionRate / Math.pow(10, 18) * 100}}%</div>
     </b-alert>
     <Supporters :fund_id="fund_id" :supportable="supportable"/>
     <SupporterPool v-if="fund.id" :fund="fund"/>

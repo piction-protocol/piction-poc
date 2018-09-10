@@ -3,7 +3,7 @@
     <Form
       :record="record"
       action="new"
-      submitText="Create"
+      submitText="작품등록"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>
@@ -23,9 +23,8 @@
       async onSubmit(record) {
         this.$loading('Uploading...');
         try {
-          let contract = await this.$contract.contentsManager.addContents(record);
-          let address = contract.events['RegisterContents'].returnValues._contentAddress;
-          this.$router.push({name: 'show-content', params: {content_id: address}})
+          await this.$contract.contentsManager.addContents(record);
+          this.$router.push({name: 'contents'})
         } catch (e) {
           alert(e)
         }

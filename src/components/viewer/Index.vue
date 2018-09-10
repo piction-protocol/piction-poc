@@ -1,7 +1,7 @@
 <template>
   <div>
     <img v-for="cut in cuts" :src="cut"/>
-    <router-link class="back" :to="{ name: 'episodes', params: { content_id: content_id }}">list</router-link>
+    <router-link class="back" :to="{ name: 'episodes', params: { content_id: content_id }}">목록으로</router-link>
   </div>
 </template>
 

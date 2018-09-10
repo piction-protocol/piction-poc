@@ -27,12 +27,12 @@
     data() {
       return {
         fields: [
-          {key: 'title', label: 'Title'},
-          {key: 'ordinal', label: 'Ordinal'},
-          {key: 'fundTime', label: 'Fund TIme'},
-          {key: 'distributionRate', label: 'Distribution Rate'},
-          {key: 'fundRise', label: 'Fund Rise'},
-          {key: 'state', label: 'State'},
+          {key: 'title', label: '작품명'},
+          {key: 'ordinal', label: '기수'},
+          {key: 'fundTime', label: '모집기간'},
+          {key: 'distributionRate', label: '분배비율'},
+          {key: 'fundRise', label: '모집금액'},
+          {key: 'state', label: '진행상태'},
         ],
         funds: [],
       }
@@ -43,11 +43,11 @@
       },
       getState(obj) {
         if (obj.startTime > new Date().getTime()) {
-          return {'label': 'READY', 'variant': 'warning'};
+          return {'label': '대기', 'variant': 'warning'};
         } else if (obj.endTime > new Date().getTime()) {
-          return {'label': 'FUNDING', 'variant': 'success'};
+          return {'label': '진행중', 'variant': 'success'};
         } else {
-          return {'label': 'FUNDED', 'variant': 'secondary'};
+          return {'label': '완료', 'variant': 'secondary'};
         }
       },
       numberToOrdinalString(number) {

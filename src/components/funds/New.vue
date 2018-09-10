@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h3>{{content ? content.title : ''}}</h3>
+    <b-alert show variant="secondary">작품명: {{content ? content.title : ''}}</b-alert>
     <b-form @submit="onSubmit">
-      <b-form-group label="Start time:"
+      <b-form-group label="모집 시작 일시:"
                     label-for="startTime">
         <datetime
           id="startTime"
@@ -13,7 +13,7 @@
           input-class="form-control"></datetime>
       </b-form-group>
 
-      <b-form-group label="End time:"
+      <b-form-group label="모집 종료 일시:"
                     label-for="endTime">
         <datetime
           id="endTime"
@@ -24,7 +24,7 @@
           input-class="form-control"></datetime>
       </b-form-group>
 
-      <b-form-group :label="`Number of distributions: ${record.poolSize}`"
+      <b-form-group :label="`회수 횟수: ${record.poolSize}`"
                     label-for="poolSize"
                     description="">
         <b-form-input id="poolSize"
@@ -35,7 +35,7 @@
         </b-form-input>
       </b-form-group>
 
-      <b-form-group :label="`Distribution interval: ${record.interval} hours`"
+      <b-form-group :label="`회수 간격: ${record.interval} 시간`"
                     label-for="interval"
                     description="">
         <b-form-input id="interval"
@@ -46,33 +46,33 @@
         </b-form-input>
       </b-form-group>
 
-      <b-form-group :label="`Reward distribution rate: ${$utils.toPercent(record.distributionRate)}%`"
+      <b-form-group :label="`보상 분배 비율: ${$utils.toPercent(record.distributionRate)}%`"
                     label-for="distributionRate"
                     description="">
         <b-form-input id="distributionRate"
                       required
                       type="range"
                       v-model="record.distributionRate"
-                      min="0.01" max="1" step="0.01">
+                      min="0.01" max="0.5" step="0.001">
         </b-form-input>
       </b-form-group>
 
-      <b-form-group label="Description:"
+      <b-form-group label="서포터들에게 한마디:"
                     label-for="description"
                     description="">
         <b-form-textarea id="description"
                          required
                          type="text"
                          v-model="record.description"
-                         placeholder="Enter description"
+                         placeholder=""
                          :rows="2"
                          :max-rows="3">
         </b-form-textarea>
       </b-form-group>
-
+      <hr>
       <div align="center">
-        <b-button type="submit" variant="dark" @click="$router.go(-1)">Back</b-button>
-        <b-button type="submit" variant="primary">Submit</b-button>
+        <b-button type="submit" variant="dark" @click="$router.go(-1)">이전</b-button>
+        <b-button type="submit" variant="primary">투자등록</b-button>
       </div>
     </b-form>
   </div>
