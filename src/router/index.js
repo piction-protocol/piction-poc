@@ -20,6 +20,7 @@ import AccountIndex from '@/components/my/account/Index'
 import PayckbackPoolIndex from '@/components/my/paybackpool/Index'
 import MyReportIndex from '@/components/my/reports/Index'
 import MyContentsIndex from '@/components/my/contents/Index'
+import MyContentsShow from '@/components/my/contents/Show'
 // council
 import CouncilIndex from '@/components/council/Index'
 
@@ -52,7 +53,12 @@ const router = new Router({
         {path: '', name: 'account', component: AccountIndex},
         {path: 'payback-pool', name: 'payback-pool', component: PayckbackPoolIndex},
         {path: 'my-reports', name: 'my-reports', component: MyReportIndex},
-        {path: 'contents', name: 'my-contents', component: MyContentsIndex},
+        {
+          path: 'contents', name: 'my-contents', component: MyContentsIndex,
+          children: [
+            {path: ':content_id', name: 'show-my-content', component: MyContentsShow, props: true},
+          ]
+        },
       ]
     },
     // council

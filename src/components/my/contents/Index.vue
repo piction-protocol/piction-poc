@@ -1,16 +1,21 @@
 <template>
   <div>
-    <Item v-for="content in contents"
-          :content="content"
-          :key="content.id"/>
+    <b-nav pills>
+      <router-link v-for="content in contents"
+                   :key="content.id"
+                   active-class="active" class="nav-link"
+                   :to="{name: 'show-my-content', params:{content_id: content.id}}"
+                   exact>
+        {{content.title}}
+      </router-link>
+    </b-nav>
+    <hr>
+    <router-view :key="$route.path"/>
   </div>
 </template>
 
 <script>
-  import Item from './Item'
-
   export default {
-    components: {Item},
     data() {
       return {
         contents: [],

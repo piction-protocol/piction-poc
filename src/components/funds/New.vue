@@ -106,7 +106,7 @@
             this.record.interval * hour,
             this.record.distributionRate,
             this.record.description);
-          this.$router.push({name: 'my-contents'})
+          this.$router.push({name: 'show-my-content', params: {content_id: this.content_id}});
         } catch (e) {
           alert(e);
         }
