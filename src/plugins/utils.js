@@ -3,6 +3,13 @@ import BigNumber from 'bignumber.js'
 
 const Utils = {
   install(Vue, options) {
+
+    Array.prototype.asyncForEach = async function (fn) {
+      for (let i = 0; i < this.length; i++) {
+        await fn(this[i], i);
+      }
+    };
+
     Vue.prototype.$utils = {
       getImageDimensions(dataUri) {
         return new Promise((resolved, rejected) => {

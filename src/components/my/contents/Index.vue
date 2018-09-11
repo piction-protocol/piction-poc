@@ -24,13 +24,15 @@
     methods: {},
     async created() {
       let contents = await this.$contract.contentsManager.getWriterContentsAddress(this.pictionAddress.account);
-      contents[0].forEach(async address => {
-        await this.$contract.contentInterface.getRecord(address).then(record => {
-          let content = JSON.parse(record);
-          content.id = address;
-          this.contents.push(content);
-        });
+      contents[0].reverse().asyncForEach(async address => {
+        let record = await this.$contract.contentInterface.getRecord(address);
+        let content = JSON.parse(record);
+        content.id = address;
+        await this.contents.push(content);
       });
+      if (contents[0].length > 0) {
+        this.$router.push({name: 'show-my-content', params: {content_id: contents[0][0]}})
+      }
     }
   }
 </script>

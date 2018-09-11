@@ -64,7 +64,7 @@
     },
     async created() {
       let contents = await this.$contract.contentsManager.getContents();
-      contents.forEach(async content => {
+      contents.reverse().asyncForEach(async content => {
         let contentRecord = await this.$contract.contentInterface.getRecord(content);
         let funds = await this.$contract.fundManager.getFunds(content);
         funds.forEach(async (fund, index) => {

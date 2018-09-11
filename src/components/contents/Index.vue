@@ -19,7 +19,7 @@
     methods: {},
     async created() {
       let contents = await this.$contract.contentsManager.getContents();
-      contents.forEach(async address => {
+      contents.reverse().asyncForEach(async address => {
         await this.$contract.contentInterface.getRecord(address).then(record => {
           let content = JSON.parse(record);
           content.id = address;

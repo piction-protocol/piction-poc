@@ -63,7 +63,7 @@
       this.items.push({text: `${this.content.title}`, active: true});
 
       let length = await this.$contract.contentInterface.getEpisodeLength(this.content_id);
-      Array(Number(length)).fill().forEach(async (i, index) => {
+      Array(Number(length)).fill().reverse().asyncForEach(async (i, index) => {
         let result = await this.$contract.contentInterface.getEpisodeDetail(this.content_id, index);
         let episodeRecord = JSON.parse(result[0])
         let price = Number(result[1]);
