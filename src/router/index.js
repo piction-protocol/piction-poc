@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '../store/index.js'
+// login
+import Login from '@/components/login/Index'
 // contents
 import ContentIndex from '@/components/contents/Index'
 import ContentNew from '@/components/contents/New'
@@ -29,7 +32,9 @@ Vue.use(Router)
 const router = new Router({
   mode: 'history',
   routes: [
-    {path: '/', redirect: '/contents'},
+    {path: '/', redirect: '/my'},
+    // login
+    {path: '/login', name: 'login', component: Login},
     // contents
     {path: '/contents', name: 'contents', component: ContentIndex},
     {path: '/contents/new', name: 'new-content', component: ContentNew},
@@ -73,6 +78,26 @@ const router = new Router({
       return {x: 0, y: 0}
     }
   }
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.name == 'login') {
+    if (store.getters.isLoggedIn) {
+      next(to.query.redirect);
+    } else {
+      next();
+    }
+  } else {
+    if (store.getters.isLoggedIn) {
+      next();
+    } else {
+      next({
+        path: '/login',
+        query: {redirect: to.fullPath}
+      });
+    }
+  }
+
 })
 
 export default router;

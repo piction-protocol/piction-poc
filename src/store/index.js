@@ -5,25 +5,29 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    accessToken: null,
+    token: localStorage.getItem('token') || null,
   },
-  getters: {},
+  getters: {
+    isLoggedIn: state => state.token != null,
+    token: state => state.token,
+    publicKey: state => state.token ? web3.eth.accounts.privateKeyToAccount(state.token).address : '0x0000000000000000000000000000000000000000'
+  },
   mutations: {
-    LOGIN(state, {accessToken}) {
-      state.accessToken = accessToken
+    LOGIN(state, token) {
+      state.token = token
     },
     LOGOUT(state) {
-      state.accessToken = null
+      state.token = null
     }
   },
   actions: {
-    LOGIN({commit}, {email, password}) {
-      // return axios.post(`${resourceHost}/login`, {email, password})
-      //   .then(({data}) => commit('LOGIN', data))
-      commit('LOGIN', null)
+    LOGIN({commit}, token) {
+      commit('LOGIN', token)
+      localStorage.setItem('token', token)
     },
     LOGOUT({commit}) {
       commit('LOGOUT')
+      localStorage.removeItem('token')
     },
   },
 })
