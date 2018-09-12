@@ -1,8 +1,8 @@
 class SupporterPool {
-  constructor(abi, from) {
+  constructor(abi, from, gas) {
     this._contract = new web3.eth.Contract(abi);
     this._contract.options.from = from;
-    this._contract.options.gas = 6000000;
+    this._contract.options.gas = gas;
   }
 
   getDistributions(address) {

@@ -2,10 +2,11 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Web3 from 'web3'
 
-var provider = new Web3.providers.HttpProvider("http://127.0.0.1:9545");
-window.web3 = new Web3(provider);
-// web3 = new Web3(web3.currentProvider);
+var provider = new Web3.providers.HttpProvider("https://private.piction.network:8545/");
+// var provider = new Web3.providers.HttpProvider("http://52.203.39.129:8545");
+web3 = new Web3(provider);
 import Vue from 'vue'
+import Vuex from 'vuex'
 import App from './App'
 import PictionNetworkPlugin from './plugins/piction-network-plugin'
 import FirebasePlugin from './plugins/firebase-plugin'
@@ -27,20 +28,26 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue);
 Vue.use(Datetime)
 Vue.use(Toast);
+Vue.use(Vuex);
+
+// web3.eth.accounts.wallet.add(`0x441CAA3B82A5ED3D67D96FCD6971491D1887C3B1B416A61D55D844DE48BF3FBF`);
 
 (async () => {
-  const accounts = await web3.eth.getAccounts();
-  if (accounts.length == 0) {
-    alert('Log in to the Metamask.')
+  if (store.getters.isLoggedIn) {
+    await web3.eth.accounts.wallet.add(store.getters.token);
+  } else {
+    console.log('not logged in')
   }
-  const network = '4447';
+
+  const network = '2880';
   const councilAddress = councilSource.networks[network].address;
   const council = new web3.eth.Contract(councilInterfaceSource.abi, councilAddress);
   const pictionAddress = {};
   pictionAddress.council = councilAddress;
-  pictionAddress.account = accounts[0].toLowerCase();
+  pictionAddress.account = store.getters.publicKey.toLowerCase();
   pictionAddress.pxl = await council.methods.getToken().call();
   pictionAddress.pixelDistributor = await council.methods.getPixelDistributor().call();
+  pictionAddress.userPaybackPool = await council.methods.getUserPaybackPool().call();
   pictionAddress.depositPool = await council.methods.getDepositPool().call();
   pictionAddress.contentsManager = await council.methods.getContentsManager().call();
   pictionAddress.fundManager = await council.methods.getFundManager().call();
@@ -49,6 +56,7 @@ Vue.use(Toast);
   const pictionValue = {}
   pictionValue.initialDeposit = Number(await council.methods.getInitialDeposit().call());
   pictionValue.reportRegistrationFee = Number(await council.methods.getReportRegistrationFee().call());
+  pictionValue.defaultGas = 4700000;
   console.log('pictionAddress', pictionAddress);
   console.log('pictionValue', pictionValue);
   Vue.use(PictionNetworkPlugin, pictionAddress, pictionValue);
@@ -77,9 +85,6 @@ Vue.use(Toast);
     components: {App},
     template: '<App/>',
     created() {
-      // web3.currentProvider.publicConfigStore.on('update', (provider) => {
-      //   if (this.account != provider.selectedAddress.toLowerCase()) this.reload();
-      // });
     }
   });
 })()

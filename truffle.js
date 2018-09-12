@@ -17,10 +17,10 @@ module.exports = {
       gasPrice: 100000000000
     },
     private: {
-      provider: new HDWalletProvider(process.env.PRIVATE_KEY, "http://52.203.39.129:8545/"),
-      network_id: 2323,
-      gas: 6000000,
-      gasPrice: 100000000000
+      provider: new HDWalletProvider(process.env.PRIVATE_KEY, "http://54.249.219.254:8545/"),
+      network_id: 2880,
+      gas: 0,
+      gasPrice: 0
     }
   }
 };

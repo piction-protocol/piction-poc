@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
 
 class ContentsManager {
-  constructor(abi, address, from) {
+  constructor(abi, address, from, gas) {
     this._contract = new web3.eth.Contract(abi, address);
     this._contract.options.from = from;
-    this._contract.options.gas = 6000000;
+    this._contract.options.gas = gas;
   }
 
   getContents() {

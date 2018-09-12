@@ -4,9 +4,6 @@ import pxlSource from '../../build/contracts/PXL.json'
 import AccountManager from './abi-class/AccountManager.js'
 import accountManagerSource from '../../build/contracts/AccountManager.json'
 
-import Content from './abi-class/Content.js'
-import contentSource from '../../build/contracts/Content.json'
-
 import ContentInterface from './abi-class/ContentInterface.js'
 import contentInterfaceSource from '../../build/contracts/ContentInterface.json'
 
@@ -44,70 +41,75 @@ const PictionNetworkPlugin = {
     Vue.prototype.$contract.pxl = new PXL(
       pxlSource.abi,
       pictionAddress.pxl,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.accountManager = new AccountManager(
       accountManagerSource.abi,
       pictionAddress.accountManager,
-      pictionAddress.account
-    )
-
-    Vue.prototype.$contract.content = new Content(
-      contentSource.abi,
       pictionAddress.account,
-      contentSource.bytecode
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.contentInterface = new ContentInterface(
       contentInterfaceSource.abi,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.contentsManager = new ContentsManager(
       contentsManagerSource.abi,
       pictionAddress.contentsManager,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.fund = new Fund(
       fundSource.abi,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.fundManager = new FundManager(
       fundManagerSource.abi,
       pictionAddress.fundManager,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.supporterPool = new SupporterPool(
       supporterPoolSource.abi,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.report = new Report(
       reportSource.abi,
       pictionAddress.report,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.depositPool = new DepositPool(
       depositPoolSource.abi,
       pictionAddress.depositPool,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.userPaybackPool = new UserPaybackPool(
       userPaybackPoolSource.abi,
       pictionAddress.userPaybackPool,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
 
     Vue.prototype.$contract.council = new Council(
       councilSource.abi,
       pictionAddress.council,
-      pictionAddress.account
+      pictionAddress.account,
+      pictionValue.defaultGas
     )
   }
 }
