@@ -40,7 +40,6 @@
     },
     methods: {
       async release() {
-        console.log('release')
         this.$loading('loading...');
         await this.$contract.userPaybackPool.release();
         window.location.reload();
