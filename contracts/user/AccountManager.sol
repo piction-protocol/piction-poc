@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "contracts/council/CouncilInterface.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+
+import "contracts/interface/ICouncil.sol";
 
 contract AccountManager {
 	using SafeERC20 for ERC20;
@@ -32,7 +33,7 @@ contract AccountManager {
 		addressToUserName[msg.sender] = _userName;
 
 		// POC airdrop
-		ERC20 token = ERC20(CouncilInterface(council).getToken());
+		ERC20 token = ERC20(ICouncil(council).getToken());
 		if (airdropAmount > 0 && token.balanceOf(address(this)) >= airdropAmount) {
 			token.safeTransfer(msg.sender, airdropAmount);
 		}

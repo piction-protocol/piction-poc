@@ -1,18 +1,20 @@
 pragma solidity ^0.4.24;
 
-import "contracts/supporter/SupporterPool.sol";
-import "contracts/council/CouncilInterface.sol";
-import "contracts/supporter/FundInterface.sol";
-import "contracts/token/ContractReceiver.sol";
-import "contracts/utils/ExtendsOwnable.sol";
-import "contracts/utils/ValidValue.sol";
-import "contracts/utils/TimeLib.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
+import "contracts/interface/ICouncil.sol";
+import "contracts/interface/IFund.sol";
+import "contracts/interface/IContractReceiver.sol";
+
+import "contracts/supporter/SupporterPool.sol";
+import "contracts/utils/ExtendsOwnable.sol";
+import "contracts/utils/ValidValue.sol";
+import "contracts/utils/TimeLib.sol";
+
+contract Fund is IContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	using Math for uint256;
 	using SafeMath for uint256;
 	using SafeERC20 for ERC20;
@@ -78,7 +80,7 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 	function support(address _from, uint256 _value, address _token) private {
 		require(TimeLib.currentTime().between(startTime, endTime));
 
-		ERC20 token = ERC20(CouncilInterface(council).getToken());
+		ERC20 token = ERC20(ICouncil(council).getToken());
 		require(address(token) == _token);
 
 		(uint256 index, bool success) = findSupporterIndex(_from);
@@ -102,7 +104,7 @@ contract Fund is ContractReceiver, FundInterface, ExtendsOwnable, ValidValue {
 		setDistributionRate();
 		supporterPool = new SupporterPool(council, address(this), writer, fundRise, poolSize, releaseInterval);
 
-		ERC20 token = ERC20(CouncilInterface(council).getToken());
+		ERC20 token = ERC20(ICouncil(council).getToken());
 		token.safeTransfer(supporterPool, fundRise);
 	}
 

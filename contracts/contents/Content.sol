@@ -2,12 +2,13 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+import "contracts/interface/IContent.sol";
+
 import "contracts/access/RoleManager.sol";
-import "contracts/contents/ContentInterface.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
-contract Content is ContentInterface, ExtendsOwnable, ValidValue {
+contract Content is IContent, ExtendsOwnable, ValidValue {
     using SafeMath for uint256;
 
     struct Episode {

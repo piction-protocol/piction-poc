@@ -4,17 +4,16 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/token/ContractReceiver.sol";
-import "contracts/council/CouncilInterface.sol";
-
-import "contracts/report/ReportInterface.sol";
-import "contracts/deposit/DepositPoolInterface.sol";
+import "contracts/interface/IContractReceiver.sol";
+import "contracts/interface/ICouncil.sol";
+import "contracts/interface/IReport.sol";
+import "contracts/interface/IDepositPool.sol";
 
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
 
-contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface {
+contract Report is ExtendsOwnable, ValidValue, IContractReceiver, IReport {
 
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
@@ -22,7 +21,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     uint256 DECIMALS = 10 ** 18;
 
     //위원회
-    CouncilInterface council;
+    ICouncil council;
 
     //유저 등록금
     // amount 등록금의 양
@@ -55,7 +54,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, ReportInterface
     * @param _councilAddress 위원회 주소
     */
     constructor(address _councilAddress) public validAddress(_councilAddress) {
-        council = CouncilInterface(_councilAddress);
+        council = ICouncil(_councilAddress);
     }
 
     /**

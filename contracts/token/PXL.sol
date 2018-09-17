@@ -3,8 +3,9 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/token/CustomToken.sol";
-import "contracts/token/ContractReceiver.sol";
+import "contracts/interface/ICustomToken.sol";
+import "contracts/interface/IContractReceiver.sol";
+
 import "contracts/utils/ExtendsOwnable.sol";
 
 /**
@@ -13,7 +14,7 @@ import "contracts/utils/ExtendsOwnable.sol";
  * @author Charls Kim - <cs.kim@battleent.com>
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
  */
-contract PXL is StandardToken, CustomToken, ExtendsOwnable {
+contract PXL is StandardToken, ICustomToken, ExtendsOwnable {
     using SafeMath for uint256;
 
     // PXL 토큰 기본 정보
@@ -72,7 +73,7 @@ contract PXL is StandardToken, CustomToken, ExtendsOwnable {
     /**
      * @dev PXL 전송과 데이터를 함께 사용하는 함수
      *
-     * @notice CustomToken 인터페이스 활용
+     * @notice ICustomToken 인터페이스 활용
      * @notice _to 주소가 컨트랙트인 경우만 사용 가능
      * @notice 토큰과 데이터를 받으려면 해당 컨트랙트에 receiveApproval 함수 구현 필요
      * @param _to 토큰을 전송하고 함수를 실행할 컨트랙트 주소
@@ -85,7 +86,7 @@ contract PXL is StandardToken, CustomToken, ExtendsOwnable {
         require(balances[msg.sender] >= _value);
 
         if(approve(_to, _value) && isContract(_to)) {
-            ContractReceiver receiver = ContractReceiver(_to);
+            IContractReceiver receiver = IContractReceiver(_to);
             receiver.receiveApproval(msg.sender, _value, address(this), _data);
             emit ApproveAndCall(msg.sender, _to, _value, _data);
 

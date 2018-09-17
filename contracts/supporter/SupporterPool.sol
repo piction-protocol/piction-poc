@@ -1,12 +1,14 @@
 pragma solidity ^0.4.24;
 
-import "contracts/council/CouncilInterface.sol";
-import "contracts/supporter/FundInterface.sol";
-import "contracts/utils/TimeLib.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
+import "contracts/interface/ICouncil.sol";
+
+import "contracts/interface/IFund.sol";
+import "contracts/utils/TimeLib.sol";
 
 contract SupporterPool is Ownable {
 	using SafeERC20 for ERC20;
@@ -28,7 +30,7 @@ contract SupporterPool is Ownable {
 	address council;
 	address writer;
 	uint256 interval;
-	FundInterface fundInterface;
+	IFund fundInterface;
 
 	constructor(
 		address _council,
@@ -39,7 +41,7 @@ contract SupporterPool is Ownable {
 		uint256 _interval)
 	public {
 		council = _council;
-		fundInterface = FundInterface(_fundInterface);
+		fundInterface = IFund(_fundInterface);
 		writer = _writer;
 		interval = _interval;
 		initialize(_amount, _size);
@@ -74,7 +76,7 @@ contract SupporterPool is Ownable {
 	}
 
 	function distribution() external {
-		ERC20 token = ERC20(CouncilInterface(council).getToken());
+		ERC20 token = ERC20(ICouncil(council).getToken());
 		for (uint256 i = 0; i < distributions.length; i++) {
 			if (distributable(distributions[i])) {
 				distributions[i].distributedTime = TimeLib.currentTime();

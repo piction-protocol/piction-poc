@@ -1,18 +1,18 @@
 pragma solidity ^0.4.24;
 
+import "contracts/interface/ICouncil.sol";
+import "contracts/interface/IReport.sol";
+import "contracts/interface/IDepositPool.sol";
+
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/council/CouncilInterface.sol";
-
-import "contracts/report/ReportInterface.sol";
-import "contracts/deposit/DepositPoolInterface.sol";
 
 /**
  * @title Council contract
  *
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
-contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
+contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     struct PictionValue {
         uint256 initialDeposit;
@@ -139,14 +139,14 @@ contract Council is ExtendsOwnable, ValidValue, CouncilInterface {
         uint256 resultAmount;
         bool valid;
         if (_deductionRate > 0) {
-            resultAmount = ReportInterface(pictionAddress.report).deduction(_reporter, _deductionRate, (_deductionRate/(10 ** 16)) >= 50 ? true:false);
+            resultAmount = IReport(pictionAddress.report).deduction(_reporter, _deductionRate, (_deductionRate/(10 ** 16)) >= 50 ? true:false);
             valid = false;
         } else {
-            resultAmount = DepositPoolInterface(pictionAddress.depositPool).reportReward(_content, _reporter);
+            resultAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
             valid = true;
         }
 
-        ReportInterface(pictionAddress.report).completeReport(_index, valid, resultAmount);
+        IReport(pictionAddress.report).completeReport(_index, valid, resultAmount);
 
         emit Judge(_index, _content, _reporter, _deductionRate);
     }

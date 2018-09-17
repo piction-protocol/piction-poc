@@ -1,13 +1,14 @@
 pragma solidity ^0.4.24;
 
-import "contracts/contents/ContentInterface.sol";
-import "contracts/supporter/FundManagerInterface.sol";
-import "contracts/council/CouncilInterface.sol";
+import "contracts/interface/IContent.sol";
+import "contracts/interface/IFundManager.sol";
+import "contracts/interface/ICouncil.sol";
+
 import "contracts/supporter/Fund.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
 
-contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
+contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 	using TimeLib for *;
 
 	mapping(address => address[]) funds;
@@ -27,7 +28,7 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
 		uint256 _distributionRate,
 		string _detail)
 	external {
-		require(ContentInterface(_content).getWriter() == _writer);
+		require(IContent(_content).getWriter() == _writer);
 		require(getLastFundedTime(_content) < TimeLib.currentTime());
 
 		Fund fund = new Fund(
@@ -61,8 +62,8 @@ contract FundManager is FundManagerInterface, ExtendsOwnable, ValidValue {
 
 	function distribution(address _fund, uint256 _total) external returns (address[], uint256[]) {
 		require(
-			msg.sender == CouncilInterface(council).getPixelDistributor()
-			|| msg.sender == CouncilInterface(council).getDepositPool());
+			msg.sender == ICouncil(council).getPixelDistributor()
+			|| msg.sender == ICouncil(council).getDepositPool());
 
 		return Fund(_fund).distribution(_total);
 	}

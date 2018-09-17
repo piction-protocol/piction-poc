@@ -5,16 +5,17 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-import "contracts/token/CustomToken.sol";
-import "contracts/council/CouncilInterface.sol";
-import "contracts/contents/ContentInterface.sol";
-import "contracts/marketer/MarketerInterface.sol";
-import "contracts/token/ContractReceiver.sol";
-import "contracts/supporter/FundManagerInterface.sol";
+import "contracts/interface/ICustomToken.sol";
+import "contracts/interface/ICouncil.sol";
+import "contracts/interface/IContent.sol";
+import "contracts/interface/IMarketer.sol";
+import "contracts/interface/IContractReceiver.sol";
+import "contracts/interface/IFundManager.sol";
+
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
 
-contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
+contract PxlDistributor is Ownable, IContractReceiver, ValidValue {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     using BytesLib for bytes;
@@ -30,14 +31,14 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     uint256 public constant PURCHASE_PARAM_COUNT = 9;
 
     ERC20 token;
-    CouncilInterface council;
+    ICouncil council;
     DistributionDetail[] distribution;
 
     constructor(address _councilAddr)
         public
         validAddress(_councilAddr)
     {
-        council = CouncilInterface(_councilAddr);
+        council = ICouncil(_councilAddr);
         token = ERC20(council.getToken());
     }
 
@@ -107,7 +108,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             if(compareAmount > 0) {
                 distribution.push(
                     DistributionDetail(
-                        ContentInterface(contentAddr).getWriter(), compareAmount, false, address(0))
+                        IContent(contentAddr).getWriter(), compareAmount, false, address(0))
                 );
                 compareAmount = 0;
             }
@@ -124,7 +125,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         }
 
         // update episode purchase
-        ContentInterface(contentAddr).episodePurchase(idx, _from, _value);
+        IContent(contentAddr).episodePurchase(idx, _from, _value);
     }
 
     function supportersAmount(address _content, uint256 _amount)
@@ -133,7 +134,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     {
         uint256 amount = _amount;
 
-        FundManagerInterface fund = FundManagerInterface(council.getFundManager());
+        IFundManager fund = IFundManager(council.getFundManager());
         address[] memory fundAddress = fund.getFunds(_content);
 
         for(uint256 i = 0 ; i < fundAddress.length ; i ++){
@@ -171,7 +172,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         view
         returns (uint256 rate)
     {
-        uint256 contentRate = ContentInterface(_content).getMarketerRate();
+        uint256 contentRate = IContent(_content).getMarketerRate();
 
         rate = (contentRate > 0) ? contentRate : council.getMarketerDefaultRate();
     }
@@ -181,7 +182,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         private
     {
         if(_isCustom) {
-            CustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
+            ICustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
         } else {
             token.safeTransfer(_to, _amount);
         }

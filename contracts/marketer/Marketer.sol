@@ -1,16 +1,16 @@
 pragma solidity ^0.4.24;
 
-import "contracts/marketer/MarketerInterface.sol";
+import "contracts/interface/IMarketer.sol";
 
 /**
  * @title Marketer contract
  *
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
-contract Marketer is MarketerInterface {
+contract Marketer is IMarketer {
     mapping (bytes32 => address) marketerInfo;
 
-    function generateMarketerKey() public returns(bytes32) {
+    function generateMarketerKey() external returns(bytes32) {
         bytes32 key = bytes32(keccak256(abi.encodePacked(msg.sender)));
         return key;
     }
@@ -19,7 +19,7 @@ contract Marketer is MarketerInterface {
         marketerInfo[_key] = msg.sender;
     }
 
-    function getMarketerAddress(bytes32 _key) public view returns(address) {
+    function getMarketerAddress(bytes32 _key) external view returns(address) {
         return marketerInfo[_key];
     }
 }

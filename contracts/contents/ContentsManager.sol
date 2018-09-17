@@ -4,14 +4,15 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/token/ContractReceiver.sol";
-import "contracts/token/CustomToken.sol";
-import "contracts/council/CouncilInterface.sol";
+import "contracts/interface/IContractReceiver.sol";
+import "contracts/interface/ICustomToken.sol";
+import "contracts/interface/ICouncil.sol";
+
 import "contracts/contents/Content.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
 
-contract ContentsManager is ContractReceiver, ValidValue {
+contract ContentsManager is IContractReceiver, ValidValue {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
@@ -19,14 +20,14 @@ contract ContentsManager is ContractReceiver, ValidValue {
     mapping (address => uint256[]) writerContents;
 
     address[] public contentsAddress;
-    CouncilInterface council;
+    ICouncil council;
     ERC20 token;
 
     constructor(address _councilAddr)
         public
         validAddress(_councilAddr)
     {
-        council = CouncilInterface(_councilAddr);
+        council = ICouncil(_councilAddr);
         token = ERC20(council.getToken());
     }
 
@@ -106,7 +107,7 @@ contract ContentsManager is ContractReceiver, ValidValue {
         require(token.balanceOf(address(this)) >= initialDeposit[_writer]);
         require(council.getDepositPool() != address(0));
 
-        CustomToken(address(token)).approveAndCall(
+        ICustomToken(address(token)).approveAndCall(
             council.getDepositPool(),
             initialDeposit[_writer],
             BytesLib.toBytes(_content));

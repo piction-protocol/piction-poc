@@ -4,12 +4,13 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/token/ContractReceiver.sol";
+import "contracts/interface/IContractReceiver.sol";
+import "contracts/interface/ICouncil.sol";
+
+import "contracts/access/RoleManager.sol";
 import "contracts/utils/ValidValue.sol";
-import "contracts/council/CouncilInterface.sol";
 import "contracts/utils/TimeLib.sol";
 import "contracts/utils/ExtendsOwnable.sol";
-import "contracts/access/RoleManager.sol";
 import "contracts/utils/BytesLib.sol";
 
 
@@ -19,7 +20,7 @@ import "contracts/utils/BytesLib.sol";
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
 
-contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
+contract UserPaybackPool is ExtendsOwnable, IContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using TimeLib for *;
@@ -34,7 +35,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
     PaybackPool[] paybackPool;
 
-    CouncilInterface council;
+    ICouncil council;
 
     uint256 currentIndex;
     uint256 releaseInterval;
@@ -49,7 +50,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         validAddress(_councilAddress)
         validRange(_createPoolInterval)
     {
-        council = CouncilInterface(_councilAddress);
+        council = ICouncil(_councilAddress);
         createPoolInterval = _createPoolInterval * 1 seconds;
         releaseInterval = 10 minutes;//600000; //for test 10min
     }

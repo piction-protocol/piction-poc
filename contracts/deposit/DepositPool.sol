@@ -4,12 +4,13 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/contents/ContentInterface.sol";
-import "contracts/token/ContractReceiver.sol";
-import "contracts/council/CouncilInterface.sol";
-import "contracts/deposit/DepositPoolInterface.sol";
-import "contracts/report/ReportInterface.sol";
-import "contracts/supporter/FundManagerInterface.sol";
+import "contracts/interface/IContent.sol";
+import "contracts/interface/IContractReceiver.sol";
+import "contracts/interface/ICouncil.sol";
+import "contracts/interface/IDepositPool.sol";
+import "contracts/interface/IReport.sol";
+import "contracts/interface/IFundManager.sol";
+
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
@@ -20,7 +21,7 @@ import "contracts/utils/BytesLib.sol";
  *      신고자에 대한 보상으로 특정 금액을 전송.
  *      작품 완결 시 서포터 정산 후 작가에게 잔액 전송.
  */
-contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoolInterface {
+contract DepositPool is ExtendsOwnable, ValidValue, IContractReceiver, IDepositPool {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using BytesLib for bytes;
@@ -28,7 +29,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
 
     uint256 DECIMALS = 10 ** 18;
 
-    CouncilInterface council;
+    ICouncil council;
     mapping (address => uint256) contentDeposit;
 
     /**
@@ -36,7 +37,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     * @param _councilAddress 위원회 주소
     */
     constructor(address _councilAddress) public validAddress(_councilAddress) {
-        council = CouncilInterface(_councilAddress);
+        council = ICouncil(_councilAddress);
     }
 
     /**
@@ -121,14 +122,14 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, DepositPoo
     */
     function release(address _content) validAddress(_content) external {
         //신고 건이 있으면 완결처리되지 않음
-        require(ReportInterface(council.getReport()).getUncompletedReport(_content) == 0);
+        require(IReport(council.getReport()).getUncompletedReport(_content) == 0);
         require(contentDeposit[_content] > 0);
-        address writer = ContentInterface(_content).getWriter();
+        address writer = IContent(_content).getWriter();
         require(writer == msg.sender);
         ERC20 token = ERC20(council.getToken());
         require(token.balanceOf(address(this)) >= contentDeposit[_content]);
 
-        FundManagerInterface fund = FundManagerInterface(council.getFundManager());
+        IFundManager fund = IFundManager(council.getFundManager());
 
         address[] memory fundAddress = fund.getFunds(_content);
 

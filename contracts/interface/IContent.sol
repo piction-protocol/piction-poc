@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-contract ContentInterface {
+contract IContent {
     function updateContent(string _record, uint256 _marketerRate) external;
     function addEpisode(string _record, string _cuts, uint256 _price) external;
     function updateEpisode(uint256 _index, string _record, string _cuts, uint256 _price) external;
