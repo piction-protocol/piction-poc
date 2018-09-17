@@ -4,16 +4,16 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/interface/IContractReceiver.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IReport.sol";
 import "contracts/interface/IDepositPool.sol";
 
+import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
 
-contract Report is ExtendsOwnable, ValidValue, IContractReceiver, IReport {
+contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
 
     using SafeMath for uint256;
     using SafeERC20 for ERC20;

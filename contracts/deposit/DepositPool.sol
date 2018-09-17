@@ -5,12 +5,12 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/interface/IContent.sol";
-import "contracts/interface/IContractReceiver.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IDepositPool.sol";
 import "contracts/interface/IReport.sol";
 import "contracts/interface/IFundManager.sol";
 
+import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
@@ -21,7 +21,7 @@ import "contracts/utils/BytesLib.sol";
  *      신고자에 대한 보상으로 특정 금액을 전송.
  *      작품 완결 시 서포터 정산 후 작가에게 잔액 전송.
  */
-contract DepositPool is ExtendsOwnable, ValidValue, IContractReceiver, IDepositPool {
+contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPool {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using BytesLib for bytes;

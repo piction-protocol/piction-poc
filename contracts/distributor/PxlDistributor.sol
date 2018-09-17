@@ -5,17 +5,17 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-import "contracts/interface/ICustomToken.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IContent.sol";
 import "contracts/interface/IMarketer.sol";
-import "contracts/interface/IContractReceiver.sol";
 import "contracts/interface/IFundManager.sol";
 
+import "contracts/token/CustomToken.sol";
+import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
 
-contract PxlDistributor is Ownable, IContractReceiver, ValidValue {
+contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     using BytesLib for bytes;
@@ -182,7 +182,7 @@ contract PxlDistributor is Ownable, IContractReceiver, ValidValue {
         private
     {
         if(_isCustom) {
-            ICustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
+            CustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
         } else {
             token.safeTransfer(_to, _amount);
         }

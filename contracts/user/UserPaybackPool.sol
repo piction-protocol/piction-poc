@@ -4,9 +4,9 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "contracts/interface/IContractReceiver.sol";
 import "contracts/interface/ICouncil.sol";
 
+import "contracts/token/ContractReceiver.sol";
 import "contracts/access/RoleManager.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
@@ -20,7 +20,7 @@ import "contracts/utils/BytesLib.sol";
  * @author Junghoon Seo - <jh.seo@battleent.com>
  */
 
-contract UserPaybackPool is ExtendsOwnable, IContractReceiver, ValidValue {
+contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
     using TimeLib for *;

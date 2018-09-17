@@ -7,14 +7,14 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IFund.sol";
-import "contracts/interface/IContractReceiver.sol";
 
+import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/SupporterPool.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
 
-contract Fund is IContractReceiver, IFund, ExtendsOwnable, ValidValue {
+contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	using Math for uint256;
 	using SafeMath for uint256;
 	using SafeERC20 for ERC20;
