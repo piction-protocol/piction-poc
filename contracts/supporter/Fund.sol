@@ -129,7 +129,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 				_amounts[i] = _total.mul(distributionRate).div(10 ** decimals);
 				_amounts[i] = _amounts[i].mul(supporters[i].distributionRate).div(10 ** decimals);
 			} else {
-				_amounts[i] = _total.mul(supporters[i].distributionRate).div(10 ** decimals).min256(remain);
+				_amounts[i] = _total.mul(supporters[i].distributionRate).div(10 ** decimals).min(remain);
 				supporters[i].collection = supporters[i].collection.add(_amounts[i]);
 			}
 		}
