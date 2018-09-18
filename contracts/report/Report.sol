@@ -97,7 +97,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
 
         reports.push(ReportData(_content, msg.sender, _detail, false, false, 0));
 
-        emit SendReport(msg.sender, _detail);
+        emit SendReport(reports.length-1, _content, msg.sender, _detail);
     }
 
     /**
@@ -268,7 +268,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     event AddRegistrationFee(address _from, uint256 _value, address _token);
-    event SendReport(address _from, string _detail);
+    event SendReport(uint256 indexed id, address indexed _content, address indexed _from, string _detail);
     event ReturnRegFee(address _to, uint256 _amount);
     event CompleteReport(uint256 _index, string _detail, bool _valid, uint256 _resultAmount);
     event Deduction(address _reporter, uint256 _rate, uint256 _amount, bool _block);
