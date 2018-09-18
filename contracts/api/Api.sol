@@ -22,16 +22,16 @@ contract Api is ValidValue, ExtendsOwnable {
     * @dev 컨텐츠의 주소 배열로 컨텐츠 내용을 records에 담아 회신한다
     * @param contents 컨텐츠 주소 목록
     */
-    function getContentRecord(address[] contents) external view returns(bytes memory records, uint256[] memory spos, uint256[] memory epos) {
+    function getContentRecord(address[] contents) external view returns(bytes memory records_, uint256[] memory spos_, uint256[] memory epos_) {
         uint tempLength;
         uint index;
 
         for(uint i = 0; i < contents.length; i++) {
             bytes memory str = bytes(IContent(contents[i]).getRecord());
-            spos[index] = tempLength;
-            records = records.concat(str);
-            tempLength = (tempLength == 0)? tempLength = tempLength + ((str.length * 2) + 2): tempLength = tempLength + (str.length * 2);
-            epos[index] = tempLength;
+            spos_[index] = tempLength;
+            records_ = records_.concat(str);
+            tempLength = (tempLength == 0)? tempLength + ((str.length * 2) + 2): tempLength + (str.length * 2);
+            epos_[index] = tempLength;
         }
     }
 
@@ -39,13 +39,13 @@ contract Api is ValidValue, ExtendsOwnable {
     * @dev 신고 목록의 id 값으로 처리여부, 처리 결과, 토큰량을 회신한다
     * @param ids 신고 id 목록
     */
-    function getReportResult(uint256[] ids) external view returns(bool[] memory complete, bool[] memory completeValid, uint256[] memory completeAmount) {
-        complete = new bool[](ids.length);
-        completeValid = new bool[](ids.length);
-        completeAmount = new uint256[](ids.length);
+    function getReportResult(uint256[] ids) external view returns(bool[] memory complete_, bool[] memory completeValid_, uint256[] memory completeAmount_) {
+        complete_ = new bool[](ids.length);
+        completeValid_ = new bool[](ids.length);
+        completeAmount_ = new uint256[](ids.length);
 
         for(uint i = 0; i < ids.length; i++) {
-            (,,,complete[i], completeValid[i], completeAmount[i]) = IReport(council.getReport()).getReport(ids[i]);
+            (,,,complete_[i], completeValid_[i], completeAmount_[i]) = IReport(council.getReport()).getReport(ids[i]);
         }
     }
 }

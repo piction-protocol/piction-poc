@@ -268,7 +268,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     event AddRegistrationFee(address _from, uint256 _value, address _token);
-    event SendReport(uint256 indexed index, address indexed _content, address indexed _from, string _detail);
+    event SendReport(uint256 indexed id, address indexed _content, address indexed _from, string _detail);
     event ReturnRegFee(address _to, uint256 _amount);
     event CompleteReport(uint256 _index, string _detail, bool _valid, uint256 _resultAmount);
     event Deduction(address _reporter, uint256 _rate, uint256 _amount, bool _block);
