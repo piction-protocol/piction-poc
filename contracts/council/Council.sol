@@ -123,6 +123,41 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         emit InitialManagerAddress(_roleManager, _contentsManager, _fundManager, _accountManager);
     }
 
+    function getPictionDetail()
+        external
+        view
+        returns (address pxlAddress_, uint256[] pictionValue_,
+            uint256[] pictionRate_, address[] pictionAddress_, address[] managerAddress_)
+    {
+        pictionValue_ = new uint256[](2);
+        pictionRate_ = new uint256[](5);
+        pictionAddress_ = new address[](5);
+        managerAddress_ = new address[](4);
+
+        pxlAddress_ = token;
+
+        // 배열의 순서는 구조체 선언 순서
+        pictionValue_[0] = pictionValue.initialDeposit;
+        pictionValue_[1] = pictionValue.reportRegistrationFee;
+
+        pictionRate_[0] = pictionRate.cdRate;
+        pictionRate_[1] = pictionRate.depositRate;
+        pictionRate_[2] = pictionRate.userPaybackRate;
+        pictionRate_[3] = pictionRate.reportRewardRate;
+        pictionRate_[4] = pictionRate.marketerDefaultRate;
+
+        pictionAddress_[0] = pictionAddress.userPaybackPool;
+        pictionAddress_[1] = pictionAddress.depositPool;
+        pictionAddress_[2] = pictionAddress.pixelDistributor;
+        pictionAddress_[3] = pictionAddress.marketer;
+        pictionAddress_[4] = pictionAddress.report;
+
+        managerAddress_[0] = managerAddress.roleManager;
+        managerAddress_[1] = managerAddress.contentsManager;
+        managerAddress_[2] = managerAddress.fundManager;
+        managerAddress_[3] = managerAddress.accountManager;
+    }
+
     /**
     * @dev Report 목록의 신고를 처리함
     * @param _index Report의 reports 인덱스 값

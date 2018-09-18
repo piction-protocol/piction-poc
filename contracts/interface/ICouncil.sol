@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 interface ICouncil {
-    function getgetPictionDetail() external view returns (address pxlAddress, uint256[] arrayPictionValue, uint256[] arrayPictionRate, address[] arrayPictionAddress, address[] arrayManagerAddress);
+    function getgetPictionDetail() external view returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_, address[] pictionAddress_, address[] managerAddress_);
     function getCdRate() external view returns (uint256);
     function getDepositRate() external view returns (uint256);
     function getInitialDeposit() external view returns (uint256);
