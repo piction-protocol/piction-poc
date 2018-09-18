@@ -36,10 +36,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     }
 
     struct ManagerAddress {
-        address roleManager;
         address contentsManager;
         address fundManager;
         address accountManager;
+    }
+
+    struct ApiAddress {
+        address apiContents;
+        address apiReport;
+        address apiFund;
     }
 
     address token;
@@ -47,6 +52,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     PictionRate pictionRate;
     PictionAddress pictionAddress;
     ManagerAddress managerAddress;
+    ApiAddress apiAddress;
 
     constructor(
         address _token)
@@ -107,32 +113,54 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     }
 
     function initialManagerAddress(
-        address _roleManager,
         address _contentsManager,
         address _fundManager,
         address _accountManager)
         external onlyOwner
-        validAddress(_roleManager)
         validAddress(_contentsManager)
         validAddress(_fundManager)
         validAddress(_accountManager)
     {
 
-        managerAddress = ManagerAddress(_roleManager, _contentsManager, _fundManager, _accountManager);
+        managerAddress = ManagerAddress(_contentsManager, _fundManager, _accountManager);
 
-        emit InitialManagerAddress(_roleManager, _contentsManager, _fundManager, _accountManager);
+        emit InitialManagerAddress(_contentsManager, _fundManager, _accountManager);
     }
 
+    function initialApiAddress(
+        address _apiContents,
+        address _apiReport,
+        address _apiFund
+    )
+        external
+        onlyOwner
+        validAddress(_apiContents) validAddress(_apiReport) validAddress(_apiFund)
+    {
+        apiAddress = ApiAddress(_apiContents, _apiReport, _apiFund);
+
+        emit InitialApiAddress(_apiContents, _apiReport, _apiFund);
+    }
+
+    /**
+    * @dev 위원회 등록된 전체 정보 조회
+    * @return address pxlAddress_ pxl token address
+    * @return uint256[] pictionValue_ 상황 별 deposit token 수량
+    * @return uint256[] pictionRate_ 작품 판매시 분배 될 고정 비율 정보
+    * @return address[] pictionAddress_ piction network에서 사용되는 컨트랙트 주소
+    * @return address[] managerAddress_ 매니저 성격의 컨트랙트 주소
+    * @return address[] apiAddress_ piction network API 컨트랙트 주소
+    */
     function getPictionDetail()
         external
         view
-        returns (address pxlAddress_, uint256[] pictionValue_,
-            uint256[] pictionRate_, address[] pictionAddress_, address[] managerAddress_)
+        returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_,
+             address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_)
     {
         pictionValue_ = new uint256[](2);
         pictionRate_ = new uint256[](5);
         pictionAddress_ = new address[](5);
-        managerAddress_ = new address[](4);
+        managerAddress_ = new address[](3);
+        apiAddress_ = new address[](3);
 
         pxlAddress_ = token;
 
@@ -152,10 +180,13 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         pictionAddress_[3] = pictionAddress.marketer;
         pictionAddress_[4] = pictionAddress.report;
 
-        managerAddress_[0] = managerAddress.roleManager;
-        managerAddress_[1] = managerAddress.contentsManager;
-        managerAddress_[2] = managerAddress.fundManager;
-        managerAddress_[3] = managerAddress.accountManager;
+        managerAddress_[0] = managerAddress.contentsManager;
+        managerAddress_[1] = managerAddress.fundManager;
+        managerAddress_[2] = managerAddress.accountManager;
+
+        apiAddress_[0] = apiAddress.apiContents;
+        apiAddress_[1] = apiAddress.apiReport;
+        apiAddress_[2] = apiAddress.apiFund;
     }
 
     /**
@@ -191,172 +222,75 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         return token;
     }
 
-    function setInitialDeposit(uint256 _initialDeposit) external onlyOwner validRange(_initialDeposit) {
-        pictionValue.initialDeposit = _initialDeposit;
-
-        emit ChangeDistributionRate(msg.sender, "initial deposit", _initialDeposit);
-    }
-
     function getInitialDeposit() external view returns (uint256) {
         return pictionValue.initialDeposit;
-    }
-
-    function setReportRegistrationFee(uint256 _reportRegistrationFee) external onlyOwner validRange(_reportRegistrationFee) {
-        pictionValue.reportRegistrationFee = _reportRegistrationFee;
-
-        emit ChangeDistributionRate(msg.sender, "report registration fee", _reportRegistrationFee);
     }
 
     function getReportRegistrationFee() view external returns (uint256) {
         return pictionValue.reportRegistrationFee;
     }
 
-    function setCdRate(uint256 _cdRate) external onlyOwner validRange(_cdRate) {
-        pictionRate.cdRate = _cdRate;
-
-        emit ChangeDistributionRate(msg.sender, "cd rate", _cdRate);
-    }
-
     function getCdRate() external view returns (uint256) {
         return pictionRate.cdRate;
-    }
-
-    function setDepositRate(uint256 _depositRate) external onlyOwner validRange(_depositRate) {
-        pictionRate.depositRate = _depositRate;
-
-        emit ChangeDistributionRate(msg.sender, "deposit rate", _depositRate);
     }
 
     function getDepositRate() external view returns (uint256) {
         return pictionRate.depositRate;
     }
 
-    function setUserPaybackRate(uint256 _userPaybackRate) external onlyOwner validRange(_userPaybackRate) {
-        pictionRate.userPaybackRate = _userPaybackRate;
-
-        emit ChangeDistributionRate(msg.sender, "user payback rate", _userPaybackRate);
-    }
-
     function getUserPaybackRate() external view returns (uint256) {
         return pictionRate.userPaybackRate;
-    }
-
-    function setReportRewardRate(uint256 _reportRewardRate) external onlyOwner validRange(_reportRewardRate) {
-        pictionRate.reportRewardRate = _reportRewardRate;
-
-        emit ChangeDistributionRate(msg.sender, "report reward rate", _reportRewardRate);
     }
 
     function getReportRewardRate() view external returns (uint256) {
         return pictionRate.reportRewardRate;
     }
 
-    function setMarketerDefaultRate(uint256 _marketerDefaultRate) external onlyOwner validRange(_marketerDefaultRate) {
-        pictionRate.marketerDefaultRate = _marketerDefaultRate;
-
-        emit ChangeDistributionRate(msg.sender, "marketer default rate", _marketerDefaultRate);
-    }
-
     function getMarketerDefaultRate() view external returns (uint256) {
         return pictionRate.marketerDefaultRate;
-    }
-
-    function setUserPaybackPool(address _userPaybackPool) external onlyOwner validAddress(_userPaybackPool) {
-        pictionAddress.userPaybackPool = _userPaybackPool;
-
-        emit ChangeAddress(msg.sender, "user payback pool", _userPaybackPool);
     }
 
     function getUserPaybackPool() external view returns (address) {
         return pictionAddress.userPaybackPool;
     }
 
-    function setDepositPool(address _depositPool) external onlyOwner validAddress(_depositPool) {
-        pictionAddress.depositPool = _depositPool;
-
-        emit ChangeAddress(msg.sender, "deposit pool", _depositPool);
-    }
-
     function getDepositPool() external view returns (address) {
         return pictionAddress.depositPool;
-    }
-
-    function setRoleManager(address _roleManager) external onlyOwner validAddress(_roleManager) {
-        managerAddress.roleManager = _roleManager;
-
-        emit ChangeAddress(msg.sender, "role manager", _roleManager);
-    }
-
-    function getRoleManager() external view returns (address) {
-        return managerAddress.roleManager;
-    }
-
-    function setContentsManager(address _contentsManager) external onlyOwner validAddress(_contentsManager) {
-        managerAddress.contentsManager = _contentsManager;
-
-        emit ChangeAddress(msg.sender, "contents manager", _contentsManager);
     }
 
     function getContentsManager() external view returns (address) {
         return managerAddress.contentsManager;
     }
 
-    function setFundManager(address _fundManager) external onlyOwner validAddress(_fundManager) {
-        managerAddress.fundManager = _fundManager;
-
-        emit ChangeAddress(msg.sender, "fund manager", _fundManager);
-    }
-
     function getFundManager() external view returns (address) {
         return managerAddress.fundManager;
-    }
-
-    function setAccountManager(address _accountManager) external onlyOwner validAddress(_accountManager) {
-        managerAddress.accountManager = _accountManager;
-
-        emit ChangeAddress(msg.sender, "account manager", _accountManager);
     }
 
     function getAccountManager() external view returns (address) {
         return managerAddress.accountManager;
     }
 
-    function setPixelDistributor(address _pixelDistributor) external onlyOwner validAddress(_pixelDistributor) {
-        pictionAddress.pixelDistributor = _pixelDistributor;
-
-        emit ChangeAddress(msg.sender, "pixel distributor", _pixelDistributor);
-    }
-
     function getPixelDistributor() external view returns (address) {
         return pictionAddress.pixelDistributor;
-    }
-
-    function setMarketer(address _marketer) external onlyOwner validAddress(_marketer) {
-        pictionAddress.marketer = _marketer;
-
-        emit ChangeAddress(msg.sender, "marketer", _marketer);
     }
 
     function getMarketer() external view returns (address) {
         return pictionAddress.marketer;
     }
 
-    function setReport(address _report) external onlyOwner validAddress(_report) {
-        pictionAddress.report = _report;
-
-        emit ChangeAddress(msg.sender, "report", _report);
-    }
-
     function getReport() external view returns (address) {
         return pictionAddress.report;
     }
 
-    event RegisterCouncil(address _sender, address _token);
-    event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee);
-    event InitialRate(uint256 _cdRate, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRewardRate, uint256 _marketerDefaultRate);
-    event InitialAddress(address _userPaybackPool, address _depositPool, address _pixelDistributor, address _marketer, address _report);
-    event InitialManagerAddress(address _depositPool, address _roleManager, address _contentsManager, address _accountManager);
-    event ChangeDistributionRate(address _sender, string _name, uint256 _value);
-    event ChangeAddress(address _sender, string addressName, address _addr);
-    event Judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate);
+    function getApiContents() external view returns (address) {
+        return apiAddress.apiContents;
+    }
+
+    function getApiReport() external view returns (address) {
+        return apiAddress.apiReport;
+    }
+
+    function getFund() external view returns (address) {
+        return apiAddress.apiFund;
+    }
 }
