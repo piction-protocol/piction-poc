@@ -218,79 +218,79 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     }
 
 
-    function getToken() external view returns (address) {
+    function getToken() external view returns (address token_) {
         return token;
     }
 
-    function getInitialDeposit() external view returns (uint256) {
+    function getInitialDeposit() external view returns (uint256 initialDeposit_) {
         return pictionValue.initialDeposit;
     }
 
-    function getReportRegistrationFee() view external returns (uint256) {
+    function getReportRegistrationFee() view external returns (uint256 reportRegistrationFee_) {
         return pictionValue.reportRegistrationFee;
     }
 
-    function getCdRate() external view returns (uint256) {
+    function getCdRate() external view returns (uint256 cdRate_) {
         return pictionRate.cdRate;
     }
 
-    function getDepositRate() external view returns (uint256) {
+    function getDepositRate() external view returns (uint256 depositRate_) {
         return pictionRate.depositRate;
     }
 
-    function getUserPaybackRate() external view returns (uint256) {
+    function getUserPaybackRate() external view returns (uint256 userPaybackRate_) {
         return pictionRate.userPaybackRate;
     }
 
-    function getReportRewardRate() view external returns (uint256) {
+    function getReportRewardRate() view external returns (uint256 reportRewardRate_) {
         return pictionRate.reportRewardRate;
     }
 
-    function getMarketerDefaultRate() view external returns (uint256) {
+    function getMarketerDefaultRate() view external returns (uint256 marketerDefaultRate_) {
         return pictionRate.marketerDefaultRate;
     }
 
-    function getUserPaybackPool() external view returns (address) {
+    function getUserPaybackPool() external view returns (address userPaybackPool_) {
         return pictionAddress.userPaybackPool;
     }
 
-    function getDepositPool() external view returns (address) {
+    function getDepositPool() external view returns (address depositPool_) {
         return pictionAddress.depositPool;
     }
 
-    function getContentsManager() external view returns (address) {
+    function getContentsManager() external view returns (address contentsManager_) {
         return managerAddress.contentsManager;
     }
 
-    function getFundManager() external view returns (address) {
+    function getFundManager() external view returns (address fundManager_) {
         return managerAddress.fundManager;
     }
 
-    function getAccountManager() external view returns (address) {
+    function getAccountManager() external view returns (address accountManager_) {
         return managerAddress.accountManager;
     }
 
-    function getPixelDistributor() external view returns (address) {
+    function getPixelDistributor() external view returns (address pixelDistributor_) {
         return pictionAddress.pixelDistributor;
     }
 
-    function getMarketer() external view returns (address) {
+    function getMarketer() external view returns (address marketer_) {
         return pictionAddress.marketer;
     }
 
-    function getReport() external view returns (address) {
+    function getReport() external view returns (address report_) {
         return pictionAddress.report;
     }
 
-    function getApiContents() external view returns (address) {
+    function getApiContents() external view returns (address apiContents_) {
         return apiAddress.apiContents;
     }
 
-    function getApiReport() external view returns (address) {
+    function getApiReport() external view returns (address apiReport_) {
         return apiAddress.apiReport;
     }
 
-    function getFund() external view returns (address) {
+    function getApiFund() external view returns (address apiFund_) {
         return apiAddress.apiFund;
     }
 }
