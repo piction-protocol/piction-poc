@@ -7,7 +7,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "contracts/interface/ICouncil.sol";
 
 import "contracts/token/ContractReceiver.sol";
-import "contracts/access/RoleManager.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -25,8 +24,6 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using SafeMath for uint256;
     using TimeLib for *;
     using BytesLib for bytes;
-
-    string public constant ROLE_NAME = "PXL_DISTRIBUTOR";
 
     struct PaybackPool {
         uint256 createTime;
@@ -79,7 +76,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     }
 
     function addPayback(address _from, uint256 _value, address _token, bytes _data) private {
-        require(RoleManager(council.getRoleManager()).isAccess(_from, ROLE_NAME));
+        require(council.getPixelDistributor() == _from);
 
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);

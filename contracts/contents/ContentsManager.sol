@@ -41,7 +41,7 @@ contract ContentsManager is ContractReceiver, ValidValue {
         require(council.getInitialDeposit() == initialDeposit[msg.sender]);
 
         address contractAddress = new Content(
-            _record, msg.sender, _marketerRate, council.getRoleManager());
+            _record, msg.sender, _marketerRate, address(council));
 
         Content(contractAddress).transferOwnership(msg.sender);
 

@@ -3,8 +3,8 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/interface/IContent.sol";
+import "contracts/interface/ICouncil.sol";
 
-import "contracts/access/RoleManager.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 
@@ -19,9 +19,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         mapping (address => bool) buyUser;
     }
 
-    string public constant ROLE_NAME = "PXL_DISTRIBUTOR";
-
-    address roleManager;
+    ICouncil council;
     string public record;
     address public writer;
     uint256 public marketerRate;
@@ -36,15 +34,15 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         string _record,
         address _writer,
         uint256 _marketerRate,
-        address _roleManager
+        address _council
     )
     public
-    validAddress(_writer) validString(_record) validAddress(_roleManager)
+    validAddress(_writer) validString(_record) validAddress(_council)
     {
         record = _record;
         writer = _writer;
         marketerRate = _marketerRate;
-        roleManager = _roleManager;
+        council = ICouncil(_council);
 
         emit RegisterContent(msg.sender, "initializing content");
     }
@@ -129,7 +127,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         external
         validAddress(_buyer) validEpisodeLength(_index)
     {
-        require(RoleManager(roleManager).isAccess(msg.sender, ROLE_NAME));
+        require(council.getPixelDistributor() == msg.sender);
         require(!episodes[_index].buyUser[_buyer]);
         require(episodes[_index].price == _amount);
 
