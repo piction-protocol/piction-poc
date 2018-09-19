@@ -13,9 +13,15 @@
           <router-link active-class="active" class="nav-link" to="/council">Council</router-link>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
-          <b-nav-item style="margin-right: 10px;"><b class="pxl">{{pxl}} PXL</b></b-nav-item>
+          <b-nav-item style="margin-right: 10px;" v-b-tooltip.hover :title="pxl">
+            <animated-number
+              class="pxl"
+              :value="pxl"
+              :formatValue="formatValue"
+              :duration="1000"/>
+          </b-nav-item>
           <b-nav-form>
-            <b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">Create</b-button>
+            <b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">작품등록</b-button>
           </b-nav-form>
         </b-navbar-nav>
       </b-collapse>
@@ -25,20 +31,27 @@
 
 <script>
   import {BigNumber} from 'bignumber.js';
+  import AnimatedNumber from "animated-number-vue";
 
   export default {
-    name: 'Navi',
+    components: {
+      AnimatedNumber
+    },
     data() {
       return {
         pxl: 0,
       }
     },
     methods: {
-      updatePXL: async function () {
-        let pxl = await this.$contract.pxl.balanceOf(this.pictionAddress.account);
-        this.pxl = this.$utils.toPXL(pxl);
+      formatValue(value) {
+        return `${value.toFixed(2)} PXL`;
       },
-      newContents: async function () {
+      updatePXL() {
+        this.$contract.pxl.balanceOf(this.pictionAddress.account).then(pxl => {
+          this.pxl = this.$utils.toPXL(pxl);
+        });
+      },
+      async newContents() {
         this.$loading('loading...');
         let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionAddress.account));
         let initialDeposit = BigNumber(this.pictionValue.initialDeposit);
@@ -50,7 +63,6 @@
           alert(message)
         } else if (confirm(`${message}\n등록하시겠습니까?`)) {
           await this.$contract.pxl.approveAndCall(this.pictionAddress.contentsManager, this.pictionValue.initialDeposit);
-          this.updatePXL();
           this.$router.push({name: 'new-content'});
         }
         this.$loading.close();
@@ -58,6 +70,16 @@
     },
     async created() {
       this.updatePXL();
+      this.$contract.pxl.getEvents().Transfer({
+        filter: {from: this.pictionAddress.account},
+        fromBlock: 'latest',
+        toBlock: 'latest'
+      }, (error, event) => this.updatePXL())
+      this.$contract.pxl.getEvents().Transfer({
+        filter: {to: this.pictionAddress.account},
+        fromBlock: 'latest',
+        toBlock: 'latest'
+      }, (error, event) => this.updatePXL())
     }
   }
 </script>

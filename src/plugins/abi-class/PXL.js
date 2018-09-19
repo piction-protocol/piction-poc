@@ -5,6 +5,10 @@ class PXL {
     this._contract.options.gas = gas;
   }
 
+  getEvents() {
+    return this._contract.events;
+  }
+
   getTokenTransferable() {
     return this._contract.methods.getTokenTransferable().call();
   }
