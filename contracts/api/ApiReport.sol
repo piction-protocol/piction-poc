@@ -4,11 +4,8 @@ import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IReport.sol";
 
 import "contracts/utils/ValidValue.sol";
-import "contracts/utils/ExtendsOwnable.sol";
-import "contracts/utils/BytesLib.sol";
 
-contract ApiReport is ValidValue, ExtendsOwnable {
-    using BytesLib for bytes;
+contract ApiReport is ValidValue {
 
     //위원회
     ICouncil council;
@@ -29,8 +26,13 @@ contract ApiReport is ValidValue, ExtendsOwnable {
     /**
     * @dev 신고자가 맞긴 신고 보증금 잔액과 잠금 기간, 블락 기간을 조회한다
     */
-    function getRegistrationAmount() external view returns(uint256 amount, uint256 lockTime, uint256 blockTime) {
-        return IReport(council.getReport()).getRegistrationAmount(msg.sender);
+    function getRegistrationAmount() external view returns(uint256 amount_, uint256 lockTime_, uint256 blockTime_) {
+        IReport report = IReport(council.getReport());
+        return (
+            report.getRegistrationAmount(msg.sender),
+            report.getRegistrationLockTime(msg.sender),
+            report.getReporterBlockTime(msg.sender)
+        );
     }
 
     //-------- 신고 관련 --------

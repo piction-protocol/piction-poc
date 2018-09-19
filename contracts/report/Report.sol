@@ -188,7 +188,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         validAddress(_reporter)
         validRange(_rate)
         validRate(_rate)
-        returns(uint256)
+        returns(uint256 result_)
     {
         require(msg.sender == address(council));
         require(registrationFee[_reporter].amount > 0);
@@ -228,13 +228,27 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     /**
-    * @dev 신고자가 맞긴 신고 보증금 잔액과 잠금 기간, 블락 기간을 조회한다
+    * @dev 신고자가 맞긴 신고 보증금 잔액을 조회한다
     * @param _reporter 확인 할 대상
     */
-    function getRegistrationAmount(address _reporter) external view returns(uint256 amount_, uint256 lockTime_, uint256 blockTime_) {
-        return (registrationFee[_reporter].amount,
-            registrationFee[_reporter].lockTime,
-            registrationFee[_reporter].blockTime);
+    function getRegistrationAmount(address _reporter) external view returns(uint256 amount_) {
+        return registrationFee[_reporter].amount;
+    }
+
+    /**
+    * @dev 신고자의 신고 보증금 잠금 기간을 조회한다
+    * @param _reporter 확인 할 대상
+    */
+    function getRegistrationLockTime(address _reporter) external view returns(uint256 lockTime_) {
+        return registrationFee[_reporter].lockTime;
+    }
+
+    /**
+    * @dev 신고자의 블락 기간을 조회한다
+    * @param _reporter 확인 할 대상
+    */
+    function getReporterBlockTime(address _reporter) external view returns(uint256 blockTime_) {
+        return registrationFee[_reporter].blockTime;
     }
 
     event AddRegistrationFee(address _from, uint256 _value, address _token);
