@@ -64,13 +64,13 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @param _token 토큰의 주소
     */
     function receiveApproval(address _from, uint256 _value, address _token, bytes _data) public {
-        addRegistrationFee(_from, _value, _token);
+        registration(_from, _value, _token);
     }
 
     /**
     * @dev receiveApproval의 구현, token을 전송 받고 신고자의 등록금을 기록함
     */
-    function addRegistrationFee(address _from, uint256 _value, address _token) private {
+    function registration(address _from, uint256 _value, address _token) private {
         require(council.getReportRegistrationFee() == _value);
         require(registrationFee[_from].amount == 0);
         ERC20 token = ERC20(council.getToken());
@@ -87,71 +87,39 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @dev 신고자가 어떤 작품에 대해 신고를 함, 위원회의 보증금 변경과 관계없이 동작함(추후 논의)
     * @param _detail 신고정보
     */
-    function sendReport(address _content, string _detail)
+    function sendReport(address _content, address reporter, string _detail)
         external
         validAddress(_content)
+        validAddress(reporter)
         validString(_detail)
     {
-        require(registrationFee[msg.sender].amount > 0);
-        require(registrationFee[msg.sender].blockTime < TimeLib.currentTime());
+        require(council.getApiReport() == msg.sender);
+        require(registrationFee[reporter].amount > 0);
+        require(registrationFee[reporter].blockTime < TimeLib.currentTime());
 
-        reports.push(ReportData(_content, msg.sender, _detail, false, false, 0));
+        reports.push(ReportData(_content, reporter, _detail, false, false, 0));
 
-        emit SendReport(reports.length-1, _content, msg.sender, _detail);
+        emit SendReport(reports.length-1, _content, reporter, _detail);
     }
 
     /**
-    * @dev 신고한 내용을 가져옴 (String Array를 사용하지 못함으로 한건씩 조회 필요)
+    * @dev 신고한 내용을 가져옴
     * @param _index 신고 목록의 인덱스
     */
     function getReport(uint256 _index)
         external
         view
-        returns(address content, address reporter, string detail, bool complete, bool completeValid, uint256 completeAmount)
+        returns(address content_, address reporter_, string detail_, bool complete_, bool completeValid_, uint256 completeAmount_)
     {
-        content = reports[_index].content;
-        reporter = reports[_index].reporter;
-        detail = reports[_index].detail;
-        complete = reports[_index].complete;
-        completeValid = reports[_index].completeValid;
-        completeAmount = reports[_index].completeAmount;
-    }
-
-    /**
-    * @dev msg.sender 가 신고한 목록 인덱스 반환
-    */
-    function getUserReport()
-        external
-        view
-        returns(uint256[])
-    {
-        uint256 count = 0;
-        for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].reporter == msg.sender) {
-                count = count.add(1);
-            }
-        }
-
-        uint256[] memory result = new uint256[](count);
-
-        uint256 resultIndex = 0;
-        for(uint256 j = 0; j < reports.length; j++) {
-            if (reports[j].reporter == msg.sender) {
-                result[resultIndex] = j;
-                resultIndex = resultIndex.add(1);
-            }
-        }
-
-        return result;
-    }
-
-
-
-    /**
-    * @dev 신고 목록의 길이
-    */
-    function getReportsLength() external view returns(uint256) {
-        return reports.length;
+        return
+        (
+            reports[_index].content,
+            reports[_index].reporter,
+            reports[_index].detail,
+            reports[_index].complete,
+            reports[_index].completeValid,
+            reports[_index].completeAmount
+        );
     }
 
     /**
@@ -167,7 +135,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     /**
-    * @dev 작품의 신고 중 처리되지 않은 건수 조회
+    * @dev 작품의 신고 중 처리되지 않은 건수 조회, 작품 릴리즈 시 조회에 사용
     * @param _content 확인할 작품의 주소
     */
     function getUncompletedReport(address _content) external view returns(uint256 count) {
@@ -180,7 +148,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     /**
-    * @dev 신고자의 신고 중 처리되지 않은 건수 조회
+    * @dev 신고자의 신고 중 처리되지 않은 건수 조회, 신고자 신고금 반환 시 조회에 사용
     * @param _reporter 확인할 신고자의 주소
     */
     function getUncompletedReporter(address _reporter) private view returns(uint256 count) {
@@ -220,7 +188,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         validAddress(_reporter)
         validRange(_rate)
         validRate(_rate)
-        returns(uint256)
+        returns(uint256 result_)
     {
         require(msg.sender == address(council));
         require(registrationFee[_reporter].amount > 0);
@@ -244,27 +212,43 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     /**
     * @dev 신고자가 맞긴 보증금을 찾아감
     */
-    function returnRegFee() external {
-        require(registrationFee[msg.sender].amount > 0);
-        require(registrationFee[msg.sender].lockTime < TimeLib.currentTime());
-        require(getUncompletedReporter(msg.sender) == 0);
+    function withdrawRegistration(address _reporter) external {
+        require(council.getApiReport() == msg.sender);
+        require(registrationFee[_reporter].amount > 0);
+        require(registrationFee[_reporter].lockTime < TimeLib.currentTime());
+        require(getUncompletedReporter(_reporter) == 0);
 
         ERC20 token = ERC20(council.getToken());
-        uint256 tempAmount = registrationFee[msg.sender].amount;
+        uint256 tempAmount = registrationFee[_reporter].amount;
 
-        registrationFee[msg.sender].amount = 0;
-        token.safeTransfer(msg.sender, tempAmount);
+        registrationFee[_reporter].amount = 0;
+        token.safeTransfer(_reporter, tempAmount);
 
-        emit ReturnRegFee(msg.sender, tempAmount);
+        emit ReturnRegFee(_reporter, tempAmount);
     }
 
     /**
-    * @dev 신고자가 자신이 맞긴 등록금을 확인
+    * @dev 신고자가 맞긴 신고 보증금 잔액을 조회한다
+    * @param _reporter 확인 할 대상
     */
-    function getRegFee() external view returns(uint256 amount, uint256 lockTime, uint256 blockTime) {
-        return (registrationFee[msg.sender].amount,
-            registrationFee[msg.sender].lockTime,
-            registrationFee[msg.sender].blockTime);
+    function getRegistrationAmount(address _reporter) external view returns(uint256 amount_) {
+        return registrationFee[_reporter].amount;
+    }
+
+    /**
+    * @dev 신고자의 신고 보증금 잠금 기간을 조회한다
+    * @param _reporter 확인 할 대상
+    */
+    function getRegistrationLockTime(address _reporter) external view returns(uint256 lockTime_) {
+        return registrationFee[_reporter].lockTime;
+    }
+
+    /**
+    * @dev 신고자의 블락 기간을 조회한다
+    * @param _reporter 확인 할 대상
+    */
+    function getReporterBlockTime(address _reporter) external view returns(uint256 blockTime_) {
+        return registrationFee[_reporter].blockTime;
     }
 
     event AddRegistrationFee(address _from, uint256 _value, address _token);
