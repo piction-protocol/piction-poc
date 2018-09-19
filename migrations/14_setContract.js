@@ -2,7 +2,6 @@ var Council = artifacts.require("Council");
 var PXL = artifacts.require("PXL");
 var UserPaybackPool = artifacts.require("UserPaybackPool");
 var DepositPool = artifacts.require("DepositPool");
-var RoleManager = artifacts.require("RoleManager");
 var ContentsManager = artifacts.require("ContentsManager");
 var FundManager = artifacts.require("FundManager");
 var AccountManager = artifacts.require("AccountManager");
@@ -18,10 +17,6 @@ module.exports = function (deployer) {
     instance.mint(amount);
     instance.transfer(AccountManager.address, amount);
     instance.unlock();
-  });
-
-  RoleManager.deployed().then(function (instance) {
-    instance.addAddressToRole(PxlDistributor.address, 'PXL_DISTRIBUTOR');
   });
 
   Council.deployed().then(function (instance) {
@@ -58,7 +53,6 @@ module.exports = function (deployer) {
     );
 
     instance.initialManagerAddress(
-      RoleManager.address,
       ContentsManager.address,
       FundManager.address,
       AccountManager.address
