@@ -21,6 +21,10 @@ contract ICouncil {
     function getApiContents() external view returns (address apiContents_);
     function getApiReport() external view returns (address apiReport_);
     function getApiFund() external view returns (address apiFund_);
+    function setMember(address _member, bool _allow) external;
+    function isMember(address _member) external view returns(bool allow_);
+    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate) external;
+
     event RegisterCouncil(address _sender, address _token);
     event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee);
     event InitialRate(uint256 _cdRate, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRewardRate, uint256 _marketerDefaultRate);
@@ -28,4 +32,5 @@ contract ICouncil {
     event InitialManagerAddress(address _depositPool, address _contentsManager, address _accountManager);
     event InitialApiAddress(address _apiContents, address _apiReport, address _apiFund);
     event Judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate);
+    event SetMember(address _member, bool _allow);
 }

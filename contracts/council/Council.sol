@@ -54,14 +54,27 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     ManagerAddress managerAddress;
     ApiAddress apiAddress;
 
+    mapping (address => bool) members;
+
     constructor(
         address _token)
         public
         validAddress(_token)
     {
         token = _token;
-
+        members[msg.sender] = true;
+        
         emit RegisterCouncil(msg.sender, _token);
+    }
+
+    function setMember(address _member, bool _allow) external onlyOwner {
+        members[_member] = _allow;
+
+        emit SetMember(_member, _allow);
+    }
+
+    function isMember(address _member) external view returns(bool allow_) {
+        allow_ = members[_member];
     }
 
     function initialValue(
@@ -196,12 +209,9 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @param _reporter Reporter의 주소
     * @param _deductionRate 신고자의 RegFee를 차감시킬 비율, 0이면 Reward를 지급함, 50(논의)이상이면 block처리함
     */
-    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate)
-        external
-        onlyOwner
-        validAddress(_content)
-        validAddress(_reporter)
-    {
+    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate) external {
+        require(apiAddress.apiReport == msg.sender);
+
         uint256 resultAmount;
         bool valid;
         if (_deductionRate > 0) {
