@@ -7,9 +7,11 @@ import "contracts/interface/ICouncil.sol";
 
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
+import "contracts/utils/BytesLib.sol";
 
 contract Content is IContent, ExtendsOwnable, ValidValue {
     using SafeMath for uint256;
+    using BytesLib for bytes;
 
     struct Episode {
         string record;
@@ -30,14 +32,20 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         _;
     }
 
+    modifier validAccessAddress(address _apiAddress) {
+        require(council.getApiContents() == _apiAddress,
+                "Acces failed: Only Access to ApiContents smart contract.");
+        _;
+    }
+
     constructor(
         string _record,
         address _writer,
         uint256 _marketerRate,
         address _council
     )
-    public
-    validAddress(_writer) validString(_record) validAddress(_council)
+        public
+        validAddress(_writer) validString(_record) validAddress(_council)
     {
         record = _record;
         writer = _writer;
@@ -51,8 +59,8 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         string _record,
         uint256 _marketerRate
     )
-    external
-    onlyOwner validString(_record)
+        external
+        validAccessAddress(msg.sender)
     {
         record = _record;
         marketerRate = _marketerRate;
@@ -61,8 +69,8 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     }
 
     function addEpisode(string _record, string _cuts, uint256 _price)
-    external
-    onlyOwner validString(_record) validString(_cuts)
+        external
+        validAccessAddress(msg.sender)
     {
         episodes.push(Episode(_record, _cuts, _price, 0));
 
@@ -70,8 +78,8 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     }
 
     function updateEpisode(uint256 _index, string _record, string _cuts, uint256 _price)
-    external
-    onlyOwner validString(_record) validString(_cuts) validEpisodeLength(_index)
+        external
+        validAccessAddress(msg.sender)
     {
         episodes[_index].record = _record;
         episodes[_index].cuts = _cuts;
@@ -80,46 +88,51 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         emit ChangeEpisode(msg.sender, "update episode", _index);
     }
 
+    function getRecord() public view returns (string record_) {
+        record_ = record;
+    }
+
+    function getWriter() public view returns (address writer_) {
+        writer_ =  writer;
+    }
+
+    function getMarketerRate() public view returns (uint256 marketerRate_) {
+        marketerRate_ =  marketerRate;
+    }
+
+    function getEpisodeLength() public view returns (uint256 episodeLength_)
+    {
+        episodeLength_ = episodes.length;
+    }
+
     function isPurchasedEpisode(uint256 _index, address _buyer)
-    public
-    view
-    returns (bool)
-    {
-        return episodes[_index].buyUser[_buyer];
-    }
-
-    function getRecord() public view returns (string) {
-        return record;
-    }
-
-    function getWriter() public view returns (address) {
-        return writer;
-    }
-
-    function getMarketerRate() public view returns (uint256) {
-        return marketerRate;
-    }
-
-    function getEpisodeLength() public view returns (uint256)
-    {
-        return episodes.length;
-    }
-
-    function getEpisodeDetail(uint256 _index)
         external
         view
-        returns (string, uint256, uint256, bool)
+        returns (bool isPurchased_)
     {
-        return (episodes[_index].record, episodes[_index].price, episodes[_index].buyCount, episodes[_index].buyUser[msg.sender]);
+        if(episodes[_index].buyUser[_buyer] || writer == _buyer) {
+            isPurchased_ = true;
+        }
+    }
+
+    function getEpisodeDetail(uint256 _index, address _buyer)
+        external
+        view
+        returns (bytes record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
+    {
+        record_ = bytes(episodes[_index].record);
+        price_ = episodes[_index].price;
+        buyCount_ = episodes[_index].buyCount;
+        isPurchased_ = episodes[_index].buyUser[_buyer];
     }
 
     function getEpisodeCuts(uint256 _index)
         external
         view
-        returns (string result)
+        returns (string episodeCuts_)
     {
-        if(msg.sender == writer || episodes[_index].buyUser[msg.sender]) {
-            result = episodes[_index].cuts;
+        if(council.getApiContents() == msg.sender) {
+            episodeCuts_ = episodes[_index].cuts;
         }
     }
 
