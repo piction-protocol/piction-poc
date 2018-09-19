@@ -150,7 +150,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @return address[] managerAddress_ 매니저 성격의 컨트랙트 주소
     * @return address[] apiAddress_ piction network API 컨트랙트 주소
     */
-    function getPictionDetail()
+    function getPictionConfig()
         external
         view
         returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_,
