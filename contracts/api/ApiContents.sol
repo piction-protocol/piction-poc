@@ -128,6 +128,19 @@ contract ApiContents is ValidValue {
     }
 
     /**
+    * @dev  작품에 대한 좋아요 기능
+    * @param _contentsAddress 컨텐츠 주소
+    */
+    function addPickCount(
+        address _contentsAddress
+    )
+        external
+        validAddress(_contentsAddress)
+    {
+        IContent(_contentsAddress).addPickCount(msg.sender);
+    }
+
+    /**
     * @dev piction network에 등록 된 모든 컨텐츠의 세부정보 조회
     * @return contentsAddress_ 컨텐츠 주소 배열
     * @return records_ bytes로 변환 된 작품 record 정보
@@ -215,6 +228,12 @@ contract ApiContents is ValidValue {
         }
     }
 
+    /**
+    * @dev 작품의 이미지 조회
+    * @param _contentsAddress 작품 컨트랙트 주소
+    * @param _episodeIndex 에피소드 회차
+    * @return episodeCuts_ 이미지 url
+    */
     function getEpisodeCuts(
         address _contentsAddress,
         uint256 _episodeIndex
@@ -228,6 +247,21 @@ contract ApiContents is ValidValue {
         if(content.isPurchasedEpisode(_episodeIndex, msg.sender)) {
             episodeCuts_ = content.getEpisodeCuts(_episodeIndex);
         }
+    }
+
+    /**
+    * @dev 작품의 좋아요 횟수 조회
+    * @param _contentsAddress 작품 컨트랙트 주소
+    * @return pickCount_ 좋아요 횟수
+    */
+    function getPickCount(
+        address _contentsAddress
+    )
+        external
+        view
+        returns (uint256 pickCount_)
+    {
+        pickCount_ = IContent(_contentsAddress).getPickCount();
     }
 
     /**

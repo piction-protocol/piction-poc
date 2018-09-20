@@ -21,7 +21,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         mapping (address => bool) buyUser;
     }
 
+    mapping (address => bool) isPicked;
+
     ICouncil council;
+    uint256 pickCount;
     string public record;
     address public writer;
     uint256 public marketerRate;
@@ -52,7 +55,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         marketerRate = _marketerRate;
         council = ICouncil(_council);
 
-        emit RegisterContent(msg.sender, "initializing content");
+        emit ContentCreation(msg.sender, _writer, _record, _marketerRate);
     }
 
     function updateContent(
@@ -65,7 +68,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         record = _record;
         marketerRate = _marketerRate;
 
-        emit ChangeContent(msg.sender, "update content");
+        emit ChangeContent(address(this), writer, _record, _marketerRate);
     }
 
     function addEpisode(string _record, string _cuts, uint256 _price)
@@ -74,7 +77,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     {
         episodes.push(Episode(_record, _cuts, _price, 0));
 
-        emit RegisterEpisode(msg.sender, "add episode", (episodes.length.sub(1)));
+        emit EpisodeCreation(episodes.length.sub(1), address(this), writer, _record, _price);
     }
 
     function updateEpisode(uint256 _index, string _record, string _cuts, uint256 _price)
@@ -85,7 +88,19 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         episodes[_index].cuts = _cuts;
         episodes[_index].price = _price;
 
-        emit ChangeEpisode(msg.sender, "update episode", _index);
+        emit ChangeEpisode(_index, address(this), writer, _record, _price);
+    }
+
+    function addPickCount(address _user)
+        external
+        validAccessAddress(msg.sender)
+    {
+        if(!isPicked[_user]) {
+            isPicked[_user] = true;
+            pickCount = pickCount.add(1);
+
+            emit AddPickCount(address(this), _user, pickCount);
+        }
     }
 
     function getRecord() public view returns (string record_) {
@@ -98,6 +113,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
     function getMarketerRate() public view returns (uint256 marketerRate_) {
         marketerRate_ =  marketerRate;
+    }
+
+    function getPickCount() public view returns (uint256 pickCount_) {
+        pickCount_ = pickCount;
     }
 
     function getEpisodeLength() public view returns (uint256 episodeLength_)
@@ -147,6 +166,6 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         episodes[_index].buyUser[_buyer] = true;
         episodes[_index].buyCount = episodes[_index].buyCount.add(1);
 
-        emit EpisodePurchase(_buyer, _index);
+        emit EpisodePurchase(_index, address(this), _buyer, _amount, episodes[_index].buyCount);
     }
 }
