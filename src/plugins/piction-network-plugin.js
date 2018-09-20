@@ -12,8 +12,9 @@ import Council from './abi-class/Council.js'
 
 const PictionNetworkPlugin = {
   install(Vue, pictionConfig) {
-    Vue.prototype.pictionConfig = pictionConfig;
 
+    console.log(pictionConfig);
+    Vue.prototype.pictionConfig = pictionConfig;
     Vue.prototype.$contract = {};
 
     Vue.prototype.$contract.pxl = new PXL(

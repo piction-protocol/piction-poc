@@ -2,8 +2,8 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Web3 from 'web3'
 
-var provider = new Web3.providers.WebsocketProvider('ws://127.0.0.1:9545/')
-// var provider = new Web3.providers.WebsocketProvider('ws://54.249.219.254:8546')
+// local: ws://127.0.0.1:9545 / private: ws://54.249.219.254:8546
+var provider = new Web3.providers.WebsocketProvider('ws://127.0.0.1:9545')
 window.web3 = new Web3(provider);
 
 import Vue from 'vue'
@@ -21,7 +21,7 @@ import Toast from 'vue2-toast';
 import 'vue2-toast/lib/toast.css';
 import Datetime from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
-import councilSource from '../build/contracts/Council.json'
+import config from './config.js'
 
 Vue.config.productionTip = false
 
@@ -30,49 +30,14 @@ Vue.use(Datetime)
 Vue.use(Toast);
 Vue.use(Vuex);
 
-const getPictionConfig = async (network) => {
-  const returnConfig = {};
-  const councilAddress = councilSource.networks[network].address;
-  const council = new web3.eth.Contract(councilSource.abi, councilAddress);
-  const pictionConfig = await council.methods.getPictionConfig().call();
-
-  returnConfig.account = store.getters.publicKey.toLowerCase();
-
-  returnConfig.pictionAddress = {
-    council: councilAddress,
-    pxl: pictionConfig.pxlAddress_,
-    userPaybackPool: pictionConfig.pictionAddress_[0],
-    depositPool: pictionConfig.pictionAddress_[1],
-    pixelDistributor: pictionConfig.pictionAddress_[2],
-    marketer: pictionConfig.pictionAddress_[3],
-    report: pictionConfig.pictionAddress_[4],
-  };
-
-  returnConfig.managerAddress = {
-    contentsManager: pictionConfig.managerAddress_[0],
-    fundManager: pictionConfig.managerAddress_[1],
-    accountManager: pictionConfig.managerAddress_[2],
-  };
-
-  returnConfig.pictionValue = {
-    initialDeposit: Number(pictionConfig.pictionValue_[0]),
-    reportRegistrationFee: Number(pictionConfig.pictionValue_[1]),
-    defaultGas: 6000000,
-  };
-
-  return returnConfig;
-}
-
 (async () => {
   if (store.getters.isLoggedIn) {
     await web3.eth.accounts.wallet.add(store.getters.token);
   } else {
     console.log('not logged in')
   }
-  const pictionConfig = await getPictionConfig(4447) // local: 4447 / private: 2880
-  console.log(pictionConfig)
-  Vue.use(PictionNetworkPlugin, pictionConfig);
-
+  // local: 4447 / private: 2880
+  Vue.use(PictionNetworkPlugin, await config(4447));
   Vue.use(FirebasePlugin, {
     apiKey: "AIzaSyAmq4aDivflyokSUzdDCPmmKBu_3LFTmkU",
     authDomain: "battlecomics-dev.firebaseapp.com",
