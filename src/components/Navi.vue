@@ -47,15 +47,15 @@
         return `${value.toFixed(2)} PXL`;
       },
       updatePXL() {
-        this.$contract.pxl.balanceOf(this.pictionAddress.account).then(pxl => {
+        this.$contract.pxl.balanceOf(this.pictionConfig.account).then(pxl => {
           this.pxl = this.$utils.toPXL(pxl);
         });
       },
       async newContents() {
         this.$loading('loading...');
-        let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionAddress.account));
+        let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionConfig.account));
         let initialDeposit = BigNumber(this.pictionValue.initialDeposit);
-        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
+        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         let message = `작품을 등록하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
         if (deposit.eq(initialDeposit)) {
           this.$router.push({name: 'new-content'});
@@ -71,12 +71,12 @@
     async created() {
       this.updatePXL();
       this.$contract.pxl.getEvents().Transfer({
-        filter: {from: this.pictionAddress.account},
+        filter: {from: this.pictionConfig.account},
         fromBlock: 'latest',
         toBlock: 'latest'
       }, (error, event) => this.updatePXL())
       this.$contract.pxl.getEvents().Transfer({
-        filter: {to: this.pictionAddress.account},
+        filter: {to: this.pictionConfig.account},
         fromBlock: 'latest',
         toBlock: 'latest'
       }, (error, event) => this.updatePXL())

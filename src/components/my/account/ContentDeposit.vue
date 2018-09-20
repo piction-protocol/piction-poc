@@ -30,7 +30,7 @@
       deposit: async function () {
         this.$loading('loading...');
         let initialDeposit = BigNumber(this.pictionValue.initialDeposit);
-        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
+        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         if (pxl.lt(initialDeposit)) {
           alert(`예치금 ${initialDeposit} PXL 이 필요합니다.`)
         } else {
@@ -40,7 +40,7 @@
       }
     },
     async created() {
-      let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionAddress.account));
+      let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionConfig.account));
       let initialDeposit = BigNumber(this.pictionValue.initialDeposit);
       if (deposit.eq(0)) {
         this.buttonText = `${this.$utils.toPXL(initialDeposit)} PXL 예치`;

@@ -1,7 +1,8 @@
+import {abi} from '../../../build/contracts/IContent.json'
 import BigNumber from 'bignumber.js'
 
 class IContent {
-  constructor(abi, from, gas) {
+  constructor(from, gas) {
     this._contract = new web3.eth.Contract(abi);
     this._contract.options.from = from;
     this._contract.options.gas = gas;

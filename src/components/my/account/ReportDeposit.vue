@@ -30,7 +30,7 @@
       deposit: async function () {
         this.$loading('loading...');
         let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
-        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
+        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         if (pxl.lt(initialDeposit)) {
           alert(`예치금 ${initialDeposit} PXL 이 필요합니다.`)
         } else {

@@ -23,7 +23,7 @@
     },
     methods: {},
     async created() {
-      let contents = await this.$contract.contentsManager.getWriterContentsAddress(this.pictionAddress.account);
+      let contents = await this.$contract.contentsManager.getWriterContentsAddress(this.pictionConfig.account);
       contents[0].reverse().asyncForEach(async address => {
         let record = await this.$contract.contentInterface.getRecord(address);
         let content = JSON.parse(record);

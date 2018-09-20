@@ -30,7 +30,7 @@
     },
     methods: {
       updatePXL: async function () {
-        let pxl = await this.$contract.pxl.balanceOf(this.pictionAddress.account);
+        let pxl = await this.$contract.pxl.balanceOf(this.pictionConfig.account);
         this.pxl = this.$utils.toPXL(pxl);
       },
       async report() {
@@ -38,7 +38,7 @@
         let regFee = await this.$contract.report.getRegFee();
         let deposit = BigNumber(regFee[0]);
         let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
-        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionAddress.account));
+        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         let message = `신고를 하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
         if (deposit.gt(BigNumber(0))) {
           let reason = prompt("신고 사유를 입력하세요.", "");
