@@ -14,14 +14,14 @@ import "contracts/utils/BytesLib.sol";
 
 contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
     using SafeMath for uint256;
-    using SafeERC20 for ERC20;
+    using SafeERC20 for IERC20;
 
     mapping (address => uint256) initialDeposit;
     mapping (address => address[]) writerContents;
 
     address[] public contentsAddress;
     ICouncil council;
-    ERC20 token;
+    IERC20 token;
 
     modifier validAccessAddress(address _apiAddress) {
         require(council.getApiContents() == _apiAddress,
