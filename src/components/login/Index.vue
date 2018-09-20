@@ -41,14 +41,6 @@
       join: async function () {
         this.$loading('loading...');
         const account = web3.eth.accounts.create();
-//        web3.eth.accounts.wallet.add(`0x441CAA3B82A5ED3D67D96FCD6971491D1887C3B1B416A61D55D844DE48BF3FBF`)
-//        await web3.eth.sendTransaction({
-//          from: '0xB595c1D6c14aE9Ea94F55a481C93EC10c4C00581',
-//          to: account.address,
-//          value: this.$utils.appendDecimals(1),
-//          gasLimit: 21000,
-//          gasPrice: 10000000000
-//        });
         this.$store.dispatch('LOGIN', account.privateKey);
         window.location.reload();
       }

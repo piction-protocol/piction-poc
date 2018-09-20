@@ -36,7 +36,7 @@
         } else {
           await this.$contract.pxl.approveAndCall(this.pictionAddress.contentsManager, this.pictionValue.initialDeposit);
         }
-        window.location.reload();
+        this.$loading.close();
       }
     },
     async created() {
