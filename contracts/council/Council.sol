@@ -63,7 +63,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     {
         token = _token;
         members[msg.sender] = true;
-        
+
         emit RegisterCouncil(msg.sender, _token);
     }
 
@@ -203,29 +203,51 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     }
 
     /**
+    * @dev 정당하지 않은 신고한 유저의 보증금 차감
+    * @param _reporter 신고자 주소
+    */
+    function reporterDeduction(address _reporter) external {
+        require(apiAddress.apiReport == msg.sender);
+
+        uint256 deductionAmount;
+        deductionAmount = IReport(pictionAddress.report).deduction(_reporter);
+
+        emit ReporterDeduction(_reporter, deductionAmount);
+    }
+
+    /**
+    * @dev 정당하지 않은 신고한 유저의 블락
+    * @param _reporter 신고자 주소
+    */
+    function reporterBlock(address _reporter) external {
+        require(apiAddress.apiReport == msg.sender);
+
+        IReport(pictionAddress.report).reporterBlock(_reporter);
+
+        emit ReporterBlock(_reporter);
+    }
+
+    /**
     * @dev Report 목록의 신고를 처리함
     * @param _index Report의 reports 인덱스 값
     * @param _content Content의 주소
     * @param _reporter Reporter의 주소
-    * @param _deductionRate 신고자의 RegFee를 차감시킬 비율, 0이면 Reward를 지급함, 50(논의)이상이면 block처리함
+    * @param _reword 리워드 지급 여부
     */
-    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate) external {
+    function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external {
         require(apiAddress.apiReport == msg.sender);
 
-        uint256 resultAmount;
-        bool valid;
-        if (_deductionRate > 0) {
-            resultAmount = IReport(pictionAddress.report).deduction(_reporter, _deductionRate, (_deductionRate/(10 ** 16)) >= 50 ? true:false);
-            valid = false;
-        } else {
-            resultAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
-            valid = true;
+        uint256 rewordAmount;
+        if (_reword) {
+            rewordAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
         }
 
-        IReport(pictionAddress.report).completeReport(_index, valid, resultAmount);
+        IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
 
-        emit Judge(_index, _content, _reporter, _deductionRate);
+        emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
     }
+
+
 
 
     function getToken() external view returns (address token_) {

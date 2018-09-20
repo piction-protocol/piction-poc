@@ -18,8 +18,6 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
-    uint256 DECIMALS = 10 ** 18;
-
     //위원회
     ICouncil council;
 
@@ -73,6 +71,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     function registration(address _from, uint256 _value, address _token) private {
         require(council.getReportRegistrationFee() == _value);
         require(registrationFee[_from].amount == 0);
+        require(registrationFee[_from].lockTime < TimeLib.currentTime());
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
@@ -80,7 +79,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         registrationFee[_from].lockTime = TimeLib.currentTime().add(interval);
         token.safeTransferFrom(_from, address(this), _value);
 
-        emit AddRegistrationFee(_from, _value, _token);
+        emit RegistrationFee(_from, _value, _token);
     }
 
     /**
@@ -163,50 +162,51 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     /**
     * @dev 신고 처리 완료 후 호출하는 메소드, deduction나 DepositPool의 reportReward 처리 후 호출
     * @param _index 신고 목록의 인덱스
+    * @param _reword 신고 리워드를 받았는가?
+    * @param _rewordAmount 리워드 금액
     */
-    function completeReport(uint256 _index, bool _valid, uint256 _resultAmount) external {
+    function completeReport(uint256 _index, bool _reword, uint256 _rewordAmount) external {
         require(msg.sender == address(council));
         require(_index < reports.length);
         require(!reports[_index].complete);
 
         reports[_index].complete = true;
-        reports[_index].completeValid = _valid;
-        reports[_index].completeAmount = _resultAmount;
+        reports[_index].completeValid = _reword;
+        reports[_index].completeAmount = _rewordAmount;
 
-
-        emit CompleteReport(_index, reports[_index].detail, _valid, _resultAmount);
+        emit CompleteReport(_index, reports[_index].detail, _reword, _rewordAmount);
     }
 
     /**
-    * @dev 신고자의 무효, 증거 불충분으로 인한 RegFee 차감, 위원회가 호출함
+    * @dev 문제가 있는 신고자의 RegFee 차감, 위원회가 호출함
     * @param _reporter 차감 시킬 대상
-    * @param _rate 차감 시킬 비율
-    * @param _block 특정시간 행동 페널티를 줄것
     */
-    function deduction(address _reporter, uint256 _rate, bool _block)
-        external
-        validAddress(_reporter)
-        validRange(_rate)
-        validRate(_rate)
-        returns(uint256 result_)
-    {
+    function deduction(address _reporter) external validAddress(_reporter) returns(uint256 result_) {
         require(msg.sender == address(council));
-        require(registrationFee[_reporter].amount > 0);
 
-        uint256 result = registrationFee[_reporter].amount.mul(_rate).div(DECIMALS);
-        registrationFee[_reporter].amount = registrationFee[_reporter].amount.sub(result);
+        uint256 amount = registrationFee[_reporter].amount;
+        if (amount > 0) {
+            registrationFee[_reporter].amount = 0;
 
-        ERC20 token = ERC20(council.getToken());
-        //임시 Ecosystem Growth Fund가 없음으로 위원회로 전송함
-        token.safeTransfer(address(council), result);
-
-        if (_block) {
-            registrationFee[_reporter].blockTime = registrationFee[_reporter].lockTime;
+            ERC20 token = ERC20(council.getToken());
+            //임시 Ecosystem Growth Fund가 없음으로 위원회로 전송함
+            token.safeTransfer(address(council), amount);
+            result_ = amount;
         }
 
-        emit Deduction(_reporter, _rate, result, _block);
+        emit Deduction(_reporter, result_);
+    }
 
-        return result;
+    /**
+    * @dev 문제가 있는 신고자 추가 신고를 막음
+    * @param _reporter 막을 대상
+    */
+    function reporterBlock(address _reporter) external {
+        require(msg.sender == address(council));
+
+        registrationFee[_reporter].blockTime = registrationFee[_reporter].lockTime;
+
+        emit ReporterBlock(_reporter, registrationFee[_reporter].blockTime);
     }
 
     /**
@@ -224,7 +224,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         registrationFee[_reporter].amount = 0;
         token.safeTransfer(_reporter, tempAmount);
 
-        emit ReturnRegFee(_reporter, tempAmount);
+        emit WithdrawRegistration(_reporter, tempAmount);
     }
 
     /**
@@ -251,10 +251,11 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         return registrationFee[_reporter].blockTime;
     }
 
-    event AddRegistrationFee(address _from, uint256 _value, address _token);
+    event RegistrationFee(address _from, uint256 _value, address _token);
     event SendReport(uint256 indexed id, address indexed _content, address indexed _from, string _detail);
-    event ReturnRegFee(address _to, uint256 _amount);
+    event WithdrawRegistration(address _to, uint256 _amount);
     event CompleteReport(uint256 _index, string _detail, bool _valid, uint256 _resultAmount);
-    event Deduction(address _reporter, uint256 _rate, uint256 _amount, bool _block);
+    event Deduction(address _reporter, uint256 _amount);
+    event ReporterBlock(address _reporter, uint256 _blockTime);
 
 }
