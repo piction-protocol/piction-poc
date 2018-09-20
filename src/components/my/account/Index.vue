@@ -87,7 +87,7 @@
           this.$loading('loading...');
           try {
             await this.$contract.accountManager.createAccount(this.name);
-            window.location.reload()
+            this.registered = true;
           } catch (e) {
             alert(e)
           }

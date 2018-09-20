@@ -37,7 +37,7 @@
       async purchase() {
         this.$loading('loading...');
         try {
-          const cd = this.pictionAddress.account;
+          const cd = '0xB595c1D6c14aE9Ea94F55a481C93EC10c4C00581';
           const content = this.content_id.substr(2)
           const marketer = this.$utils.toHexString(0).substr(2)
           const index = this.$utils.toHexString(this.episode.number, 64).substr(2);
@@ -46,10 +46,11 @@
             this.episode.price,
             `${cd}${content}${marketer}${index}`
           );
+          this.$router.push({name: 'viewer', params: {content_id: this.content_id, episode_id: this.episode.number}})
         } catch (e) {
           alert(e);
         }
-        this.$router.go(this.$router.path)
+        this.$loading.close();
       }
     }
   }

@@ -1,10 +1,10 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Web3 from 'web3'
+var provider = new Web3.providers.WebsocketProvider('ws://127.0.0.1:9545/')
+// var provider = new Web3.providers.WebsocketProvider('ws://54.249.219.254:8546')
+window.web3 = new Web3(provider);
 
-var provider = new Web3.providers.HttpProvider("https://private.piction.network:8545/");
-// var provider = new Web3.providers.HttpProvider("http://52.203.39.129:8545");
-web3 = new Web3(provider);
 import Vue from 'vue'
 import Vuex from 'vuex'
 import App from './App'
@@ -21,7 +21,6 @@ import 'vue2-toast/lib/toast.css';
 import Datetime from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
 import councilSource from '../build/contracts/Council.json'
-import councilInterfaceSource from '../build/contracts/CouncilInterface.json'
 
 Vue.config.productionTip = false
 
@@ -30,8 +29,6 @@ Vue.use(Datetime)
 Vue.use(Toast);
 Vue.use(Vuex);
 
-// web3.eth.accounts.wallet.add(`0x441CAA3B82A5ED3D67D96FCD6971491D1887C3B1B416A61D55D844DE48BF3FBF`);
-
 (async () => {
   if (store.getters.isLoggedIn) {
     await web3.eth.accounts.wallet.add(store.getters.token);
@@ -39,24 +36,27 @@ Vue.use(Vuex);
     console.log('not logged in')
   }
 
-  const network = '2880';
+  const network = '4447';
+  // const network = '2880';
   const councilAddress = councilSource.networks[network].address;
-  const council = new web3.eth.Contract(councilInterfaceSource.abi, councilAddress);
+  const council = new web3.eth.Contract(councilSource.abi, councilAddress);
+  const pictionConfig = await council.methods.getPictionConfig().call();
   const pictionAddress = {};
   pictionAddress.council = councilAddress;
   pictionAddress.account = store.getters.publicKey.toLowerCase();
-  pictionAddress.pxl = await council.methods.getToken().call();
-  pictionAddress.pixelDistributor = await council.methods.getPixelDistributor().call();
-  pictionAddress.userPaybackPool = await council.methods.getUserPaybackPool().call();
-  pictionAddress.depositPool = await council.methods.getDepositPool().call();
-  pictionAddress.contentsManager = await council.methods.getContentsManager().call();
-  pictionAddress.fundManager = await council.methods.getFundManager().call();
-  pictionAddress.accountManager = await council.methods.getAccountManager().call();
-  pictionAddress.report = await council.methods.getReport().call();
+  pictionAddress.pxl = pictionConfig.pxlAddress_;
+  pictionAddress.userPaybackPool = pictionConfig.pictionAddress_[0];
+  pictionAddress.depositPool = pictionConfig.pictionAddress_[1];
+  pictionAddress.pixelDistributor = pictionConfig.pictionAddress_[2];
+  pictionAddress.marketer = pictionConfig.pictionAddress_[3];
+  pictionAddress.report = pictionConfig.pictionAddress_[4];
+  pictionAddress.contentsManager = pictionConfig.managerAddress_[0];
+  pictionAddress.fundManager = pictionConfig.managerAddress_[1];
+  pictionAddress.accountManager = pictionConfig.managerAddress_[2];
   const pictionValue = {}
-  pictionValue.initialDeposit = Number(await council.methods.getInitialDeposit().call());
-  pictionValue.reportRegistrationFee = Number(await council.methods.getReportRegistrationFee().call());
-  pictionValue.defaultGas = 4700000;
+  pictionValue.initialDeposit = Number(pictionConfig.pictionValue_[0]);
+  pictionValue.reportRegistrationFee = Number(pictionConfig.pictionValue_[1]);
+  pictionValue.defaultGas = 6000000;
   console.log('pictionAddress', pictionAddress);
   console.log('pictionValue', pictionValue);
   Vue.use(PictionNetworkPlugin, pictionAddress, pictionValue);

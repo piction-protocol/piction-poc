@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-class ContentsManager {
+class IContent {
   constructor(abi, from, gas) {
     this._contract = new web3.eth.Contract(abi);
     this._contract.options.from = from;
@@ -57,4 +57,4 @@ class ContentsManager {
   }
 }
 
-export default ContentsManager;
+export default IContent;

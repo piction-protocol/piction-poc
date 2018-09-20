@@ -36,20 +36,20 @@
         } else {
           await this.$contract.pxl.approveAndCall(this.pictionAddress.report, initialDeposit);
         }
-        window.location.reload();
+        this.$loading.close();
       }
     },
     async created() {
-      let regFee = this.regFee = await this.$contract.report.getRegFee();
-      let deposit = BigNumber(regFee[0]);
-      let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
-      if (deposit.eq(0)) {
-        this.buttonText = `${this.$utils.toPXL(initialDeposit)} PXL 예치`;
-        this.buttonDisabled = false;
-      } else {
-        this.buttonText = `신고 활동 가능 (${this.$utils.toPXL(deposit)} PXL 예치중)`;
-        this.buttonDisabled = true;
-      }
+//      let regFee = this.regFee = await this.$contract.report.getRegFee();
+//      let deposit = BigNumber(regFee[0]);
+//      let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
+//      if (deposit.eq(0)) {
+//        this.buttonText = `${this.$utils.toPXL(initialDeposit)} PXL 예치`;
+//        this.buttonDisabled = false;
+//      } else {
+//        this.buttonText = `신고 활동 가능 (${this.$utils.toPXL(deposit)} PXL 예치중)`;
+//        this.buttonDisabled = true;
+//      }
     }
   }
 </script>

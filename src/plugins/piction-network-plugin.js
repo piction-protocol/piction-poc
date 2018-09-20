@@ -4,8 +4,8 @@ import pxlSource from '../../build/contracts/PXL.json'
 import AccountManager from './abi-class/AccountManager.js'
 import accountManagerSource from '../../build/contracts/AccountManager.json'
 
-import ContentInterface from './abi-class/ContentInterface.js'
-import contentInterfaceSource from '../../build/contracts/ContentInterface.json'
+import IContent from './abi-class/IContent.js'
+import iContentSource from '../../build/contracts/IContent.json'
 
 import ContentsManager from './abi-class/ContentsManager.js'
 import contentsManagerSource from '../../build/contracts/ContentsManager.json'
@@ -52,8 +52,8 @@ const PictionNetworkPlugin = {
       pictionValue.defaultGas
     )
 
-    Vue.prototype.$contract.contentInterface = new ContentInterface(
-      contentInterfaceSource.abi,
+    Vue.prototype.$contract.contentInterface = new IContent(
+      iContentSource.abi,
       pictionAddress.account,
       pictionValue.defaultGas
     )

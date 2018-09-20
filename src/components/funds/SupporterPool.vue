@@ -43,7 +43,7 @@
           obj.state = this.getStateString(distribution.state);
           obj.votingCount = distribution.votingCount;
           if (!moment().isBetween(Number(distribution.distributionTime - this.fund.releaseInterval), Number(distribution.distributionTime)) ||
-            this.getStateString(distribution.state) != 'PENDING' || distribution.isVoting) {
+            distribution.state != 0 || distribution.isVoting) {
             obj.disable = true;
           }
           distributions.push(obj)
@@ -121,7 +121,7 @@
 
         this.distributableAmount = new BigNumber(0)
         await this.distributions.forEach(distribution => {
-          if (new Date().getTime() > distribution.distributionTime && this.getStateString(distribution.state) == 'PENDING') {
+          if (new Date().getTime() > distribution.distributionTime && distribution.state == 0) {
             this.distributableAmount = this.distributableAmount.plus(distribution.amount);
           }
         });
