@@ -34,7 +34,7 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
         validAddress(_councilAddr)
     {
         council = ICouncil(_councilAddr);
-        token = ERC20(council.getToken());
+        token = IERC20(council.getToken());
     }
 
     function addContents(
