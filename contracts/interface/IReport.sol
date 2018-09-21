@@ -8,8 +8,9 @@ interface IReport {
     function getReporterBlockTime(address _reporter) external view returns(uint256 blockTime_);
     function withdrawRegistration(address _reporter) external;
 
-    function completeReport(uint256 _index, bool _valid, uint256 _resultAmount) external;
-    function deduction(address _reporter, uint256 _rate, bool _block) external returns(uint256 result_);
+    function completeReport(uint256 _index, bool _reword, uint256 _rewordAmount) external;
+    function deduction(address _reporter) external returns(uint256 result_);
+    function reporterBlock(address _reporter) external;
     function getReportCount(address _content) external view returns(uint256);
     function getUncompletedReport(address _content) external view returns(uint256 count);
 }
