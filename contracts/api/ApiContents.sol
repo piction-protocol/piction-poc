@@ -8,6 +8,7 @@ import "contracts/token/CustomToken.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IContent.sol";
 import "contracts/interface/IContentsManager.sol";
+import "contracts/interface/IAccountManager.sol";
 
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
@@ -48,7 +49,12 @@ contract ApiContents is ValidValue {
         require(council.getDepositPool() != address(0),
                 "Content creation failed: Piction network error. check council config.");
 
-        contentsManager.addContents(msg.sender, _record, _marketerRate);
+        string memory writerName;
+        bool result;
+        (writerName, result) = IAccountManager(council.getAccountManager()).getUserName(msg.sender);
+
+        require(result, "Content creation failed: Please register account.");
+        contentsManager.addContents(msg.sender, writerName, _record, _marketerRate);
     }
 
     /**
@@ -183,6 +189,59 @@ contract ApiContents is ValidValue {
         }
 
         (records_, spos_, epos_) = _getContentsDetail(writerContentsAddress_);
+    }
+
+    /**
+    * @dev 컨텐츠 주소를 이용하여 컨텐츠 정보 조회
+    * @param _contentsAddress 컨텐츠 주소 배열
+    * @return contentsAddress_ 컨텐츠 주소 배열
+    * @return records_ bytes로 변환 된 작품 record 정보
+    * @return spos_ bytes로 변환 된 record의 start index
+    * @return epos_ bytes로 변환 된 record의 end index
+    */
+    function getContentsRecord(
+        address[] _contentsAddress
+    )
+        external
+        view
+        returns (address[] memory contentsAddress_, bytes memory records_, uint256[] memory spos_, uint256[] memory epos_)
+    {
+        contentsAddress_ = _contentsAddress;
+
+        (records_, spos_, epos_) = _getContentsDetail(contentsAddress_);
+    }
+
+    /**
+    * @dev 작가 주소를 이용하여 작가이름(ID) 조회
+    * @param _contentsAddress 컨텐츠 주소 배열
+    * @return writer_ 작가 주소 배열
+    * @return writerName_ bytes로 변환 된 작품의 작가 이름(ID)
+    * @return spos_ bytes로 변환 된 writerName_의 start index
+    * @return epos_ bytes로 변환 된 writerName_의 end index
+    */
+    function _getContentsWriterName(
+        address[] _contentsAddress
+    )
+        private
+        view
+        returns (address[] memory writer_, bytes memory writerName_, uint256[] memory spos_, uint256[] memory epos_)
+    {
+        uint256 contentsLength = _contentsAddress.length;
+
+        writer_ = new address[](contentsLength);
+        spos_ = new uint256[](contentsLength);
+        epos_ = new uint256[](contentsLength);
+
+        uint256 tempLength;
+        for(uint256 i = 0 ; i < contentsLength ; i++) {
+            writer_[i] = IContent(_contentsAddress[i]).getWriter();
+
+            bytes memory str = bytes(IContent(_contentsAddress[i]).getWriterName());
+            spos_[i] = tempLength;
+            writerName_ = writerName_.concat(str);
+            tempLength = (tempLength == 0)? tempLength.add((str.length).mul(2).add(2)) : tempLength.add((str.length).mul(2));
+            epos_[i] = tempLength;
+        }
     }
 
     /**
