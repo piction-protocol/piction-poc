@@ -47,19 +47,32 @@ contract ApiReport is ValidValue {
     }
 
     /**
+    * @dev 문제가 있는 신고자 처리
+    * @param _reporter 막을 대상
+    * @param _deduction 신고자 보증금 차감
+    * @param _block 신고자 추가 신고 막음
+    */
+    function reporterJudge(address _reporter, bool _deduction, bool _block) external validAddress(_reporter) {
+        require(council.isMember(msg.sender));
+        if (_deduction) {
+            council.reporterDeduction(_reporter);
+        }
+
+        if (_block) {
+            council.reporterBlock(_reporter);
+        }
+    }
+
+    /**
     * @dev Report 목록의 신고를 처리함
     * @param _index Report의 reports 인덱스 값
     * @param _content Content의 주소
     * @param _reporter Reporter의 주소
-    * @param _deductionRate 신고자의 RegFee를 차감시킬 비율, 0이면 Reward를 지급함, 50(논의)이상이면 block처리함
+    * @param _reword 리워드 지급 여부
     */
-    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate)
-        external
-        validAddress(_content)
-        validAddress(_reporter)
-    {
+    function reportProcess(uint256 _index, address _content, address _reporter, bool _reword) external validAddress(_reporter) {
         require(council.isMember(msg.sender));
-        council.judge(_index, _content, _reporter, _deductionRate);
+        council.reportReword(_index, _content, _reporter, _reword);
     }
 
     /**
