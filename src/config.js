@@ -25,6 +25,12 @@ export default async (network) => {
     accountManager: pictionConfig.managerAddress_[2],
   };
 
+  returnConfig.apiAddress = {
+    apiContents: pictionConfig.apiAddress_[0],
+    apiReport: pictionConfig.apiAddress_[1],
+    apiFund: pictionConfig.apiAddress_[2],
+  };
+
   returnConfig.pictionValue = {
     initialDeposit: Number(pictionConfig.pictionValue_[0]),
     reportRegistrationFee: Number(pictionConfig.pictionValue_[1]),

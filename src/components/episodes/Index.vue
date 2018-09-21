@@ -29,29 +29,25 @@
       }
     },
     methods: {
-      updatePXL: async function () {
-        let pxl = await this.$contract.pxl.balanceOf(this.pictionConfig.account);
-        this.pxl = this.$utils.toPXL(pxl);
-      },
       async report() {
         this.$loading('loading...');
-        let regFee = await this.$contract.report.getRegFee();
-        let deposit = BigNumber(regFee[0]);
-        let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
+        let registrationInfo = await this.$contract.apiReport.getRegistrationAmount();
+        let deposit = BigNumber(registrationInfo.amount_);
+        let initialDeposit = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         let message = `신고를 하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
         if (deposit.gt(BigNumber(0))) {
           let reason = prompt("신고 사유를 입력하세요.", "");
           if(reason) {
-            await this.$contract.report.sendReport(this.content_id, reason);
+            await this.$contract.apiReport.sendReport(this.content_id, reason);
           } else {
             alert("신고 사유가 입력되지 않았습니다.")
           }
         } else if (pxl.lt(initialDeposit)) {
           alert(message)
         } else if (confirm(`${message}\n등록하시겠습니까?`)) {
-          await this.$contract.pxl.approveAndCall(this.pictionAddress.report, initialDeposit);
-          this.updatePXL();
+          await this.$contract.pxl.approveAndCall(this.pictionConfig.pictionAddress.report, initialDeposit);
+          this.report();
         }
         this.$loading.close();
       }

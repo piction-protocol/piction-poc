@@ -29,7 +29,7 @@
     methods: {
       deposit: async function () {
         this.$loading('loading...');
-        let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
+        let initialDeposit = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         if (pxl.lt(initialDeposit)) {
           alert(`예치금 ${initialDeposit} PXL 이 필요합니다.`)
@@ -42,7 +42,7 @@
     async created() {
 //      let regFee = this.regFee = await this.$contract.report.getRegFee();
 //      let deposit = BigNumber(regFee[0]);
-//      let initialDeposit = BigNumber(this.pictionValue.reportRegistrationFee);
+//      let initialDeposit = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
 //      if (deposit.eq(0)) {
 //        this.buttonText = `${this.$utils.toPXL(initialDeposit)} PXL 예치`;
 //        this.buttonDisabled = false;

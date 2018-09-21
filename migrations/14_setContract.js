@@ -8,6 +8,7 @@ var AccountManager = artifacts.require("AccountManager");
 var PxlDistributor = artifacts.require("PxlDistributor");
 var Marketer = artifacts.require("Marketer");
 var Report = artifacts.require("Report");
+var ApiReport = artifacts.require("ApiReport");
 
 module.exports = function (deployer) {
 
@@ -56,6 +57,12 @@ module.exports = function (deployer) {
       ContentsManager.address,
       FundManager.address,
       AccountManager.address
+    );
+
+    instance.initialApiAddress(
+      ApiReport.address,
+      ApiReport.address,
+      ApiReport.address
     );
   });
 };
