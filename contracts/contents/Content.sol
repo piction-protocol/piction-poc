@@ -25,9 +25,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
     ICouncil council;
     uint256 pickCount;
-    string public record;
-    address public writer;
-    uint256 public marketerRate;
+    string record;
+    address writer;
+    string writerName;
+    uint256 marketerRate;
     Episode[] episodes;
 
     modifier validEpisodeLength(uint256 _index) {
@@ -44,18 +45,21 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     constructor(
         string _record,
         address _writer,
+        string _writerName,
         uint256 _marketerRate,
         address _council
     )
         public
-        validAddress(_writer) validString(_record) validAddress(_council)
+        validAddress(_writer) validString(_record)
+        validAddress(_council) validString(_writerName)
     {
         record = _record;
         writer = _writer;
+        writerName = _writerName;
         marketerRate = _marketerRate;
         council = ICouncil(_council);
 
-        emit ContentCreation(msg.sender, _writer, _record, _marketerRate);
+        emit ContentCreation(msg.sender, _writer, _writerName, _record, _marketerRate);
     }
 
     function updateContent(
@@ -109,6 +113,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
     function getWriter() public view returns (address writer_) {
         writer_ =  writer;
+    }
+
+    function getWriterName() public view returns (string writerName_) {
+        writerName_ =  writerName;
     }
 
     function getMarketerRate() public view returns (uint256 marketerRate_) {

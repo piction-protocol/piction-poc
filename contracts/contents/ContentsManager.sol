@@ -39,6 +39,7 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
 
     function addContents(
         address _writer,
+        string _writerName,
         string _record,
         uint256 _marketerRate
     )
@@ -49,7 +50,7 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
                 "Content creation failed: Only ApiContents contract.");
 
         address contractAddress = new Content(
-            _record, _writer, _marketerRate, address(council));
+            _record, _writer, _writerName, _marketerRate, address(council));
 
         Content(contractAddress).transferOwnership(_writer);
 
@@ -58,7 +59,7 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
 
         _transferInitialDeposit(_writer, contractAddress);
 
-        emit RegisterContents(contentsAddress.length.sub(1), contractAddress, _writer, _record, _marketerRate);
+        emit RegisterContents(contentsAddress.length.sub(1), contractAddress, _writer, _writerName, _record, _marketerRate);
     }
 
     function getContentsAddress() external view returns (address[] contentsAddress_){
