@@ -1,7 +1,7 @@
 <template>
   <div>
     <br>
-    <h5>로그인 / 회원가입</h5>
+    <h5>로그인</h5>
     <b-alert show variant="secondary">
       <b-input-group>
         <b-form-input v-model.trim="privateKey" type="text" placeholder="비밀키를 입력하세요."/>
@@ -11,7 +11,8 @@
       </b-input-group>
       <hr>
       <div align="center">
-        <span>계정이 없으신가요? </span><b-link @click="join"><b>회원가입</b></b-link>
+        <span>계정이 없으신가요? </span>
+        <b-link @click="join"><b>회원가입</b></b-link>
       </div>
     </b-alert>
   </div>
@@ -39,10 +40,7 @@
         }
       },
       join: async function () {
-        this.$loading('loading...');
-        const account = web3.eth.accounts.create();
-        this.$store.dispatch('LOGIN', account.privateKey);
-        window.location.reload();
+        this.$router.push({name: 'join', query: this.$router.history.current.query})
       }
     },
     created() {

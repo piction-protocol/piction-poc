@@ -7,16 +7,12 @@ class AccountManager {
     this._contract.options.gas = gas;
   }
 
-  getUserName(address) {
-    return this._contract.methods.getUserName(address).call();
+  isRegistered(userName) {
+    return this._contract.methods.isRegistered(userName).call();
   }
 
-  getUserAddress(userName) {
-    return this._contract.methods.getUserAddress(userName).call();
-  }
-
-  createAccount(userName) {
-    return this._contract.methods.createAccount(userName).send();
+  createNewAccount(userName, password, privateKey, publicKey) {
+    return this._contract.methods.createNewAccount(userName, password, privateKey, publicKey).send();
   }
 }
 
