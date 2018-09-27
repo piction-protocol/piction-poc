@@ -56,7 +56,7 @@ contract AccountManager is IAccountManager, ValidValue {
 		validAddress(_wallet) validString(_userName)
 		validString(_password) validString(_privateKey)
 	{
-		require(isRegistered(_userName), "Create new account failed: Registered accounts.");
+		require(!isRegistered(_userName), "Create new account failed: Registered accounts.");
 
 		account.push(Account(_userName, _password, _privateKey, _wallet));
 		userNameToIndex[_userName] = account.length.sub(1);
@@ -117,7 +117,7 @@ contract AccountManager is IAccountManager, ValidValue {
 	{
 		require(council.getPixelDistributor() == msg.sender, "Purchase failed: Access denied.");
 
-		require(isRegistered(account[addressToIndex[_buyer]].userName),
+		require(!isRegistered(account[addressToIndex[_buyer]].userName),
 			"Purchase failed: Please register account.");
 
 		Purchase storage purchase = addressToPurchase[_buyer];
@@ -187,8 +187,12 @@ contract AccountManager is IAccountManager, ValidValue {
 		validString(_userName)
 		returns (bool isRegistered_)
 	{
-		isRegistered_ = (userNameToIndex[_userName] == 0 &&
-			!_compareString(account[userNameToIndex[_userName]].userName, _userName)) ? false : true;
+		if(account.length == 0) {
+			isRegistered_ = false;
+		} else {
+			isRegistered_ = (userNameToIndex[_userName] == 0 &&
+				!_compareString(account[userNameToIndex[_userName]].userName, _userName)) ? false : true;
+		}
 	}
 
 	/**
