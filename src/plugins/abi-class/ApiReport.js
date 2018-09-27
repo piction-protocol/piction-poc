@@ -23,8 +23,8 @@ class ApiReport {
     return this._contract.methods.sendReport(content, detail).send();
   }
 
-  judge(index, content, reporter, deductionRate) {
-    return this._contract.methods.judge(index, content, reporter, deductionRate).send();
+  reportProcess(index, content, reporter, success) {
+    return this._contract.methods.reportProcess(index, content, reporter, success).send();
   }
 
 }

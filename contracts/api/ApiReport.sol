@@ -76,20 +76,19 @@ contract ApiReport is ValidValue {
     }
 
     /**
-    * @dev 신고 목록의 id 값으로 처리여부, 처리 결과, 토큰량을 회신한다
+    * @dev 신고 목록의 id 값으로 처리여부, 보상 토큰량을 회신함
     * @param ids 신고 id 목록
     */
     function getReportResult(uint256[] ids)
         external
         view
-        returns(bool[] memory complete_, bool[] memory completeValid_, uint256[] memory completeAmount_)
+        returns(bool[] memory complete_, uint256[] memory completeAmount_)
     {
         complete_ = new bool[](ids.length);
-        completeValid_ = new bool[](ids.length);
         completeAmount_ = new uint256[](ids.length);
 
         for(uint i = 0; i < ids.length; i++) {
-            (,,,complete_[i], completeValid_[i], completeAmount_[i]) = IReport(council.getReport()).getReport(ids[i]);
+            (,,,complete_[i],, completeAmount_[i]) = IReport(council.getReport()).getReport(ids[i]);
         }
     }
 }

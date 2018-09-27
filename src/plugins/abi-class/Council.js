@@ -5,11 +5,12 @@ class Council {
     this._contract = new web3.eth.Contract(abi, address);
     this._contract.options.from = from;
     this._contract.options.gas = gas;
+    this._f = (() => {})
+    this._contract.events.ReportReword({fromBlock: 'latest'}, (error, event) => this._f(error, event))
   }
 
-  judge(index, content, reporter, deductionRate) {
-    console.log(index, content, reporter, deductionRate)
-    return this._contract.methods.judge(index, content, reporter, deductionRate).send();
+  setCallback(f) {
+    this._f = f;
   }
 }
 
