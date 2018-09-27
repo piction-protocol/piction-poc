@@ -85,7 +85,7 @@ contract AccountManager is IAccountManager, ValidValue {
 		validString(_userName) validString(_userName)
 		returns (string key_, bool result_)
 	{
-		if(!isRegistered(_userName)) {
+		if(account.length == 0 || !isRegistered(_userName)) {
 			key_ = "Login failed: Please register account.";
 			result_ = false;
 			return;
@@ -209,7 +209,7 @@ contract AccountManager is IAccountManager, ValidValue {
 		validAddress(_wallet)
 		returns (string memory userName_, bool result_)
 	{
-		if(account[addressToIndex[_wallet]].wallet == _wallet) {
+		if(account.length > 0 && account[addressToIndex[_wallet]].wallet == _wallet) {
 			userName_ = account[addressToIndex[_wallet]].userName;
 			result_ = true;
 		}
