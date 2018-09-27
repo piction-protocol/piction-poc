@@ -9,6 +9,7 @@ var PxlDistributor = artifacts.require("PxlDistributor");
 var Marketer = artifacts.require("Marketer");
 var Report = artifacts.require("Report");
 var ApiReport = artifacts.require("ApiReport");
+var ApiContents = artifacts.require("ApiContents");
 
 module.exports = function (deployer) {
 
@@ -25,6 +26,7 @@ module.exports = function (deployer) {
 
     const initialDeposit = 10 * decimals;
     const reportRegistrationFee = 10 * decimals;
+    const fundAvailable = true;
 
     const cdRate = 0.15 * decimals;
     const depositRate = 0.03 * decimals;
@@ -35,6 +37,7 @@ module.exports = function (deployer) {
     instance.initialValue(
       initialDeposit,
       reportRegistrationFee,
+      fundAvailable
     );
 
     instance.initialRate(
@@ -61,7 +64,7 @@ module.exports = function (deployer) {
 
     instance.initialApiAddress(
       ApiReport.address,
-      ApiReport.address,
+      ApiContents.address,
       ApiReport.address
     );
   });
