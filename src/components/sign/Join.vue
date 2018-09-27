@@ -22,7 +22,7 @@
       </b-form-group>
       <hr>
       <div align="center">
-        <b-button variant="primary" class="my-2 my-sm-0" @click="join">회원가입</b-button>
+        <b-button variant="primary" class="my-2 my-sm-0" @click="join" block>회원가입</b-button>
       </div>
     </div>
   </div>
@@ -79,7 +79,8 @@
         }
 
         try {
-          const account = web3.eth.accounts.create();
+          const account = await web3.eth.accounts.create();
+          await web3.eth.accounts.wallet.add(account.privateKey);
           await this.$contract.accountManager.createNewAccount(this.userName, this.password, account.privateKey, account.address);
           this.$store.dispatch('LOGIN', account.privateKey);
         } catch (e) {
