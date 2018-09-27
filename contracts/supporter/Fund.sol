@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IFund.sol";
+import "contracts/interface/ISupporterPool.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/SupporterPool.sol";
@@ -42,8 +43,6 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	uint256 poolSize;
 	uint256 releaseInterval;
 	uint256 distributionRate;
-
-	SupporterPool public supporterPool;
 
 	constructor(
 		address _council,
@@ -97,15 +96,15 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	}
 
 	function createSupporterPool() external {
-		require(address(supporterPool) == address(0));
+		require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0);
 		require(TimeLib.currentTime() > endTime);
 		require(fundRise > 0);
 
 		setDistributionRate();
-		supporterPool = new SupporterPool(council, address(this), writer, fundRise, poolSize, releaseInterval);
+		addSupport(address(this), writer, releaseInterval, fundRise, poolSize);
 
 		ERC20 token = ERC20(ICouncil(council).getToken());
-		token.safeTransfer(supporterPool, fundRise);
+		token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
 	}
 
 	function setDistributionRate() private {
