@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store/index.js'
-// login
-import Login from '@/components/login/Index'
+// sign
+import Login from '@/components/sign/Login'
+import Join from '@/components/sign/Join'
 // contents
 import ContentIndex from '@/components/contents/Index'
 import ContentNew from '@/components/contents/New'
@@ -35,6 +36,7 @@ const router = new Router({
     {path: '/', redirect: '/my'},
     // login
     {path: '/login', name: 'login', component: Login},
+    {path: '/join', name: 'join', component: Join},
     // contents
     {path: '/contents', name: 'contents', component: ContentIndex},
     {path: '/contents/new', name: 'new-content', component: ContentNew},
@@ -81,7 +83,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.name == 'login') {
+  if (to.name == 'login' || to.name == 'join') {
     if (store.getters.isLoggedIn) {
       next(to.query.redirect);
     } else {

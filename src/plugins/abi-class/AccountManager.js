@@ -11,12 +11,17 @@ class AccountManager {
     return this._contract.methods.getUserName(address).call();
   }
 
-  getUserAddress(userName) {
-    return this._contract.methods.getUserAddress(userName).call();
+  isRegistered(userName) {
+    return this._contract.methods.isRegistered(userName).call();
   }
 
-  createAccount(userName) {
-    return this._contract.methods.createAccount(userName).send();
+  login(userName, password) {
+    return this._contract.methods.login(userName, password).call();
+  }
+
+  createNewAccount(userName, password, privateKey, publicKey) {
+    this._contract.options.from = publicKey;
+    return this._contract.methods.createNewAccount(userName, password, privateKey, publicKey).send();
   }
 }
 

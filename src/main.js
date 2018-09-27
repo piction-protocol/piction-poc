@@ -3,7 +3,7 @@
 import Web3 from 'web3'
 
 // local: ws://127.0.0.1:9545 / private: ws://54.249.219.254:8546
-var provider = new Web3.providers.WebsocketProvider('ws://127.0.0.1:9545')
+var provider = new Web3.providers.WebsocketProvider('ws://54.249.219.254:8546')
 window.web3 = new Web3(provider);
 
 import Vue from 'vue'
@@ -37,7 +37,7 @@ Vue.use(Vuex);
     console.log('not logged in')
   }
   // local: 4447 / private: 2880
-  Vue.use(PictionNetworkPlugin, await config(4447));
+  Vue.use(PictionNetworkPlugin, await config(2880));
   Vue.use(FirebasePlugin, {
     apiKey: "AIzaSyAmq4aDivflyokSUzdDCPmmKBu_3LFTmkU",
     authDomain: "battlecomics-dev.firebaseapp.com",
@@ -61,7 +61,8 @@ Vue.use(Vuex);
     },
     components: {App},
     template: '<App/>',
-    created() {
+    async created() {
+
     }
   });
 })()

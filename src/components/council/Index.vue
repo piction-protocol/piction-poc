@@ -15,7 +15,7 @@
         </router-link>
       </template>
       <template slot="user" slot-scope="row">
-          {{row.item.user}}
+        {{row.item.user}}
       </template>
       <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
       <template slot="complete" slot-scope="row">
@@ -102,10 +102,12 @@
         }, async (error, events) => {
           events.forEach(event => this.list.push(this.getEventJsonObj(event)));
           const ids = this.list.map(o => o.id);
-          var result = await this.$contract.apiReport.getReportResult(ids);
-          result.complete_.forEach((o, i) => this.list[i].complete = o);
-          result.completeAmount_.forEach((o, i) => this.list[i].rewardAmount = this.$utils.toPXL(o));
-          this.list.reverse();
+          if (ids.length > 0) {
+            var result = await this.$contract.apiReport.getReportResult(ids);
+            result.complete_.forEach((o, i) => this.list[i].complete = o);
+            result.completeAmount_.forEach((o, i) => this.list[i].rewardAmount = this.$utils.toPXL(o));
+            this.list.reverse();
+          }
         });
       },
       setEvent() {
