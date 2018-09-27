@@ -120,7 +120,9 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         }
 
         //supporter amount
-        compareAmount = compareAmount.sub(_supportersAmount(_contentAddress, compareAmount));
+        if(council.getFundAvailable()) {
+            compareAmount = compareAmount.sub(_supportersAmount(_contentAddress, compareAmount));
+        }
 
         // cp amount
         if(compareAmount > 0) {
