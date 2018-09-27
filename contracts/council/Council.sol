@@ -17,6 +17,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     struct PictionValue {
         uint256 initialDeposit;
         uint256 reportRegistrationFee;
+        bool fundAvailable;
     }
 
     struct PictionRate {
@@ -80,14 +81,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function initialValue(
         uint256 _initialDeposit,
-        uint256 _reportRegistrationFee)
+        uint256 _reportRegistrationFee,
+        bool _fundAvailable)
         external onlyOwner
         validRange(_initialDeposit)
         validRange(_reportRegistrationFee) {
 
-        pictionValue = PictionValue(_initialDeposit, _reportRegistrationFee);
+        pictionValue = PictionValue(_initialDeposit, _reportRegistrationFee, _fundAvailable);
 
-        emit InitialValue(_initialDeposit, _reportRegistrationFee);
+        emit InitialValue(_initialDeposit, _reportRegistrationFee, _fundAvailable);
     }
 
     function initialRate(
@@ -165,14 +167,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @return address[] pictionAddress_ piction network에서 사용되는 컨트랙트 주소
     * @return address[] managerAddress_ 매니저 성격의 컨트랙트 주소
     * @return address[] apiAddress_ piction network API 컨트랙트 주소
+    * @return bool fundAvailable_ piction network 투자 기능 사용 여부
     */
     function getPictionConfig()
         external
         view
         returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_,
-             address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_)
+             address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_)
     {
-        pictionValue_ = new uint256[](2);
+        pictionValue_ = new uint256[](3);
         pictionRate_ = new uint256[](5);
         pictionAddress_ = new address[](5);
         managerAddress_ = new address[](3);
@@ -203,6 +206,33 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         apiAddress_[0] = apiAddress.apiContents;
         apiAddress_[1] = apiAddress.apiReport;
         apiAddress_[2] = apiAddress.apiFund;
+
+        fundAvailable_ = pictionValue.fundAvailable;
+    }
+
+    /**
+    * @dev 정당하지 않은 신고한 유저의 보증금 차감
+    * @param _reporter 신고자 주소
+    */
+    function reporterDeduction(address _reporter) external {
+        require(apiAddress.apiReport == msg.sender);
+
+        uint256 deductionAmount;
+        deductionAmount = IReport(pictionAddress.report).deduction(_reporter);
+
+        emit ReporterDeduction(_reporter, deductionAmount);
+    }
+
+    /**
+    * @dev 정당하지 않은 신고한 유저의 블락
+    * @param _reporter 신고자 주소
+    */
+    function reporterBlock(address _reporter) external {
+        require(apiAddress.apiReport == msg.sender);
+
+        IReport(pictionAddress.report).reporterBlock(_reporter);
+
+        emit ReporterBlock(_reporter);
     }
 
     /**
@@ -210,25 +240,22 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @param _index Report의 reports 인덱스 값
     * @param _content Content의 주소
     * @param _reporter Reporter의 주소
-    * @param _deductionRate 신고자의 RegFee를 차감시킬 비율, 0이면 Reward를 지급함, 50(논의)이상이면 block처리함
+    * @param _reword 리워드 지급 여부
     */
-    function judge(uint256 _index, address _content, address _reporter, uint256 _deductionRate) external {
+    function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external {
         require(apiAddress.apiReport == msg.sender);
 
-        uint256 resultAmount;
-        bool valid;
-        if (_deductionRate > 0) {
-            resultAmount = IReport(pictionAddress.report).deduction(_reporter, _deductionRate, (_deductionRate/(10 ** 16)) >= 50 ? true:false);
-            valid = false;
-        } else {
-            resultAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
-            valid = true;
+        uint256 rewordAmount;
+        if (_reword) {
+            rewordAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
         }
 
-        IReport(pictionAddress.report).completeReport(_index, valid, resultAmount);
+        IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
 
-        emit Judge(_index, _content, _reporter, _deductionRate);
+        emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
     }
+
+
 
 
     function getToken() external view returns (address token_) {
@@ -241,6 +268,10 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getReportRegistrationFee() view external returns (uint256 reportRegistrationFee_) {
         return pictionValue.reportRegistrationFee;
+    }
+
+    function getFundAvailable() external view returns (bool fundAvailable_) {
+        return pictionValue.fundAvailable;
     }
 
     function getCdRate() external view returns (uint256 cdRate_) {

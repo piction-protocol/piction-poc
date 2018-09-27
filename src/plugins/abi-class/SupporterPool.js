@@ -1,5 +1,7 @@
+import {abi} from '../../../build/contracts/SupporterPool.json'
+
 class SupporterPool {
-  constructor(abi, from, gas) {
+  constructor(from, gas) {
     this._contract = new web3.eth.Contract(abi);
     this._contract.options.from = from;
     this._contract.options.gas = gas;
