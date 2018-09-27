@@ -17,6 +17,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     struct PictionValue {
         uint256 initialDeposit;
         uint256 reportRegistrationFee;
+        bool fundAvailable;
     }
 
     struct PictionRate {
@@ -79,14 +80,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function initialValue(
         uint256 _initialDeposit,
-        uint256 _reportRegistrationFee)
+        uint256 _reportRegistrationFee,
+        bool _fundAvailable)
         external onlyOwner
         validRange(_initialDeposit)
         validRange(_reportRegistrationFee) {
 
-        pictionValue = PictionValue(_initialDeposit, _reportRegistrationFee);
+        pictionValue = PictionValue(_initialDeposit, _reportRegistrationFee, _fundAvailable);
 
-        emit InitialValue(_initialDeposit, _reportRegistrationFee);
+        emit InitialValue(_initialDeposit, _reportRegistrationFee, _fundAvailable);
     }
 
     function initialRate(
@@ -162,14 +164,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @return address[] pictionAddress_ piction network에서 사용되는 컨트랙트 주소
     * @return address[] managerAddress_ 매니저 성격의 컨트랙트 주소
     * @return address[] apiAddress_ piction network API 컨트랙트 주소
+    * @return bool fundAvailable_ piction network 투자 기능 사용 여부
     */
     function getPictionConfig()
         external
         view
         returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_,
-             address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_)
+             address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_)
     {
-        pictionValue_ = new uint256[](2);
+        pictionValue_ = new uint256[](3);
         pictionRate_ = new uint256[](5);
         pictionAddress_ = new address[](5);
         managerAddress_ = new address[](3);
@@ -200,6 +203,8 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         apiAddress_[0] = apiAddress.apiContents;
         apiAddress_[1] = apiAddress.apiReport;
         apiAddress_[2] = apiAddress.apiFund;
+
+        fundAvailable_ = pictionValue.fundAvailable;
     }
 
     /**
@@ -260,6 +265,10 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getReportRegistrationFee() view external returns (uint256 reportRegistrationFee_) {
         return pictionValue.reportRegistrationFee;
+    }
+
+    function getFundAvailable() external view returns (bool fundAvailable_) {
+        return pictionValue.fundAvailable;
     }
 
     function getCdRate() external view returns (uint256 cdRate_) {

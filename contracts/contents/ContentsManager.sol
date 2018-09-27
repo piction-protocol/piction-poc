@@ -1,81 +1,77 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/token/CustomToken.sol";
-import "contracts/interface/ICouncil.sol";
-
 import "contracts/contents/Content.sol";
+
+import "contracts/interface/ICouncil.sol";
+import "contracts/interface/IContentsManager.sol";
+
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
 
-contract ContentsManager is ContractReceiver, ValidValue {
+contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
     using SafeMath for uint256;
-    using SafeERC20 for ERC20;
+    using SafeERC20 for IERC20;
 
     mapping (address => uint256) initialDeposit;
-    mapping (address => uint256[]) writerContents;
+    mapping (address => address[]) writerContents;
 
     address[] public contentsAddress;
     ICouncil council;
-    ERC20 token;
+    IERC20 token;
+
+    modifier validAccessAddress(address _apiAddress) {
+        require(council.getApiContents() == _apiAddress,
+                "Acces failed: Only Access to ApiContents smart contract.");
+        _;
+    }
 
     constructor(address _councilAddr)
         public
         validAddress(_councilAddr)
     {
         council = ICouncil(_councilAddr);
-        token = ERC20(council.getToken());
+        token = IERC20(council.getToken());
     }
 
     function addContents(
+        address _writer,
+        string _writerName,
         string _record,
         uint256 _marketerRate
     )
         external
-        validString(_record)
+        validAccessAddress(msg.sender)
     {
-        require(council.getInitialDeposit() == initialDeposit[msg.sender]);
+        require(council.getApiContents() == msg.sender,
+                "Content creation failed: Only ApiContents contract.");
 
         address contractAddress = new Content(
-            _record, msg.sender, _marketerRate, address(council));
+            _record, _writer, _writerName, _marketerRate, address(council));
 
-        Content(contractAddress).transferOwnership(msg.sender);
+        Content(contractAddress).transferOwnership(_writer);
 
         contentsAddress.push(contractAddress);
-        writerContents[msg.sender].push(contentsAddress.length.sub(1));
+        writerContents[_writer].push(contractAddress);
 
-        transferInitialDeposit(msg.sender, contractAddress);
-        initialDeposit[msg.sender] = 0;
+        _transferInitialDeposit(_writer, contractAddress);
 
-        emit RegisterContents(contractAddress, contentsAddress.length);
+        emit RegisterContents(contentsAddress.length.sub(1), contractAddress, _writer, _writerName, _record, _marketerRate);
     }
 
-    function getContents() external view returns (address[]){
-        return contentsAddress;
+    function getContentsAddress() external view returns (address[] contentsAddress_){
+        contentsAddress_ = contentsAddress;
     }
 
     function getWriterContentsAddress(address _writer)
         external
         view
-        returns (address[], bool)
+        returns (address[] writerContentsAddress_)
     {
-        uint256 length = writerContents[_writer].length;
-
-        if(length == 0) {
-            return (new address[](0), false);
-        } else {
-            address[] memory writerContentsAddress = new address[](length);
-
-            for(uint256 i = 0 ; i < length ; i++) {
-                writerContentsAddress[i] = contentsAddress[writerContents[_writer][i]];
-            }
-
-            return (writerContentsAddress, true);
-        }
+        writerContentsAddress_ = writerContents[_writer];
     }
 
     function receiveApproval(address _from, uint256 _value, address _token, bytes _data)
@@ -93,29 +89,25 @@ contract ContentsManager is ContractReceiver, ValidValue {
     }
 
     function getInitialDeposit(address _writer)
-        public
+        external
         view
-        returns (uint256)
+        returns (uint256 initialDeposit_)
     {
-        return initialDeposit[_writer];
+        initialDeposit_ = initialDeposit[_writer];
     }
 
-    function transferInitialDeposit(address _writer, address _content)
+    function _transferInitialDeposit(address _writer, address _content)
         private
         validAddress(_writer) validAddress(_content)
     {
-        require(token.balanceOf(address(this)) >= initialDeposit[_writer]);
-        require(council.getDepositPool() != address(0));
+        uint256 depositAmount = initialDeposit[_writer];
+        initialDeposit[_writer] = 0;
 
         CustomToken(address(token)).approveAndCall(
             council.getDepositPool(),
-            initialDeposit[_writer],
+            depositAmount,
             BytesLib.toBytes(_content));
 
         emit TransferInitialDeposit(_writer, _content, initialDeposit[_writer]);
     }
-
-    event RegisterContents(address _contentAddress, uint256 _registerCount);
-    event ContentInitialDeposit(address _writer, uint256 _amount);
-    event TransferInitialDeposit(address _writer, address _content, uint256 _value);
 }
