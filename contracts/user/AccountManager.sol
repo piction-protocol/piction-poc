@@ -99,8 +99,6 @@ contract AccountManager is IAccountManager, ValidValue {
 
 		key_ = account[userNameToIndex[_userName]].privateKey;
 		result_ = true;
-
-		emit Login(userNameToIndex[_userName], account[userNameToIndex[_userName]].wallet, _userName);
 	}
 
 	/**
