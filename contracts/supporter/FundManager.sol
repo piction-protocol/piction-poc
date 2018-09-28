@@ -28,7 +28,7 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 		uint256 _distributionRate,
 		string _detail)
 	external {
-		require(IContent(_content).getWriter() == _writer);
+		require(ICouncil(council).getApiFund() == msg.sender);
 		require(getLastFundedTime(_content) < TimeLib.currentTime());
 
 		Fund fund = new Fund(

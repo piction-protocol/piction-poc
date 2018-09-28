@@ -47,7 +47,8 @@ contract SupporterPool is Ownable, ISupporterPool {
         uint256 _size)
         external
     {
-        //todo 접근제한 필요
+        require(_fund == msg.sender);
+
         uint256 poolAmount = _amount.div(_size);
         for (uint256 i = 0; i < _size; i++) {
             addDistribution(_fund, _writer, _interval, _amount);
@@ -75,7 +76,7 @@ contract SupporterPool is Ownable, ISupporterPool {
         funds[_fund].push(Distribution(_fund, _writer, _interval, _amount, _distributableTime, 0, State.PENDING, 0));
 	}
 
-    function getDistributions(address fund, address sender)
+    function getDistributions(address _fund, address _sender)
         public
         view
         returns (
@@ -86,63 +87,65 @@ contract SupporterPool is Ownable, ISupporterPool {
             uint256[] memory votingCount_,
             bool[] memory isVoting_)
     {
-		amount_ = new uint256[](funds[fund].length);
-		distributableTime_ = new uint256[](funds[fund].length);
-		distributedTime_ = new uint256[](funds[fund].length);
-		state_ = new uint256[](funds[fund].length);
-		votingCount_ = new uint256[](funds[fund].length);
-		isVoting_ = new bool[](funds[fund].length);
+		amount_ = new uint256[](funds[_fund].length);
+		distributableTime_ = new uint256[](funds[_fund].length);
+		distributedTime_ = new uint256[](funds[_fund].length);
+		state_ = new uint256[](funds[_fund].length);
+		votingCount_ = new uint256[](funds[_fund].length);
+		isVoting_ = new bool[](funds[_fund].length);
 
-		for (uint256 i = 0; i < funds[fund].length; i++) {
-			amount_[i] = funds[fund][i].amount;
-			distributableTime_[i] = funds[fund][i].distributableTime;
-			distributedTime_[i] = funds[fund][i].distributedTime;
-			state_[i] = uint256(funds[fund][i].state);
-			votingCount_[i] = funds[fund][i].votingCount;
-			isVoting_[i] = isVoting(fund, i, sender);
+		for (uint256 i = 0; i < funds[_fund].length; i++) {
+			amount_[i] = funds[_fund][i].amount;
+			distributableTime_[i] = funds[_fund][i].distributableTime;
+			distributedTime_[i] = funds[_fund][i].distributedTime;
+			state_[i] = uint256(funds[_fund][i].state);
+			votingCount_[i] = funds[_fund][i].votingCount;
+			isVoting_[i] = isVoting(_fund, i, _sender);
 		}
 	}
 
-    function getDistributionsCount(address fund) external view returns(uint256 count_) {
-        count_ = funds[fund].length;
+    function getDistributionsCount(address _fund) external view returns(uint256 count_) {
+        count_ = funds[_fund].length;
     }
 
-    function isVoting(address fund, uint256 _index, address sender) public view returns (bool){
-		return funds[fund][_index].voting[sender];
+    function isVoting(address _fund, uint256 _index, address _sender) public view returns (bool){
+		return funds[_fund][_index].voting[_sender];
 	}
 
-    function vote(address fund, uint256 _index, address sender) external returns (bool) {
-		require(IFund(fund).isSupporter(sender));
-		require(funds[fund].length > _index);
-		require(funds[fund][_index].state == State.PENDING);
-		uint256 votableTime = funds[fund][_index].distributableTime;
-		require(TimeLib.currentTime().between(votableTime.sub(funds[fund][_index].interval), votableTime));
+    function vote(address _fund, uint256 _index, address _sender) external {
+		require(IFund(_fund).isSupporter(_sender));
+		require(funds[_fund].length > _index);
+		require(funds[_fund][_index].state == State.PENDING);
+		uint256 votableTime = funds[_fund][_index].distributableTime;
+		require(TimeLib.currentTime().between(votableTime.sub(funds[_fund][_index].interval), votableTime));
 
-		if (funds[fund][_index].voting[sender]) {
+		if (funds[_fund][_index].voting[_sender]) {
 			revert();
 		} else {
-			funds[fund][_index].voting[sender] = true;
-			funds[fund][_index].votingCount = funds[fund][_index].votingCount.add(1);
-			if (IFund(fund).getSupporterCount().mul(10 ** 18).div(2) <= funds[fund][_index].votingCount.mul(10 ** 18)) {
-                funds[fund][_index].state = State.CANCEL_PAYMENT;
+			funds[_fund][_index].voting[_sender] = true;
+			funds[_fund][_index].votingCount = funds[_fund][_index].votingCount.add(1);
+			if (IFund(_fund).getSupporterCount().mul(10 ** 18).div(2) <= funds[_fund][_index].votingCount.mul(10 ** 18)) {
+                funds[_fund][_index].state = State.CANCEL_PAYMENT;
 				addDistribution(
-                    funds[fund][_index].fund,
-                    funds[fund][_index].writer,
-                    funds[fund][_index].interval,
-                    funds[fund][_index].amount);
+                    funds[_fund][_index].fund,
+                    funds[_fund][_index].writer,
+                    funds[_fund][_index].interval,
+                    funds[_fund][_index].amount);
 			}
 		}
 	}
 
-    function distribution(address fund) external {
-        ERC20 token = ERC20(ICouncil(council).getToken());
-        for (uint256 i = 0; i < funds[fund].length; i++) {
-            if (distributable(funds[fund][i])) {
-                funds[fund][i].distributedTime = TimeLib.currentTime();
-                funds[fund][i].state = State.PAID;
-                token.safeTransfer(funds[fund][i].writer, funds[fund][i].amount);
+    function releaseDistribution(address _fund) external {
+        require(ICouncil(council).getApiFund() == msg.sender);
 
-                emit Release(funds[fund][i].amount);
+        ERC20 token = ERC20(ICouncil(council).getToken());
+        for (uint256 i = 0; i < funds[_fund].length; i++) {
+            if (distributable(funds[_fund][i])) {
+                funds[_fund][i].distributedTime = TimeLib.currentTime();
+                funds[_fund][i].state = State.PAID;
+                token.safeTransfer(funds[_fund][i].writer, funds[_fund][i].amount);
+
+                emit ReleaseDistribution(_fund, funds[_fund][i].amount);
             }
         }
     }
@@ -151,5 +154,5 @@ contract SupporterPool is Ownable, ISupporterPool {
 		return _distribution.distributableTime <= TimeLib.currentTime() && _distribution.state == State.PENDING && _distribution.amount > 0;
 	}
 
-	event Release(uint256 amount);
+	event ReleaseDistribution(address _fund, uint256 _amount);
 }

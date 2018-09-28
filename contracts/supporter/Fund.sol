@@ -95,16 +95,18 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		emit Support(_from, _value);
 	}
 
-	function createSupporterPool() external {
+	function endFund() external {
+		require(ICouncil(council).getApiFund() == msg.sender);
 		require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0);
 		require(TimeLib.currentTime() > endTime);
-		require(fundRise > 0);
 
-		setDistributionRate();
-		addSupport(address(this), writer, releaseInterval, fundRise, poolSize);
+		if (fundRise > 0) {
+			setDistributionRate();
+			ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize);
 
-		ERC20 token = ERC20(ICouncil(council).getToken());
-		token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
+			ERC20 token = ERC20(ICouncil(council).getToken());
+			token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
+		}
 	}
 
 	function setDistributionRate() private {
@@ -118,6 +120,8 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	}
 
 	function distribution(uint256 _total) external returns (address[], uint256[]) {
+		require(ICouncil(council).getFundManager() == msg.sender);
+
 		address[] memory _supporters = new address[](supporters.length);
 		uint256[] memory _amounts = new uint256[](supporters.length);
 
@@ -135,27 +139,51 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		return (_supporters, _amounts);
 	}
 
-	function getSupporters() public view returns (address[], uint256[], uint256[], uint256[]) {
-		address[] memory _user = new address[](supporters.length);
-		uint256[] memory _investment = new uint256[](supporters.length);
-		uint256[] memory _collection = new uint256[](supporters.length);
-		uint256[] memory _distributionRate = new uint256[](supporters.length);
+	function getSupporters()
+		external
+		view
+		returns (
+			address[] memory user_,
+			uint256[] memory investment_,
+			uint256[] memory collection_,
+			uint256[] memory distributionRate_)
+	{
+		user_ = new address[](supporters.length);
+		investment_ = new uint256[](supporters.length);
+		collection_ = new uint256[](supporters.length);
+		distributionRate_ = new uint256[](supporters.length);
 
 		for (uint256 i = 0; i < supporters.length; i++) {
-			_user[i] = supporters[i].user;
-			_investment[i] = supporters[i].investment;
-			_collection[i] = supporters[i].collection;
-			_distributionRate[i] = supporters[i].distributionRate;
+			user_[i] = supporters[i].user;
+			investment_[i] = supporters[i].investment;
+			collection_[i] = supporters[i].collection;
+			distributionRate_[i] = supporters[i].distributionRate;
 		}
-		return (_user, _investment, _collection, _distributionRate);
 	}
 
 	function getSupporterCount() public view returns (uint256) {
 		return supporters.length;
 	}
 
-	function info() external view returns (uint256, uint256, uint256, uint256, uint256, uint256, string, address){
-		return (startTime, endTime, fundRise, poolSize, releaseInterval, distributionRate, detail, supporterPool);
+	function info()
+		external
+		view
+		returns (
+			uint256 startTime_,
+			uint256 endTime_,
+			uint256 fundRise_,
+			uint256 poolSize_,
+			uint256 releaseInterval_,
+			uint256 distributionRate_,
+			string detail_)
+	{
+		startTime_ = startTime;
+		endTime_ = endTime;
+		fundRise_ = fundRise;
+		poolSize_ = poolSize;
+		releaseInterval_ = releaseInterval;
+		distributionRate_ = distributionRate;
+		detail_ = detail;
 	}
 
 
