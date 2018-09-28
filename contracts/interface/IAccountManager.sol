@@ -7,6 +7,5 @@ contract IAccountManager {
     function isRegistered(string _userName) public view returns (bool isRegistered_);
     function getUserName(address _wallet) external view returns (string userName_, bool result_);
     event RegisterNewAccount(uint256 indexed _index, address indexed _walletAddress, string _userName);
-    event Login(uint256 indexed _index, address indexed _walletAddress, string _userName);
     event PurchaseContentsAddress(address indexed _buyer, address indexed _contentsAddress);
 }
