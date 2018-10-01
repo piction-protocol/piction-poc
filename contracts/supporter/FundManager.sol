@@ -20,9 +20,10 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 
 	function addFund(
 		address _content,
-		address _writer,
 		uint256 _startTime,
 		uint256 _endTime,
+		uint256 _maxcap,
+        uint256 _softcap,
 		uint256 _poolSize,
 		uint256 _releaseInterval,
 		uint256 _distributionRate,
@@ -34,9 +35,10 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 		Fund fund = new Fund(
 			council,
 			_content,
-			_writer,
 			_startTime,
 			_endTime,
+			_maxcap,
+			_softcap,
 			_poolSize,
 			_releaseInterval,
 			_distributionRate,

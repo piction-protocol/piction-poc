@@ -21,9 +21,10 @@ contract ApiFund is ValidValue {
     /**
     * @dev 작품의 투자를 생성함
     * @param _content 생성할 작품의 주소
-    * @param _writer 작품의 작가 주소
     * @param _startTime 투자를 시작할 시간
     * @param _endTime 투자를 종료하는 시간
+    * @param _maxcap 투자 총 모집금액
+    * @param _softcap 투자 총 모집금액 하한
     * @param _poolSize 몇회에 걸쳐 후원 받을것인가
     * @param _releaseInterval 후원 받을 간격
     * @param _distributionRate 서포터가 분배 받을 비율
@@ -31,9 +32,10 @@ contract ApiFund is ValidValue {
     */
     function addFund(
         address _content,
-        address _writer,
         uint256 _startTime,
         uint256 _endTime,
+        uint256 _maxcap,
+        uint256 _softcap,
         uint256 _poolSize,
         uint256 _releaseInterval,
         uint256 _distributionRate,
@@ -41,9 +43,8 @@ contract ApiFund is ValidValue {
         external
     {
         require(IContent(_content).getWriter() == msg.sender);
-        require(IContent(_content).getWriter() == _writer);
 
-        IFundManager(council.getFundManager()).addFund(_content, _writer, _startTime, _endTime, _poolSize, _releaseInterval, _distributionRate, _detail);
+        IFundManager(council.getFundManager()).addFund(_content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
     }
 
     /**
@@ -75,9 +76,10 @@ contract ApiFund is ValidValue {
 			address[] memory user_,
 			uint256[] memory investment_,
 			uint256[] memory collection_,
-			uint256[] memory distributionRate_)
+			uint256[] memory distributionRate_,
+            bool[] memory refund_)
 	{
-        (user_, investment_, collection_, distributionRate_) = IFund(_fund).getSupporters();
+        return IFund(_fund).getSupporters();
     }
 
     /**
@@ -90,13 +92,15 @@ contract ApiFund is ValidValue {
         returns (
             uint256 startTime_,
             uint256 endTime_,
+            uint256 maxcap_,
+			uint256 softcap_,
             uint256 fundRise_,
             uint256 poolSize_,
             uint256 releaseInterval_,
             uint256 distributionRate_,
             string detail_)
     {
-        (startTime_, endTime_, fundRise_, poolSize_, releaseInterval_, distributionRate_, detail_) = IFund(_fund).info();
+        return IFund(_fund).info();
     }
 
     ////-------- SupporterPool 관련 --------
@@ -124,7 +128,7 @@ contract ApiFund is ValidValue {
             uint256[] memory votingCount_,
             bool[] memory isVoting_)
         {
-            (amount_, distributableTime_, distributedTime_, state_, votingCount_, isVoting_) = ISupporterPool(council.getSupporterPool()).getDistributions(_fund, msg.sender);
+            return ISupporterPool(council.getSupporterPool()).getDistributions(_fund, msg.sender);
         }
 
     /**
