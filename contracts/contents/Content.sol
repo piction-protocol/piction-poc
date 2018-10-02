@@ -127,6 +127,14 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         pickCount_ = pickCount;
     }
 
+    function getContentDetail() external view returns (string record_, address writer_, string writerName_, uint256 marketerRate_, uint256 pickCount_) {
+        record_ = record;
+        writer_ =  writer;
+        writerName_ =  writerName;
+        marketerRate_ =  marketerRate;
+        pickCount_ = pickCount;
+    }
+
     function getEpisodeLength() public view returns (uint256 episodeLength_)
     {
         episodeLength_ = episodes.length;
