@@ -19,6 +19,7 @@
     methods: {
       async loadList() {
         let result = await this.$contract.apiContents.getContentsFullList();
+        if (result.contentsAddress_.length == 0) return;
         let addrs = result.contentsAddress_;
         let records = JSON.parse(web3.utils.hexToUtf8(result.records_));
         let writers = await this.$contract.apiContents.getContentsWriterName(addrs);
@@ -30,7 +31,7 @@
         this.contents = records.reverse();
       },
       setEvent() {
-        this.$contract.contentsManager.setCallback((error, event) => {
+        this.$contract.apiContents.setCallback((error, event) => {
           var record = JSON.parse(event.returnValues._record);
           record.id = event.returnValues._contentsAddress;
           record.writerName = event.returnValues._writerName;
