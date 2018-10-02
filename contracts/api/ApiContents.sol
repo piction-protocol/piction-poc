@@ -313,6 +313,51 @@ contract ApiContents is ValidValue {
     }
 
     /**
+    * @dev 작가의 작품 주소 조회
+    * @param _writerAddress 작품 컨트랙트 주소
+    * @return contentsAddress_ 등록 된 작품 주소 목록
+    */
+    function getContentsAddress(
+        address _writerAddress
+    )
+        external
+        view
+        returns (address[] contentsAddress_)
+    {
+        contentsAddress_ = contentsManager.getWriterContentsAddress(_writerAddress);
+    }
+
+    /**
+    * @dev 작가의 초기 보증금 조회
+    * @param _writerAddress 작가 주소
+    * @return initialDeposit_ 보증금
+    */
+    function getInitialDeposit(
+        address _writerAddress
+    )
+        external
+        view
+        returns (uint256 initialDeposit_)
+    {
+        initialDeposit_ = contentsManager.getInitialDeposit(_writerAddress);
+    }
+
+    /**
+    * @dev 작품의 작가 주소 조회
+    * @param _contentsAddress 작품 컨트랙트 주소
+    * @return writerAddress_ 작가 주소
+    */
+    function getWriterAddress(
+        address _contentsAddress
+    )
+        external
+        view
+        returns (address writerAddress_)
+    {
+        writerAddress_ = IContent(_contentsAddress).getWriter();
+    }
+
+    /**
     * @dev 작품의 세부 정보 문자열을 bytes로 convert하고 각 문자열의 index 정보를 조회하는 내부 함수
     * @param _contentsAddress 작품 컨트랙트 주소 목록
     * @return records_ bytes로 변환 된 작품 record 정보

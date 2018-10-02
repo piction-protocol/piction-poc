@@ -150,7 +150,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         record_ = bytes(episodes[_index].record);
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
-        isPurchased_ = episodes[_index].buyUser[_buyer];
+        isPurchased_ = (writer == _buyer)? true : episodes[_index].buyUser[_buyer];
     }
 
     function getEpisodeCuts(uint256 _index)
