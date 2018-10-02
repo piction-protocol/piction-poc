@@ -45,11 +45,16 @@ contract ApiFund is ValidValue {
         require(IContent(_content).getWriter() == msg.sender);
 
         IFundManager(council.getFundManager()).addFund(_content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
+
+        emit AddFund(_content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
     }
+
+    event AddFund(address _content, uint256 _startTime, uint256 _endTime, uint256 _maxcap, uint256 _softcap, uint256 _poolSize, uint256 _releaseInterval, uint256 _distributionRate, string _detail);
 
     /**
     * @dev 작품의 투자 목록을 가져옴
     * @param _content 작품의 주소
+    * @return funds_ 작품의 투자 주소목록
     */
     function getFunds(address _content) external view returns (address[] funds_) {
         return IFundManager(council.getFundManager()).getFunds(_content);
@@ -63,11 +68,19 @@ contract ApiFund is ValidValue {
     */
     function endFund(address _fund) external {
         IFund(_fund).endFund();
+
+        emit EndFund(_fund);
     }
 
+    event EndFund(address _fund);
+
     /**
-    * @dev 투자자 목록 및 투자자 정보 조회
+    * @dev 투자자 정보 조회
     * @param _fund 조회하고자 하는 투자 주소
+    * @return user_ 투자자의 주소 목록
+    * @return investment_ 투자자의 투자금액 목록
+    * @return distributionRate_ 투자자의 투자금액 회수액 목록
+    * @return refund_ 환불 여부 목록
     */
     function getSupporters(address _fund)
 		external
@@ -85,6 +98,14 @@ contract ApiFund is ValidValue {
     /**
     * dev 투자 정보 조회
     * @param _fund 조회하고자 하는 투자 주소
+    * @return _startTime 투자를 시작할 시간
+    * @return _endTime 투자를 종료하는 시간
+    * @return _maxcap 투자 총 모집금액
+    * @return _softcap 투자 총 모집금액 하한
+    * @return _poolSize 몇회에 걸쳐 후원 받을것인가
+    * @return _releaseInterval 후원 받을 간격
+    * @return _distributionRate 서포터가 분배 받을 비율
+    * @return _detail 투자의 기타 상세 정보
     */
     function fundInfo(address _fund)
         external
@@ -111,11 +132,19 @@ contract ApiFund is ValidValue {
     */
     function releaseDistribution(address _fund) external {
         ISupporterPool(council.getSupporterPool()).releaseDistribution(_fund);
+
+        emit ReleaseDistribution(_fund);
     }
 
+    event ReleaseDistribution(address _fund);
+
     /**
-    * @dev 투자 후원 풀의 상태 조회
-    * @param _fund 조회하고자 하는 투자 주소
+    * @dev 투자 풀의 후원 순차 상태 조회
+    * @param _fund 조회 하고자 하는 투자 주소
+    * @return amount_ 투자금 목록
+    * @return distributableTime_ 분배 가능한 시작시간
+    * @return distributedTime_ 분배를 진행한 시간
+    * @return isVoting_ 호출자의 투표 여부
     */
     function getDistributions(address _fund)
         external
@@ -134,9 +163,23 @@ contract ApiFund is ValidValue {
     /**
     * @dev 투자자가 후원 풀의 배포 건에 대해 투표를 함
     * @param _fund 투표할 투자 주소
-    * @param _index 투표할 Distribution의 index
+    * @param _index 투표할 회차의 index
     */
     function vote(address _fund, uint256 _index) external {
         ISupporterPool(council.getSupporterPool()).vote(_fund, _index, msg.sender);
+
+        emit Vote(_fund, _index, msg.sender);
+    }
+
+    event Vote(address _fund, uint256 _index, address _sender);
+
+    /**
+    * @dev 후원 회차의 투표 여부확인
+    * @param _fund 투자한 fund 주소
+    * @param _index 회차 Index
+    * @return voting_ 투표 여부
+    */
+    function isVoting(address _fund, uint256 _index) external view returns (bool voting_) {
+        return ISupporterPool(council.getSupporterPool()).isVoting(_fund, _index, msg.sender);
     }
 }

@@ -28,7 +28,6 @@ contract SupporterPool is Ownable, ISupporterPool {
 		State state;
 		uint256 votingCount;
 		mapping(address => bool) voting;
-
 	}
 
     mapping(address => Distribution[]) funds;
@@ -39,6 +38,14 @@ contract SupporterPool is Ownable, ISupporterPool {
 		council = ICouncil(_council);
 	}
 
+    /**
+    * @dev 투자가 종료된 후 내역저장과 후원을 위해 addDistribution을 진행함
+    * @param _fund 종료된 투자의 주소
+    * @param _writer 후원받을 작가의 주소
+    * @param _interval 후원받을 간격
+    * @param _amount 후원받을 금액
+    * @param _size 후원받을 횟수
+    */
     function addSupport(
         address _fund,
         address _writer,
@@ -60,6 +67,13 @@ contract SupporterPool is Ownable, ISupporterPool {
 		}
     }
 
+    /**
+    * @dev 후원 회차를 생성함
+    * @param _fund 종료된 투자의 주소
+    * @param _writer 후원받을 작가의 주소
+    * @param _interval 후원받을 간격
+    * @param _amount 후원받을 금액
+    */
     function addDistribution(
         address _fund,
         address _writer,
@@ -76,6 +90,15 @@ contract SupporterPool is Ownable, ISupporterPool {
         funds[_fund].push(Distribution(_fund, _writer, _interval, _amount, _distributableTime, 0, State.PENDING, 0));
 	}
 
+    /**
+    * @dev 투자 풀의 후원 순차 상태 조회
+    * @param _fund 조회 하고자 하는 투자 주소
+    * @param _sender 조회 하고자 하는 투자자 주소
+    * @return amount_ 투자금 목록
+    * @return distributableTime_ 분배 가능한 시작시간
+    * @return distributedTime_ 분배를 진행한 시간
+    * @return isVoting_ 호출자의 투표 여부
+    */
     function getDistributions(address _fund, address _sender)
         public
         view
@@ -100,19 +123,38 @@ contract SupporterPool is Ownable, ISupporterPool {
 			distributedTime_[i] = funds[_fund][i].distributedTime;
 			state_[i] = uint256(funds[_fund][i].state);
 			votingCount_[i] = funds[_fund][i].votingCount;
-			isVoting_[i] = isVoting(_fund, i, _sender);
+			isVoting_[i] = funds[_fund][i].voting[_sender];
 		}
 	}
 
+    /**
+    * @dev 후원회차의 개수
+    * @param _fund 투자의 주소
+    * @return count_ 후원회차의 개수
+    */
     function getDistributionsCount(address _fund) external view returns(uint256 count_) {
         count_ = funds[_fund].length;
     }
 
-    function isVoting(address _fund, uint256 _index, address _sender) public view returns (bool){
+    /**
+    * @dev 후원 회차의 투표 여부확인
+    * @param _fund 투자한 fund 주소
+    * @param _index 회차 Index
+    * @param _sender 확인하고자 하는 투자자 주소
+    * @return voting_ 투표 여부
+    */
+    function isVoting(address _fund, uint256 _index, address _sender) external view returns (bool voting_){
 		return funds[_fund][_index].voting[_sender];
 	}
 
+    /**
+    * @dev 투자자가 후원 풀의 배포 건에 대해 투표를 함
+    * @param _fund 투표할 투자 주소
+    * @param _index 투표할 회차의 index
+    * @param _sender 투표 하고자 하는 투자자 주소
+    */
     function vote(address _fund, uint256 _index, address _sender) external {
+        require(ICouncil(council).getApiFund() == msg.sender);
 		require(IFund(_fund).isSupporter(_sender));
 		require(funds[_fund].length > _index);
 		require(funds[_fund][_index].state == State.PENDING);
@@ -135,6 +177,10 @@ contract SupporterPool is Ownable, ISupporterPool {
 		}
 	}
 
+    /**
+    * @dev 조건에 맞는 후원 풀 회차의 토큰을 작가에게 전달한다
+    * @param _fund 배포하고자 하는 투자 주소
+    */
     function releaseDistribution(address _fund) external {
         require(ICouncil(council).getApiFund() == msg.sender);
 
@@ -150,7 +196,12 @@ contract SupporterPool is Ownable, ISupporterPool {
         }
     }
 
-    function distributable(Distribution memory _distribution) private view returns (bool) {
+    /**
+    * @dev 후원 회차의 배포가 진행될 수 있는지 확인
+    * @param _distribution 배포하고자 하는 후원회차
+    * @return distributable_ 가능 여부
+    */
+    function distributable(Distribution memory _distribution) private view returns (bool distributable_) {
 		return _distribution.distributableTime <= TimeLib.currentTime() && _distribution.state == State.PENDING && _distribution.amount > 0;
 	}
 

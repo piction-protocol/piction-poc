@@ -18,6 +18,18 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 		council = _council;
 	}
 
+	/**
+	* @dev 작품의 투자를 생성함
+	* @param _content 생성할 작품의 주소
+	* @param _startTime 투자를 시작할 시간
+	* @param _endTime 투자를 종료하는 시간
+	* @param _maxcap 투자 총 모집금액
+	* @param _softcap 투자 총 모집금액 하한
+	* @param _poolSize 몇회에 걸쳐 후원 받을것인가
+	* @param _releaseInterval 후원 받을 간격
+	* @param _distributionRate 서포터가 분배 받을 비율
+	* @param _detail 투자의 기타 상세 정보
+	*/
 	function addFund(
 		address _content,
 		uint256 _startTime,
@@ -49,11 +61,21 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 		emit RegisterFund(_content, fund);
 	}
 
-	function getFunds(address _content) external view returns (address[]) {
+	/**
+	* @dev 작품의 투자 목록을 가져옴
+	* @param _content 작품의 주소
+	* @return funds_ 작품의 투자 주소목록
+	*/
+	function getFunds(address _content) external view returns (address[] funds_) {
 		return funds[_content];
 	}
 
-	function getLastFundedTime(address _content) private view returns (uint256) {
+	/**
+	* @dev 작품에서 마지막 투자의 종료시간 조회
+	* @param _content 작품 주소
+	* @return endTime_ 종료시간
+	*/
+	function getLastFundedTime(address _content) private view returns (uint256 endTime_) {
 		if (funds[_content].length > 0) {
 			uint256 lastIndex = funds[_content].length - 1;
 			return Fund(funds[_content][lastIndex]).endTime();
@@ -62,7 +84,14 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 		}
 	}
 
-	function distribution(address _fund, uint256 _total) external returns (address[], uint256[]) {
+	/**
+	* @dev 작품의 판매금 정산을 위해 호출함
+	* @param _fund 투자의 주소
+	* @param _total 정산해야할 금액
+	* @return supporter_ 정산해야하는 투자자 주소
+	* @return amount_ 정산해야하는 금액
+	*/
+	function distribution(address _fund, uint256 _total) external returns (address[] supporter_, uint256[] amount_) {
 		require(
 			msg.sender == ICouncil(council).getPixelDistributor()
 			|| msg.sender == ICouncil(council).getDepositPool());

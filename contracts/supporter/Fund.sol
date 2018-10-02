@@ -119,12 +119,21 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		emit Support(_from, possibleValue, refundValue);
 	}
 
+	/**
+	* @dev 투자 가능한 금액과 환불금을 산출함
+	* @param _fromValue 투자를 원하는 금액
+	* @return possibleValue_ 투자 가능한 금액
+	* @return refundValue_ maxcap 도달로 환불해야하는 금액
+	*/
 	function getRefundAmount(uint256 _fromValue) private view returns (uint256 possibleValue_, uint256 refundValue_) {
 		uint256 d1 = maxcap.sub(fundRise);
 		possibleValue_ = d1.min(_fromValue);
 		refundValue_ = _fromValue.sub(possibleValue_);
 	}
 
+	/**
+	* @dev 투자의 종료를 진행, 후원 풀로 토큰을 전달하며 softcap 미달 시 환불을 진행함
+	*/
 	function endFund() external {
 		require(ICouncil(council).getApiFund() == msg.sender);
 		require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0);
@@ -155,6 +164,9 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		}
 	}
 
+	/*
+	* @dev 투자자 별로 투자금 대비 정산 받을 비율을 설정함
+	*/
 	function setDistributionRate() private {
 		uint256 totalInvestment;
 		for (uint256 i = 0; i < supporters.length; i++) {
@@ -165,26 +177,39 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		}
 	}
 
-	function distribution(uint256 _total) external returns (address[], uint256[]) {
+	/*
+	* @dev 작품 판매금의 투자자별 정산 금액을 계산하며 반환하고, 회수 내역을 저장함
+	* @param _total 투자자가 받을 수 있는 금액 (우선순위가 높은 구성요소의 금액은 먼저 차감한 뒤 전달됨)
+	* @return supporters_ 투자자의 주소
+	* @return amounts_ 투자자가 정산받을 금액
+	*/
+	function distribution(uint256 _total) external returns (address[] memory supporters_, uint256[] memory amounts_) {
 		require(ICouncil(council).getFundManager() == msg.sender);
 
-		address[] memory _supporters = new address[](supporters.length);
-		uint256[] memory _amounts = new uint256[](supporters.length);
+		supporters_ = new address[](supporters.length);
+		amounts_ = new uint256[](supporters.length);
 
 		for (uint256 i = 0; i < supporters.length; i++) {
-			_supporters[i] = supporters[i].user;
+			supporters_[i] = supporters[i].user;
 			uint256 remain = supporters[i].investment.sub(supporters[i].collection);
 			if (remain == 0) {
-				_amounts[i] = _total.mul(distributionRate).div(10 ** decimals);
-				_amounts[i] = _amounts[i].mul(supporters[i].distributionRate).div(10 ** decimals);
+				amounts_[i] = _total.mul(distributionRate).div(10 ** decimals);
+				amounts_[i] = amounts_[i].mul(supporters[i].distributionRate).div(10 ** decimals);
 			} else {
-				_amounts[i] = _total.mul(supporters[i].distributionRate).div(10 ** decimals).min(remain);
-				supporters[i].collection = supporters[i].collection.add(_amounts[i]);
+				amounts_[i] = _total.mul(supporters[i].distributionRate).div(10 ** decimals).min(remain);
+				supporters[i].collection = supporters[i].collection.add(amounts_[i]);
 			}
 		}
-		return (_supporters, _amounts);
+		return (supporters_, amounts_);
 	}
 
+	/**
+    * @dev 투자자 정보 조회
+    * @return user_ 투자자의 주소 목록
+    * @return investment_ 투자자의 투자금액 목록
+    * @return distributionRate_ 투자자의 투자금액 회수액 목록
+    * @return refund_ 환불 여부 목록
+    */
 	function getSupporters()
 		external
 		view
@@ -210,10 +235,24 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		}
 	}
 
+	/**
+	* @dev 투자 참여인원 수 조회
+	*/
 	function getSupporterCount() public view returns (uint256) {
 		return supporters.length;
 	}
 
+	/**
+    * dev 투자 정보 조회
+    * @return _startTime 투자를 시작할 시간
+    * @return _endTime 투자를 종료하는 시간
+    * @return _maxcap 투자 총 모집금액
+    * @return _softcap 투자 총 모집금액 하한
+    * @return _poolSize 몇회에 걸쳐 후원 받을것인가
+    * @return _releaseInterval 후원 받을 간격
+    * @return _distributionRate 서포터가 분배 받을 비율
+    * @return _detail 투자의 기타 상세 정보
+    */
 	function info()
 		external
 		view
@@ -239,8 +278,13 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		detail_ = detail;
 	}
 
-
-	function findSupporterIndex(address _supporter) private view returns (uint, bool){
+	/**
+	* @dev 투자자의 목록에서 투자자를 찾아 index와 투자여부를 반환함
+	* @param _supporter 조회하는 투자자 주소
+	* @return index_ 투자자의 Index
+	* @return find_ 기존 투자여부
+	*/
+	function findSupporterIndex(address _supporter) private view returns (uint index_, bool find_){
 		for (uint256 i = 0; i < supporters.length; i++) {
 			if (supporters[i].user == _supporter) {
 				return (i, true);
@@ -248,7 +292,12 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		}
 	}
 
-	function isSupporter(address _supporter) public view returns (bool){
+	/**
+	* @dev 투자 참여 여부 조회
+	* @param _supporter 조회하고자 하는 주소
+	* @return find_ 참여 여부
+	*/
+	function isSupporter(address _supporter) public view returns (bool find_){
 		for (uint256 i = 0; i < supporters.length; i++) {
 			if (supporters[i].user == _supporter) {
 				return true;
