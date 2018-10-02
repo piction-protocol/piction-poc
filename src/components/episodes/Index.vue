@@ -55,6 +55,18 @@
       }
     },
     methods: {
+      setEvent() {
+        this.$contract.apiContents.setEpisodeCreation((error, event) => {
+          if (this.content_id.toLocaleLowerCase() != event.returnValues._contentAddress.toLocaleLowerCase()) return;
+          var record = JSON.parse(event.returnValues._record);
+          record.number = event.returnValues._episodeIndexId;
+          record.buyCount = 0;
+          record.purchased = false;
+          record.price = event.returnValues._price;
+          this.episodes.sort((a, b) => b.number - a.number);
+          this.episodes.splice(0, 0, record);
+        });
+      },
       sort() {
         this.episodes = this.episodes.reverse();
       },
@@ -82,24 +94,30 @@
           this.report();
         }
         this.$loading.close();
+      },
+      async setContentDetail() {
+        const contentDetail = await this.$contract.apiContents.getContentsDetail(this.content_id);
+        this.content = JSON.parse(contentDetail.record_);
+        this.writer = contentDetail.writer_;
+        this.writerName = contentDetail.writerName_;
+      },
+      async loadList() {
+        const result = await this.$contract.apiContents.getEpisodeFullList(this.content_id);
+        if (!result.episodeRecords_) return;
+        let records = JSON.parse(web3.utils.hexToUtf8(result.episodeRecords_));
+        records.forEach((record, i) => {
+          record.number = i;
+          record.buyCount = result.buyCount_[i];
+          record.purchased = result.isPurchased_[i];
+          record.price = result.price_[i];
+        });
+        this.episodes = records.reverse();
       }
     },
     async created() {
-      const contentDetail = await this.$contract.apiContents.getContentsDetail(this.content_id);
-      this.content = JSON.parse(contentDetail.record_);
-      this.writer = contentDetail.writer_;
-      this.writerName = contentDetail.writerName_;
-
-      const result = await this.$contract.apiContents.getEpisodeFullList(this.content_id);
-      if (!result.episodeRecords_) return;
-      let records = JSON.parse(web3.utils.hexToUtf8(result.episodeRecords_));
-      records.forEach((record, i) => {
-        record.number = i;
-        record.buyCount = result.buyCount_[i];
-        record.purchased = result.isPurchased_[i];
-        record.price = result.price_[i];
-      });
-      this.episodes = records.reverse();
+      this.setEvent();
+      this.setContentDetail();
+      this.loadList();
     }
   }
 </script>

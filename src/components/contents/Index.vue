@@ -31,7 +31,7 @@
         this.contents = records.reverse();
       },
       setEvent() {
-        this.$contract.apiContents.setCallback((error, event) => {
+        this.$contract.apiContents.setRegisterContents((error, event) => {
           var record = JSON.parse(event.returnValues._record);
           record.id = event.returnValues._contentsAddress;
           record.writerName = event.returnValues._writerName;
