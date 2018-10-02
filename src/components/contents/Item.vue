@@ -5,10 +5,12 @@
         <img :src="content.thumbnail" class="thumbnail"/>
       </b-col>
       <b-col style="padding: 15px">
-        <div>
-          <h5>{{content.title}}</h5>
-          <p>{{content.synopsis}}</p>
-          <h5><b-badge variant="success">{{content.genres}}</b-badge></h5>
+        <div style="height: 100%; position: relative">
+          <h5 class="font-weight-bold">{{content.title}}</h5>
+          <h5>
+            <b-badge variant="success">{{content.genres}}</b-badge>
+          </h5>
+          <div class="text-secondary font-italic fixed-bottom">{{content.writerName}}</div>
         </div>
       </b-col>
     </b-row>

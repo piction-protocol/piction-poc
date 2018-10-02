@@ -1,5 +1,4 @@
 import {abi} from '../../../build/contracts/ContentsManager.json'
-import BigNumber from 'bignumber.js'
 
 class ContentsManager {
   constructor(address, from, gas) {
@@ -14,10 +13,6 @@ class ContentsManager {
 
   getWriterContentsAddress(address) {
     return this._contract.methods.getWriterContentsAddress(address).call();
-  }
-
-  addContents(record) {
-    return this._contract.methods.addContents(JSON.stringify(record), BigNumber(record.marketerRate).multipliedBy(Math.pow(10, 18))).send();
   }
 
   getInitialDeposit(writer) {

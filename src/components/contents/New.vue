@@ -23,7 +23,7 @@
       async onSubmit(record) {
         this.$loading('Uploading...');
         try {
-          await this.$contract.contentsManager.addContents(record);
+          await this.$contract.apiContents.addContents(record);
           this.$router.push({name: 'contents'})
         } catch (e) {
           alert(e)

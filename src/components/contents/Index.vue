@@ -18,14 +18,17 @@
     },
     methods: {},
     async created() {
-      let contents = await this.$contract.contentsManager.getContents();
-      contents.reverse().asyncForEach(async address => {
-        await this.$contract.contentInterface.getRecord(address).then(record => {
-          let content = JSON.parse(record);
-          content.id = address;
-          this.contents.push(content);
-        });
+      let result = await this.$contract.apiContents.getContentsFullList();
+      let addrs = result.contentsAddress_;
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records_));
+      let writers = await this.$contract.apiContents.getContentsWriterName(addrs);
+      writers = this.$utils.bytesToArray(writers.writerName_, writers.spos_, writers.epos_);
+      records.forEach((record, i) => {
+        record.id = addrs[i];
+        record.writerName = writers[i];
       });
+      this.contents = records.reverse();
+      console.log(this.contents)
     }
   }
 </script>
