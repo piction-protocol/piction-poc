@@ -26,6 +26,23 @@ class ApiContents {
     return this._contract.methods.getContentsWriterName(contentsAddress).call();
   }
 
+  getContentsDetail(contentsAddress) {
+    return this._contract.methods.getContentsDetail(contentsAddress).call();
+  }
+
+  addEpisode(contentsAddress, record, cuts, price) {
+    return this._contract.methods.addEpisode(
+      contentsAddress,
+      JSON.stringify(record),
+      JSON.stringify(cuts),
+      BigNumber(price * Math.pow(10, 18))
+    ).send();
+  }
+
+  getEpisodeFullList(contentsAddress) {
+    return this._contract.methods.getEpisodeFullList(contentsAddress).call();
+  }
+
   getInitialDeposit(writer) {
     return this._contract.methods.getInitialDeposit(writer).call();
   }
