@@ -4,13 +4,13 @@
       <b-col cols="3">
         <img :src="content.thumbnail" class="thumbnail"/>
       </b-col>
-      <b-col style="padding: 15px">
-        <div style="height: 100%; position: relative">
+      <b-col class="p-3">
+        <div>
           <h5 class="font-weight-bold">{{content.title}}</h5>
-          <h5>
+          <h5 class="mb-3">
             <b-badge variant="success">{{content.genres}}</b-badge>
           </h5>
-          <div class="text-secondary font-italic fixed-bottom">{{content.writerName}}</div>
+          <div class="text-secondary font-italic">{{content.writerName}}</div>
         </div>
       </b-col>
     </b-row>
