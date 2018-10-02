@@ -10,6 +10,7 @@ import DepositPool from './abi-class/DepositPool.js'
 import UserPaybackPool from './abi-class/UserPaybackPool.js'
 import Council from './abi-class/Council.js'
 import ApiReport from './abi-class/ApiReport.js'
+import ApiContents from './abi-class/ApiContents.js'
 
 const PictionNetworkPlugin = {
   install(Vue, pictionConfig) {
@@ -20,6 +21,12 @@ const PictionNetworkPlugin = {
 
     Vue.prototype.$contract.apiReport = new ApiReport(
       pictionConfig.apiAddress.apiReport,
+      pictionConfig.account,
+      pictionConfig.pictionValue.defaultGas
+    )
+
+    Vue.prototype.$contract.apiContents = new ApiContents(
+      pictionConfig.apiAddress.apiContents,
       pictionConfig.account,
       pictionConfig.pictionValue.defaultGas
     )

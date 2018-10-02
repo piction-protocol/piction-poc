@@ -23,12 +23,12 @@ contract ApiContents is ValidValue {
     using BytesLib for bytes;
     using SafeMath for uint256;
 
-    ICouncil council;
-    IContentsManager contentsManager;
+    ICouncil public council;
+    IContentsManager public contentsManager;
 
-    constructor (address _council) public validAddress(_council) {
+    constructor (address _council, address _contentsManager) public validAddress(_council) validAddress(_contentsManager) {
         council = ICouncil(_council);
-        contentsManager = IContentsManager(council.getContentsManager());
+        contentsManager = IContentsManager(_contentsManager);
     }
 
     /**
@@ -150,21 +150,17 @@ contract ApiContents is ValidValue {
     * @dev piction network에 등록 된 모든 컨텐츠의 세부정보 조회
     * @return contentsAddress_ 컨텐츠 주소 배열
     * @return records_ bytes로 변환 된 작품 record 정보
-    * @return spos_ bytes로 변환 된 record의 start index
-    * @return epos_ bytes로 변환 된 record의 end index
     */
     function getContentsFullList()
         external
         view
-        returns (address[] memory contentsAddress_, bytes memory records_, uint256[] memory spos_, uint256[] memory epos_)
+        returns (address[] memory contentsAddress_, bytes memory records_)
     {
         contentsAddress_ = contentsManager.getContentsAddress();
-
         if(contentsAddress_.length == 0) {
             return;
         }
-
-        (records_, spos_, epos_) = _getContentsDetail(contentsAddress_);
+        records_ = _getContentsDetail(contentsAddress_);
     }
 
     /**
@@ -172,23 +168,19 @@ contract ApiContents is ValidValue {
     * @param _writer 찾고자 하는 작가의 계정 주소
     * @return writerContentsAddress_ 컨텐츠 주소 배열
     * @return records_ bytes로 변환 된 작품 record 정보
-    * @return spos_ bytes로 변환 된 record의 start index
-    * @return epos_ bytes로 변환 된 record의 end index
     */
     function getWriterContentsList(
         address _writer
     )
         external
         view
-        returns (address[] memory writerContentsAddress_, bytes memory records_, uint256[] memory spos_, uint256[] memory epos_)
+        returns (address[] memory writerContentsAddress_, bytes memory records_)
     {
         writerContentsAddress_  = contentsManager.getWriterContentsAddress(_writer);
-
         if(writerContentsAddress_.length == 0) {
             return;
         }
-
-        (records_, spos_, epos_) = _getContentsDetail(writerContentsAddress_);
+        records_ = _getContentsDetail(writerContentsAddress_);
     }
 
     /**
@@ -196,19 +188,16 @@ contract ApiContents is ValidValue {
     * @param _contentsAddress 컨텐츠 주소 배열
     * @return contentsAddress_ 컨텐츠 주소 배열
     * @return records_ bytes로 변환 된 작품 record 정보
-    * @return spos_ bytes로 변환 된 record의 start index
-    * @return epos_ bytes로 변환 된 record의 end index
     */
     function getContentsRecord(
         address[] _contentsAddress
     )
         external
         view
-        returns (address[] memory contentsAddress_, bytes memory records_, uint256[] memory spos_, uint256[] memory epos_)
+        returns (address[] memory contentsAddress_, bytes memory records_)
     {
         contentsAddress_ = _contentsAddress;
-
-        (records_, spos_, epos_) = _getContentsDetail(contentsAddress_);
+        records_ = _getContentsDetail(contentsAddress_);
     }
 
     /**
@@ -219,10 +208,10 @@ contract ApiContents is ValidValue {
     * @return spos_ bytes로 변환 된 writerName_의 start index
     * @return epos_ bytes로 변환 된 writerName_의 end index
     */
-    function _getContentsWriterName(
+    function getContentsWriterName(
         address[] _contentsAddress
     )
-        private
+        public
         view
         returns (address[] memory writer_, bytes memory writerName_, uint256[] memory spos_, uint256[] memory epos_)
     {
@@ -327,29 +316,25 @@ contract ApiContents is ValidValue {
     * @dev 작품의 세부 정보 문자열을 bytes로 convert하고 각 문자열의 index 정보를 조회하는 내부 함수
     * @param _contentsAddress 작품 컨트랙트 주소 목록
     * @return records_ bytes로 변환 된 작품 record 정보
-    * @return spos_ bytes로 변환 된 record의 start index
-    * @return epos_ bytes로 변환 된 record의 end index
     */
     function _getContentsDetail(
         address[] _contentsAddress
     )
         private
         view
-        returns (bytes records_, uint256[] memory spos_, uint256[] memory epos_)
+        returns (bytes records_)
     {
-        uint256 contentsLength = _contentsAddress.length;
-
-        spos_ = new uint256[](contentsLength);
-        epos_ = new uint256[](contentsLength);
-
-        uint256 tempLength;
-        for(uint256 i = 0 ; i < contentsLength ; i++) {
-            bytes memory str = bytes(IContent(_contentsAddress[i]).getRecord());
-            spos_[i] = tempLength;
-            records_ = records_.concat(str);
-            tempLength = (tempLength == 0)? tempLength.add((str.length).mul(2).add(2)) : tempLength.add((str.length).mul(2));
-            epos_[i] = tempLength;
+	    bytes memory start = "[";
+	    bytes memory end = "]";
+	    bytes memory separator = ",";
+        records_ = records_.concat(start);
+        for(uint256 i = 0 ; i < _contentsAddress.length ; i++) {
+            records_ = records_.concat(bytes(IContent(_contentsAddress[i]).getRecord()));
+            if(i != _contentsAddress.length - 1) {
+                records_ = records_.concat(separator);
+            }
         }
+        records_ = records_.concat(end);
     }
 
     /**
