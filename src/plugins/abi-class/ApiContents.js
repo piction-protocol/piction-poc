@@ -52,6 +52,10 @@ class ApiContents {
     return this._contract.methods.getEpisodeFullList(contentsAddress).call();
   }
 
+  getEpisodeCuts(contentsAddress, index) {
+    return this._contract.methods.getEpisodeCuts(contentsAddress, index).call();
+  }
+
   getInitialDeposit(writer) {
     return this._contract.methods.getInitialDeposit(writer).call();
   }

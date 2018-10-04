@@ -11,7 +11,7 @@ var Report = artifacts.require("Report");
 var ApiReport = artifacts.require("ApiReport");
 var ApiContents = artifacts.require("ApiContents");
 
-module.exports = function (deployer) {
+module.exports = function (deployer, networks, accounts) {
 
   // airdrop
   PXL.deployed().then(function (instance) {
@@ -53,7 +53,8 @@ module.exports = function (deployer) {
       DepositPool.address,
       PxlDistributor.address,
       Marketer.address,
-      Report.address
+      Report.address,
+      accounts[0]
     );
 
     instance.initialManagerAddress(
