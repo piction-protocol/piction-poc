@@ -153,9 +153,9 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     function getEpisodeDetail(uint256 _index, address _buyer)
         external
         view
-        returns (bytes record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
+        returns (string record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
     {
-        record_ = bytes(episodes[_index].record);
+        record_ = episodes[_index].record;
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
         isPurchased_ = (writer == _buyer)? true : episodes[_index].buyUser[_buyer];

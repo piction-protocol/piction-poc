@@ -13,7 +13,7 @@ contract IContent {
     function getPickCount() public view returns (uint256 pickCount_);
     function getContentDetail() external view returns (string record_, address writer_, string writerName_, uint256 marketerRate_, uint256 pickCount_);
     function getEpisodeLength() public view returns (uint256 episodeLength_);
-    function getEpisodeDetail(uint256 _index, address _buyer) external view returns (bytes record_, uint256 price_, uint256 buyCount_, bool isPurchased_);
+    function getEpisodeDetail(uint256 _index, address _buyer) external view returns (string record_, uint256 price_, uint256 buyCount_, bool isPurchased_);
     function getEpisodeCuts(uint256 _index) external view returns (string episodeCuts_);
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount) external;
     event ContentCreation(address indexed _sender, address indexed _writer, string _writerName, string _record, uint256 _marketerRate);

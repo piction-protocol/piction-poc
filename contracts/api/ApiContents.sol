@@ -289,11 +289,11 @@ contract ApiContents is ValidValue {
 
         episodeRecords_ = episodeRecords_.concat(start);
         for(uint256 i = 0 ; i < episodeLength ; i++) {
-            bytes memory str;
+            string memory str;
 
             (str, price_[i], buyCount_[i], isPurchased_[i]) = getEpisodeDetail(_contentsAddress, i, msg.sender);
 
-            episodeRecords_ = episodeRecords_.concat(str);
+            episodeRecords_ = episodeRecords_.concat(bytes(str));
             if(i != episodeLength - 1) {
                 episodeRecords_ = episodeRecords_.concat(separator);
             }
@@ -452,7 +452,7 @@ contract ApiContents is ValidValue {
     )
         public
         view
-        returns (bytes record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
+        returns (string record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
     {
         (record_, price_, buyCount_, isPurchased_) = IContent(_contentsAddress).getEpisodeDetail(_index, _buyer);
     }
