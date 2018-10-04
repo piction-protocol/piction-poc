@@ -136,8 +136,7 @@ contract ApiContents is ValidValue {
         external
         validString(_episodeRecord) validString(_cutUrls)
     {
-        require(_checkWriterContents(_contentsAddress),
-                "Update episode failed: Unregistered contents address.");
+        require(_checkWriterContents(_contentsAddress), "Update episode failed: Unregistered contents address.");
 
         IContent content = IContent(_contentsAddress);
         require(_checkAccessRole(content), "Update episode failed: Access denied.");
@@ -203,7 +202,7 @@ contract ApiContents is ValidValue {
         view
         returns (address[] memory writerContentsAddress_, bytes memory records_)
     {
-        writerContentsAddress_  = getWriterContentsAddress(_writer);
+        writerContentsAddress_ = getWriterContentsAddress(_writer);
         if(writerContentsAddress_.length == 0) {
             return;
         }
@@ -275,8 +274,6 @@ contract ApiContents is ValidValue {
         view
         returns (bytes episodeRecords_, uint256[] price_, uint256[] buyCount_, bool[] isPurchased_)
     {
-        IContent content = IContent(_contentsAddress);
-
         if(getEpisodeLength(_contentsAddress) == 0) {
             return;
         }
@@ -287,14 +284,14 @@ contract ApiContents is ValidValue {
         isPurchased_ = new bool[](episodeLength);
 
         bytes memory start = "[";
-	    bytes memory end = "]";
-	    bytes memory separator = ",";
+        bytes memory end = "]";
+        bytes memory separator = ",";
 
         episodeRecords_ = episodeRecords_.concat(start);
         for(uint256 i = 0 ; i < episodeLength ; i++) {
             bytes memory str;
 
-            (str, price_[i], buyCount_[i], isPurchased_[i])= getEpisodeDetail(_contentsAddress, i, msg.sender);
+            (str, price_[i], buyCount_[i], isPurchased_[i]) = getEpisodeDetail(_contentsAddress, i, msg.sender);
 
             episodeRecords_ = episodeRecords_.concat(str);
             if(i != episodeLength - 1) {
@@ -472,9 +469,9 @@ contract ApiContents is ValidValue {
         view
         returns (bytes records_)
     {
-	    bytes memory start = "[";
-	    bytes memory end = "]";
-	    bytes memory separator = ",";
+        bytes memory start = "[";
+        bytes memory end = "]";
+        bytes memory separator = ",";
         records_ = records_.concat(start);
         for(uint256 i = 0 ; i < _contentsAddress.length ; i++) {
             records_ = records_.concat(bytes(IContent(_contentsAddress[i]).getRecord()));
