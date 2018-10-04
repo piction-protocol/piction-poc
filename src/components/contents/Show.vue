@@ -26,8 +26,8 @@
       }
     },
     async created() {
-      await this.$contract.contentInterface.getRecord(this.content_id)
-        .then(r => this.record = JSON.parse(r));
+      this.record = JSON.parse(result.record_);
+      this.record.marketerRate = Number(result.marketerRate_)
     }
   }
 </script>
