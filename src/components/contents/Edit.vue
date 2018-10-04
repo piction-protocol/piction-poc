@@ -24,8 +24,8 @@
       async onSubmit(record, marketerRate) {
         this.$loading('Uploading...');
         try {
-          await this.$contract.contentInterface.updateContent(this.content_id, record);
-          this.$router.push({name: 'show-content', params: {content_id: this.content_id}})
+          await this.$contract.apiContents.updateContent(this.content_id, record);
+          this.$router.push({name: 'episodes', params: {content_id: this.content_id}})
         } catch (e) {
           alert(e)
         }

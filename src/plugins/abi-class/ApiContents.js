@@ -27,6 +27,10 @@ class ApiContents {
     return this._contract.methods.addContents(JSON.stringify(record), BigNumber(record.marketerRate).multipliedBy(Math.pow(10, 18))).send();
   }
 
+  updateContent(contentsAddress, record) {
+    return this._contract.methods.updateContent(contentsAddress, JSON.stringify(record), BigNumber(record.marketerRate).multipliedBy(Math.pow(10, 18))).send();
+  }
+
   getContentsFullList() {
     return this._contract.methods.getContentsFullList().call();
   }
@@ -46,6 +50,20 @@ class ApiContents {
       JSON.stringify(cuts),
       BigNumber(price * Math.pow(10, 18))
     ).send();
+  }
+
+  updateEpisode(contentsAddress, index, record, cuts, price) {
+    return this._contract.methods.updateEpisode(
+      contentsAddress,
+      index,
+      JSON.stringify(record),
+      JSON.stringify(cuts),
+      BigNumber(price * Math.pow(10, 18))
+    ).send();
+  }
+
+  getEpisodeDetail(contentsAddress, index, buyer) {
+    return this._contract.methods.getEpisodeDetail(contentsAddress, index, buyer).call();
   }
 
   getEpisodeFullList(contentsAddress) {

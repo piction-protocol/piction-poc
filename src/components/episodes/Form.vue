@@ -31,9 +31,9 @@
                     label-for="cuts"
                     description="">
         <div v-if="record.cuts.length > 0" class="preview-cuts form-control">
-          <div class="preview-cut" v-for="cut in record.cuts">
+          <div class="preview-cut" v-for="(cut, index) in record.cuts">
             <img class="cut" :src="cut">
-            <b-button class="remove-cut" variant="danger">Remove</b-button>
+            <b-button class="remove-cut" variant="danger" @click="removeCut(index)">Remove</b-button>
           </div>
         </div>
         <b-form-file id="cuts"
@@ -76,6 +76,10 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
+        if (this.record.cuts.length == 0) {
+          alert('웹툰 이미지를 등록하세요')
+          return;
+        }
         this.$emit('onSubmit', this.record);
       },
       async onChangeThumbnail(event) {
@@ -83,6 +87,10 @@
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         this.record.thumbnail = url;
         this.$loading.close();
+      },
+      removeCut(index) {
+        console.log(index)
+        this.record.cuts.splice(0, 1);
       },
       async addCut(event) {
         this.$loading('Uploading...');
