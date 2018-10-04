@@ -20,7 +20,6 @@ class PXL {
   }
 
   approveAndCall(to, value, data) {
-    console.log(to, value, data)
     return this._contract.methods.approveAndCall(to, value, data ? data : '0x00').send()
   }
 }
