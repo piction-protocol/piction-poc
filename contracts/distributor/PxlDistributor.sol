@@ -44,20 +44,26 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     function receiveApproval(address _from, uint256 _value, address _token, bytes _data)
         public
     {
-        require(address(this) != _from);
-        require(address(token) == _token);
+        require(address(this) != _from, "Invalid buyer address.");
+        require(address(token) == _token, "Invalid Pixel token address.");
 
-        address cdAddr = _data.toAddress(0);
-        address contentAddr = _data.toAddress(20);
-        address marketerAddr = _data.toAddress(40);
-        uint256 idx = _data.toUint(60);
+        // address cdAddr = _data.toAddress(0);
+        // address contentAddr = _data.toAddress(20);
+        // address marketerAddr = _data.toAddress(40);
+        // uint256 idx = _data.toUint(60);
 
-        require(_customValidAddress(cdAddr));
-        require(_customValidAddress(contentAddr));
+        //PoC 임시 코드
+        address cdAddr = council.getContentsDistributor();
+        address contentAddr = _data.toAddress(0);
+        address marketerAddr = _data.toAddress(20);
+        uint256 idx = _data.toUint(40);
+
+        require(_customValidAddress(cdAddr), "Invalid contents distributor address.");
+        require(_customValidAddress(contentAddr), "Invalid contents address.");
 
         // paid contents
         if(_value > 0) {
-            require(token.balanceOf(_from) >= _value);
+            require(token.balanceOf(_from) >= _value, "Check buyer token amount.");
             token.safeTransferFrom(_from, address(this), _value);
 
             // clear DistributionDetail array

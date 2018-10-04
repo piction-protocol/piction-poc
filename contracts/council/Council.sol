@@ -34,6 +34,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         address pixelDistributor;
         address marketer;
         address report;
+        address contentsDistributor;
     }
 
     struct ManagerAddress {
@@ -114,17 +115,20 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         address _depositPool,
         address _pixelDistributor,
         address _marketer,
-        address _report)
+        address _report,
+        address _contentsDistributor)
         external onlyOwner
         validAddress(_userPaybackPool)
         validAddress(_depositPool)
         validAddress(_pixelDistributor)
         validAddress(_marketer)
-        validAddress(_report) {
+        validAddress(_report) 
+        validAddress(_contentsDistributor)
+    {
 
-        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report);
+        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
 
-        emit InitialAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report);
+        emit InitialAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
     }
 
     function initialManagerAddress(
@@ -174,7 +178,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     {
         pictionValue_ = new uint256[](3);
         pictionRate_ = new uint256[](5);
-        pictionAddress_ = new address[](5);
+        pictionAddress_ = new address[](6);
         managerAddress_ = new address[](3);
         apiAddress_ = new address[](3);
 
@@ -195,6 +199,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         pictionAddress_[2] = pictionAddress.pixelDistributor;
         pictionAddress_[3] = pictionAddress.marketer;
         pictionAddress_[4] = pictionAddress.report;
+        pictionAddress_[5] = pictionAddress.contentsDistributor;
 
         managerAddress_[0] = managerAddress.contentsManager;
         managerAddress_[1] = managerAddress.fundManager;
@@ -321,6 +326,10 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getReport() external view returns (address report_) {
         return pictionAddress.report;
+    }
+
+    function getContentsDistributor() external view returns (address contentsDistributor_) {
+        return pictionAddress.contentsDistributor;
     }
 
     function getApiContents() external view returns (address apiContents_) {
