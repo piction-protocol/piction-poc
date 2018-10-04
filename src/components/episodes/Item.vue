@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-row style="margin-bottom: 8px">
+    <b-row>
       <b-col cols="3">
         <img :src="episode.thumbnail" class="thumbnail"/>
       </b-col>
@@ -42,7 +42,7 @@
           const marketer = this.$utils.toHexString(0).substr(2)
           const index = this.$utils.toHexString(this.episode.number, 64).substr(2);
           await this.$contract.pxl.approveAndCall(
-            this.pictionAddress.pixelDistributor,
+            this.pictionConfig.pictionAddress.pixelDistributor,
             this.episode.price,
             `${cd}${content}${marketer}${index}`
           );
@@ -60,7 +60,6 @@
   .thumbnail {
     width: 100%;
     max-height: 140px;
-    border-radius: 0.5rem;
     background-position: center;
     background-size: cover;
     background-color: #e8e8e8;

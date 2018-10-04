@@ -6,12 +6,21 @@ class ApiContents {
     this._contract = new web3.eth.Contract(abi, address);
     this._contract.options.from = from;
     this._contract.options.gas = gas;
-    this._f = (() => {})
-    this._contract.events.RegisterContents({fromBlock: 'latest'}, (error, event) => this._f(error, event))
+    this.registerContents = (() => {})
+    this.episodeCreation = (() => {})
+    this._contract.events.RegisterContents({fromBlock: 'latest'}, (error, event) => this.registerContents(error, event))
+    this._contract.events.EpisodeCreation({fromBlock: 'latest'}, (error, event) => this.episodeCreation(error, event))
   }
 
-  setCallback(f) {
-    this._f = f;
+  getContract() {
+    return this._contract;
+  }
+  setRegisterContents(f) {
+    this.registerContents = f;
+  }
+
+  setEpisodeCreation(f) {
+    this.episodeCreation = f;
   }
 
   addContents(record) {
@@ -24,6 +33,23 @@ class ApiContents {
 
   getContentsWriterName(contentsAddress) {
     return this._contract.methods.getContentsWriterName(contentsAddress).call();
+  }
+
+  getContentsDetail(contentsAddress) {
+    return this._contract.methods.getContentsDetail(contentsAddress).call();
+  }
+
+  addEpisode(contentsAddress, record, cuts, price) {
+    return this._contract.methods.addEpisode(
+      contentsAddress,
+      JSON.stringify(record),
+      JSON.stringify(cuts),
+      BigNumber(price * Math.pow(10, 18))
+    ).send();
+  }
+
+  getEpisodeFullList(contentsAddress) {
+    return this._contract.methods.getEpisodeFullList(contentsAddress).call();
   }
 
   getInitialDeposit(writer) {

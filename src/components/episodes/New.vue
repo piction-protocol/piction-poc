@@ -29,7 +29,7 @@
           var _record = JSON.parse(JSON.stringify(record));
           delete _record['cuts'];
           delete _record['price'];
-          await this.$contract.contentInterface.addEpisode(this.content_id, _record, cuts, price);
+          await this.$contract.apiContents.addEpisode(this.content_id, _record, cuts, price);
           this.$router.push({name: 'episodes', params: {content_id: this.content_id}})
         } catch (e) {
           alert(e)

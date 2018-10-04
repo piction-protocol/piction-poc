@@ -53,7 +53,7 @@
       },
       async newContents() {
         this.$loading('loading...');
-        let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionConfig.account));
+        let deposit = BigNumber(await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account));
         let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         let message = `작품을 등록하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
