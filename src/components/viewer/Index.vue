@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="max-width: 720px">
     <img v-for="cut in cuts" :src="cut"/>
     <router-link class="back" :to="{ name: 'episodes', params: { content_id: content_id }}">목록으로</router-link>
   </div>
@@ -15,8 +15,13 @@
     },
     methods: {},
     async created() {
-      let cuts = await this.$contract.contentInterface.getEpisodeCuts(this.content_id, this.episode_id);
-      this.cuts = JSON.parse(cuts);
+      let cuts = await this.$contract.apiContents.getEpisodeCuts(this.content_id, this.episode_id);
+      if (cuts.length == 0) {
+        alert('잘못된 접근입니다')
+        this.$router.push({name: 'episodes', params: {content_id: this.content_id}});
+      } else {
+        this.cuts = JSON.parse(cuts);
+      }
     }
   }
 </script>
