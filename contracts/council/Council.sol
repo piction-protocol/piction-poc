@@ -31,6 +31,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     struct PictionAddress {
         address userPaybackPool;
         address depositPool;
+        address supporterPool;
         address pixelDistributor;
         address marketer;
         address report;
@@ -113,6 +114,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     function initialPictionAddress(
         address _userPaybackPool,
         address _depositPool,
+        address _supporterPool,
         address _pixelDistributor,
         address _marketer,
         address _report,
@@ -120,15 +122,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         external onlyOwner
         validAddress(_userPaybackPool)
         validAddress(_depositPool)
+        validAddress(_supporterPool)
         validAddress(_pixelDistributor)
         validAddress(_marketer)
         validAddress(_report) 
         validAddress(_contentsDistributor)
     {
+        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _supporterPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
 
-        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
-
-        emit InitialAddress(_userPaybackPool, _depositPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
+        emit InitialAddress(_userPaybackPool, _depositPool, _supporterPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
     }
 
     function initialManagerAddress(
@@ -302,6 +304,10 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getDepositPool() external view returns (address depositPool_) {
         return pictionAddress.depositPool;
+    }
+
+    function getSupporterPool() external view returns (address supporterPool_) {
+        return pictionAddress.supporterPool;
     }
 
     function getContentsManager() external view returns (address contentsManager_) {

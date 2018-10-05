@@ -6,134 +6,204 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 import "contracts/interface/ICouncil.sol";
-
 import "contracts/interface/IFund.sol";
+import "contracts/interface/ISupporterPool.sol";
+
 import "contracts/utils/TimeLib.sol";
 
-contract SupporterPool is Ownable {
-	using SafeERC20 for ERC20;
-	using SafeMath for uint256;
-	using TimeLib for *;
+contract SupporterPool is Ownable, ISupporterPool {
+    using SafeERC20 for ERC20;
+    using SafeMath for uint256;
+    using TimeLib for *;
 
-	enum State {PENDING, PAID, CANCEL_PAYMENT}
+    enum State {PENDING, PAID, CANCEL_PAYMENT}
 
-	struct Distribution {
-		uint256 amount;
-		uint256 distributableTime;
-		uint256 distributedTime;
-		State state;
-		uint256 votingCount;
-		mapping(address => bool) voting;
-	}
+    struct Distribution {
+        address fund;
+        address writer;
+        uint256 interval;
+        uint256 amount;
+        uint256 distributableTime;
+        uint256 distributedTime;
+        State state;
+        uint256 votingCount;
+        mapping(address => bool) voting;
+    }
 
-	Distribution[] distributions;
-	address council;
-	address writer;
-	uint256 interval;
-	IFund fundInterface;
+    mapping(address => Distribution[]) funds;
 
-	constructor(
-		address _council,
-		address _fundInterface,
-		address _writer,
-		uint256 _amount,
-		uint256 _size,
-		uint256 _interval)
-	public {
-		council = _council;
-		fundInterface = IFund(_fundInterface);
-		writer = _writer;
-		interval = _interval;
-		initialize(_amount, _size);
-	}
+    ICouncil council;
 
-	function initialize(uint256 _amount, uint256 _size) private {
-		uint256 poolAmount = _amount.div(_size);
-		for (uint256 i = 0; i < _size; i++) {
-			addDistribution(poolAmount);
-		}
-		uint256 remainder = _amount.sub(poolAmount.mul(_size));
-		if (remainder > 0) {
-			distributions[distributions.length - 1].amount = distributions[distributions.length - 1].amount.add(remainder);
-		}
-	}
+    constructor(address _council) public {
+        council = ICouncil(_council);
+    }
 
-	function addDistribution(uint256 _amount) private {
-		uint256 _distributableTime;
-		if (distributions.length == 0) {
-			_distributableTime = TimeLib.currentTime().add(interval);
-		} else {
-			_distributableTime = distributions[distributions.length - 1].distributableTime.add(interval);
-		}
-		distributions.push(Distribution(_amount, _distributableTime, 0, State.PENDING, 0));
-	}
+    /**
+    * @dev 투자가 종료된 후 내역저장과 후원을 위해 addDistribution을 진행함
+    * @param _fund 종료된 투자의 주소
+    * @param _writer 후원받을 작가의 주소
+    * @param _interval 후원받을 간격
+    * @param _amount 후원받을 금액
+    * @param _size 후원받을 횟수
+    */
+    function addSupport(
+        address _fund,
+        address _writer,
+        uint256 _interval,
+        uint256 _amount,
+        uint256 _size)
+        external
+    {
+        require(_fund == msg.sender);
 
-	function cancelDistribution(uint _index) private returns (uint256){
-		require(distributions.length > _index);
+        uint256 poolAmount = _amount.div(_size);
+        for (uint256 i = 0; i < _size; i++) {
+            addDistribution(_fund, _writer, _interval, _amount);
+        }
 
-		distributions[_index].state = State.CANCEL_PAYMENT;
-		return distributions[_index].amount;
-	}
+        uint256 remainder = _amount.sub(poolAmount.mul(_size));
+        if (remainder > 0) {
+            funds[_fund][funds[_fund].length - 1].amount = funds[_fund][funds[_fund].length - 1].amount.add(remainder);
+        }
+    }
 
-	function distribution() external {
-		ERC20 token = ERC20(ICouncil(council).getToken());
-		for (uint256 i = 0; i < distributions.length; i++) {
-			if (distributable(distributions[i])) {
-				distributions[i].distributedTime = TimeLib.currentTime();
-				distributions[i].state = State.PAID;
-				token.safeTransfer(writer, distributions[i].amount);
+    /**
+    * @dev 후원 회차를 생성함
+    * @param _fund 종료된 투자의 주소
+    * @param _writer 후원받을 작가의 주소
+    * @param _interval 후원받을 간격
+    * @param _amount 후원받을 금액
+    */
+    function addDistribution(
+        address _fund,
+        address _writer,
+        uint256 _interval,
+        uint256 _amount)
+        private
+    {
+        uint256 _distributableTime;
+        if (funds[_fund].length == 0) {
+            _distributableTime = TimeLib.currentTime().add(_interval);
+        } else {
+            _distributableTime = funds[_fund][funds[_fund].length - 1].distributableTime.add(_interval);
+        }
+        funds[_fund].push(Distribution(_fund, _writer, _interval, _amount, _distributableTime, 0, State.PENDING, 0));
+    }
 
-				emit Release(distributions[i].amount);
-			}
-		}
-	}
+    /**
+    * @dev 투자 풀의 후원 순차 상태 조회
+    * @param _fund 조회 하고자 하는 투자 주소
+    * @param _sender 조회 하고자 하는 투자자 주소
+    * @return amount_ 투자금 목록
+    * @return distributableTime_ 분배 가능한 시작시간
+    * @return distributedTime_ 분배를 진행한 시간
+    * @return isVoting_ 호출자의 투표 여부
+    */
+    function getDistributions(address _fund, address _sender)
+        public
+        view
+        returns (
+            uint256[] memory amount_,
+            uint256[] memory distributableTime_,
+            uint256[] memory distributedTime_,
+            uint256[] memory state_,
+            uint256[] memory votingCount_,
+            bool[] memory isVoting_)
+    {
+        amount_ = new uint256[](funds[_fund].length);
+        distributableTime_ = new uint256[](funds[_fund].length);
+        distributedTime_ = new uint256[](funds[_fund].length);
+        state_ = new uint256[](funds[_fund].length);
+        votingCount_ = new uint256[](funds[_fund].length);
+        isVoting_ = new bool[](funds[_fund].length);
 
-	function getDistributions() public view returns (uint256[], uint256[], uint256[], uint256[], uint256[], bool[]) {
-		uint256[] memory _amount = new uint256[](distributions.length);
-		uint256[] memory _distributableTime = new uint256[](distributions.length);
-		uint256[] memory _distributedTime = new uint256[](distributions.length);
-		uint256[] memory _state = new uint256[](distributions.length);
-		uint256[] memory _votingCount = new uint256[](distributions.length);
-		bool[] memory _isVoting = new bool[](distributions.length);
+        for (uint256 i = 0; i < funds[_fund].length; i++) {
+            amount_[i] = funds[_fund][i].amount;
+            distributableTime_[i] = funds[_fund][i].distributableTime;
+            distributedTime_[i] = funds[_fund][i].distributedTime;
+            state_[i] = uint256(funds[_fund][i].state);
+            votingCount_[i] = funds[_fund][i].votingCount;
+            isVoting_[i] = funds[_fund][i].voting[_sender];
+        }
+    }
 
-		for (uint256 i = 0; i < distributions.length; i++) {
-			_amount[i] = distributions[i].amount;
-			_distributableTime[i] = distributions[i].distributableTime;
-			_distributedTime[i] = distributions[i].distributedTime;
-			_state[i] = uint256(distributions[i].state);
-			_votingCount[i] = distributions[i].votingCount;
-			_isVoting[i] = isVoting(i);
-		}
-		return (_amount, _distributableTime, _distributedTime, _state, _votingCount, _isVoting);
-	}
+    /**
+    * @dev 후원회차의 개수
+    * @param _fund 투자의 주소
+    * @return count_ 후원회차의 개수
+    */
+    function getDistributionsCount(address _fund) external view returns(uint256 count_) {
+        count_ = funds[_fund].length;
+    }
 
-	function distributable(Distribution memory _distribution) private view returns (bool) {
-		return _distribution.distributableTime <= TimeLib.currentTime() && _distribution.state == State.PENDING && _distribution.amount > 0;
-	}
+    /**
+    * @dev 후원 회차의 투표 여부확인
+    * @param _fund 투자한 fund 주소
+    * @param _index 회차 Index
+    * @param _sender 확인하고자 하는 투자자 주소
+    * @return voting_ 투표 여부
+    */
+    function isVoting(address _fund, uint256 _index, address _sender) external view returns (bool voting_){
+        return funds[_fund][_index].voting[_sender];
+    }
 
-	function vote(uint256 _index) external returns (bool) {
-		require(fundInterface.isSupporter(msg.sender));
-		require(distributions.length > _index);
-		require(distributions[_index].state == State.PENDING);
-		uint256 votableTime = distributions[_index].distributableTime;
-		require(TimeLib.currentTime().between(votableTime.sub(interval), votableTime));
+    /**
+    * @dev 투자자가 후원 풀의 배포 건에 대해 투표를 함
+    * @param _fund 투표할 투자 주소
+    * @param _index 투표할 회차의 index
+    * @param _sender 투표 하고자 하는 투자자 주소
+    */
+    function vote(address _fund, uint256 _index, address _sender) external {
+        require(ICouncil(council).getApiFund() == msg.sender);
+        require(IFund(_fund).isSupporter(_sender));
+        require(funds[_fund].length > _index);
+        require(funds[_fund][_index].state == State.PENDING);
+        uint256 votableTime = funds[_fund][_index].distributableTime;
+        require(TimeLib.currentTime().between(votableTime.sub(funds[_fund][_index].interval), votableTime));
 
-		if (distributions[_index].voting[msg.sender]) {
-			revert();
-		} else {
-			distributions[_index].voting[msg.sender] = true;
-			distributions[_index].votingCount = distributions[_index].votingCount.add(1);
-			if (fundInterface.getSupporterCount().mul(10 ** 18).div(2) <= distributions[_index].votingCount.mul(10 ** 18)) {
-				uint256 cancelAmount = cancelDistribution(_index);
-				addDistribution(cancelAmount);
-			}
-		}
-	}
+        if (funds[_fund][_index].voting[_sender]) {
+            revert();
+        } else {
+            funds[_fund][_index].voting[_sender] = true;
+            funds[_fund][_index].votingCount = funds[_fund][_index].votingCount.add(1);
+            if (IFund(_fund).getSupporterCount().mul(10 ** 18).div(2) <= funds[_fund][_index].votingCount.mul(10 ** 18)) {
+                funds[_fund][_index].state = State.CANCEL_PAYMENT;
+                addDistribution(
+                    funds[_fund][_index].fund,
+                    funds[_fund][_index].writer,
+                    funds[_fund][_index].interval,
+                    funds[_fund][_index].amount);
+            }
+        }
+    }
 
-	function isVoting(uint256 _index) public view returns (bool){
-		return distributions[_index].voting[msg.sender];
-	}
+    /**
+    * @dev 조건에 맞는 후원 풀 회차의 토큰을 작가에게 전달한다
+    * @param _fund 배포하고자 하는 투자 주소
+    */
+    function releaseDistribution(address _fund) external {
+        require(ICouncil(council).getApiFund() == msg.sender);
 
-	event Voting(address user, bool interrupt);
-	event Release(uint256 amount);
+        ERC20 token = ERC20(ICouncil(council).getToken());
+        for (uint256 i = 0; i < funds[_fund].length; i++) {
+            if (distributable(funds[_fund][i])) {
+                funds[_fund][i].distributedTime = TimeLib.currentTime();
+                funds[_fund][i].state = State.PAID;
+                token.safeTransfer(funds[_fund][i].writer, funds[_fund][i].amount);
+
+                emit ReleaseDistribution(_fund, funds[_fund][i].amount);
+            }
+        }
+    }
+
+    /**
+    * @dev 후원 회차의 배포가 진행될 수 있는지 확인
+    * @param _distribution 배포하고자 하는 후원회차
+    * @return distributable_ 가능 여부
+    */
+    function distributable(Distribution memory _distribution) private view returns (bool distributable_) {
+        return _distribution.distributableTime <= TimeLib.currentTime() && _distribution.state == State.PENDING && _distribution.amount > 0;
+    }
+
+    event ReleaseDistribution(address _fund, uint256 _amount);
 }
