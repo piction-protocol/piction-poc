@@ -7,10 +7,12 @@ import "contracts/interface/IContent.sol";
 import "contracts/interface/IAccountManager.sol";
 
 import "contracts/utils/ValidValue.sol";
+import "contracts/utils/BytesLib.sol";
 
 contract AccountManager is IAccountManager, ValidValue {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using BytesLib for bytes;
 
     struct Account {
         string userName;
