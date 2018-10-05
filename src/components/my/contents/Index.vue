@@ -23,15 +23,13 @@
     },
     methods: {},
     async created() {
-      let contents = await this.$contract.contentsManager.getWriterContentsAddress(this.pictionConfig.account);
-      contents[0].reverse().asyncForEach(async address => {
-        let record = await this.$contract.contentInterface.getRecord(address);
-        let content = JSON.parse(record);
-        content.id = address;
-        await this.contents.push(content);
+      let contents = await this.$contract.apiContents.getWriterContentsList(this.pictionConfig.account);
+      this.contents = JSON.parse(web3.utils.hexToUtf8(contents.records_));
+      this.contents.forEach((content, i) => {
+        content.id = contents.writerContentsAddress_[i];
       });
-      if (contents[0].length > 0) {
-        this.$router.push({name: 'show-my-content', params: {content_id: contents[0][0]}})
+      if (this.contents.length > 0 && !this.$router.history.current.params.content_id) {
+        this.$router.push({name: 'show-my-content', params: {content_id: this.contents[0].id}})
       }
     }
   }

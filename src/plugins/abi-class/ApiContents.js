@@ -40,6 +40,10 @@ class ApiContents {
     return this._contract.methods.getContentsRecord(contentsAddress).call();
   }
 
+  getWriterContentsList(writer) {
+    return this._contract.methods.getWriterContentsList(writer).call();
+  }
+
   getContentsWriterName(contentsAddress) {
     return this._contract.methods.getContentsWriterName(contentsAddress).call();
   }

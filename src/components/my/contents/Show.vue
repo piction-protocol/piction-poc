@@ -59,6 +59,28 @@
       }
     },
     methods: {
+      async init() {
+        await this.$contract.contentInterface.getRecord(this.content_id)
+          .then(r => this.record = JSON.parse(r));
+
+        let funds = await this.$contract.fundManager.getFunds(this.content_id);
+        funds.forEach(async (fund, index) => {
+          let fundRecord = await this.$contract.fund.getInfo(fund);
+          let obj = {}
+          obj.fund_id = fund;
+          obj.ordinal = this.numberToOrdinalString(index + 1);
+          obj.startTime = Number(fundRecord[0]);
+          obj.endTime = Number(fundRecord[1]);
+          obj.fundRise = Number(fundRecord[2]);
+          obj.distributionRate = Number(fundRecord[5]);
+          obj.state = this.getState(obj);
+          this.funds.push(obj);
+          if (obj.endTime > new Date().getTime()) {
+            this.fundDisable = true;
+          }
+        });
+        this.deposit = this.$utils.toPXL(await this.$contract.depositPool.getDeposit(this.content_id));
+      },
       detail(item) {
         this.$router.push({name: 'show-fund', params: {content_id: item.content_id, fund_id: item.fund_id}})
       },
@@ -95,33 +117,15 @@
         this.$loading('loading...');
         try {
           await this.$contract.depositPool.release(this.content_id);
+          this.init();
         } catch (e) {
           alert('완료되지 않은 신고내역이 있습니다.')
         }
-        window.location.reload();
+        this.$loading.close();
       }
     },
     async created() {
-      await this.$contract.contentInterface.getRecord(this.content_id)
-        .then(r => this.record = JSON.parse(r));
-
-      let funds = await this.$contract.fundManager.getFunds(this.content_id);
-      funds.forEach(async (fund, index) => {
-        let fundRecord = await this.$contract.fund.getInfo(fund);
-        let obj = {}
-        obj.fund_id = fund;
-        obj.ordinal = this.numberToOrdinalString(index + 1);
-        obj.startTime = Number(fundRecord[0]);
-        obj.endTime = Number(fundRecord[1]);
-        obj.fundRise = Number(fundRecord[2]);
-        obj.distributionRate = Number(fundRecord[5]);
-        obj.state = this.getState(obj);
-        this.funds.push(obj);
-        if (obj.endTime > new Date().getTime()) {
-          this.fundDisable = true;
-        }
-      });
-      this.deposit = this.$utils.toPXL(await this.$contract.depositPool.getDeposit(this.content_id));
+      this.init();
     }
   }
 </script>
