@@ -110,7 +110,8 @@ contract("AccountManager", function (accounts) {
             depositPool.address,
             pxlDistributor.address,
             marketer.address,
-            report.address
+            report.address,
+            cd
         ).should.be.fulfilled;
 
         await council.initialManagerAddress(
@@ -230,7 +231,7 @@ contract("AccountManager", function (accounts) {
             await token.approveAndCall(
                 pxlDistributor.address,
                 episodePrice,
-                cd + _contentsAddress.substr(2) + user.substr(2) + toBigNumber(0).substring(2),
+                _contentsAddress + user.substr(2) + toBigNumber(0).substring(2),
                 {from: buyer}
             );
 
