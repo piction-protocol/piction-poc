@@ -4,11 +4,13 @@
       <b-col cols="3">
         <img :src="content.thumbnail" class="thumbnail"/>
       </b-col>
-      <b-col style="padding: 15px">
+      <b-col class="p-3">
         <div>
-          <h5>{{content.title}}</h5>
-          <p>{{content.synopsis}}</p>
-          <h5><b-badge variant="success">{{content.genres}}</b-badge></h5>
+          <h5 class="font-weight-bold">{{content.title}}</h5>
+          <h5 class="mb-3">
+            <b-badge variant="success">{{content.genres}}</b-badge>
+          </h5>
+          <div class="text-secondary font-italic">{{content.writerName}}</div>
         </div>
       </b-col>
     </b-row>
@@ -29,6 +31,7 @@
 <style scoped>
   .thumbnail {
     width: 100%;
+    max-height: 130px;
     border-radius: 0.5rem;
     background-position: center;
     background-size: cover;

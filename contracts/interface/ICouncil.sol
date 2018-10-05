@@ -20,6 +20,7 @@ contract ICouncil {
     function getPixelDistributor() external view returns (address pixelDistributor_);
     function getMarketer() external view returns (address marketer_);
     function getReport() external view returns (address report_);
+    function getContentsDistributor() external view returns (address contentsDistributor_);
     function getApiContents() external view returns (address apiContents_);
     function getApiReport() external view returns (address apiReport_);
     function getApiFund() external view returns (address apiFund_);
@@ -32,7 +33,7 @@ contract ICouncil {
     event RegisterCouncil(address _sender, address _token);
     event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee, bool _fundAvailable);
     event InitialRate(uint256 _cdRate, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRewardRate, uint256 _marketerDefaultRate);
-    event InitialAddress(address _userPaybackPool, address _depositPool, address _supporterPool, address _pixelDistributor, address _marketer, address _report);
+    event InitialAddress(address _userPaybackPool, address _depositPool, address _supporterPool, address _pixelDistributor, address _marketer, address _report, address _contentsDistributor);
     event InitialManagerAddress(address _depositPool, address _contentsManager, address _accountManager);
     event InitialApiAddress(address _apiContents, address _apiReport, address _apiFund);
     event ReporterDeduction(address _reporter, uint256 deductionAmount);

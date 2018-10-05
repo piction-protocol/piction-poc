@@ -1,7 +1,6 @@
 import PXL from './abi-class/PXL.js'
 import AccountManager from './abi-class/AccountManager.js'
 import IContent from './abi-class/IContent.js'
-import ContentsManager from './abi-class/ContentsManager.js'
 import Fund from './abi-class/Fund.js'
 import FundManager from './abi-class/FundManager.js'
 import SupporterPool from './abi-class/SupporterPool.js'
@@ -10,6 +9,7 @@ import DepositPool from './abi-class/DepositPool.js'
 import UserPaybackPool from './abi-class/UserPaybackPool.js'
 import Council from './abi-class/Council.js'
 import ApiReport from './abi-class/ApiReport.js'
+import ApiContents from './abi-class/ApiContents.js'
 
 const PictionNetworkPlugin = {
   install(Vue, pictionConfig) {
@@ -20,6 +20,12 @@ const PictionNetworkPlugin = {
 
     Vue.prototype.$contract.apiReport = new ApiReport(
       pictionConfig.apiAddress.apiReport,
+      pictionConfig.account,
+      pictionConfig.pictionValue.defaultGas
+    )
+
+    Vue.prototype.$contract.apiContents = new ApiContents(
+      pictionConfig.apiAddress.apiContents,
       pictionConfig.account,
       pictionConfig.pictionValue.defaultGas
     )
@@ -37,12 +43,6 @@ const PictionNetworkPlugin = {
     )
 
     Vue.prototype.$contract.contentInterface = new IContent(
-      pictionConfig.account,
-      pictionConfig.pictionValue.defaultGas
-    )
-
-    Vue.prototype.$contract.contentsManager = new ContentsManager(
-      pictionConfig.managerAddress.contentsManager,
       pictionConfig.account,
       pictionConfig.pictionValue.defaultGas
     )

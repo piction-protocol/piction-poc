@@ -127,6 +127,14 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         pickCount_ = pickCount;
     }
 
+    function getContentDetail() external view returns (string record_, address writer_, string writerName_, uint256 marketerRate_, uint256 pickCount_) {
+        record_ = record;
+        writer_ =  writer;
+        writerName_ =  writerName;
+        marketerRate_ =  marketerRate;
+        pickCount_ = pickCount;
+    }
+
     function getEpisodeLength() public view returns (uint256 episodeLength_)
     {
         episodeLength_ = episodes.length;
@@ -145,9 +153,9 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     function getEpisodeDetail(uint256 _index, address _buyer)
         external
         view
-        returns (bytes record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
+        returns (string record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
     {
-        record_ = bytes(episodes[_index].record);
+        record_ = episodes[_index].record;
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
         isPurchased_ = (writer == _buyer)? true : episodes[_index].buyUser[_buyer];

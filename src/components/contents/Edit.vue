@@ -24,17 +24,18 @@
       async onSubmit(record, marketerRate) {
         this.$loading('Uploading...');
         try {
-          await this.$contract.contentInterface.updateContent(this.content_id, record);
-          this.$router.push({name: 'show-content', params: {content_id: this.content_id}})
+          await this.$contract.apiContents.updateContent(this.content_id, record);
+          this.$router.push({name: 'episodes', params: {content_id: this.content_id}})
         } catch (e) {
           alert(e)
         }
         this.$loading.close();
       },
     },
-    created() {
-      this.$contract.contentInterface.getRecord(this.content_id)
-        .then(r => this.record = JSON.parse(r));
+    async created() {
+      const result = await this.$contract.apiContents.getContentsDetail(this.content_id);
+      this.record = JSON.parse(result.record_);
+      this.record.marketerRate = Number(result.marketerRate_)
     }
   }
 </script>

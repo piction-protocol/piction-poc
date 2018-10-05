@@ -50,7 +50,6 @@
         currentPage: 0,
         perPage: 3,
         list: [],
-        regFee: {},
       }
     },
     methods: {
@@ -88,7 +87,7 @@
           id: event.returnValues.id,
           content_id: event.returnValues._content,
           user: event.returnValues._from,
-          title: event.returnValues._content,
+          title: '',
           detail: event.returnValues._detail,
           complete: false,
           rewardAmount: 0,
@@ -100,19 +99,30 @@
           fromBlock: 0,
           toBlock: 'latest'
         }, async (error, events) => {
-          events.forEach(event => this.list.push(this.getEventJsonObj(event)));
-          const ids = this.list.map(o => o.id);
+          var list = [];
+          events.forEach(event => list.push(this.getEventJsonObj(event)));
+          const ids = list.map(o => o.id);
+          const contentIds = list.map(o => o.content_id);
           if (ids.length > 0) {
             var result = await this.$contract.apiReport.getReportResult(ids);
-            result.complete_.forEach((o, i) => this.list[i].complete = o);
-            result.completeAmount_.forEach((o, i) => this.list[i].rewardAmount = this.$utils.toPXL(o));
-            this.list.reverse();
+            var contents = await this.$contract.apiContents.getContentsRecord(contentIds);
+            contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
+            result.complete_.forEach((o, i) => list[i].complete = o);
+            result.completeAmount_.forEach((o, i) => list[i].rewardAmount = this.$utils.toPXL(o));
+            result.completeAmount_.forEach((o, i) => list[i].title = contents[i].title);
+            this.list = list.reverse();
           }
         });
       },
       setEvent() {
-        this.$contract.report.setCallback((error, event) => this.list.splice(0, 0, this.getEventJsonObj(event)));
-        this.$contract.council.setCallback((error, event) => {
+        this.$contract.report.setCallback(async (error, event) => {
+          const obj = this.getEventJsonObj(event);
+          var contents = await this.$contract.apiContents.getContentsRecord([obj.content_id]);
+          contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
+          obj.title = contents[0].title;
+          this.list.splice(0, 0, obj);
+        });
+        this.$contract.council.setCallback(async (error, event) => {
           let findObj = this.list.find(o => o.id == event.returnValues._index);
           findObj.complete = true;
           findObj.rewardAmount = this.$utils.toPXL(event.returnValues._rewordAmount);

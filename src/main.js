@@ -18,6 +18,7 @@ import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Toast from 'vue2-toast';
+import Toasted from 'vue-toasted';
 import 'vue2-toast/lib/toast.css';
 import Datetime from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
@@ -26,8 +27,14 @@ import config from './config.js'
 Vue.config.productionTip = false
 
 Vue.use(BootstrapVue);
-Vue.use(Datetime)
+Vue.use(Datetime);
 Vue.use(Toast);
+Vue.use(Toasted, {
+  iconPack: 'material', // set your iconPack, defaults to material. material|fontawesome
+  theme: "primary",
+  position: "top-right",
+  duration: 5000,
+});
 Vue.use(Vuex);
 
 (async () => {
