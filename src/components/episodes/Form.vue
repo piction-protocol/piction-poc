@@ -89,7 +89,6 @@
         this.$loading.close();
       },
       removeCut(index) {
-        console.log(index)
         this.record.cuts.splice(0, 1);
       },
       async addCut(event) {

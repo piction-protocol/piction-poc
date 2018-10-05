@@ -9,7 +9,6 @@ class FundManager {
   }
 
   addFund(contentAddress, writerAddress, startTime, endTime, poolSize, interval, distributionRate, detail) {
-    console.log(contentAddress, writerAddress, startTime, endTime, poolSize, interval, distributionRate, detail)
     return this._contract.methods.addFund(
       contentAddress, writerAddress, startTime, endTime, poolSize, interval, BigNumber(distributionRate * Math.pow(10, 18)), detail
     ).send();

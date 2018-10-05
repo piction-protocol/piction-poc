@@ -48,7 +48,6 @@
     methods: {
       async init() {
         this.regFee = await this.$contract.apiReport.getRegistrationAmount();
-        console.log(await this.regFee)
         const events = await this.$contract.report.getContract().getPastEvents('SendReport', {
           filter: {_from: this.pictionConfig.account}, fromBlock: 0, toBlock: 'latest'
         });
