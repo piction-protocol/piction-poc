@@ -1,11 +1,20 @@
 <template>
   <div>
+    <div align="right">
+      <b-form-select v-model="selected" class="mb-2 w-25">
+        <option :value="null">전체</option>
+        <option :value="false">대기</option>
+        <option :value="true">완료</option>
+      </b-form-select>
+    </div>
     <b-table striped hover
              stacked
+             show-empty
+             empty-text="조회된 목록이 없습니다"
              :fields="fields"
              :current-page="currentPage"
              :per-page="perPage"
-             :items="list"
+             :items="filteredList"
              :small="true">
       <template slot="title" slot-scope="row">
         <router-link size="x-sm" :to="{name: 'episodes', params:{content_id: row.item.content_id}}">
@@ -14,7 +23,7 @@
       </template>
       <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
       <template slot="complete" slot-scope="row">
-        {{result(row.item)}}
+        <span :class="'badge badge-' + result(row.item).variant">{{result(row.item).text}}</span>
       </template>
     </b-table>
     <b-pagination class="d-flex justify-content-center" size="md" :total-rows="this.list.length" v-model="currentPage"
@@ -27,8 +36,18 @@
   import {BigNumber} from 'bignumber.js';
 
   export default {
+    computed: {
+      filteredList() {
+        if (this.selected == null) {
+          return this.list;
+        } else {
+          return this.list.filter(o => o.complete == this.selected);
+        }
+      }
+    },
     data() {
       return {
+        selected: null,
         fields: [
           {key: 'title', label: '작품명'},
           {key: 'detail', label: '신고사유'},
@@ -87,12 +106,12 @@
       result(item) {
         if (item.complete) {
           if (item.rewardAmount == 0) {
-            return `반려`
+            return {text: `반려`, variant: 'danger'}
           } else {
-            return `보상 ${item.rewardAmount} PXL 지급`
+            return {text: `보상 ${item.rewardAmount} PXL 지급`, variant: 'primary'}
           }
         } else {
-          return '처리 대기중'
+          return {text: `처리 대기중`, variant: 'secondary'}
         }
       },
     },

@@ -1,6 +1,8 @@
 <template>
   <div>
     <b-table striped hover
+             show-empty
+             empty-text="조회된 목록이 없습니다"
              :fields="fields"
              :items="funds"
              @row-clicked="detail"
@@ -38,6 +40,27 @@
       }
     },
     methods: {
+      async init() {
+        let contents = await this.$contract.contentsManager.getContents();
+        contents.reverse().asyncForEach(async content => {
+          let contentRecord = await this.$contract.contentInterface.getRecord(content);
+          let funds = await this.$contract.fundManager.getFunds(content);
+          funds.forEach(async (fund, index) => {
+            let fundRecord = await this.$contract.fund.getInfo(fund);
+            let obj = {}
+            obj.content_id = content;
+            obj.fund_id = fund;
+            obj.title = JSON.parse(contentRecord).title;
+            obj.ordinal = this.numberToOrdinalString(index + 1);
+            obj.startTime = Number(fundRecord[0]);
+            obj.endTime = Number(fundRecord[1]);
+            obj.fundRise = Number(fundRecord[2]);
+            obj.distributionRate = Number(fundRecord[5]);
+            obj.state = this.getState(obj);
+            this.funds.push(obj);
+          })
+        })
+      },
       detail(item) {
         this.$router.push({name: 'show-fund', params: {content_id: item.content_id, fund_id: item.fund_id}})
       },
@@ -63,25 +86,7 @@
       }
     },
     async created() {
-      let contents = await this.$contract.contentsManager.getContents();
-      contents.reverse().asyncForEach(async content => {
-        let contentRecord = await this.$contract.contentInterface.getRecord(content);
-        let funds = await this.$contract.fundManager.getFunds(content);
-        funds.forEach(async (fund, index) => {
-          let fundRecord = await this.$contract.fund.getInfo(fund);
-          let obj = {}
-          obj.content_id = content;
-          obj.fund_id = fund;
-          obj.title = JSON.parse(contentRecord).title;
-          obj.ordinal = this.numberToOrdinalString(index + 1);
-          obj.startTime = Number(fundRecord[0]);
-          obj.endTime = Number(fundRecord[1]);
-          obj.fundRise = Number(fundRecord[2]);
-          obj.distributionRate = Number(fundRecord[5]);
-          obj.state = this.getState(obj);
-          this.funds.push(obj);
-        })
-      })
+
     }
   }
 </script>

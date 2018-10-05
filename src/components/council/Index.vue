@@ -1,13 +1,21 @@
 <template>
   <div>
     <b-alert show variant="danger" class="font-weight-bold">해당 기능은 위원회만 실행 가능합니다.</b-alert>
-    <h5>작품 신고 목록</h5>
+    <div align="right">
+      <b-form-select v-model="selected" class="mb-2 w-25">
+        <option :value="null">전체</option>
+        <option :value="false">대기</option>
+        <option :value="true">완료</option>
+      </b-form-select>
+    </div>
     <b-table striped hover
+             show-empty
+             empty-text="조회된 목록이 없습니다"
              stacked
              :fields="fields"
              :current-page="currentPage"
              :per-page="perPage"
-             :items="list"
+             :items="filteredList"
              :small="true">
       <template slot="title" slot-scope="row">
         <router-link size="x-sm" :to="{name: 'episodes', params:{content_id: row.item.content_id}}">
@@ -19,8 +27,8 @@
       </template>
       <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
       <template slot="complete" slot-scope="row">
-        <b-button :disabled="row.item.complete" size="sm" variant="primary" class="form-control"
-                  @click="showModal(row.item)">{{result(row.item)}}
+        <b-button :disabled="row.item.complete" size="sm" :variant="result(row.item).variant" class="form-control"
+                  @click="showModal(row.item)">{{result(row.item).text}}
         </b-button>
       </template>
     </b-table>
@@ -39,8 +47,18 @@
   import {BigNumber} from 'bignumber.js';
 
   export default {
+    computed: {
+      filteredList() {
+        if (this.selected == null) {
+          return this.list;
+        } else {
+          return this.list.filter(o => o.complete == this.selected);
+        }
+      }
+    },
     data() {
       return {
+        selected: false,
         fields: [
           {key: 'title', label: '작품명'},
           {key: 'user', label: '신고자'},
@@ -74,12 +92,12 @@
       result(item) {
         if (item.complete) {
           if (item.rewardAmount == 0) {
-            return `반려`
+            return {text: `반려`, variant: 'danger'}
           } else {
-            return `보상 ${item.rewardAmount} PXL 지급`
+            return {text: `보상 ${item.rewardAmount} PXL 지급`, variant: 'primary'}
           }
         } else {
-          return '처리'
+          return {text: `처리`, variant: 'primary'}
         }
       },
       getEventJsonObj(event) {

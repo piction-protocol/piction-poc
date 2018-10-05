@@ -3,7 +3,10 @@
     <h5>서포터
       <b-button v-b-modal.supportModal :disabled="!supportable" variant="primary" size="sm">참여</b-button>
     </h5>
-    <b-table striped hover
+    <b-table striped
+             hover
+             show-empty
+             empty-text="조회된 목록이 없습니다"
              :fields="fields"
              :items="supporters"
              :small="true"></b-table>

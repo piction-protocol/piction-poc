@@ -8,6 +8,8 @@
       </b-button>
     </h5>
     <b-table striped hover
+             show-empty
+             empty-text="조회된 목록이 없습니다"
              :fields="fields"
              :items="computedDistributions"
              :small="true">

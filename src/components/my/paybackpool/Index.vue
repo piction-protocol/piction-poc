@@ -5,6 +5,8 @@
       <div>지급 된 PXL은 <span class="text-danger font-weight-bold">지급일시가 지나야 출금이 가능</span>합니다.</div>
     </b-alert>
     <b-table striped hover
+             show-empty
+             empty-text="조회된 목록이 없습니다"
              :fields="fields"
              :items="list"
              :small="true">
