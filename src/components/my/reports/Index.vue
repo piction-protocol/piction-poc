@@ -1,26 +1,25 @@
 <template>
-  <div role="group">
-    <b-alert show variant="secondary">
-      <div>정상적인 신고의 경우 보상으로 일정 PXL이 지급됩니다.</div>
-      <div>허위 신고의 경우 신고 예치금이 차감 되거나, 신고 활동이 일시 중단될 수 있습니다.</div>
-      <div>신고의 처리는 위원회에서 수시로 확인하여 처리합니다.</div>
-      <div class="text-danger font-weight-bold">* 검수 대기중인 신고가 있으면 환급 신청이 불가능합니다.</div>
-    </b-alert>
+  <div>
     <b-table striped hover
+             stacked
              :fields="fields"
+             :current-page="currentPage"
+             :per-page="perPage"
              :items="list"
              :small="true">
       <template slot="title" slot-scope="row">
-        <router-link size="sm" :to="{name: 'episodes', params:{content_id: row.item.content}}">
+        <router-link size="x-sm" :to="{name: 'episodes', params:{content_id: row.item.content_id}}">
           {{row.item.title}}
         </router-link>
       </template>
       <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
-      <template slot="result" slot-scope="row">{{result(row.item)}}</template>
+      <template slot="complete" slot-scope="row">
+        {{result(row.item)}}
+      </template>
     </b-table>
-    <b-button size="sm" variant="primary" class="form-control" @click="returnRegFee"
-              :disabled="isLock">{{buttonText}}
-    </b-button>
+    <b-pagination class="d-flex justify-content-center" size="md" :total-rows="this.list.length" v-model="currentPage"
+                  :per-page="perPage">
+    </b-pagination>
   </div>
 </template>
 
@@ -28,63 +27,78 @@
   import {BigNumber} from 'bignumber.js';
 
   export default {
-    computed: {
-      isLock() {
-        return this.list.find(o => !o.complete) != undefined ||
-          Number(this.regFee[1]) > new Date().getTime() ||
-          Number(this.regFee[0]) == 0;
-      },
-      buttonText() {
-        if (!this.regFee[1]) {
-          return '0 PXL 신고 예치금 환급 신청';
-        } else if (Number(this.regFee[1]) > new Date().getTime()) {
-          return `${this.$utils.dateFmt(this.regFee[1])} 이후 ${this.$utils.toPXL(this.regFee[0])} PXL 출금 신청 가능`;
-        } else {
-          return `${this.$utils.toPXL(this.regFee[0])} PXL 신고 예치금 환급 신청`;
-        }
-      }
-    },
     data() {
       return {
         fields: [
           {key: 'title', label: '작품명'},
           {key: 'detail', label: '신고사유'},
-          {key: 'result', label: '처리결과'},
+          {key: 'complete', label: '처리결과'},
         ],
+        currentPage: 0,
+        perPage: 3,
         list: [],
-        regFee: {},
       }
     },
     methods: {
-      result(item) {
-        if (item.complete) {
-          if (item.completeValid) {
-            return `보상 ${this.$utils.toPXL(item.completeAmount)} PXL 지급`
-          } else {
-            return `예치금 ${this.$utils.toPXL(item.completeAmount)} PXL 차감`
-          }
-        } else {
-          return '검수대기'
+      getEventJsonObj(event) {
+        return {
+          id: event.returnValues.id,
+          content_id: event.returnValues._content,
+          user: event.returnValues._from,
+          title: event.returnValues._content,
+          detail: event.returnValues._detail,
+          complete: false,
+          rewardAmount: 0,
+          action: ''
         }
       },
-      async returnRegFee() {
-        this.$loading('loading...');
-        try {
-          await this.$contract.report.returnRegFee();
-        } catch (e) {
-          alert(e)
+      async loadList() {
+        await this.$contract.report.getContract().getPastEvents('SendReport', {
+          filter: {_from: this.pictionConfig.account},
+          fromBlock: 0,
+          toBlock: 'latest'
+        }, async (error, events) => {
+          var list = [];
+          events.forEach(event => list.push(this.getEventJsonObj(event)));
+          const ids = list.map(o => o.id);
+          const contentIds = list.map(o => o.content_id);
+          if (ids.length > 0) {
+            var result = await this.$contract.apiReport.getReportResult(ids);
+            var contents = await this.$contract.apiContents.getContentsRecord(contentIds);
+            contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
+            result.complete_.forEach((o, i) => list[i].complete = o);
+            result.completeAmount_.forEach((o, i) => list[i].rewardAmount = this.$utils.toPXL(o));
+            result.completeAmount_.forEach((o, i) => list[i].title = contents[i].title);
+            this.list = list.reverse();
+          }
+        });
+      },
+      setEvent() {
+        this.$contract.council.setCallback(async (error, event) => {
+          let findObj = this.list.find(o => o.id == event.returnValues._index);
+          findObj.complete = true;
+          findObj.rewardAmount = this.$utils.toPXL(event.returnValues._rewordAmount);
+
+          var contents = await this.$contract.apiContents.getContentsRecord([findObj.content_id]);
+          contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
+          findObj.title = contents[0].title;
+        });
+      },
+      result(item) {
+        if (item.complete) {
+          if (item.rewardAmount == 0) {
+            return `반려`
+          } else {
+            return `보상 ${item.rewardAmount} PXL 지급`
+          }
+        } else {
+          return '처리 대기중'
         }
-        window.location.reload();
       },
     },
     async created() {
-      let indexes = await this.$contract.report.getUserReport();
-      indexes.forEach(async index => {
-        let report = await this.$contract.report.getReport(index);
-        report.title = JSON.parse(await this.$contract.contentInterface.getRecord(report.content)).title;
-        this.list.push(report);
-      });
-      this.regFee = await this.$contract.report.getRegFee();
+      await this.setEvent();
+      await this.loadList();
     }
   }
 </script>

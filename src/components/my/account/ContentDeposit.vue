@@ -4,7 +4,7 @@
             tag="article"
             class="mb-2">
       <p class="card-text">
-        하나의 작품을 등록하려면 예치금이 필요합니다.<br/>
+        작품을 등록하려면 예치금이 필요합니다.<br/>
         정상적인 작품이면 작품 종료후에 환급받을 수 있습니다.<br/><br/>
       </p>
       <b-button size="sm" variant="primary"
@@ -27,7 +27,18 @@
       }
     },
     methods: {
-      deposit: async function () {
+      async init() {
+        let deposit = BigNumber(await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account));
+        let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
+        if (deposit.eq(0)) {
+          this.buttonText = `${this.$utils.toPXL(initialDeposit)} PXL 예치`;
+          this.buttonDisabled = false;
+        } else {
+          this.buttonText = `작품 등록 가능 (${this.$utils.toPXL(initialDeposit)} PXL 예치중)`;
+          this.buttonDisabled = true;
+        }
+      },
+      async deposit() {
         this.$loading('loading...');
         let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
@@ -35,20 +46,13 @@
           alert(`예치금 ${initialDeposit} PXL 이 필요합니다.`)
         } else {
           await this.$contract.pxl.approveAndCall(this.pictionConfig.managerAddress.contentsManager, this.pictionConfig.pictionValue.initialDeposit);
+          this.init();
         }
         this.$loading.close();
       }
     },
     async created() {
-      let deposit = BigNumber(await this.$contract.contentsManager.getInitialDeposit(this.pictionConfig.account));
-      let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
-      if (deposit.eq(0)) {
-        this.buttonText = `${this.$utils.toPXL(initialDeposit)} PXL 예치`;
-        this.buttonDisabled = false;
-      } else {
-        this.buttonText = `작품 등록 가능 (${this.$utils.toPXL(initialDeposit)} PXL 예치중)`;
-        this.buttonDisabled = true;
-      }
+      this.init();
     }
   }
 </script>

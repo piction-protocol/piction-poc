@@ -15,6 +15,7 @@ class ApiContents {
   getContract() {
     return this._contract;
   }
+
   setRegisterContents(f) {
     this.registerContents = f;
   }
@@ -33,6 +34,10 @@ class ApiContents {
 
   getContentsFullList() {
     return this._contract.methods.getContentsFullList().call();
+  }
+
+  getContentsRecord(contentsAddress) {
+    return this._contract.methods.getContentsRecord(contentsAddress).call();
   }
 
   getContentsWriterName(contentsAddress) {
@@ -72,6 +77,10 @@ class ApiContents {
 
   getEpisodeCuts(contentsAddress, index) {
     return this._contract.methods.getEpisodeCuts(contentsAddress, index).call();
+  }
+
+  getContentsWriterName(contentsAddress) {
+    return this._contract.methods.getContentsWriterName(contentsAddress).call();
   }
 
   getInitialDeposit(writer) {

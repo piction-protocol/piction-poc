@@ -8,7 +8,7 @@ class ApiReport {
   }
 
   withdrawRegistration() {
-    return this._contract.methods.withdrawRegistration().call();
+    return this._contract.methods.withdrawRegistration().send();
   }
 
   getRegistrationAmount() {
