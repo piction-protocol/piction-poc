@@ -32,7 +32,7 @@
         </b-button>
       </template>
     </b-table>
-    <b-pagination class="d-flex justify-content-center" size="md" :total-rows="this.list.length" v-model="currentPage"
+    <b-pagination class="d-flex justify-content-center" size="md" :total-rows="filteredList.length" v-model="currentPage"
                   :per-page="perPage">
     </b-pagination>
     <b-modal ref="reportModal" hide-footer title="신고처리">

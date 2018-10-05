@@ -26,7 +26,7 @@
         <span :class="'badge badge-' + result(row.item).variant">{{result(row.item).text}}</span>
       </template>
     </b-table>
-    <b-pagination class="d-flex justify-content-center" size="md" :total-rows="this.list.length" v-model="currentPage"
+    <b-pagination class="d-flex justify-content-center" size="md" :total-rows="filteredList.length" v-model="currentPage"
                   :per-page="perPage">
     </b-pagination>
   </div>
