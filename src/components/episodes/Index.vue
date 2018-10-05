@@ -131,6 +131,8 @@
 <style scoped>
   .thumbnail {
     width: 100%;
+    height: 200px;
+    object-fit: contain;
     border-radius: 0.5rem;
     background-position: center;
     background-size: cover;

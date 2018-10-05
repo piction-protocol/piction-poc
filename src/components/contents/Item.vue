@@ -31,6 +31,7 @@
 <style scoped>
   .thumbnail {
     width: 100%;
+    max-height: 130px;
     border-radius: 0.5rem;
     background-position: center;
     background-size: cover;
