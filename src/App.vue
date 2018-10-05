@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Navi/>
-    <transition name="fade">
+    <transition>
       <router-view class="container" :key="$route.name + JSON.stringify($route.params)"/>
     </transition>
   </div>

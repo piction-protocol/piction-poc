@@ -12,8 +12,8 @@ import ContentEdit from '@/components/contents/Edit'
 // episodes
 import EpisodeIndex from '@/components/episodes/Index'
 import EpisodeNew from '@/components/episodes/New'
-// viewer
-import ViewerIndex from '@/components/viewer/Index'
+import EpisodeShow  from '@/components/episodes/Show'
+import EpisodeEdit from '@/components/episodes/Edit'
 // fund
 import FundIndex from '@/components/funds/Index'
 import FundNew from '@/components/funds/New'
@@ -46,8 +46,8 @@ const router = new Router({
     {path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'},
     {path: '/contents/:content_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
     {path: '/contents/:content_id/episodes/new', name: 'new-episode', component: EpisodeNew, props: true},
-    // viewer
-    {path: '/contents/:content_id/episodes/:episode_id', name: 'viewer', component: ViewerIndex, props: true},
+    {path: '/contents/:content_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
+    {path: '/contents/:content_id/episodes/:episode_id/edit', name: 'edit-episode', component: EpisodeEdit, props: true},
     // trends
     {path: '/funds', name: 'funds', component: FundIndex},
     // funds

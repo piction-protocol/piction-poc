@@ -5,16 +5,19 @@
         <img :src="episode.thumbnail" class="thumbnail"/>
       </b-col>
       <b-col cols="1" class="d-flex align-items-center">
-        <span class="font-weight-bold" style="font-size: 32px;">{{episode.number + 1}}</span>
+        <span class="font-weight-bold" style="font-size: 32px;">{{Number(episode.number) + 1}}</span>
       </b-col>
       <b-col class="d-flex align-items-center">
         <div>
           <h5 class="mb-2">{{episode.title}}</h5>
-          <div v-if="episode.purchased" class="font-weight-bold">구매한 회차입니다.</div>
-          <h5 v-if="!episode.purchased && episode.price > 0">
+          <div v-if="!my && episode.purchased" class="font-weight-bold">구매한 회차입니다.</div>
+          <h5 v-if="!my && !episode.purchased">
             <b-badge variant="dark">{{$utils.toPXL(episode.price)}} PXL</b-badge>
           </h5>
         </div>
+      </b-col>
+      <b-col class="d-flex align-items-center flex-row-reverse">
+        <b-button v-if="my" variant="primary" v-on:click.stop="updateEpisode" size="sm">회차수정</b-button>
       </b-col>
     </b-row>
     <hr>
@@ -25,17 +28,26 @@
   import index from "../../store/index";
 
   export default {
-    props: ['content_id', 'episode'],
+    props: ['content_id', 'episode', 'my'],
     data() {
       return {}
     },
     methods: {
       show() {
-        this.$router.push({name: 'viewer', params: {content_id: this.content_id, episode_id: this.episode.number}});
+        this.$router.push({
+          name: 'show-episode',
+          params: {content_id: this.content_id, episode_id: this.episode.number}
+        });
+      },
+      updateEpisode() {
+        this.$router.push({
+          name: 'edit-episode',
+          params: {content_id: this.content_id, episode_id: this.episode.number}
+        });
       },
       async purchase() {
         this.$loading('loading...');
-        if (this.episode.purchased || this.episode.price == 0) {
+        if (this.episode.purchased) {
           this.show()
         } else if (confirm(`소장하시겠습니까? (${this.$utils.toPXL(this.episode.price)}PXL)`)) {
           try {

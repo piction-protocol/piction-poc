@@ -5,12 +5,14 @@
         <img :src="content.thumbnail" class="thumbnail"/>
       </b-col>
       <b-col cols="6">
-        <div>
+        <div class="d-flex align-items flex-column">
           <h2 class="font-weight-bold mb-1">{{content.title}}</h2>
           <div class="text-secondary font-italic mb-4">{{writerName}}</div>
           <p>{{content.synopsis}}</p>
-          <div class="position-absolute" style="bottom: 0; right: 20px">
+          <div class="mt-auto align-items-end">
             <b-button v-if="!my" variant="danger" @click="report" size="sm" class="float-right ml-2">신고하기</b-button>
+            <b-button v-if="my" variant="primary" @click="updateContent" size="sm" class="float-right ml-2">작품수정
+            </b-button>
             <b-button v-if="my" variant="primary" @click="addEpisode" size="sm" class="float-right ml-2">회차등록</b-button>
           </div>
         </div>
@@ -30,6 +32,7 @@
     <Item v-for="episode in episodes"
           :episode="episode"
           :content_id="content_id"
+          :my="my"
           :key="episode.number"/>
   </div>
 </template>
@@ -55,6 +58,9 @@
       }
     },
     methods: {
+      updateContent() {
+        this.$router.push({name: 'edit-content', params: {'content_id': this.content_id}});
+      },
       setEvent() {
         this.$contract.apiContents.setEpisodeCreation((error, event) => {
           if (this.content_id.toLocaleLowerCase() != event.returnValues._contentAddress.toLocaleLowerCase()) return;
@@ -125,6 +131,8 @@
 <style scoped>
   .thumbnail {
     width: 100%;
+    height: 200px;
+    object-fit: contain;
     border-radius: 0.5rem;
     background-position: center;
     background-size: cover;
