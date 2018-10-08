@@ -2,7 +2,7 @@
   <div id="app">
     <Navi/>
     <transition>
-      <router-view class="container" :key="$route.name + JSON.stringify($route.params)"/>
+      <router-view class="container" :key="$route.fullPath"/>
     </transition>
   </div>
 </template>

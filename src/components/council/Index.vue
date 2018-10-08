@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div v-if="loaded">
     <b-alert show variant="danger" class="font-weight-bold">해당 기능은 위원회만 실행 가능합니다.</b-alert>
     <div align="right">
-      <b-form-select v-model="selected" class="mb-2 w-25">
-        <option :value="null">전체</option>
-        <option :value="false">대기</option>
-        <option :value="true">완료</option>
+      <b-form-select class="mb-2 w-25" :value="filter" @change="setFilter">
+        <option :value="undefined">전체</option>
+        <option :value="`pending`">대기</option>
+        <option :value="`completed`">완료</option>
       </b-form-select>
     </div>
     <b-table striped hover
@@ -13,7 +13,7 @@
              empty-text="조회된 목록이 없습니다"
              stacked
              :fields="fields"
-             :current-page="currentPage"
+             :current-page="page"
              :per-page="perPage"
              :items="filteredList"
              :small="true">
@@ -25,15 +25,21 @@
       <template slot="user" slot-scope="row">
         {{row.item.user}}
       </template>
-      <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
+      <template slot="detail" slot-scope="row">
+        <div style="white-space: pre-line">{{row.item.detail}}</div>
+      </template>
       <template slot="complete" slot-scope="row">
         <b-button :disabled="row.item.complete" size="sm" :variant="result(row.item).variant" class="form-control"
                   @click="showModal(row.item)">{{result(row.item).text}}
         </b-button>
       </template>
     </b-table>
-    <b-pagination class="d-flex justify-content-center" size="md" :total-rows="filteredList.length" v-model="currentPage"
-                  :per-page="perPage">
+    <b-pagination class="d-flex justify-content-center" size="md"
+                  :total-rows="filteredList.length"
+                  :value="page"
+                  :per-page="perPage"
+                  :limit="limit"
+                  @change="changePage">
     </b-pagination>
     <b-modal ref="reportModal" hide-footer title="신고처리">
       <b-btn class="mt-3" variant="outline-primary" block @click="reportProcess(true)">보상지급</b-btn>
@@ -47,30 +53,39 @@
   import {BigNumber} from 'bignumber.js';
 
   export default {
+    props: ['page', 'filter'],
     computed: {
       filteredList() {
-        if (this.selected == null) {
-          return this.list;
+        if (this.filter == 'pending') {
+          return this.list.filter(o => o.complete == false);
+        } else if (this.filter == 'completed') {
+          return this.list.filter(o => o.complete == true);
         } else {
-          return this.list.filter(o => o.complete == this.selected);
+          return this.list;
         }
       }
     },
     data() {
       return {
-        selected: false,
+        loaded: false,
         fields: [
           {key: 'title', label: '작품명'},
           {key: 'user', label: '신고자'},
           {key: 'detail', label: '신고사유'},
           {key: 'complete', label: '처리결과'},
         ],
-        currentPage: 0,
         perPage: 3,
+        limit: 7,
         list: [],
       }
     },
     methods: {
+      setFilter(value) {
+        this.$router.push({query: {page: 1, filter: value}})
+      },
+      changePage(value) {
+        this.$router.push({query: {page: value, filter: this.filter}})
+      },
       showModal(item) {
         this.$refs.reportModal.$data.selectedReport = item;
         this.$refs.reportModal.show()
@@ -112,25 +127,25 @@
           action: ''
         }
       },
-      loadList() {
-        this.$contract.report.getContract().getPastEvents('SendReport', {
+      async loadList() {
+        const events = await this.$contract.report.getContract().getPastEvents('SendReport', {
           fromBlock: 0,
           toBlock: 'latest'
-        }, async (error, events) => {
-          var list = [];
-          events.forEach(event => list.push(this.getEventJsonObj(event)));
-          const ids = list.map(o => o.id);
-          const contentIds = list.map(o => o.content_id);
-          if (ids.length > 0) {
-            var result = await this.$contract.apiReport.getReportResult(ids);
-            var contents = await this.$contract.apiContents.getContentsRecord(contentIds);
-            contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
-            result.complete_.forEach((o, i) => list[i].complete = o);
-            result.completeAmount_.forEach((o, i) => list[i].rewardAmount = this.$utils.toPXL(o));
-            result.completeAmount_.forEach((o, i) => list[i].title = contents[i].title);
-            this.list = list.reverse();
-          }
         });
+        var list = [];
+        events.forEach(event => list.push(this.getEventJsonObj(event)));
+        const ids = list.map(o => o.id);
+        const contentIds = list.map(o => o.content_id);
+        if (ids.length > 0) {
+          var result = await this.$contract.apiReport.getReportResult(ids);
+          var contents = await this.$contract.apiContents.getContentsRecord(contentIds);
+          contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
+          result.complete_.forEach((o, i) => list[i].complete = o);
+          result.completeAmount_.forEach((o, i) => list[i].rewardAmount = this.$utils.toPXL(o));
+          result.completeAmount_.forEach((o, i) => list[i].title = contents[i].title);
+          this.list = list.reverse();
+          this.loaded = true;
+        }
       },
       setEvent() {
         this.$contract.report.setCallback(async (error, event) => {
