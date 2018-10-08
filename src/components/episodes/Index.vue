@@ -10,7 +10,7 @@
           <div class="text-secondary font-italic mb-4">{{writerName}}</div>
           <p>{{content.synopsis}}</p>
           <div class="mt-auto align-items-end">
-            <b-button v-if="!my" variant="danger" @click="report" size="sm" class="float-right ml-2">신고하기</b-button>
+            <Report v-if="!my" :content_id="content_id"/>
             <b-button v-if="my" variant="primary" @click="updateContent" size="sm" class="float-right ml-2">작품수정
             </b-button>
             <b-button v-if="my" variant="primary" @click="addEpisode" size="sm" class="float-right ml-2">회차등록</b-button>
@@ -39,11 +39,11 @@
 
 <script>
   import Item from './Item'
-  import {BigNumber} from 'bignumber.js';
+  import Report from './Report'
 
   export default {
     props: ['content_id'],
-    components: {Item},
+    components: {Item, Report},
     data() {
       return {
         content: {},
@@ -78,28 +78,6 @@
       },
       addEpisode() {
         this.$router.push({name: 'new-episode', params: {content_id: this.content_id}})
-      },
-      async report() {
-        this.$loading('loading...');
-        let registrationInfo = await this.$contract.apiReport.getRegistrationAmount();
-        let deposit = BigNumber(registrationInfo.amount_);
-        let initialDeposit = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
-        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
-        let message = `신고를 하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
-        if (deposit.gt(BigNumber(0))) {
-          let reason = prompt("신고 사유를 입력하세요.", "");
-          if (reason) {
-            await this.$contract.apiReport.sendReport(this.content_id, reason);
-          } else {
-            alert("신고 사유가 입력되지 않았습니다.")
-          }
-        } else if (pxl.lt(initialDeposit)) {
-          alert(message)
-        } else if (confirm(`${message}\n등록하시겠습니까?`)) {
-          await this.$contract.pxl.approveAndCall(this.pictionConfig.pictionAddress.report, initialDeposit);
-          this.report();
-        }
-        this.$loading.close();
       },
       async setContentDetail() {
         const contentDetail = await this.$contract.apiContents.getContentsDetail(this.content_id);
