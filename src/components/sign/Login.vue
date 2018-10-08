@@ -75,7 +75,7 @@
     },
     methods: {
       join: async function () {
-        this.$router.push({name: 'join', query: this.$router.history.current.query})
+        this.$router.push({name: 'join', query: this.$route.query})
       },
       login: async function () {
         this.$loading('loading...');
