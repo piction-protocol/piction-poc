@@ -21,7 +21,9 @@
           {{row.item.title}}
         </router-link>
       </template>
-      <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
+      <template slot="detail" slot-scope="row">
+        <div style="white-space: pre-line">{{row.item.detail}}</div>
+      </template>
       <template slot="complete" slot-scope="row">
         <span :class="'badge badge-' + result(row.item).variant">{{result(row.item).text}}</span>
       </template>
