@@ -6,8 +6,10 @@ class ApiContents {
     this._contract = new web3.eth.Contract(abi, address);
     this._contract.options.from = from;
     this._contract.options.gas = gas;
-    this.registerContents = (() => {})
-    this.episodeCreation = (() => {})
+    this.registerContents = (() => {
+    })
+    this.episodeCreation = (() => {
+    })
     this._contract.events.RegisterContents({fromBlock: 'latest'}, (error, event) => this.registerContents(error, event))
     this._contract.events.EpisodeCreation({fromBlock: 'latest'}, (error, event) => this.episodeCreation(error, event))
   }
@@ -42,6 +44,16 @@ class ApiContents {
 
   getWriterContentsList(writer) {
     return this._contract.methods.getWriterContentsList(writer).call();
+  }
+
+  /**
+   * 작품 레코드 조회
+   * @param {Address.<Array>} contentsAddress - 작품 주소 목록
+   * @returns {Object.<Array>} 작품 레코드 목록
+   */
+  async getRecords(contentsAddress) {
+    var contents = await this._contract.methods.getContentsRecord(contentsAddress).call();
+    return contents.records_ ? JSON.parse(web3.utils.hexToUtf8(contents.records_)) : [];
   }
 
   getContentsWriterName(contentsAddress) {

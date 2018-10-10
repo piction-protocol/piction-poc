@@ -21,7 +21,31 @@
           type="datetime"
           hidden-name="Enter end time"
           v-model="record.endTime"
-          input-class="form-control"></datetime>
+          input-class="form-control"/>
+      </b-form-group>
+
+      <b-form-group label="softcap:"
+                    label-for="softcap">
+        <input
+          id="softcap"
+          required
+          type="number"
+          hidden-name="Enter softcap"
+          v-model="record.softcap"
+          min="10"
+          class="form-control"/>
+      </b-form-group>
+
+      <b-form-group label="maxcap:"
+                    label-for="maxcap">
+        <input
+          id="maxcap"
+          required
+          type="number"
+          :min="record.softcap"
+          hidden-name="Enter maxcap"
+          v-model="record.maxcap"
+          class="form-control"/>
       </b-form-group>
 
       <b-form-group :label="`회수 횟수: ${record.poolSize}`"
@@ -97,11 +121,12 @@
         let hour = 60 * 60 * 1000;
         this.$loading('Uploading...');
         try {
-          await this.$contract.fundManager.addFund(
+          await this.$contract.apiFund.addFund(
             this.content_id,
-            this.pictionConfig.account,
             new Date(this.record.startTime).getTime(),
             new Date(this.record.endTime).getTime(),
+            this.record.maxcap,
+            this.record.softcap,
             this.record.poolSize,
             this.record.interval * hour,
             this.record.distributionRate,
