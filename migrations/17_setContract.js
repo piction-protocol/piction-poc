@@ -2,6 +2,7 @@ var Council = artifacts.require("Council");
 var PXL = artifacts.require("PXL");
 var UserPaybackPool = artifacts.require("UserPaybackPool");
 var DepositPool = artifacts.require("DepositPool");
+var SupporterPool = artifacts.require("SupporterPool");
 var ContentsManager = artifacts.require("ContentsManager");
 var FundManager = artifacts.require("FundManager");
 var AccountManager = artifacts.require("AccountManager");
@@ -10,6 +11,7 @@ var Marketer = artifacts.require("Marketer");
 var Report = artifacts.require("Report");
 var ApiReport = artifacts.require("ApiReport");
 var ApiContents = artifacts.require("ApiContents");
+var ApiFund = artifacts.require("ApiFund");
 
 module.exports = function (deployer, networks, accounts) {
 
@@ -51,6 +53,7 @@ module.exports = function (deployer, networks, accounts) {
     instance.initialPictionAddress(
       UserPaybackPool.address,
       DepositPool.address,
+      SupporterPool.address,
       PxlDistributor.address,
       Marketer.address,
       Report.address,
@@ -64,9 +67,13 @@ module.exports = function (deployer, networks, accounts) {
     );
 
     instance.initialApiAddress(
-      ApiReport.address,
       ApiContents.address,
-      ApiReport.address
+      ApiReport.address,
+      ApiFund.address
     );
+  });
+
+  AccountManager.deployed().then(function (instance) {
+    instance.createNewAccount('skkwon', 'a123a123', '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3', '0x627306090abab3a6e1400e9345bc60c78a8bef57');
   });
 };
