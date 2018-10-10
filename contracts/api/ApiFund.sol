@@ -44,12 +44,12 @@ contract ApiFund is ValidValue {
     {
         require(IContent(_content).getWriter() == msg.sender);
 
-        IFundManager(council.getFundManager()).addFund(_content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
+        address _fund = IFundManager(council.getFundManager()).addFund(_content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
 
-        emit AddFund(_content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
+        emit AddFund(_fund, _content, _startTime, _endTime, _maxcap, _softcap, _poolSize, _releaseInterval, _distributionRate, _detail);
     }
 
-    event AddFund(address _content, uint256 _startTime, uint256 _endTime, uint256 _maxcap, uint256 _softcap, uint256 _poolSize, uint256 _releaseInterval, uint256 _distributionRate, string _detail);
+    event AddFund(address indexed _fund, address indexed _content, uint256 _startTime, uint256 _endTime, uint256 _maxcap, uint256 _softcap, uint256 _poolSize, uint256 _releaseInterval, uint256 _distributionRate, string _detail);
 
     /**
     * @dev 작품의 투자 목록을 가져옴
@@ -122,6 +122,18 @@ contract ApiFund is ValidValue {
             string detail_)
     {
         return IFund(_fund).info();
+    }
+
+    function getFundRise(address[] _funds)
+    external
+    view
+    returns (uint256[] fundRise_)
+    {
+        fundRise_ = new uint256[](_funds.length);
+
+        for(uint i = 0; i < _funds.length; i++) {
+            (,,,, fundRise_[i],,,,) = IFund(_funds[i]).info();
+        }
     }
 
     ////-------- SupporterPool 관련 --------

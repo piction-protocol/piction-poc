@@ -40,11 +40,11 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
         uint256 _releaseInterval,
         uint256 _distributionRate,
         string _detail)
-    external {
+    external returns (address fund_) {
         require(ICouncil(council).getApiFund() == msg.sender);
         require(getLastFundedTime(_content) < TimeLib.currentTime());
 
-        Fund fund = new Fund(
+        fund_ = new Fund(
             council,
             _content,
             _startTime,
@@ -56,9 +56,9 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
             _distributionRate,
             _detail);
 
-        funds[_content].push(fund);
+        funds[_content].push(fund_);
 
-        emit RegisterFund(_content, fund);
+        emit RegisterFund(_content, fund_);
     }
 
     /**
