@@ -10,6 +10,17 @@ const Utils = {
       }
     };
 
+    Array.prototype.pretty = function () {
+      for (let i = 0; i < this.length; i++) {
+        [...Array(20).keys()].forEach(o => delete this[i][o]);
+        for (let k of Object.keys(this[i])) {
+          this[i][k.replace('_', '')] = this[i][k];
+          delete this[i][k];
+        }
+      }
+      return this;
+    };
+
     Vue.prototype.$utils = {
       getImageDimensions(dataUri) {
         return new Promise((resolved, rejected) => {
@@ -49,7 +60,7 @@ const Utils = {
           arr.push(web3.utils.hexToUtf8(str));
         });
         return arr;
-      }
+      },
     }
   }
 }
