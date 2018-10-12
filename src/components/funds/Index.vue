@@ -15,6 +15,8 @@
       </template>
       <template slot="distributionRate" slot-scope="row">{{$utils.toPXL(row.item.distributionRate) * 100}}%</template>
       <template slot="rise" slot-scope="row">{{$utils.toPXL(row.item.rise)}} PXL</template>
+      <template slot="softcap" slot-scope="row">{{$utils.toPXL(row.item.softcap)}} PXL</template>
+      <template slot="maxcap" slot-scope="row">{{$utils.toPXL(row.item.maxcap)}} PXL</template>
       <template slot="state" slot-scope="row">
         <b-badge :variant="row.item.state.variant">{{row.item.state.label}}</b-badge>
       </template>
@@ -31,6 +33,8 @@
           {key: 'fundTime', label: '모집기간'},
           {key: 'distributionRate', label: '분배비율'},
           {key: 'rise', label: '모집금액'},
+          {key: 'softcap', label: 'softcap'},
+          {key: 'maxcap', label: 'maxcap'},
           {key: 'state', label: '진행상태'},
         ],
         funds: [],
@@ -54,7 +58,7 @@
       getState(fund) {
         if (fund.startTime > new Date().getTime()) {
           return {'label': '대기', 'variant': 'warning'};
-        } else if (fund.endTime > new Date().getTime()) {
+        } else if (fund.endTime > new Date().getTime() && Number(fund.rise) < Number(fund.maxcap)) {
           return {'label': '진행중', 'variant': 'success'};
         } else {
           return {'label': '완료', 'variant': 'secondary'};

@@ -1,5 +1,6 @@
 import {abi} from '../../../build/contracts/ApiFund.json'
 import BigNumber from 'bignumber.js'
+import Web3Utils from '../../utils/Web3Utils.js'
 
 class ApiFund {
   constructor(address, from, gas) {
@@ -40,11 +41,11 @@ class ApiFund {
 
   /**
    * 펀드 목록 조회
-   * @returns [{fund}] 펀드 목록
+   * @returns [{Fund}] 펀드 목록
    */
   async getFunds() {
     let events = await this._contract.getPastEvents('AddFund', {fromBlock: 0, toBlock: 'latest'});
-    return events.map(event => event.returnValues).pretty();
+    return events.map(event => Web3Utils.prettyJSON(event.returnValues));
   }
 
   /**
@@ -54,6 +55,44 @@ class ApiFund {
    */
   async getFundRise(funds) {
     return await this._contract.methods.getFundRise(funds).call();
+  }
+
+  /**
+   * 펀드 상세 정보 조회
+   * @param {Address} fund - 펀드 주소
+   * @returns {Fund} - 펀드 상세 정보
+   */
+  async fundInfo(fund) {
+    var fund = await this._contract.methods.fundInfo(fund).call();
+    return Web3Utils.prettyJSON(fund);
+  }
+
+  /**
+   *  서포터 정보 조회
+   * @param {Address} fund - 펀드 주소
+   * @returns {Support.<Array>} - 펀드 상세 정보
+   */
+  async getSupporters(fund) {
+    var supporters = await this._contract.methods.getSupporters(fund).call();
+    return Web3Utils.jsonToArray(supporters);
+  }
+
+  /**
+   * 서포터 풀 정보 조회
+   * @param {Address} fund - 펀드 주소
+   * @returns {Distribution.<Array>} - 서포터 풀 정보
+   */
+  async getDistributions(fund) {
+    var distributions = await this._contract.methods.getDistributions(fund).call();
+    return Web3Utils.jsonToArray(distributions);
+  }
+
+  endFund(fund) {
+    return this._contract.methods.endFund(fund).send();
+  }
+
+  releaseDistribution(fund) {
+    return this._contract.methods.releaseDistribution(fund).send();
   }
 }
 
