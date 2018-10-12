@@ -25,13 +25,16 @@
              :fields="fields"
              :items="funds"
              @row-clicked="detail"
+             thead-class="text-center"
+             tbody-class="text-center"
              :small="true">
-      <template slot="ordinal" slot-scope="row">{{row.item.ordinal}}</template>
       <template slot="fundTime" slot-scope="row">
-        {{$utils.dateFmt(row.item.startTime)}}~{{$utils.dateFmt(row.item.endTime)}}
+        {{$utils.dateFmt(row.item.startTime)}} ~ {{$utils.dateFmt(row.item.endTime)}}
       </template>
       <template slot="distributionRate" slot-scope="row">{{$utils.toPXL(row.item.distributionRate) * 100}}%</template>
-      <template slot="fundRise" slot-scope="row">{{$utils.toPXL(row.item.fundRise)}} PXL</template>
+      <template slot="rise" slot-scope="row">{{$utils.toPXL(row.item.rise)}} PXL</template>
+      <template slot="softcap" slot-scope="row">{{$utils.toPXL(row.item.softcap)}} PXL</template>
+      <template slot="maxcap" slot-scope="row">{{$utils.toPXL(row.item.maxcap)}} PXL</template>
       <template slot="state" slot-scope="row">
         <b-badge :variant="row.item.state.variant">{{row.item.state.label}}</b-badge>
       </template>
@@ -48,10 +51,11 @@
     data() {
       return {
         fields: [
-          {key: 'ordinal', label: '기수'},
           {key: 'fundTime', label: '모집기간'},
           {key: 'distributionRate', label: '분배비율'},
-          {key: 'fundRise', label: '모집금액'},
+          {key: 'rise', label: '모집금액'},
+          {key: 'softcap', label: 'softcap'},
+          {key: 'maxcap', label: 'maxcap'},
           {key: 'state', label: '진행상태'},
         ],
         record: {},
@@ -62,48 +66,27 @@
     },
     methods: {
       async init() {
-        await this.$contract.contentInterface.getRecord(this.content_id)
-          .then(r => this.record = JSON.parse(r));
-
-        let funds = await this.$contract.fundManager.getFunds(this.content_id);
-        funds.forEach(async (fund, index) => {
-          let fundRecord = await this.$contract.fund.getInfo(fund);
-          let obj = {}
-          obj.fund_id = fund;
-          obj.ordinal = this.numberToOrdinalString(index + 1);
-          obj.startTime = Number(fundRecord[0]);
-          obj.endTime = Number(fundRecord[1]);
-          obj.fundRise = Number(fundRecord[2]);
-          obj.distributionRate = Number(fundRecord[5]);
-          obj.state = this.getState(obj);
-          this.funds.push(obj);
-          if (obj.endTime > new Date().getTime()) {
-            this.fundDisable = true;
-          }
+        const content = await this.$contract.apiContents.getContentsDetail(this.content_id);
+        this.record = content.record;
+        const funds = await this.$contract.apiFund.getFunds(this.content_id);
+        const rise = await this.$contract.apiFund.getFundRise(funds.map(fund => fund.fund));
+        funds.forEach((fund, i) => {
+          fund.rise = rise[i]
+          fund.state = this.getState(fund);
         });
+        this.funds = funds.reverse();
         this.deposit = this.$utils.toPXL(await this.$contract.depositPool.getDeposit(this.content_id));
       },
-      detail(item) {
-        this.$router.push({name: 'show-fund', params: {content_id: item.content_id, fund_id: item.fund_id}})
+      detail(fund) {
+        this.$router.push({name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}})
       },
-      getState(obj) {
-        if (obj.startTime > new Date().getTime()) {
+      getState(fund) {
+        if (fund.startTime > new Date().getTime()) {
           return {'label': '대기', 'variant': 'warning'};
-        } else if (obj.endTime > new Date().getTime()) {
+        } else if (fund.endTime > new Date().getTime() && Number(fund.rise) < Number(fund.maxcap)) {
           return {'label': '진행중', 'variant': 'success'};
         } else {
           return {'label': '완료', 'variant': 'secondary'};
-        }
-      },
-      numberToOrdinalString(number) {
-        if (number % 10 == 1) {
-          return number + 'st';
-        } else if (number % 10 == 2) {
-          return number + 'nd';
-        } else if (number % 10 == 3) {
-          return number + 'rd';
-        } else {
-          return number + 'th';
         }
       },
       addFund: function () {
