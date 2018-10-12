@@ -9,6 +9,7 @@ import "contracts/interface/IContent.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IFund.sol";
 import "contracts/interface/ISupporterPool.sol";
+import "contracts/interface/IAccountManager.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/SupporterPool.sol";
@@ -116,6 +117,8 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
             token.safeTransfer(_from, refundValue);
         }
 
+        // update support history
+        IAccountManager(ICouncil(council).getAccountManager()).setSupportHistory(_from, content, address(this), possibleValue, false);
         emit Support(_from, possibleValue, refundValue);
     }
 
@@ -158,6 +161,8 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
                     supporters[j].refund = true;
                     token.safeTransfer(supporters[j].user, supporters[j].investment);
 
+                    // update support history
+                    IAccountManager(ICouncil(council).getAccountManager()).setSupportHistory(supporters[j].user, content, address(this), supporters[j].investment, true);
                     emit Refund(supporters[j].user, supporters[j].investment);
                 }
             }
