@@ -81,9 +81,9 @@
       },
       async setContentDetail() {
         const contentDetail = await this.$contract.apiContents.getContentsDetail(this.content_id);
-        this.content = JSON.parse(contentDetail.record_);
-        this.writer = contentDetail.writer_;
-        this.writerName = contentDetail.writerName_;
+        this.content = contentDetail.record;
+        this.writer = contentDetail.writer;
+        this.writerName = contentDetail.writerName;
       },
       async loadList() {
         const result = await this.$contract.apiContents.getEpisodeFullList(this.content_id);

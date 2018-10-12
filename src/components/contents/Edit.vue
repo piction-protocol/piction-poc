@@ -34,8 +34,8 @@
     },
     async created() {
       const result = await this.$contract.apiContents.getContentsDetail(this.content_id);
-      this.record = JSON.parse(result.record_);
-      this.record.marketerRate = Number(result.marketerRate_)
+      this.record = result.record;
+      this.record.marketerRate = Number(result.marketerRate)
     }
   }
 </script>

@@ -1,5 +1,6 @@
 import {abi} from '../../../build/contracts/ApiContents.json'
 import BigNumber from 'bignumber.js'
+import Web3Utils from '../../utils/Web3Utils.js'
 
 class ApiContents {
   constructor(address, from, gas) {
@@ -56,12 +57,20 @@ class ApiContents {
     return contents.records_ ? JSON.parse(web3.utils.hexToUtf8(contents.records_)) : [];
   }
 
-  getContentsWriterName(contentsAddress) {
-    return this._contract.methods.getContentsWriterName(contentsAddress).call();
+  /**
+   * 작품 상세 정보 조회
+   * @param {Address} contentsAddress
+   * @returns {Object} 작품 상세 정보
+   */
+  async getContentsDetail(contentsAddress) {
+    var result = await this._contract.methods.getContentsDetail(contentsAddress).call();
+    result = Web3Utils.prettyJSON(result);
+    result.record = JSON.parse(result.record);
+    return result;
   }
 
-  getContentsDetail(contentsAddress) {
-    return this._contract.methods.getContentsDetail(contentsAddress).call();
+  getContentsWriterName(contentsAddress) {
+    return this._contract.methods.getContentsWriterName(contentsAddress).call();
   }
 
   addEpisode(contentsAddress, record, cuts, price) {
