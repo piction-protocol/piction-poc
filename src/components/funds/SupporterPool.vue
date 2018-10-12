@@ -4,6 +4,8 @@
              show-empty
              empty-text="조회된 목록이 없습니다"
              :fields="fields"
+             :current-page="currentPage"
+             :per-page="perPage"
              :items="distributions"
              thead-class="text-center"
              tbody-class="text-center"
