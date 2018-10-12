@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div v-if="loaded">
     <b-table striped hover
-             show-empty
              empty-text="조회된 목록이 없습니다"
              :fields="fields"
+             :current-page="page"
+             :per-page="perPage"
              :items="funds"
              @row-clicked="detail"
              thead-class="text-center"
@@ -21,11 +22,19 @@
         <b-badge :variant="row.item.state.variant">{{row.item.state.label}}</b-badge>
       </template>
     </b-table>
+    <b-pagination class="d-flex justify-content-center" size="md"
+                  :total-rows="funds.length"
+                  :value="page"
+                  :per-page="perPage"
+                  :limit="limit"
+                  @change="changePage">
+    </b-pagination>
   </div>
 </template>
 
 <script>
   export default {
+    props: ['page'],
     data() {
       return {
         fields: [
@@ -37,7 +46,10 @@
           {key: 'maxcap', label: 'maxcap'},
           {key: 'state', label: '진행상태'},
         ],
+        loaded: false,
         funds: [],
+        perPage: 15,
+        limit: 7,
       }
     },
     methods: {
@@ -51,6 +63,11 @@
           fund.state = this.getState(fund);
         });
         this.funds = funds.reverse();
+        this.loaded = true;
+
+      },
+      changePage(value) {
+        this.$router.push({query: {page: value}})
       },
       detail(fund) {
         this.$router.push({name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}})
