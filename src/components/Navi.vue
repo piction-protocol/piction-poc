@@ -16,6 +16,7 @@
           <b-nav-item style="margin-right: 10px;" v-b-tooltip.hover :title="pxl">
             <animated-number
               class="pxl"
+              :class="{'pxl-change': pxlChange}"
               :value="pxl"
               :formatValue="formatValue"
               :duration="1000"/>
@@ -40,6 +41,7 @@
     data() {
       return {
         pxl: 0,
+        pxlChange: false,
       }
     },
     methods: {
@@ -47,8 +49,10 @@
         return `${value.toFixed(2)} PXL`;
       },
       updatePXL() {
+        this.pxlChange = false;
         this.$contract.pxl.balanceOf(this.pictionConfig.account).then(pxl => {
           this.pxl = this.$utils.toPXL(pxl);
+          this.pxlChange = true;
         });
       },
       async newContents() {
