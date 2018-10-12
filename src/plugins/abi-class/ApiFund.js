@@ -43,8 +43,12 @@ class ApiFund {
    * 펀드 목록 조회
    * @returns [{Fund}] 펀드 목록
    */
-  async getFunds() {
-    let events = await this._contract.getPastEvents('AddFund', {fromBlock: 0, toBlock: 'latest'});
+  async getFunds(contentAddress) {
+    const filter = {};
+    if (contentAddress) {
+      filter._content = contentAddress;
+    }
+    let events = await this._contract.getPastEvents('AddFund', {filter: filter, fromBlock: 0, toBlock: 'latest'});
     return events.map(event => Web3Utils.prettyJSON(event.returnValues));
   }
 
