@@ -27,7 +27,7 @@ const Utils = {
         return BigNumber(amount).div(Math.pow(10, 18)).toString();
       },
       appendDecimals: function (amount) {
-        return BigNumber(amount).multipliedBy(Math.pow(10, 18)).toString();
+        return BigNumber(amount).multipliedBy(Math.pow(10, 18));
       },
       toPercent: function (number) {
         return BigNumber(number).multipliedBy(100).toString();
