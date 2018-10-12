@@ -58,7 +58,7 @@ contract SupporterPool is Ownable, ISupporterPool {
 
         uint256 poolAmount = _amount.div(_size);
         for (uint256 i = 0; i < _size; i++) {
-            addDistribution(_fund, _writer, _interval, _amount);
+            addDistribution(_fund, _writer, _interval, poolAmount);
         }
 
         uint256 remainder = _amount.sub(poolAmount.mul(_size));
