@@ -54,7 +54,10 @@ const router = new Router({
       props: true
     },
     // trends
-    {path: '/funds', name: 'funds', component: FundIndex},
+    {
+      path: '/funds', name: 'funds', component: FundIndex,
+      props: (route) => ({page: route.query.page ? Number(route.query.page) : 1})
+    },
     // funds
     {path: '/contents/:content_id/funds/new', name: 'new-fund', component: FundNew, props: true},
     {path: '/contents/:content_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
