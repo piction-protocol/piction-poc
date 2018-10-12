@@ -4,23 +4,6 @@ import BigNumber from 'bignumber.js'
 const Utils = {
   install(Vue, options) {
 
-    Array.prototype.asyncForEach = async function (fn) {
-      for (let i = 0; i < this.length; i++) {
-        await fn(this[i], i);
-      }
-    };
-
-    Array.prototype.pretty = function () {
-      for (let i = 0; i < this.length; i++) {
-        [...Array(20).keys()].forEach(o => delete this[i][o]);
-        for (let k of Object.keys(this[i])) {
-          this[i][k.replace('_', '')] = this[i][k];
-          delete this[i][k];
-        }
-      }
-      return this;
-    };
-
     Vue.prototype.$utils = {
       getImageDimensions(dataUri) {
         return new Promise((resolved, rejected) => {
