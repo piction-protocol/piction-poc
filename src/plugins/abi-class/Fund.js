@@ -7,19 +7,9 @@ class Fund {
     this._contract.options.gas = gas;
   }
 
-  getInfo(address) {
+  getContract(address) {
     this._contract.options.address = address;
-    return this._contract.methods.info().call()
-  }
-
-  getSupporters(address) {
-    this._contract.options.address = address;
-    return this._contract.methods.getSupporters().call()
-  }
-
-  createSupporterPool(address) {
-    this._contract.options.address = address;
-    return this._contract.methods.createSupporterPool().send()
+    return this._contract;
   }
 }
 
