@@ -70,7 +70,8 @@
         if (Number(this.fund.startTime) > new Date().getTime()) {
           return {text: '참여 가능 시간이 아닙니다', variant: 'primary', disabled: true, action: () => null}
         } else if (this.supportable) {
-          return {text: '참여', variant: 'primary', disabled: false, action: () => this.$refs.myModalRef.show()}
+          var disabled = this.content.writer.toLowerCase() == this.pictionConfig.account;
+          return {text: '참여', variant: 'primary', disabled: disabled, action: () => this.$refs.myModalRef.show()}
         } else if (this.supporters.length == 0) {
           return {text: '종료', variant: 'primary', disabled: true, action: () => null}
         } else {
