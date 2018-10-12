@@ -36,7 +36,7 @@
       <template slot="softcap" slot-scope="row">{{$utils.toPXL(row.item.softcap)}} PXL</template>
       <template slot="maxcap" slot-scope="row">{{$utils.toPXL(row.item.maxcap)}} PXL</template>
       <template slot="state" slot-scope="row">
-        <b-badge :variant="row.item.state.variant">{{row.item.state.label}}</b-badge>
+        <b-badge :variant="getState(row.item).variant">{{getState(row.item).label}}</b-badge>
       </template>
     </b-table>
   </div>
@@ -73,7 +73,6 @@
         const rise = await this.$contract.apiFund.getFundRise(funds.map(fund => fund.fund));
         funds.forEach((fund, i) => {
           fund.rise = rise[i]
-          fund.state = this.getState(fund);
         });
         this.funds = funds.reverse();
         this.deposit = this.$utils.toPXL(await this.$contract.depositPool.getDeposit(this.content_id));
@@ -89,9 +88,9 @@
         this.$router.push({name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}})
       },
       getState(fund) {
-        if (fund.startTime > new Date().getTime()) {
+        if (fund.startTime > this.$root.now) {
           return {'label': '대기', 'variant': 'warning'};
-        } else if (fund.endTime > new Date().getTime() && Number(fund.rise) < Number(fund.maxcap)) {
+        } else if (fund.endTime > this.$root.now && Number(fund.rise) < Number(fund.maxcap)) {
           return {'label': '진행중', 'variant': 'success'};
         } else {
           return {'label': '완료', 'variant': 'secondary'};

@@ -67,35 +67,49 @@
     props: ['content_id', 'fund_id'],
     computed: {
       button() {
-        if (Number(this.fund.startTime) > new Date().getTime()) {
-          return {text: '참여 가능 시간이 아닙니다', variant: 'primary', disabled: true, action: () => null}
+        if (Number(this.fund.startTime) > this.$root.now) {
+          return {id: this.$root.now, text: '참여 가능 시간이 아닙니다', variant: 'primary', disabled: true, action: () => null}
         } else if (this.supportable) {
           var disabled = this.content.writer.toLowerCase() == this.pictionConfig.account;
-          return {text: '참여', variant: 'primary', disabled: disabled, action: () => this.$refs.myModalRef.show()}
+          return {
+            id: this.$root.now,
+            text: '참여',
+            variant: 'primary',
+            disabled: disabled,
+            action: () => this.$refs.myModalRef.show()
+          }
         } else if (this.supporters.length == 0) {
-          return {text: '종료', variant: 'primary', disabled: true, action: () => null}
+          return {id: this.$root.now, text: '종료', variant: 'primary', disabled: true, action: () => null}
         } else {
           if (this.supporters.find(supporter => supporter.refund)) {
-            return {text: '환불 (softcap 미달성)', variant: 'danger', disabled: true, action: () => null}
+            return {id: this.$root.now, text: '환불 (softcap 미달성)', variant: 'danger', disabled: true, action: () => null}
           } else if (this.supporters.find(supporter => supporter.distributionRate > 0)) {
             var amount = this.distributions
-              .filter(d => d.distributableTime < new Date().getTime() && d.state == 0)
+              .filter(d => d.distributableTime < this.$root.now && d.state == 0)
               .reduce((a, b) => a + Number(b.amount), 0);
+            var text = `서포터 풀 ${this.$utils.toPXL(amount)} PXL 작가에게 지급`;
             return {
-              text: `서포터 풀 ${this.$utils.toPXL(amount)} PXL 작가에게 지급`,
+              id: this.$root.now,
+              text: text,
               variant: 'primary',
               disabled: amount == 0,
               action: () => this.releaseDistribution()
             }
           } else if (this.fund.softcap > this.fund.fundRise) {
-            return {text: '환불', variant: 'danger', disabled: false, action: () => this.endFund(0)}
+            return {id: this.$root.now, text: '환불', variant: 'danger', disabled: false, action: () => this.endFund(0)}
           } else {
-            return {text: '서포터 풀 생성', variant: 'primary', disabled: false, action: () => this.endFund(1)}
+            return {
+              id: this.$root.now,
+              text: '서포터 풀 생성',
+              variant: 'primary',
+              disabled: false,
+              action: () => this.endFund(1)
+            }
           }
         }
       },
       supportable() {
-        return moment().isBetween(Number(this.fund.startTime), Number(this.fund.endTime)) &&
+        return moment(this.$root.now).isBetween(Number(this.fund.startTime), Number(this.fund.endTime)) &&
           Number(this.fund.maxcap) > Number(this.fund.fundRise);
       },
     },
