@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-alert show variant="secondary">작품명: {{content ? content.title : ''}}</b-alert>
+    <b-alert show variant="secondary">작품명: {{content ? `${content.record.title}` : ''}}</b-alert>
     <b-form @submit="onSubmit">
       <b-form-group label="모집 시작 일시:"
                     label-for="startTime">
@@ -138,9 +138,8 @@
         this.$loading.close();
       }
     },
-    created() {
-      this.$contract.contentInterface.getRecord(this.content_id)
-        .then(r => this.content = JSON.parse(r));
+    async created() {
+      this.content = await this.$contract.apiContents.getContentsDetail(this.content_id);
     }
   }
 </script>

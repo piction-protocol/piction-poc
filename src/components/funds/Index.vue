@@ -33,6 +33,8 @@
 </template>
 
 <script>
+  import Web3Utils from '../../utils/Web3Utils.js'
+
   export default {
     props: ['page'],
     data() {
@@ -50,6 +52,7 @@
         funds: [],
         perPage: 15,
         limit: 7,
+        events: []
       }
     },
     methods: {
@@ -64,7 +67,12 @@
         });
         this.funds = funds.reverse();
         this.loaded = true;
-
+      },
+      async setEvent() {
+        const event = this.$contract.apiFund.getContract().events.AddFund({fromBlock: 'latest'}, async (error, event) => {
+          this.init();
+        });
+        this.events.push(event);
       },
       changePage(value) {
         this.$router.push({query: {page: value}})
@@ -83,7 +91,11 @@
       },
     },
     async created() {
+      this.setEvent();
       this.init();
+    },
+    async destroyed() {
+      this.events.forEach(async event => await event.unsubscribe());
     }
   }
 </script>

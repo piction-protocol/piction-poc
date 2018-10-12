@@ -62,6 +62,7 @@
         deposit: 0,
         funds: [],
         fundDisable: false,
+        events: []
       }
     },
     methods: {
@@ -76,6 +77,13 @@
         });
         this.funds = funds.reverse();
         this.deposit = this.$utils.toPXL(await this.$contract.depositPool.getDeposit(this.content_id));
+      },
+      async setEvent() {
+        this.funds.forEach(fund => {
+          const supportEvent = this.$contract.fund.getContract(fund.fund).events
+            .Support({fromBlock: 'latest'}, () => this.init());
+          this.events.push(supportEvent);
+        });
       },
       detail(fund) {
         this.$router.push({name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}})
@@ -110,7 +118,11 @@
       }
     },
     async created() {
-      this.init();
+      await this.init();
+      await this.setEvent();
+    },
+    async destroyed() {
+      this.events.forEach(async event => await event.unsubscribe());
     }
   }
 </script>

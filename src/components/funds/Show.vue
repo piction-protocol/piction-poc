@@ -106,7 +106,8 @@
         supporters: [],
         distributions: [],
         supportAmount: 10,
-        tabIndex: 0
+        tabIndex: 0,
+        events: []
       }
     },
     methods: {
@@ -114,6 +115,17 @@
         this.loadFundInfo();
         this.loadSupporters();
         this.loadDistributions();
+      },
+      async setEvent() {
+        const supportEvent = this.$contract.fund.getContract(this.fund_id).events
+          .Support({fromBlock: 'latest'}, () => this.init());
+        this.events.push(supportEvent);
+        const endFundEvent = this.$contract.apiFund.getContract().events
+          .EndFund({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.init());
+        this.events.push(endFundEvent);
+        const releaseDistributionEvent = this.$contract.apiFund.getContract().events
+          .ReleaseDistribution({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.init());
+        this.events.push(releaseDistributionEvent);
       },
       async loadFundInfo() {
         this.content = await this.$contract.apiContents.getContentsDetail(this.content_id);
@@ -167,8 +179,12 @@
       }
     },
     async created() {
+      this.setEvent();
       this.init();
-    }
+    },
+    async destroyed() {
+      this.events.forEach(async event => await event.unsubscribe());
+    },
   }
 </script>
 
