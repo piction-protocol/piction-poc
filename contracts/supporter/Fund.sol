@@ -137,19 +137,19 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     function endFund() external {
         require(ICouncil(council).getApiFund() == msg.sender);
         require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0);
-        require(TimeLib.currentTime() > endTime);
+        require(fundRise == maxcap || TimeLib.currentTime() > endTime);
 
         uint256 totalInvestment;
         for (uint256 i = 0; i < supporters.length; i++) {
             totalInvestment = totalInvestment.add(supporters[i].investment);
         }
+        ERC20 token = ERC20(ICouncil(council).getToken());
         require(totalInvestment == token.balanceOf(address(this)));
 
         if (fundRise >= softcap) {
             setDistributionRate();
             ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize);
 
-            ERC20 token = ERC20(ICouncil(council).getToken());
             token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
         } else {
             //추후 환불 시 Block Gas limit 고려 필요
