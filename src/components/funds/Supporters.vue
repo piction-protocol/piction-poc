@@ -41,7 +41,7 @@
           {key: 'distributionRate', label: '분배비율'},
         ],
         currentPage: 1,
-        perPage: 3,
+        perPage: 5,
         limit: 7,
       }
     },

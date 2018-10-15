@@ -98,6 +98,10 @@ class ApiFund {
   releaseDistribution(fund) {
     return this._contract.methods.releaseDistribution(fund).send();
   }
+
+  vote(fund, index) {
+    return this._contract.methods.vote(fund, index).send();
+  }
 }
 
 export default ApiFund;

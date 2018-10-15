@@ -36,7 +36,10 @@
           <Supporters :supporters="supporters"/>
         </b-tab>
         <b-tab title="서포터 풀">
-          <SupporterPool :distributions="distributions"/>
+          <SupporterPool :distributions="distributions"
+                         :fund_id="fund_id"
+                         :fund="fund"
+                         :isDisabled="isMy || !isSupporter"/>
         </b-tab>
       </b-tabs>
     </b-card>
@@ -66,16 +69,21 @@
     components: {SupporterPool, Supporters, AnimatedNumber},
     props: ['content_id', 'fund_id'],
     computed: {
+      isMy() {
+        return this.content && this.content.writer.toLowerCase() == this.pictionConfig.account;
+      },
+      isSupporter() {
+        return this.supporters.find(supporter => supporter.user == this.pictionConfig.account);
+      },
       button() {
         if (Number(this.fund.startTime) > this.$root.now) {
           return {id: this.$root.now, text: '참여 가능 시간이 아닙니다', variant: 'primary', disabled: true, action: () => null}
         } else if (this.supportable) {
-          var disabled = this.content.writer.toLowerCase() == this.pictionConfig.account;
           return {
             id: this.$root.now,
             text: '참여',
             variant: 'primary',
-            disabled: disabled,
+            disabled: isMy,
             action: () => this.$refs.myModalRef.show()
           }
         } else if (this.supporters.length == 0) {
@@ -140,6 +148,9 @@
         const releaseDistributionEvent = this.$contract.apiFund.getContract().events
           .ReleaseDistribution({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.init());
         this.events.push(releaseDistributionEvent);
+        const voteEvent = this.$contract.apiFund.getContract().events
+          .Vote({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.loadDistributions());
+        this.events.push(voteEvent);
       },
       async loadFundInfo() {
         this.content = await this.$contract.apiContents.getContentsDetail(this.content_id);

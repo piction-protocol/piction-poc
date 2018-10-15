@@ -15,7 +15,7 @@
       <template slot="distributedTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="state" slot-scope="row">{{getStateString(row.value)}}</template>
       <template slot="vote" slot-scope="row">
-        <b-button :disabled="row.item.disable" variant="primary" size="sm" @click.stop="vote(row.index)">
+        <b-button :disabled="disabled(row)" variant="primary" size="sm" @click.stop="vote(row.index)">
           {{row.item.votingCount}} vote
         </b-button>
       </template>
@@ -36,30 +36,43 @@
   import BigNumber from 'bignumber.js'
 
   export default {
-    props: ['distributions'],
+    props: ['fund_id', 'fund', 'distributions', 'isDisabled'],
     data() {
       return {
         fields: [
-          {key: 'amount', label: '회수금액'},
-          {key: 'distributableTime', label: '회수가능일시'},
-          {key: 'distributedTime', label: '회수일시'},
-          {key: 'state', label: '회수상태'},
+          {key: 'amount', label: '지급금액'},
+          {key: 'distributableTime', label: '지급가능일시'},
+          {key: 'distributedTime', label: '지급일'},
+          {key: 'state', label: '지급상태'},
           {key: 'vote', label: 'Vote'},
         ],
         currentPage: 1,
-        perPage: 3,
+        perPage: 5,
         limit: 7,
       }
     },
     methods: {
+      disabled(row) {
+//        if (this.isDisabled) {
+        if (false) {
+          return true;
+        } else if (row.item.state == 2) {
+          return true;
+        } else if (Number(row.item.distributableTime) - Number(this.fund.releaseInterval) < this.$root.now &&
+          this.$root.now < Number(row.item.distributableTime)) {
+          return false;
+        } else {
+          return true;
+        }
+      },
       vote: async function (index) {
         this.$loading('loading...');
         try {
-          await this.$contract.supporterPool.vote(this.fund.supporterPool, index);
+          await this.$contract.apiFund.vote(this.fund_id, index);
         } catch (e) {
           alert(e)
         }
-        this.$router.go(this.$router.path)
+        this.$loading.close();
       },
       getStateString: function (state) {
         if (state == 0) {
