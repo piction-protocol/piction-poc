@@ -43,6 +43,7 @@ Vue.use(Vuex);
   } else {
     console.log('not logged in')
   }
+  Vue.use(Utils);
   // local: 4447 / private: 2880
   Vue.use(PictionNetworkPlugin, await config(2880));
   Vue.use(FirebasePlugin, {
@@ -53,13 +54,17 @@ Vue.use(Vuex);
     storageBucket: "battlecomics-dev.appspot.com",
     messagingSenderId: "312406426508"
   });
-  Vue.use(Utils);
 
   /* eslint-disable no-new */
   new Vue({
     el: '#app',
     router,
     store,
+    data() {
+      return {
+        now: new Date().getTime(),
+      }
+    },
     methods: {
       reload() {
         this.$router.push('/')
@@ -69,7 +74,9 @@ Vue.use(Vuex);
     components: {App},
     template: '<App/>',
     async created() {
-
+      setInterval(() => {
+        this.now = new Date().getTime();
+      }, 1000);
     }
   });
 })()
