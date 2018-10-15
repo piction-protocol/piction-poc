@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IContent.sol";
+import "contracts/interface/IFundManager.sol";
 import "contracts/interface/IAccountManager.sol";
 
 import "contracts/utils/ValidValue.sol";
@@ -21,14 +22,8 @@ contract AccountManager is IAccountManager, ValidValue {
         address wallet;
     }
 
-    struct Purchase {
-        mapping (address => bool) isPurchasedContent;
-        address[] contentsAddress;
-    }
-
     mapping(string => uint256) userNameToIndex;
     mapping(address => uint256) addressToIndex;
-    mapping(address => Purchase) addressToPurchase;
 
     ICouncil council;
     IERC20 token;
@@ -104,74 +99,49 @@ contract AccountManager is IAccountManager, ValidValue {
     }
 
     /**
-    * @dev 구매 내역 저장
-    * @param _contentAddress 구매한 컨텐츠 컨트랙트 주소
+    * @dev 구매 내역 이벤트 처리
     * @param _buyer 구매자 주소
+    * @param _contentsAddress 구매한 컨텐츠 컨트랙트 주소
+    * @param _episodeIndex 구매한 컨텐츠 컨트랙트 주소
+    * @param _episodePrice 구매한 컨텐츠 컨트랙트 주소
     */
-    function setPurchaseContentsAddress(
-        address _contentAddress,
-        address _buyer
+    function setPurchaseHistory(
+        address _buyer,
+        address _contentsAddress,
+        uint256 _episodeIndex,
+        uint256 _episodePrice
     )
         external
-        validAddress(_contentAddress) validAddress(_buyer)
+        validAddress(_contentsAddress) validAddress(_buyer)
     {
         require(council.getPixelDistributor() == msg.sender, "Purchase failed: Access denied.");
+        require(isRegistered(account[addressToIndex[_buyer]].userName), "Purchase failed: Please register account.");
 
-        require(isRegistered(account[addressToIndex[_buyer]].userName),
-            "Purchase failed: Please register account.");
-
-        Purchase storage purchase = addressToPurchase[_buyer];
-        if(purchase.isPurchasedContent[_contentAddress]) {
-            return;
-        }
-
-        purchase.isPurchasedContent[_contentAddress] = true;
-        purchase.contentsAddress.push(_contentAddress);
-
-        emit PurchaseContentsAddress(_buyer, _contentAddress);
+        emit PurchaseHistory(_buyer, _contentsAddress, _episodeIndex, _episodePrice);
     }
 
-    /**
-    * @dev 내 구매 내역 조회
-    * @return contentsAddress_ 구매한 컨텐츠 컨트랙트 주소 배열
+    /** 
+    * @dev 투자 내역 저장
+    * @param _supporter 투자자 주소
+    * @param _contentsAddress 투자한 작품 주소
+    * @param _fundAddress fund contract 주소
+    * @param _investedAmount 투자 금액
+    * @param _refund 환불 여부
     */
-    function getPurcahsedContents()
-        external
-        view
-        returns (address[] memory contentsAddress_)
-    {
-        contentsAddress_ = addressToPurchase[msg.sender].contentsAddress;
-    }
-
-    /**
-    * @dev 작품의 회차별 구매 상세 내역 조회
-    * @param _contentsAddress 구매한 작품 주소 목록
-    * @return contentsAddress_ 구매한 컨텐츠 컨트랙트 주소 배열
-    * @return price_ 판매 가격
-    * @return isPurchased_ 구매 여부
-    */
-    function getPurchasedContentEpisodes(
-        address _contentsAddress
+    function setSupportHistory(
+        address _supporter, 
+        address _contentsAddress,
+        address _fundAddress,
+        uint256 _investedAmount,
+        bool _refund
     )
         external
-        view
-        returns (address contentsAddress_, uint256[] price_, bool[] isPurchased_)
+        validAddress(_supporter) validAddress(_fundAddress) validAddress(_contentsAddress)
     {
-        contentsAddress_ = _contentsAddress;
+        require(_isFundContract(_fundAddress, _contentsAddress), "Support history failed: Invalid address.");
+        require(isRegistered(account[addressToIndex[_supporter]].userName), "Support history failed: Please register account.");
 
-        IContent content = IContent(contentsAddress_);
-        uint256 episodeLength = content.getEpisodeLength();
-
-        if(episodeLength == 0) {
-            return;
-        }
-
-        price_ = new uint256[](episodeLength);
-        isPurchased_ = new bool[](episodeLength);
-
-        for(uint256 i = 0 ; i < episodeLength ; i++) {
-            ( , price_[i], , isPurchased_[i])= content.getEpisodeDetail(i, msg.sender);
-        }
+        emit SupportHistory(_supporter, _contentsAddress, _fundAddress, _investedAmount, _refund);
     }
 
     /**
@@ -247,6 +217,28 @@ contract AccountManager is IAccountManager, ValidValue {
             writerName_ = writerName_.concat(str);
             tempLength = (tempLength == 0)? tempLength.add((str.length).mul(2).add(2)) : tempLength.add((str.length).mul(2));
             epos_[i] = tempLength;
+        }
+    }
+
+    function _isFundContract(
+        address _fundAddress,
+        address _contentsAddress
+    )
+        private
+        view
+        returns (bool isFundContract_)
+    {
+        address[] memory fundAddress = IFundManager(council.getFundManager()).getFunds(_contentsAddress);
+        
+        if(fundAddress.length == 0) {
+            return;
+        }
+
+        for(uint256 i = 0 ; i < fundAddress.length ; i++){
+            if(fundAddress[i] == _fundAddress) {
+                isFundContract_ = true;
+                break;
+            }
         }
     }
 

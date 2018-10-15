@@ -75,8 +75,8 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         // update episode purchase
         IContent(contentAddr).episodePurchase(idx, _from, _value);
 
-        // update user purchase
-        IAccountManager(council.getAccountManager()).setPurchaseContentsAddress(contentAddr, _from);
+        // update user purchase history
+        IAccountManager(council.getAccountManager()).setPurchaseHistory(_from, contentAddr, idx, _value);
     }
 
     function _purchaseTokenDistribution(
