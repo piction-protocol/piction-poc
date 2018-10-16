@@ -11,7 +11,7 @@ import "contracts/utils/TimeLib.sol";
 contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
     using TimeLib for *;
 
-    mapping(address => address[]) funds;
+    mapping(address => address) funds;
     address council;
 
     constructor(address _council) public validAddress(_council){
@@ -64,24 +64,10 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
     /**
     * @dev 작품의 투자 목록을 가져옴
     * @param _content 작품의 주소
-    * @return funds_ 작품의 투자 주소목록
+    * @return fund_ 작품의 투자 주소
     */
-    function getFunds(address _content) external view returns (address[] funds_) {
+    function getFund(address _content) external view returns (address fund_) {
         return funds[_content];
-    }
-
-    /**
-    * @dev 작품에서 마지막 투자의 종료시간 조회
-    * @param _content 작품 주소
-    * @return endTime_ 종료시간
-    */
-    function getLastFundedTime(address _content) private view returns (uint256 endTime_) {
-        if (funds[_content].length > 0) {
-            uint256 lastIndex = funds[_content].length - 1;
-            return Fund(funds[_content][lastIndex]).endTime();
-        } else {
-            return 0;
-        }
     }
 
     /**

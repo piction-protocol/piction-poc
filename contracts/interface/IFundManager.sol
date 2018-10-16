@@ -16,6 +16,6 @@ interface IFundManager {
         string _detail
     ) external returns (address fund_);
 
-    function getFunds(address _content) external view returns (address[] funds_);
+    function getFund(address _content) external view returns (address fund_);
     function distribution(address _fund, uint256 _total) external returns (address[] supporter_, uint256[] amount_);
 }

@@ -89,9 +89,9 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @param _reporter 신고자 주소
     */
     function reportReward(address _content, address _reporter)
+        external
         validAddress(_content)
         validAddress(_reporter)
-        external
         returns(uint256)
     {
         require(address(council) == msg.sender);
@@ -120,47 +120,42 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @dev 작품 완결 시 호출하는 정산 구현
     * @param _content 정산을 원하는 작품 주소
     */
-    function release(address _content) validAddress(_content) external {
+    function release(address _content) external validAddress(_content) {
         //신고 건이 있으면 완결처리되지 않음
-        require(IReport(council.getReport()).getUncompletedReport(_content) == 0);
-        require(contentDeposit[_content] > 0);
+        require(IReport(council.getReport()).getUncompletedReport(_content) == 0, "UncompletedReport");
+        require(contentDeposit[_content] > 0, "contentDeposit is zero");
         address writer = IContent(_content).getWriter();
-        require(writer == msg.sender);
+        require(writer == msg.sender, "msg sender is not writer");
         ERC20 token = ERC20(council.getToken());
-        require(token.balanceOf(address(this)) >= contentDeposit[_content]);
+        require(token.balanceOf(address(this)) >= contentDeposit[_content], "token balance abnormal");
 
         IFundManager fund = IFundManager(council.getFundManager());
 
-        address[] memory fundAddress = fund.getFunds(_content);
+        address fundAddress = fund.getFund(_content);
 
         uint256 compareAmount;
         uint256 amount = contentDeposit[_content];
 
-        for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            if(amount == 0) {
-                break;
-            }
+        (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
-            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
+        //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
+        for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
+            compareAmount = compareAmount.add(supporterAmount[j]);
+            contentDeposit[_content] = contentDeposit[_content].sub(supporterAmount[j]);
 
-            //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
-            for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-                compareAmount = compareAmount.add(supporterAmount[j]);
-                contentDeposit[_content] = contentDeposit[_content].sub(supporterAmount[j]);
-                token.safeTransfer(supporterAddress[j], supporterAmount[j]);
-                emit Release(_content, supporterAddress[j], supporterAmount[j]);
-            }
-
-            amount = amount.sub(compareAmount);
+            token.safeTransfer(supporterAddress[j], supporterAmount[j]);
+            emit Release(_content, supporterAddress[j], supporterAmount[j]);
         }
+        amount = amount.sub(compareAmount);
 
         if (amount > 0) {
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
+
             token.safeTransfer(writer, amount);
             emit Release(_content, writer, amount);
         }
 
-        require(contentDeposit[_content] == 0);
+        require(contentDeposit[_content] == 0, "release deposit abnormal");
     }
 
     event AddDeposit(address _from, uint256 _value, address _token);

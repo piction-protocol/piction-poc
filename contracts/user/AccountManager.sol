@@ -228,18 +228,9 @@ contract AccountManager is IAccountManager, ValidValue {
         view
         returns (bool isFundContract_)
     {
-        address[] memory fundAddress = IFundManager(council.getFundManager()).getFunds(_contentsAddress);
+        address fundAddress = IFundManager(council.getFundManager()).getFund(_contentsAddress);
         
-        if(fundAddress.length == 0) {
-            return;
-        }
-
-        for(uint256 i = 0 ; i < fundAddress.length ; i++){
-            if(fundAddress[i] == _fundAddress) {
-                isFundContract_ = true;
-                break;
-            }
-        }
+        isFundContract_ = fundAddress != address(0);
     }
 
     function _compareString(

@@ -140,7 +140,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         }
 
         // transfer
-        for(uint256 i  = 0 ; i < distribution.length ; i ++) {
+        for(uint256 i = 0 ; i < distribution.length ; i ++) {
             _transferDistributePxl(
                 distribution[i].transferAddress,
                 distribution[i].tokenAmount,
@@ -157,22 +157,16 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         uint256 amount = _amount;
 
         IFundManager fund = IFundManager(council.getFundManager());
-        address[] memory fundAddress = fund.getFunds(_content);
+        address fundAddress = fund.getFund(_content);
 
-        for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            if(amount == 0) {
-                break;
-            }
+        (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
-            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
-
-            for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-                compareAmount = compareAmount.add(supporterAmount[j]);
-                distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, address(0)));
-            }
-
-            amount = amount.sub(compareAmount);
+        for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
+            compareAmount = compareAmount.add(supporterAmount[j]);
+            distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, address(0)));
         }
+
+        amount = amount.sub(compareAmount);
     }
 
     function _clearDistributionDetail()
@@ -217,7 +211,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         view
         returns (bool)
     {
-            return (_address != address(this) && _address != address(0)) ? true : false;
+        return (_address != address(this) && _address != address(0)) ? true : false;
     }
 
     event InvalidJsonParameter(address _sender, uint256 _pxl);
