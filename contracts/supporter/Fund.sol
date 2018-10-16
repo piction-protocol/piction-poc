@@ -63,17 +63,22 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         uint256 _distributionRate,
         string _detail)
     public validAddress(_content) validAddress(_council) {
-        require(_startTime > TimeLib.currentTime());
-        require(_endTime > _startTime);
-        require(_maxcap > _softcap);
-        require(_poolSize > 0);
-        require(_releaseInterval > 0);
-        require(distributionRate <= 10 ** decimals);
+        require(_maxcap > _softcap, "maxcap < softcap");
+        require(_poolSize > 0, "poolsize is zero");
+        require(_releaseInterval > 0, "releaseInterval is zero");
+        require(distributionRate <= 10 ** decimals, "distributionRate > 10%");
 
         council = _council;
         content = _content;
         writer = IContent(_content).getWriter();
-        startTime = _startTime;
+        
+        if (_startTime <= TimeLib.currentTime()) {
+            startTime = TimeLib.currentTime();
+        } else {
+            startTime = _startTime;
+        }
+        require(_endTime > _startTime, "startTime > endTime");
+
         endTime = _endTime;
         maxcap = _maxcap;
         softcap = _softcap;
