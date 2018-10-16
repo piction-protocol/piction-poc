@@ -99,11 +99,11 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @param _token 사용된 Token Contract 주소
     */
     function support(address _from, uint256 _value, address _token) private {
-        require(TimeLib.currentTime().between(startTime, endTime));
-        require(fundRise < maxcap);
+        require(TimeLib.currentTime().between(startTime, endTime), "End Punding, Time");
+        require(fundRise < maxcap, "End Punding, Maxcap");
 
         ERC20 token = ERC20(ICouncil(council).getToken());
-        require(address(token) == _token);
+        require(address(token) == _token, "token is abnormale");
 
         (uint256 possibleValue, uint256 refundValue) = getRefundAmount(_value);
 
@@ -143,16 +143,16 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @dev 투자의 종료를 진행, 후원 풀로 토큰을 전달하며 softcap 미달 시 환불을 진행함
     */
     function endFund() external {
-        require(ICouncil(council).getApiFund() == msg.sender);
-        require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0);
-        require(fundRise == maxcap || TimeLib.currentTime() > endTime);
+        require(ICouncil(council).getApiFund() == msg.sender, "msg sender is not ApiFund");
+        require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0, "Fund SupporterPool is already");
+        require(fundRise == maxcap || TimeLib.currentTime() > endTime, "fundRise not maxcap or endTime not over");
 
         uint256 totalInvestment;
         for (uint256 i = 0; i < supporters.length; i++) {
             totalInvestment = totalInvestment.add(supporters[i].investment);
         }
         ERC20 token = ERC20(ICouncil(council).getToken());
-        require(totalInvestment == token.balanceOf(address(this)));
+        require(totalInvestment == token.balanceOf(address(this)), "fund balance abnormale");
 
         if (fundRise >= softcap) {
             setDistributionRate();
@@ -194,7 +194,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @return amounts_ 투자자가 정산받을 금액
     */
     function distribution(uint256 _total) external returns (address[] memory supporters_, uint256[] memory amounts_) {
-        require(ICouncil(council).getFundManager() == msg.sender);
+        require(ICouncil(council).getFundManager() == msg.sender, "msg sender is not FundManager");
 
         supporters_ = new address[](supporters.length);
         amounts_ = new uint256[](supporters.length);
