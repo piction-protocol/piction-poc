@@ -57,17 +57,43 @@
     animation-duration: 5s;
   }
 
+  .page-title {
+
+    font-size: 36px;
+    font-weight: bold;
+  }
+
   /* Chrome, Safari, Opera */
   @-webkit-keyframes example {
-    0%   {text-shadow: rgb(255, 255, 255) 0px 0px 30px;}
-    50%  {text-shadow: rgb(255, 0, 0) 0px 0px 30px;}
-    100% {text-shadow: rgb(255, 255, 255) 0px 0px 30px;}
+    0% {
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
+    }
+    50% {
+      text-shadow: rgb(255, 0, 0) 0px 0px 30px;
+    }
+    100% {
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
+    }
   }
 
   /* Standard syntax */
   @keyframes example {
-    0%   {text-shadow: rgb(255, 255, 255) 0px 0px 30px;}
-    50%  {text-shadow: rgb(255, 0, 0) 0px 0px 30px;}
-    100% {text-shadow: rgb(255, 255, 255) 0px 0px 30px;}
+    0% {
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
+    }
+    50% {
+      text-shadow: rgb(255, 0, 0) 0px 0px 30px;
+    }
+    100% {
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
+    }
+  }
+
+  a {
+    color: inherit;
+  }
+
+  a:hover {
+    text-decoration: inherit;
   }
 </style>

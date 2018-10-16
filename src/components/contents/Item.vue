@@ -1,20 +1,9 @@
 <template>
-  <router-link :to="{ name: 'episodes', params: { content_id: content.id }}">
-    <b-row style="margin-bottom: 8px">
-      <b-col cols="3">
-        <img :src="content.thumbnail" class="thumbnail"/>
-      </b-col>
-      <b-col class="p-3">
-        <div>
-          <h5 class="font-weight-bold">{{content.title}}</h5>
-          <h5 class="mb-3">
-            <b-badge variant="success">{{content.genres}}</b-badge>
-          </h5>
-          <div class="text-secondary font-italic">{{content.writerName}}</div>
-        </div>
-      </b-col>
-    </b-row>
-    <hr>
+  <router-link class="item d-inline-block w-100 mb-4" :to="{ name: 'episodes', params: { content_id: content.id }}">
+    <b-img fluid :src="content.thumbnail" class="thumbnail"/>
+    <div class="title-text">{{content.title}}</div>
+    <div class="writer-text">{{content.writerName}}</div>
+    <b-badge variant="secondary bg-dark">{{content.genres}}</b-badge>
   </router-link>
 </template>
 
@@ -29,20 +18,24 @@
 </script>
 
 <style scoped>
+  .title-text {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .writer-text {
+    font-size: 12px;
+    color: #9b9b9b;
+  }
+
   .thumbnail {
     width: 100%;
-    max-height: 130px;
-    border-radius: 0.5rem;
+    /*height: 100%;*/
+    height: 250px;
+    border: 1px solid #979797;
     background-position: center;
     background-size: cover;
     background-color: #e8e8e8;
-  }
-
-  a {
-    color: inherit;
-  }
-
-  a:hover {
-    text-decoration: inherit;
+    margin-bottom: 10px;
   }
 </style>

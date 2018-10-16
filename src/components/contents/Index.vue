@@ -1,8 +1,14 @@
 <template>
   <div>
-    <Item v-for="content in contents"
-          :content="content"
-          :key="content.id"/>
+    <div style="font-size: 36px; font-weight: bold">Comics</div>
+    <br>
+    <b-row>
+      <b-col cols="12" sm="6" md="4" lg="3"
+             v-for="content in contents"
+             :key="content.id">
+        <Item :content="content"/>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
@@ -47,6 +53,4 @@
 </script>
 
 <style scoped>
-  div {
-  }
 </style>
