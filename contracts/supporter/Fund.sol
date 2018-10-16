@@ -63,7 +63,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         uint256 _distributionRate,
         string _detail)
     public validAddress(_content) validAddress(_council) {
-        require(_maxcap > _softcap, "maxcap < softcap");
+        require(_maxcap >= _softcap, "maxcap < softcap");
         require(_poolSize > 0, "poolsize is zero");
         require(_releaseInterval > 0, "releaseInterval is zero");
         require(distributionRate <= 10 ** decimals, "distributionRate > 10%");
