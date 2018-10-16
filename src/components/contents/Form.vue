@@ -48,7 +48,7 @@
                             :options="options">
         </b-form-radio-group>
       </b-form-group>
-      <b-form-group :label="`마케터 보상 분비 비율: ${$utils.toPercent(record.marketerRate)}%`"
+      <b-form-group :label="`마케터 보상 분배 비율: ${$utils.toPercent(record.marketerRate)}%`"
                     label-for="marketerRate"
                     description="">
         <b-form-input id="marketerRate"

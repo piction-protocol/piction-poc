@@ -83,7 +83,7 @@
             id: this.$root.now,
             text: '참여',
             variant: 'primary',
-            disabled: isMy,
+            disabled: this.isMy,
             action: () => this.$refs.myModalRef.show()
           }
         } else if (this.supporters.length == 0) {
