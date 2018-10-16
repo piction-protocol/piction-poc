@@ -34,7 +34,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     uint256 decimals = 18;
 
     uint256 startTime;
-    uint256 public endTime;
+    uint256 endTime;
     string detail;
 
     address council;
@@ -44,11 +44,14 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     uint256 fundRise;
     uint256 maxcap;
     uint256 softcap;
+    uint256 minimum;
+    uint256 maximum;
 
     Supporter[] supporters;
 
     uint256 poolSize;
     uint256 releaseInterval;
+    uint256 supportFirstTime;
     uint256 distributionRate;
 
     constructor(
@@ -58,14 +61,20 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         uint256 _endTime,
         uint256 _maxcap,
         uint256 _softcap,
+        uint256 _minimum,
+        uint256 _maximum,
         uint256 _poolSize,
         uint256 _releaseInterval,
+        uint256 _supportFirstTime,
         uint256 _distributionRate,
         string _detail)
     public validAddress(_content) validAddress(_council) {
         require(_maxcap >= _softcap, "maxcap < softcap");
+        require(_minimum > 0, "minimum is zero");
+        require(_maximum > 0, "maximum is zero");
         require(_poolSize > 0, "poolsize is zero");
         require(_releaseInterval > 0, "releaseInterval is zero");
+        require(_supportFirstTime > _endTime, "_supportFirstTime <= _endTime");
         require(distributionRate <= 10 ** decimals, "distributionRate > 10%");
 
         council = _council;
@@ -82,9 +91,12 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         endTime = _endTime;
         maxcap = _maxcap;
         softcap = _softcap;
+        minimum = _minimum;
+        maximum = _maximum;
         detail = _detail;
         poolSize = _poolSize;
         releaseInterval = _releaseInterval;
+        supportFirstTime = _supportFirstTime;
         distributionRate = _distributionRate;
     }
 
@@ -101,22 +113,23 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     function support(address _from, uint256 _value, address _token) private {
         require(TimeLib.currentTime().between(startTime, endTime), "End Punding, Time");
         require(fundRise < maxcap, "End Punding, Maxcap");
-
         ERC20 token = ERC20(ICouncil(council).getToken());
         require(address(token) == _token, "token is abnormale");
 
-        (uint256 possibleValue, uint256 refundValue) = getRefundAmount(_value);
-
-
         (uint256 index, bool success) = findSupporterIndex(_from);
-        if (success) {
-            supporters[index].investment = supporters[index].investment.add(possibleValue);
-        } else {
-            supporters.push(Supporter(_from, possibleValue, 0, 0, false));
+        (uint256 possibleValue, uint256 refundValue) = getRefundAmount(success ? supporters[index].investment : 0, _value);
+        
+        if(possibleValue > 0) {
+            if (success) {
+                supporters[index].investment = supporters[index].investment.add(possibleValue);
+            } else {
+                require(_value >= minimum, "value < minimum");
+                supporters.push(Supporter(_from, possibleValue, 0, 0, false));
+            }
+        
+            fundRise = fundRise.add(possibleValue);
+            token.safeTransferFrom(_from, address(this), _value);
         }
-
-        fundRise = fundRise.add(possibleValue);
-        token.safeTransferFrom(_from, address(this), _value);
 
         if (refundValue > 0) {
             token.safeTransfer(_from, refundValue);
@@ -129,13 +142,15 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 
     /**
     * @dev 투자 가능한 금액과 환불금을 산출함
+    * @param _userValue 유저의 기존 투자금액
     * @param _fromValue 투자를 원하는 금액
     * @return possibleValue_ 투자 가능한 금액
     * @return refundValue_ maxcap 도달로 환불해야하는 금액
     */
-    function getRefundAmount(uint256 _fromValue) private view returns (uint256 possibleValue_, uint256 refundValue_) {
+    function getRefundAmount(uint256 _userValue, uint256 _fromValue) private view returns (uint256 possibleValue_, uint256 refundValue_) {
         uint256 d1 = maxcap.sub(fundRise);
-        possibleValue_ = d1.min(_fromValue);
+        uint256 d2 = maximum.sub(_userValue);
+        possibleValue_ = (d1.min(d2)).min(_fromValue);
         refundValue_ = _fromValue.sub(possibleValue_);
     }
 
