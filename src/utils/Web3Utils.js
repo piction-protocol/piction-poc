@@ -33,4 +33,22 @@ export default class Web3Utils {
     });
     return arr;
   }
+
+  static remainTimeToStr(currentTime, targetTime) {
+    const min = 1000 * 60;
+    const hour = min * 60;
+    const day = hour * 24;
+    const remain = Number(targetTime) - currentTime;
+    if (parseInt(remain / day) > 0) {
+      return `${parseInt(remain / day)}일 남음`
+    } else if (parseInt(remain / hour) > 0) {
+      return `${parseInt(remain / hour)}시간 남음`
+    } else if (parseInt(remain / min) > 0) {
+      return `${parseInt(remain / min)}분 남음`
+    } else if (remain > 0) {
+      return `${parseInt(remain / 1000)}초 남음`
+    } else {
+      return `종료`
+    }
+  }
 }
