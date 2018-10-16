@@ -38,7 +38,10 @@ const router = new Router({
     {path: '/login', name: 'login', component: Login},
     {path: '/join', name: 'join', component: Join},
     // contents
-    {path: '/contents', name: 'contents', component: ContentIndex},
+    {
+      path: '/contents', name: 'contents', component: ContentIndex,
+      props: (route) => ({genre: route.query.genre})
+    },
     {path: '/contents/new', name: 'new-content', component: ContentNew},
     {path: '/contents/:content_id/show', name: 'show-content', component: ContentShow, props: true},
     {path: '/contents/:content_id/edit', name: 'edit-content', component: ContentEdit, props: true},

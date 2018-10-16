@@ -90,10 +90,10 @@
   }
 
   a {
-    color: inherit;
+    color: inherit !important;
   }
 
   a:hover {
-    text-decoration: inherit;
+    text-decoration: inherit !important;
   }
 </style>

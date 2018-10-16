@@ -1,10 +1,16 @@
 <template>
   <div>
-    <div style="font-size: 36px; font-weight: bold">Comics</div>
+    <div class="d-flex justify-content-between align-items-end">
+      <div class="page-title">Comics</div>
+      <b-form-select style="width: 150px;" :value="genre" @change="setGenre">
+        <option :value="undefined">전체</option>
+        <option v-for="genre in genres" :value="genre.value">{{genre.text}}</option>
+      </b-form-select>
+    </div>
     <br>
     <b-row>
       <b-col cols="12" sm="6" md="4" lg="3"
-             v-for="content in contents"
+             v-for="content in filteredContents"
              :key="content.id">
         <Item :content="content"/>
       </b-col>
@@ -14,12 +20,24 @@
 
 <script>
   import Item from './Item'
+  import {genres} from './helper'
 
   export default {
     components: {Item},
+    props: ['genre'],
+    computed: {
+      filteredContents() {
+        if (this.genre) {
+          return this.contents.filter(content => content.genres == this.genre);
+        } else {
+          return this.contents;
+        }
+      }
+    },
     data() {
       return {
         contents: [],
+        genres: genres
       }
     },
     methods: {
@@ -43,7 +61,10 @@
           record.writerName = event.returnValues._writerName;
           this.contents.splice(0, 0, record);
         });
-      }
+      },
+      setGenre(value) {
+        this.$router.push({query: {genre: value}})
+      },
     },
     async created() {
       this.setEvent();
