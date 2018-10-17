@@ -1,26 +1,17 @@
 <template>
   <div @click="purchase">
-    <b-row>
-      <b-col cols="3">
-        <img :src="episode.thumbnail" class="thumbnail"/>
-      </b-col>
-      <b-col cols="1" class="d-flex align-items-center">
-        <span class="font-weight-bold" style="font-size: 32px;">{{Number(episode.number) + 1}}</span>
-      </b-col>
-      <b-col class="d-flex align-items-center">
-        <div>
-          <h5 class="mb-2">{{episode.title}}</h5>
-          <div v-if="!my && episode.purchased" class="font-weight-bold">구매한 회차입니다.</div>
-          <h5 v-if="!my && !episode.purchased">
-            <b-badge variant="dark">{{$utils.toPXL(episode.price)}} PXL</b-badge>
-          </h5>
+    <div class="d-flex">
+      <img :src="episode.thumbnail" class="thumbnail"/>
+      <div class="d-flex align-items flex-column p-3">
+        <div class="title-text h-50">{{episode.title}}</div>
+        <div class="purchase-info-text h-50">
+          {{!my && episode.purchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
         </div>
-      </b-col>
-      <b-col class="d-flex align-items-center flex-row-reverse">
-        <b-button v-if="my" variant="primary" v-on:click.stop="updateEpisode" size="sm">회차수정</b-button>
-      </b-col>
-    </b-row>
-    <hr>
+      </div>
+      <div class="ml-auto d-flex align-items-end p-2 number-text">
+        #{{Number(episode.number) + 1}}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -71,9 +62,26 @@
 </script>
 
 <style scoped>
+  .title-text {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 200%;
+  }
+
+  .purchase-info-text {
+    font-size: 14px;
+    color: #4a4a4a;
+    line-height: 200%;
+  }
+
+  .number-text {
+    font-size: 14px;
+    color: #9b9b9b;
+  }
+
   .thumbnail {
-    width: 100%;
-    max-height: 140px;
+    width: 100px;
+    height: 100px;
     background-position: center;
     background-size: cover;
     background-color: #e8e8e8;

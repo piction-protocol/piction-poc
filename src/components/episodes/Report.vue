@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-button variant="danger" @click="showModal" size="sm" class="float-right ml-2">신고하기</b-button>
+    <b-button variant="danger" @click="showModal" size="sm">신고하기</b-button>
     <b-modal ref="reportModal" hide-footer title="신고 사유를 선택하세요">
       <b-form-group>
         <b-form-radio-group v-model="selected"
