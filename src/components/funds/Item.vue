@@ -2,7 +2,7 @@
   <router-link class="item d-inline-block w-100 mb-4 position-relative"
                :to="{name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}}">
     <div v-if="!disableLabel" class="position-absolute mr-1" style="right: 0;">
-      <b-badge variant="secondary bg-dark">{{dDay}}</b-badge>
+      <b-badge variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}</b-badge>
     </div>
     <b-img fluid :src="fund.record.thumbnail" class="thumbnail"/>
     <div class="fund-info">

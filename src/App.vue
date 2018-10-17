@@ -38,6 +38,7 @@
 </script>
 
 <style>
+  @import url(https://use.fontawesome.com/releases/v5.4.1/css/all.css);
   @import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
 
   #app {
