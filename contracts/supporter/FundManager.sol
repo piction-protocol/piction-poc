@@ -23,10 +23,10 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
     * @param _content 생성할 작품의 주소
     * @param _startTime 투자를 시작할 시간
     * @param _endTime 투자를 종료하는 시간
-    * @param _maxcap 투자 총 모집금액
-    * @param _softcap 투자 총 모집금액 하한
+    * @param _limit 0:maxcap(투자 총 모집금액), 1:softcap(투자 총 모집금액 하한), 2:minimum(1인당 투자 최소금액), 3:maximum(1인당 투자 최대금액)
     * @param _poolSize 몇회에 걸쳐 후원 받을것인가
     * @param _releaseInterval 후원 받을 간격
+    * @param _supportFirstTime 첫 후원을 받을 수 있는 시간
     * @param _distributionRate 서포터가 분배 받을 비율
     * @param _detail 투자의 기타 상세 정보
     */
@@ -34,29 +34,32 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
         address _content,
         uint256 _startTime,
         uint256 _endTime,
-        uint256 _maxcap,
-        uint256 _softcap,
+        uint256[] _limit,
         uint256 _poolSize,
         uint256 _releaseInterval,
+        uint256 _supportFirstTime,
         uint256 _distributionRate,
         string _detail)
     external returns (address fund_) {
-        require(ICouncil(council).getApiFund() == msg.sender);
-        require(getLastFundedTime(_content) < TimeLib.currentTime());
+        require(ICouncil(council).getApiFund() == msg.sender, "msg sender is not ApiFund");
+        require(funds[_content] == address(0), "already fund");
 
         fund_ = new Fund(
             council,
             _content,
             _startTime,
             _endTime,
-            _maxcap,
-            _softcap,
+            _limit[0],
+            _limit[1],
+            _limit[2],
+            _limit[3],
             _poolSize,
             _releaseInterval,
+            _supportFirstTime,
             _distributionRate,
             _detail);
-
-        funds[_content].push(fund_);
+        
+        funds[_content] = fund_;
 
         emit RegisterFund(_content, fund_);
     }

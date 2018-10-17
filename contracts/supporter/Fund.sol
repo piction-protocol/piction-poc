@@ -114,7 +114,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         require(TimeLib.currentTime().between(startTime, endTime), "End Punding, Time");
         require(fundRise < maxcap, "End Punding, Maxcap");
         ERC20 token = ERC20(ICouncil(council).getToken());
-        require(address(token) == _token, "token is abnormale");
+        require(address(token) == _token, "token is abnormal");
 
         (uint256 index, bool success) = findSupporterIndex(_from);
         (uint256 possibleValue, uint256 refundValue) = getRefundAmount(success ? supporters[index].investment : 0, _value);
@@ -167,11 +167,11 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
             totalInvestment = totalInvestment.add(supporters[i].investment);
         }
         ERC20 token = ERC20(ICouncil(council).getToken());
-        require(totalInvestment == token.balanceOf(address(this)), "fund balance abnormale");
+        require(totalInvestment == token.balanceOf(address(this)), "fund balance abnormal");
 
         if (fundRise >= softcap) {
             setDistributionRate();
-            ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize);
+            ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize, supportFirstTime);
 
             token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
         } else {
@@ -269,14 +269,14 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 
     /**
     * dev 투자 정보 조회
-    * @return _startTime 투자를 시작할 시간
-    * @return _endTime 투자를 종료하는 시간
-    * @return _maxcap 투자 총 모집금액
-    * @return _softcap 투자 총 모집금액 하한
-    * @return _poolSize 몇회에 걸쳐 후원 받을것인가
-    * @return _releaseInterval 후원 받을 간격
-    * @return _distributionRate 서포터가 분배 받을 비율
-    * @return _detail 투자의 기타 상세 정보
+    * @return startTime_ 투자를 시작할 시간
+    * @return endTime_ 투자를 종료하는 시간
+    * @return limit_ 투자 총 모집금액
+    * @return poolSize_ 몇회에 걸쳐 후원 받을것인가
+    * @return releaseInterval_ 후원 받을 간격
+    * @return supportFirstTime_ 첫 후원을 받을 수 있는 시간
+    * @return distributionRate_ 서포터가 분배 받을 비율
+    * @return detail_ 투자의 기타 상세 정보
     */
     function info()
         external
@@ -284,21 +284,25 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         returns (
             uint256 startTime_,
             uint256 endTime_,
-            uint256 maxcap_,
-            uint256 softcap_,
+            uint256[] memory limit_,
             uint256 fundRise_,
             uint256 poolSize_,
             uint256 releaseInterval_,
+            uint256 supportFirstTime_,
             uint256 distributionRate_,
             string detail_)
     {
         startTime_ = startTime;
         endTime_ = endTime;
-        maxcap_ = maxcap;
-        softcap_ = softcap;
+        limit_ = new uint256[](4);
+        limit_[0] = maxcap;
+        limit_[1] = softcap;
+        limit_[2] = minimum;
+        limit_[3] = maximum;
         fundRise_ = fundRise;
         poolSize_ = poolSize;
         releaseInterval_ = releaseInterval;
+        supportFirstTime_ = supportFirstTime;
         distributionRate_ = distributionRate;
         detail_ = detail;
     }
