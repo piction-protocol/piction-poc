@@ -1,5 +1,5 @@
 <template>
-  <div @click="purchase">
+  <div @click="purchase" class="item">
     <div class="d-flex">
       <img :src="episode.thumbnail" class="thumbnail"/>
       <div class="d-flex align-items flex-column p-3">
@@ -85,5 +85,10 @@
     background-position: center;
     background-size: cover;
     background-color: #e8e8e8;
+  }
+
+  .item {
+    padding: 0px;
+    border: 1px dotted #979797;
   }
 </style>

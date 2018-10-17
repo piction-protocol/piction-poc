@@ -13,12 +13,12 @@
       </b-button>
       <b-button v-if="my" variant="primary" @click="addEpisode" size="sm" class="float-right ml-2">회차등록</b-button>
     </div>
-    <div class="sort-text mb-2 float-right " @click="sort"><i
+    <div class="sort-text mb-2 float-right pr-3" @click="sort"><i
       :class="orderBy == 'desc' ? 'fas fa-arrow-down' : 'fas fa-arrow-up'"></i> 에피소드 정렬
     </div>
     <div class="clearfix"/>
-    <b-row style="padding: 0 16px;">
-      <b-col cols="12" sm="6" md="6" lg="6" style="padding: 0px; border: 0.5px solid rgb(220, 220, 220);"
+    <b-row class="pl-3 pr-3">
+      <b-col cols="12" sm="6" md="6" lg="6" style="padding: 2px;"
              v-for="episode in episodes"
              :key="content.id">
         <Item :content="content"
