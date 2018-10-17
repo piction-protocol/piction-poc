@@ -24,8 +24,7 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
     IERC20 token;
 
     modifier validAccessAddress(address _apiAddress) {
-        require(council.getApiContents() == _apiAddress,
-                "Acces failed: Only Access to ApiContents smart contract.");
+        require(council.getApiContents() == _apiAddress, "Acces failed: Only Access to ApiContents smart contract.");
         _;
     }
 
@@ -41,16 +40,15 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
         address _writer,
         string _writerName,
         string _record,
-        uint256 _marketerRate
+        bool _isPublished,
+        uint256 _publishDate
     )
         external
         validAccessAddress(msg.sender)
     {
-        require(council.getApiContents() == msg.sender,
-                "Content creation failed: Only ApiContents contract.");
+        require(council.getApiContents() == msg.sender, "Content creation failed: Only ApiContents contract.");
 
-        address contractAddress = new Content(
-            _record, _writer, _writerName, _marketerRate, address(council));
+        address contractAddress = new Content(_record, _writer, _writerName, _isPublished, _publishDate, address(council));
 
         Content(contractAddress).transferOwnership(_writer);
 
@@ -59,11 +57,30 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
 
         _transferInitialDeposit(_writer, contractAddress);
 
-        emit RegisterContents(contentsAddress.length.sub(1), contractAddress, _writer, _writerName, _record, _marketerRate);
+        emit RegisterContents(contentsAddress.length.sub(1), contractAddress, _writer, _writerName, _record, _isPublished, _publishDate);
     }
 
     function getContentsAddress() external view returns (address[] contentsAddress_){
         contentsAddress_ = contentsAddress;
+    }
+
+    function getPublishContentsAddress() external view returns (address[] publishAddress_) {
+        uint256 idx;
+        uint256 publishCount;
+        
+        for(uint256 i = 0 ; i < contentsAddress.length ; i++) {
+            if(Content(contentsAddress[i]).getIsPublisheContent()) {
+                publishCount = publishCount.add(1);
+            }
+        }
+
+        publishAddress_ = new address[](publishCount);
+        for(i = 0 ; i < contentsAddress.length ; i++) {
+            if(Content(contentsAddress[i]).getIsPublisheContent()) {
+                publishAddress_[idx] = contentsAddress[i];
+                idx++;
+            }
+        }
     }
 
     function getWriterContentsAddress(address _writer)
