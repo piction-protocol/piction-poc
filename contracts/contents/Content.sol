@@ -103,6 +103,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     {
         uint256 episodeCreationTime = now;
         episodes.push(Episode(_record, _cuts, _price, 0, _publishDate, episodeCreationTime, _isPublished));
+        episodeLastUpdatedTime = episodeCreationTime;
 
         emit EpisodeCreation(episodes.length.sub(1), address(this), writer, _record, _price, _isPublished, _publishDate, episodeCreationTime);
     }
