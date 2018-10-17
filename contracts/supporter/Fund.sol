@@ -140,7 +140,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         emit Support(_from, fundRise, maxcap, softcap, possibleValue, refundValue);
     }
 
-    event Support(address _from, uint256 _fundRise, uint256 _maxcap, uint256 softcap, uint256 _amount, uint256 _refundAmount);
+    event Support(address _from, uint256 _fundRise, uint256 _maxcap, uint256 _softcap, uint256 _amount, uint256 _refundAmount);
 
     /**
     * @dev 투자 가능한 금액과 환불금을 산출함
