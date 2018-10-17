@@ -61,8 +61,31 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
         
         funds[_content] = fund_;
 
-        emit RegisterFund(_content, fund_);
+        emit CreateFund(
+            fund_,
+            _content,
+            _startTime,
+            _endTime,
+            _limit,
+            _poolSize,
+            _releaseInterval,
+            _supportFirstTime,
+            _distributionRate,
+            _detail);
     }
+
+    event CreateFund(
+        address indexed _fund,
+        address indexed _content,
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256[] _limit,
+        uint256 _poolSize,
+        uint256 _releaseInterval,
+        uint256 _supportFirstTime,
+        uint256 _distributionRate,
+        string _detail
+    );
 
     /**
     * @dev 작품의 투자 목록을 가져옴
@@ -87,6 +110,4 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
 
         return Fund(_fund).distribution(_total);
     }
-
-    event RegisterFund(address _content, address _fund);
 }

@@ -137,8 +137,10 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 
         // update support history
         IAccountManager(ICouncil(council).getAccountManager()).setSupportHistory(_from, content, address(this), possibleValue, false);
-        emit Support(_from, possibleValue, refundValue);
+        emit Support(_from, fundRise, maxcap, softcap, possibleValue, refundValue);
     }
+
+    event Support(address _from, uint256 _fundRise, uint256 _maxcap, uint256 softcap, uint256 _amount, uint256 _refundAmount);
 
     /**
     * @dev 투자 가능한 금액과 환불금을 산출함
@@ -334,6 +336,5 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         }
     }
 
-    event Support(address _from, uint256 _amount, uint256 _refundAmount);
     event Refund(address _to, uint256 _amount);
 }
