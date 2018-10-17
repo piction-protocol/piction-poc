@@ -39,7 +39,7 @@ contract ApiContents is ValidValue {
     * @param _isPublished 작품 공개 여부
     * @param _publishDate 작품 공개 시간
     */
-    function publishNewComic(
+    function createComic (
         string _record,
         bool _isPublished,
         uint256 _publishDate
@@ -68,7 +68,7 @@ contract ApiContents is ValidValue {
     * @param _isPublished 작품 공개 여부
     * @param _publishDate 작품 공개 시간
     */
-    function publishModifyComic(
+    function updateComic(
         address _comicAddress,
         string _record,
         bool _isPublished,
@@ -93,7 +93,7 @@ contract ApiContents is ValidValue {
     * @param _isPublished 작품 공개 여부
     * @param _publishDate 작품 공개 시간
     */
-    function publishNewEpisode(
+    function createEpisode(
         address _comicAddress,
         string _record,
         string _cuts,
@@ -120,7 +120,7 @@ contract ApiContents is ValidValue {
     * @param _isPublished 작품 공개 여부
     * @param _publishDate 작품 공개 시간
     */
-    function publishModifyEpisode(
+    function updateEpisode(
         address _comicAddress,
         uint256 _index,
         string _record,
@@ -147,7 +147,7 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 comics-detail의 작품 즐겨 찾기 설정
     * @param _comicAddress 작품 주소
     */
-    function changeFavorite(
+    function updateFavorite(
         address _comicAddress
     )
         external
@@ -163,7 +163,7 @@ contract ApiContents is ValidValue {
     * @param _comicAddress 작품 주소
     * @return isFavoriteContent_ on/off 결과
     */
-    function getFavoriteContent(
+    function getFavorite (
         address _comicAddress
     )
         public
@@ -184,7 +184,7 @@ contract ApiContents is ValidValue {
     * @return contentCreationTime_ 컨텐츠 등록 시간 
     * @return episodeLastUpdatedTime_ 마지막 등록 된 에피소드 등록 시간
     */
-    function getComicInfo()
+    function getComics()
         external
         view
         returns (
@@ -225,7 +225,7 @@ contract ApiContents is ValidValue {
     * @return writerName_ 작가 이름
     * @return isFavorite 유저의 즐겨 찾기 설정 여부
     */
-    function getComicDetail(
+    function getComic(
         address _comicAddress
     )
         external
@@ -251,7 +251,7 @@ contract ApiContents is ValidValue {
     * @return isPurchased_ 구매 유무
     * @return episodeCreationTime_ episode 등록 시간 정보
     */
-    function getComicDetailEpisodes(
+    function getEpisodes(
         address _comicAddress
     )
         external
@@ -297,7 +297,7 @@ contract ApiContents is ValidValue {
     * @return publishedEpisode_ 공개한 episode 수
     * @return privateEpisode_ 비 공개 episode 수
     */
-    function publishRegisterdComic()
+    function getMyComics()
         external
         view
         returns (
@@ -331,6 +331,27 @@ contract ApiContents is ValidValue {
     }
 
     /**
+    * @dev 작품의 이미지 조회
+    *
+    * @notice comics, publish 등의 메뉴에서 작품의 이미지 조회
+    * @param _comicAddress 작품 주소
+    * @param _index episode index
+    * @return cuts_ Json type의 이미지 주소
+    */
+    function getCuts(
+        address _comicAddress,
+        uint256 _index
+    )
+        external
+        view
+        returns (string cuts_)
+    {
+        if(isPurchasedEpisode(_comicAddress, _index, msg.sender)) {
+            cuts_ = IContent(_comicAddress).getEpisodeCuts(_index);
+        }
+    }
+
+    /**
     * @dev 작가의 초기 보증금 조회
     * @param _writerAddress 작가 주소
     * @return initialDeposit_ 보증금
@@ -358,6 +379,18 @@ contract ApiContents is ValidValue {
         returns (uint256 episodeLength_)
     {
         episodeLength_ = IContent(_contentsAddress).getEpisodeLength();
+    }
+
+    function isPurchasedEpisode(
+        address _comicAddress,
+        uint256 _index,
+        address _user
+    )
+        public
+        view
+        returns (bool isPurchased_)
+    {
+        isPurchased_ = IContent(_comicAddress).isPurchasedEpisode(_index, _user);
     }
 
     function _getComicRecords (
