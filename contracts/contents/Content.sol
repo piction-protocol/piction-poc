@@ -18,18 +18,28 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         string cuts;
         uint256 price;
         uint256 buyCount;
+        uint256 publishDate;
+        uint256 episodeCreationTime;
+        bool isPublished;
         mapping (address => bool) buyUser;
     }
 
-    mapping (address => bool) isPicked;
-
     ICouncil council;
-    uint256 pickCount;
+    Episode[] episodes;
+
     string record;
     address writer;
     string writerName;
-    uint256 marketerRate;
-    Episode[] episodes;
+    
+    bool isPublished;
+    uint256 publishDate;
+
+    uint256 totalPurchasedCount;
+    uint256 totalPurchasedAmount;
+
+    uint256 contentCreationTime;
+    uint256 episodeLastUpdatedTime;
+    
 
     modifier validEpisodeLength(uint256 _index) {
         require(episodes.length > _index);
@@ -37,8 +47,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     }
 
     modifier validAccessAddress(address _apiAddress) {
-        require(council.getApiContents() == _apiAddress,
-                "Acces failed: Only Access to ApiContents smart contract.");
+        require(council.getApiContents() == _apiAddress, "Acces failed: Only Access to ApiContents smart contract.");
         _;
     }
 
@@ -46,7 +55,8 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         string _record,
         address _writer,
         string _writerName,
-        uint256 _marketerRate,
+        bool _isPublished,
+        uint256 _publishDate,
         address _council
     )
         public
@@ -56,55 +66,66 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         record = _record;
         writer = _writer;
         writerName = _writerName;
-        marketerRate = _marketerRate;
+        isPublished = _isPublished;
+        publishDate = _publishDate;
+
+        contentCreationTime = now;
+
         council = ICouncil(_council);
 
-        emit ContentCreation(msg.sender, _writer, _writerName, _record, _marketerRate);
+        emit ContentCreation(msg.sender, _writer, _writerName, _record, _isPublished, _publishDate, contentCreationTime);
     }
 
     function updateContent(
         string _record,
-        uint256 _marketerRate
+        bool _isPublished,
+        uint256 _publishDate
     )
         external
         validAccessAddress(msg.sender)
     {
         record = _record;
-        marketerRate = _marketerRate;
+        isPublished = _isPublished;
+        publishDate = _publishDate;
 
-        emit ChangeContent(address(this), writer, _record, _marketerRate);
+        emit ChangeContent(address(this), writer, _record, _isPublished, _publishDate);
     }
 
-    function addEpisode(string _record, string _cuts, uint256 _price)
+    function addEpisode(
+        string _record, 
+        string _cuts, 
+        uint256 _price,
+        bool _isPublished,
+        uint256 _publishDate
+    )
         external
         validAccessAddress(msg.sender)
     {
-        episodes.push(Episode(_record, _cuts, _price, 0));
+        uint256 episodeCreationTime = now;
+        episodes.push(Episode(_record, _cuts, _price, 0, _publishDate, episodeCreationTime, _isPublished));
+        episodeLastUpdatedTime = episodeCreationTime;
 
-        emit EpisodeCreation(episodes.length.sub(1), address(this), writer, _record, _price);
+        emit EpisodeCreation(episodes.length.sub(1), address(this), writer, _record, _price, _isPublished, _publishDate, episodeCreationTime);
     }
 
-    function updateEpisode(uint256 _index, string _record, string _cuts, uint256 _price)
+    function updateEpisode(
+        uint256 _index, 
+        string _record, 
+        string _cuts, 
+        uint256 _price,
+        bool _isPublished,
+        uint256 _publishDate
+    )
         external
         validAccessAddress(msg.sender)
     {
         episodes[_index].record = _record;
         episodes[_index].cuts = _cuts;
         episodes[_index].price = _price;
+        episodes[_index].isPublished = _isPublished;
+        episodes[_index].publishDate = _publishDate;
 
-        emit ChangeEpisode(_index, address(this), writer, _record, _price);
-    }
-
-    function addPickCount(address _user)
-        external
-        validAccessAddress(msg.sender)
-    {
-        if(!isPicked[_user]) {
-            isPicked[_user] = true;
-            pickCount = pickCount.add(1);
-
-            emit AddPickCount(address(this), _user, pickCount);
-        }
+        emit ChangeEpisode(_index, address(this), writer, _record, _price, _isPublished, _publishDate);
     }
 
     function getRecord() public view returns (string record_) {
@@ -119,25 +140,84 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         writerName_ =  writerName;
     }
 
-    function getMarketerRate() public view returns (uint256 marketerRate_) {
-        marketerRate_ =  marketerRate;
+    function getIsPublished() public view returns (bool isPublished_) {
+        isPublished_ = isPublished;
     }
 
-    function getPickCount() public view returns (uint256 pickCount_) {
-        pickCount_ = pickCount;
+    function getPublishDate() public view returns (uint256 publishDate_) {
+        publishDate_ = publishDate;
     }
 
-    function getContentDetail() external view returns (string record_, address writer_, string writerName_, uint256 marketerRate_, uint256 pickCount_) {
-        record_ = record;
-        writer_ =  writer;
-        writerName_ =  writerName;
-        marketerRate_ =  marketerRate;
-        pickCount_ = pickCount;
+    function getTotalPurchasedCount() public view returns (uint256 totalPurchasedCount_) {
+        totalPurchasedCount_ = totalPurchasedCount;
     }
 
-    function getEpisodeLength() public view returns (uint256 episodeLength_)
+    function getTotalPurchasedAmount() public view returns (uint256 totalPurchasedAmount_) {
+        totalPurchasedAmount_ = totalPurchasedAmount;
+    }
+
+    function getContentCreationTime() public view returns (uint256 contentCreationTime_) {
+        contentCreationTime_ = contentCreationTime;
+    }
+
+    function getEpisodeLastUpdatedTime() public view returns (uint256 episodeLastUpdatedTime_) {
+        episodeLastUpdatedTime_ = episodeLastUpdatedTime;
+    }
+
+    function getIsPublisheContent() external view returns (bool isPublished_) {
+        if(isPublished && publishDate < now) {
+            isPublished_ = true;
+        }
+    }
+
+    function getComicsInfo()
+        external
+        view
+        returns(
+            string record_,
+            address writer_,
+            string writerName_,
+            bool isPublished_,
+            uint256 publishDate_,
+            uint256 totalPurchasedCount_,
+            uint256 totalPurchasedAmount_,
+            uint256 contentCreationTime_,
+            uint256 episodeLastUpdatedTime_
+        )
     {
+        record_ = record;
+        writer_ = writer;
+        writerName_ = writerName;
+        isPublished_ = isPublished;
+        publishDate_ = publishDate;
+        totalPurchasedCount_ = totalPurchasedCount;
+        totalPurchasedAmount_ = totalPurchasedAmount;
+        contentCreationTime_ = contentCreationTime;
+        episodeLastUpdatedTime_ = episodeLastUpdatedTime;
+    }
+
+    function getEpisodeLength() public view returns (uint256 episodeLength_) {
         episodeLength_ = episodes.length;
+    }
+
+    function getPublishEpisodeIndex() public view returns (uint256[] episodeIndex_) {
+        uint256 idx;
+        uint256 publishLength;
+
+        for(uint i = 0 ; i < episodes.length ; i++) {
+            if(episodes[i].isPublished && episodes[i].publishDate < now) {
+                publishLength = publishLength.add(1);
+            }
+        }
+
+        episodeIndex_ = new uint256[](publishLength);
+
+        for(i = 0 ; i < episodes.length ; i++) {
+            if(episodes[i].isPublished && episodes[i].publishDate < now) {
+                episodeIndex_[idx] = i;
+                idx++;
+            }
+        }
     }
 
     function isPurchasedEpisode(uint256 _index, address _buyer)
@@ -153,12 +233,23 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     function getEpisodeDetail(uint256 _index, address _buyer)
         external
         view
-        returns (string record_, uint256 price_, uint256 buyCount_, bool isPurchased_)
+        returns (
+            string record_, 
+            uint256 price_, 
+            uint256 buyCount_, 
+            bool isPurchased_,
+            bool isPublished_,
+            uint256 publishDate_,
+            uint256 episodeCreationTime_
+        )
     {
         record_ = episodes[_index].record;
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
         isPurchased_ = (writer == _buyer)? true : episodes[_index].buyUser[_buyer];
+        isPublished_ = episodes[_index].isPublished;
+        publishDate_ = episodes[_index].publishDate;
+        episodeCreationTime_ = episodes[_index].episodeCreationTime;
     }
 
     function getEpisodeCuts(uint256 _index)
@@ -181,6 +272,9 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
         episodes[_index].buyUser[_buyer] = true;
         episodes[_index].buyCount = episodes[_index].buyCount.add(1);
+
+        totalPurchasedCount = totalPurchasedCount.add(1);
+        totalPurchasedAmount = totalPurchasedAmount.add(_amount);
 
         emit EpisodePurchase(_index, address(this), _buyer, _amount, episodes[_index].buyCount);
     }

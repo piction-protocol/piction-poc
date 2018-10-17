@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IContent.sol";
+import "contracts/interface/IContentsManager.sol";
 import "contracts/interface/IFundManager.sol";
 import "contracts/interface/IAccountManager.sol";
 
@@ -20,6 +21,7 @@ contract AccountManager is IAccountManager, ValidValue {
         string password;
         string privateKey;
         address wallet;
+        mapping(address => bool) addressToFavorite;
     }
 
     mapping(string => uint256) userNameToIndex;
@@ -144,6 +146,30 @@ contract AccountManager is IAccountManager, ValidValue {
         emit SupportHistory(_supporter, _contentsAddress, _fundAddress, _investedAmount, _refund);
     }
 
+    function changeFavoriteContent(
+        address _user,
+        address _contentAddress
+    )
+        external
+        validAddress(_contentAddress) validAddress(_user)
+    {
+        require(_isContentContract(_contentAddress), "Change favorite content failed: Invalid content address.");
+        require(isRegistered(account[addressToIndex[_user]].userName), "Change favorite content failed: Please register account.");
+
+        account[addressToIndex[_user]].addressToFavorite[_contentAddress] = true;
+    }
+
+    function getFavoriteContent(
+        address _user,
+        address _contentAddress
+    )
+        external
+        view
+        returns (bool isFavoriteContent_)
+    {
+        isFavoriteContent_ = account[addressToIndex[_user]].addressToFavorite[_contentAddress];
+    }
+
     /**
     * @dev 등록 된 ID인지 확인
     * @param _userName 유저 ID
@@ -231,6 +257,27 @@ contract AccountManager is IAccountManager, ValidValue {
         address fundAddress = IFundManager(council.getFundManager()).getFund(_contentsAddress);
         
         isFundContract_ = fundAddress != address(0);
+    }
+
+    function _isContentContract(
+        address _contentsAddress
+    )
+        private
+        view
+        returns (bool isContentContract_)
+    {
+        address[] memory contentsAddress = IContentsManager(council.getContentsManager()).getContentsAddress();
+        
+        if(contentsAddress.length == 0) {
+            return;
+        }
+
+        for(uint256 i = 0 ; i < contentsAddress.length ; i++){
+            if(contentsAddress[i] == _contentsAddress) {
+                isContentContract_ = true;
+                break;
+            }
+        }
     }
 
     function _compareString(

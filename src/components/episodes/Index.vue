@@ -1,39 +1,33 @@
 <template>
   <div>
-    <b-row style="margin-bottom: 8px">
-      <b-col cols="6">
-        <img :src="content.thumbnail" class="thumbnail"/>
-      </b-col>
-      <b-col cols="6">
-        <div class="d-flex align-items flex-column">
-          <h2 class="font-weight-bold mb-1">{{content.title}}</h2>
-          <div class="text-secondary font-italic mb-4">{{writerName}}</div>
-          <p>{{content.synopsis}}</p>
-          <div class="mt-auto align-items-end">
-            <Report v-if="!my" :content_id="content_id"/>
-            <b-button v-if="my" variant="primary" @click="updateContent" size="sm" class="float-right ml-2">작품수정
-            </b-button>
-            <b-button v-if="my" variant="primary" @click="addEpisode" size="sm" class="float-right ml-2">회차등록</b-button>
-          </div>
-        </div>
-      </b-col>
-    </b-row>
+    <div class="pt-4" align="center">
+      <img :src="content.thumbnail" class="thumbnail mb-4"/>
+      <h2 class="font-weight-bold mb-2">{{content.title}}</h2>
+      <div class="text-secondary font-italic mb-2">{{writerName}}</div>
+      <b-badge variant="secondary bg-dark mb-2">{{content.genres}}</b-badge>
+      <div class="synopsis-text">{{content.synopsis}}</div>
+    </div>
+    <div v-if="false">
+      <Report v-if="!my" :content_id="content_id"/>
+      <b-button v-if="my" variant="primary" @click="updateContent" size="sm" class="float-right ml-2">작품수정
+      </b-button>
+      <b-button v-if="my" variant="primary" @click="addEpisode" size="sm" class="float-right ml-2">회차등록</b-button>
+    </div>
+    <div class="sort-text mb-2 float-right pr-3" @click="sort"><i
+      :class="orderBy == 'desc' ? 'fas fa-arrow-down' : 'fas fa-arrow-up'"></i> 에피소드 정렬
+    </div>
     <div class="clearfix"/>
-    <hr>
-    <b-row>
-      <b-col cols="6">
-        <div>총 {{episodes.length}}화</div>
-      </b-col>
-      <b-col cols="6" align="right">
-        <b-button variant="outline-primary" @click="sort" size="sm">정렬변경</b-button>
+    <b-row class="pl-3 pr-3">
+      <b-col cols="12" sm="6" md="6" lg="6" style="padding: 2px;"
+             v-for="episode in episodes"
+             :key="content.id">
+        <Item :content="content"
+              :episode="episode"
+              :content_id="content_id"
+              :my="my"
+              :key="episode.number"/>
       </b-col>
     </b-row>
-    <hr>
-    <Item v-for="episode in episodes"
-          :episode="episode"
-          :content_id="content_id"
-          :my="my"
-          :key="episode.number"/>
   </div>
 </template>
 
@@ -50,6 +44,7 @@
         writer: '',
         writerName: '',
         episodes: [],
+        orderBy: 'desc'
       }
     },
     computed: {
@@ -74,6 +69,7 @@
         });
       },
       sort() {
+        this.orderBy = this.orderBy == 'desc' ? 'asc' : 'desc';
         this.episodes = this.episodes.reverse();
       },
       addEpisode() {
@@ -108,12 +104,21 @@
 
 <style scoped>
   .thumbnail {
-    width: 100%;
+    width: 200px;
     height: 200px;
-    object-fit: contain;
-    border-radius: 0.5rem;
     background-position: center;
     background-size: cover;
-    background-color: #e8e8e8;
+    border: 1px solid #979797;
+  }
+
+  .synopsis-text {
+    font-size: 14px;
+    color: #6c757d;
+    height: 50px;
+    white-space: pre-line;
+  }
+
+  .sort-text {
+    font-size: 12px;
   }
 </style>

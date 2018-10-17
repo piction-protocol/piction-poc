@@ -25,7 +25,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         uint256 depositRate;
         uint256 userPaybackRate;
         uint256 reportRewardRate;
-        uint256 marketerDefaultRate;
     }
 
     struct PictionAddress {
@@ -33,7 +32,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         address depositPool;
         address supporterPool;
         address pixelDistributor;
-        address marketer;
         address report;
         address contentsDistributor;
     }
@@ -97,18 +95,17 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         uint256 _cdRate,
         uint256 _depositRate,
         uint256 _userPaybackRate,
-        uint256 _reportRewardRate,
-        uint256 _marketerDefaultRate)
+        uint256 _reportRewardRate)
         external onlyOwner
         validRange(_cdRate)
         validRange(_depositRate)
         validRange(_userPaybackRate)
         validRange(_reportRewardRate)
-        validRange(_marketerDefaultRate) {
+    {
 
-        pictionRate = PictionRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate, _marketerDefaultRate);
+        pictionRate = PictionRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate);
 
-        emit InitialRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate, _marketerDefaultRate);
+        emit InitialRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate);
     }
 
     function initialPictionAddress(
@@ -116,7 +113,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         address _depositPool,
         address _supporterPool,
         address _pixelDistributor,
-        address _marketer,
         address _report,
         address _contentsDistributor)
         external onlyOwner
@@ -124,13 +120,12 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         validAddress(_depositPool)
         validAddress(_supporterPool)
         validAddress(_pixelDistributor)
-        validAddress(_marketer)
         validAddress(_report) 
         validAddress(_contentsDistributor)
     {
-        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _supporterPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
+        pictionAddress = PictionAddress(_userPaybackPool, _depositPool, _supporterPool, _pixelDistributor, _report, _contentsDistributor);
 
-        emit InitialAddress(_userPaybackPool, _depositPool, _supporterPool, _pixelDistributor, _marketer, _report, _contentsDistributor);
+        emit InitialAddress(_userPaybackPool, _depositPool, _supporterPool, _pixelDistributor, _report, _contentsDistributor);
     }
 
     function initialManagerAddress(
@@ -179,8 +174,8 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
              address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_)
     {
         pictionValue_ = new uint256[](3);
-        pictionRate_ = new uint256[](5);
-        pictionAddress_ = new address[](6);
+        pictionRate_ = new uint256[](4);
+        pictionAddress_ = new address[](5);
         managerAddress_ = new address[](3);
         apiAddress_ = new address[](3);
 
@@ -194,14 +189,12 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         pictionRate_[1] = pictionRate.depositRate;
         pictionRate_[2] = pictionRate.userPaybackRate;
         pictionRate_[3] = pictionRate.reportRewardRate;
-        pictionRate_[4] = pictionRate.marketerDefaultRate;
 
         pictionAddress_[0] = pictionAddress.userPaybackPool;
         pictionAddress_[1] = pictionAddress.depositPool;
         pictionAddress_[2] = pictionAddress.pixelDistributor;
-        pictionAddress_[3] = pictionAddress.marketer;
-        pictionAddress_[4] = pictionAddress.report;
-        pictionAddress_[5] = pictionAddress.contentsDistributor;
+        pictionAddress_[3] = pictionAddress.report;
+        pictionAddress_[4] = pictionAddress.contentsDistributor;
 
         managerAddress_[0] = managerAddress.contentsManager;
         managerAddress_[1] = managerAddress.fundManager;
@@ -294,10 +287,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         return pictionRate.reportRewardRate;
     }
 
-    function getMarketerDefaultRate() view external returns (uint256 marketerDefaultRate_) {
-        return pictionRate.marketerDefaultRate;
-    }
-
     function getUserPaybackPool() external view returns (address userPaybackPool_) {
         return pictionAddress.userPaybackPool;
     }
@@ -324,10 +313,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getPixelDistributor() external view returns (address pixelDistributor_) {
         return pictionAddress.pixelDistributor;
-    }
-
-    function getMarketer() external view returns (address marketer_) {
-        return pictionAddress.marketer;
     }
 
     function getReport() external view returns (address report_) {

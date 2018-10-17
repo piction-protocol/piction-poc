@@ -104,10 +104,6 @@ class ApiContents {
     return this._contract.methods.getEpisodeCuts(contentsAddress, index).call();
   }
 
-  getContentsWriterName(contentsAddress) {
-    return this._contract.methods.getContentsWriterName(contentsAddress).call();
-  }
-
   getInitialDeposit(writer) {
     return this._contract.methods.getInitialDeposit(writer).call();
   }

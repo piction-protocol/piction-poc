@@ -1,71 +1,69 @@
 <template>
-  <div v-if="loaded">
-    <b-table striped hover
-             empty-text="조회된 목록이 없습니다"
-             :fields="fields"
-             :current-page="page"
-             :per-page="perPage"
-             :items="funds"
-             @row-clicked="detail"
-             thead-class="text-center"
-             tbody-class="text-center"
-             :small="true">
-      <template slot="title" slot-scope="row">{{row.item.title}}</template>
-      <template slot="fundTime" slot-scope="row">
-        {{$utils.dateFmt(row.item.startTime)}} ~ {{$utils.dateFmt(row.item.endTime)}}
-      </template>
-      <template slot="distributionRate" slot-scope="row">{{$utils.toPXL(row.item.distributionRate) * 100}}%</template>
-      <template slot="rise" slot-scope="row">{{$utils.toPXL(row.item.rise)}} PXL</template>
-      <template slot="softcap" slot-scope="row">{{$utils.toPXL(row.item.softcap)}} PXL</template>
-      <template slot="maxcap" slot-scope="row">{{$utils.toPXL(row.item.maxcap)}} PXL</template>
-      <template slot="state" slot-scope="row">
-        <b-badge :variant="getState(row.item).variant">{{getState(row.item).label}}</b-badge>
-      </template>
-    </b-table>
-    <b-pagination class="d-flex justify-content-center" size="md"
-                  :total-rows="funds.length"
-                  :value="page"
-                  :per-page="perPage"
-                  :limit="limit"
-                  @change="changePage">
-    </b-pagination>
+  <div>
+    <div class="d-flex justify-content-between align-items-end">
+      <div class="page-title">Waiting for supporters</div>
+      <b-form-select style="width: 150px;" :value="filter" @change="setFilter">
+        <option :value="undefined">전체</option>
+        <option :value="`in-progress`">진행중</option>
+        <option :value="`completed`">종료</option>
+      </b-form-select>
+    </div>
+    <br>
+    <b-row>
+      <b-col cols="12" sm="6" md="4" lg="3"
+             v-for="fund in filteredFunds"
+             :key="fund.fund">
+        <Item :fund="fund" :disableLabel="filter=='completed'"/>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
 <script>
+  import Item from './Item'
   import Web3Utils from '../../utils/Web3Utils.js'
 
   export default {
-    props: ['page'],
+    components: {Item},
+    props: ['filter'],
+    computed: {
+      filteredFunds() {
+        if (this.filter == 'in-progress') {
+          return this.funds.filter(fund =>
+            Number(fund.startTime) < this.$root.now && this.$root.now < Number(fund.endTime)
+          );
+        } else if (this.filter == 'completed') {
+          return this.funds.filter(fund => this.$root.now > Number(fund.endTime));
+        } else {
+          return this.funds;
+        }
+      }
+    },
     data() {
       return {
-        fields: [
-          {key: 'title', label: '작품명'},
-          {key: 'fundTime', label: '모집기간'},
-          {key: 'distributionRate', label: '분배비율'},
-          {key: 'rise', label: '모집금액'},
-          {key: 'softcap', label: 'softcap'},
-          {key: 'maxcap', label: 'maxcap'},
-          {key: 'state', label: '진행상태'},
+        selected: null,
+        options: [
+          {value: null, text: '전체'},
+          {value: 'in-progress', text: '진행중'},
+          {value: 'completed', text: '종료'},
         ],
-        loaded: false,
         funds: [],
-        perPage: 15,
-        limit: 7,
         events: []
       }
     },
     methods: {
       async init() {
         const funds = await this.$contract.apiFund.getFunds();
-        const titles = (await this.$contract.apiContents.getRecords(funds.map(fund => fund.content))).map(record => record.title);
+        const records = (await this.$contract.apiContents.getRecords(funds.map(fund => fund.content)));
         const rise = await this.$contract.apiFund.getFundRise(funds.map(fund => fund.fund));
+        let writers = await this.$contract.apiContents.getContentsWriterName(funds.map(fund => fund.content));
+        writers = this.$utils.bytesToArray(writers.writerName_, writers.spos_, writers.epos_);
         funds.forEach((fund, i) => {
-          fund.title = titles[i]
+          fund.record = records[i];
+          fund.record.writerName = writers[i];
           fund.rise = rise[i]
         });
         this.funds = funds.reverse();
-        this.loaded = true;
       },
       async setEvent() {
         const event = this.$contract.apiFund.getContract().events.AddFund({fromBlock: 'latest'}, async (error, event) => {
@@ -73,20 +71,8 @@
         });
         this.events.push(event);
       },
-      changePage(value) {
-        this.$router.push({query: {page: value}})
-      },
-      detail(fund) {
-        this.$router.push({name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}})
-      },
-      getState(fund) {
-        if (fund.startTime > this.$root.now) {
-          return {'label': '대기', 'variant': 'warning'};
-        } else if (fund.endTime > this.$root.now && Number(fund.rise) < Number(fund.maxcap)) {
-          return {'label': '진행중', 'variant': 'success'};
-        } else {
-          return {'label': '완료', 'variant': 'secondary'};
-        }
+      setFilter(value) {
+        this.$router.push({query: {filter: value}})
       },
     },
     async created() {
