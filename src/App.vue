@@ -64,6 +64,10 @@
     font-weight: bold;
   }
 
+  .overflow-hidden {
+    overflow: hidden;
+  }
+
   /* Chrome, Safari, Opera */
   @-webkit-keyframes example {
     0% {

@@ -2,7 +2,7 @@
   <div @click="purchase" class="item">
     <div class="d-flex">
       <img :src="episode.thumbnail" class="thumbnail"/>
-      <div class="d-flex align-items flex-column p-3">
+      <div class="d-flex align-items flex-column p-3 overflow-hidden">
         <div class="title-text h-50">{{episode.title}}</div>
         <div class="purchase-info-text h-50">
           {{!my && episode.purchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
@@ -66,12 +66,18 @@
     font-size: 16px;
     font-weight: bold;
     line-height: 200%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .purchase-info-text {
     font-size: 14px;
     color: #4a4a4a;
     line-height: 200%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .number-text {

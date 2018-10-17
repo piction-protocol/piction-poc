@@ -18,7 +18,7 @@
     </div>
     <div class="clearfix"/>
     <b-row class="pl-3 pr-3">
-      <b-col cols="12" sm="6" md="6" lg="6" style="padding: 2px;"
+      <b-col cols="12" sm="12" md="6" lg="6" style="padding: 2px;"
              v-for="episode in episodes"
              :key="content.id">
         <Item :content="content"
@@ -68,7 +68,8 @@
           this.episodes.splice(0, 0, record);
         });
       },
-      sort() {
+      sort(evt) {
+        evt.preventDefault();
         this.orderBy = this.orderBy == 'desc' ? 'asc' : 'desc';
         this.episodes = this.episodes.reverse();
       },
@@ -114,7 +115,6 @@
   .synopsis-text {
     font-size: 14px;
     color: #6c757d;
-    height: 50px;
     white-space: pre-line;
   }
 
