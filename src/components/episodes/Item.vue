@@ -8,8 +8,12 @@
           {{!my && episode.purchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
         </div>
       </div>
-      <div class="ml-auto d-flex align-items-end p-2 number-text">
-        #{{Number(episode.number) + 1}}
+      <div class="ml-auto p-2 d-flex align-items-end flex-column">
+        <div class="h-75">
+          <i v-if="my" class="ml-2 fas fa-edit"
+             v-on:click.stop="updateEpisode"
+             v-b-tooltip.hover :title="`회차수정`"></i></div>
+        <div class="h-25">#{{Number(episode.number) + 1}}</div>
       </div>
     </div>
   </div>
@@ -30,7 +34,9 @@
           params: {content_id: this.content_id, episode_id: this.episode.number}
         });
       },
-      updateEpisode() {
+      updateEpisode(evt) {
+        console.log(evt)
+        evt.preventDefault();
         this.$router.push({
           name: 'edit-episode',
           params: {content_id: this.content_id, episode_id: this.episode.number}

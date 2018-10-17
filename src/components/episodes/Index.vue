@@ -1,20 +1,24 @@
 <template>
   <div>
+    <Report v-if="!my" :content_id="content_id" class="float-right"/>
+    <div class="clearfix"/>
     <div class="pt-4" align="center">
       <img :src="content.thumbnail" class="thumbnail mb-4"/>
-      <h2 class="font-weight-bold mb-2">{{content.title}}</h2>
+      <h2 class="font-weight-bold mb-2">{{content.title}}
+        <i v-if="my" class="ml-2 fas fa-edit"
+           @click="updateContent"
+           v-b-tooltip.hover :title="`작품수정`"></i>
+      </h2>
       <div class="text-secondary font-italic mb-2">{{writerName}}</div>
       <b-badge variant="secondary bg-dark mb-2">{{content.genres}}</b-badge>
       <div class="synopsis-text">{{content.synopsis}}</div>
     </div>
-    <div v-if="false">
-      <Report v-if="!my" :content_id="content_id"/>
-      <b-button v-if="my" variant="primary" @click="updateContent" size="sm" class="float-right ml-2">작품수정
-      </b-button>
-      <b-button v-if="my" variant="primary" @click="addEpisode" size="sm" class="float-right ml-2">회차등록</b-button>
-    </div>
-    <div class="sort-text mb-2 float-right pr-3" @click="sort"><i
-      :class="orderBy == 'desc' ? 'fas fa-arrow-down' : 'fas fa-arrow-up'"></i> 에피소드 정렬
+    <i v-if="my"
+       class="ml-2 fas fa-plus-square fa-lg"
+       v-b-tooltip.hover :title="`회차등록`"
+       @click="addEpisode"></i>
+    <div class="sort-text mb-2 float-right pr-3" @click="sort">
+      <i :class="orderBy == 'desc' ? 'ml-2 fas fa-arrow-down' : 'ml-2 fas fa-arrow-up'"></i> 에피소드 정렬
     </div>
     <div class="clearfix"/>
     <b-row class="pl-3 pr-3">
