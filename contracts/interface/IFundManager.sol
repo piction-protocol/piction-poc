@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 interface IFundManager {
-    function addFund(
+    function createFund(
         address _content,
         uint256 _startTime,
         uint256 _endTime,

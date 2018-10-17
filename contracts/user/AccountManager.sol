@@ -256,7 +256,7 @@ contract AccountManager is IAccountManager, ValidValue {
     {
         address fundAddress = IFundManager(council.getFundManager()).getFund(_contentsAddress);
         
-        isFundContract_ = fundAddress != address(0);
+        isFundContract_ = (fundAddress == _fundAddress);
     }
 
     function _isContentContract(

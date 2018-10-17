@@ -30,7 +30,7 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
     * @param _distributionRate 서포터가 분배 받을 비율
     * @param _detail 투자의 기타 상세 정보
     */
-    function addFund(
+    function createFund(
         address _content,
         uint256 _startTime,
         uint256 _endTime,

@@ -278,7 +278,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @return distributionRate_ 서포터가 분배 받을 비율
     * @return detail_ 투자의 기타 상세 정보
     */
-    function info()
+    function getFundInfo()
         external
         view
         returns (

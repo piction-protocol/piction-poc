@@ -30,7 +30,7 @@ contract ApiFund is ValidValue {
     * @param _distributionRate 서포터가 분배 받을 비율
     * @param _detail 투자의 기타 상세 정보
     */
-    function addFund(
+    function createFund(
         address _content,
         uint256 _startTime,
         uint256 _endTime,
@@ -46,9 +46,9 @@ contract ApiFund is ValidValue {
         require(_limit.length == 4, "limit length error");
 
         address _fund = IFundManager(council.getFundManager())
-            .addFund(_content, _startTime, _endTime, _limit, _poolSize, _releaseInterval, _supportFirstTime, _distributionRate, _detail);
+            .createFund(_content, _startTime, _endTime, _limit, _poolSize, _releaseInterval, _supportFirstTime, _distributionRate, _detail);
 
-        emit AddFund(
+        emit CreateFund(
             _fund,
             _content,
             _startTime,
@@ -61,7 +61,7 @@ contract ApiFund is ValidValue {
             _detail);
     }
 
-    event AddFund(
+    event CreateFund(
         address indexed _fund,
         address indexed _content,
         uint256 _startTime,
@@ -130,7 +130,7 @@ contract ApiFund is ValidValue {
     * @return distributionRate_ 서포터가 분배 받을 비율
     * @return detail_ 투자의 기타 상세 정보
     */
-    function fundInfo(address _fund)
+    function getFundInfo(address _fund)
         external
         view
         returns (
@@ -144,7 +144,7 @@ contract ApiFund is ValidValue {
             uint256 distributionRate_,
             string detail_)
     {
-        return IFund(_fund).info();
+        return IFund(_fund).getFundInfo();
     }
 
     function getFundRise(address[] _funds)
@@ -155,7 +155,7 @@ contract ApiFund is ValidValue {
         fundRise_ = new uint256[](_funds.length);
 
         for(uint i = 0; i < _funds.length; i++) {
-            (,,,, fundRise_[i],,,,) = IFund(_funds[i]).info();
+            (,,,, fundRise_[i],,,,) = IFund(_funds[i]).getFundInfo();
         }
     }
 
