@@ -238,7 +238,7 @@ contract ApiContents is ValidValue {
         )
     {
         (records_, writer_, writerName_, , , , , ,) = IContent(_comicAddress).getComicsInfo();
-        isFavorite = getFavoriteContent(_comicAddress);
+        isFavorite = getFavorite(_comicAddress);
     }
 
     /**
