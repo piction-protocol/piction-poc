@@ -1,5 +1,5 @@
 <template>
-  <div style="max-width: 720px">
+  <div style="max-width: 720px; padding-bottom: 20px">
     <img v-for="cut in cuts" :src="cut" style="max-width: 720px;"/>
     <router-link class="back" :to="{ name: 'episodes', params: { content_id: content_id }}">목록으로</router-link>
   </div>
@@ -29,6 +29,11 @@
 <style scoped>
   div {
     text-align: center;
+  }
+
+  img {
+    display: block;
+    width: 100%;
   }
 
   .back {
