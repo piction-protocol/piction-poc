@@ -63,7 +63,7 @@
         }
       },
       deposit: async function () {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         let initialDeposit = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         if (pxl.lt(initialDeposit)) {
@@ -72,17 +72,17 @@
           await this.$contract.pxl.approveAndCall(this.pictionConfig.pictionAddress.report, initialDeposit);
           this.init();
         }
-        this.$loading.close();
+        loader.hide();
       },
       async withdrawRegistration() {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiReport.withdrawRegistration();
           this.init();
         } catch (e) {
           alert(e)
         }
-        this.$loading.close();
+        loader.hide();
       },
       setEvent() {
         this.$contract.council.setCallback((error, event) => this.init());

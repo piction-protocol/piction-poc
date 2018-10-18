@@ -1,7 +1,9 @@
 <template>
   <div>
+    <div v-once class="page-title">{{action == 'new' ? `새 만화 작품 등록` : `작품 수정`}}</div>
+    <br>
     <b-form @submit="onSubmit">
-      <b-form-group label="작품명:"
+      <b-form-group label="제목"
                     label-for="title"
                     description="">
         <b-form-input id="title"
@@ -12,7 +14,7 @@
                       placeholder="작품명을 입력하세요">
         </b-form-input>
       </b-form-group>
-      <b-form-group label="썸네일:"
+      <b-form-group label="작품 썸네일"
                     label-for="thumbnail"
                     description="">
         <img class="preview form-control"
@@ -25,7 +27,7 @@
                      :state="Boolean(record.thumbnail)"
                      placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
       </b-form-group>
-      <b-form-group label="시놉시스:"
+      <b-form-group label="시놉시스"
                     label-for="synopsis"
                     description="">
         <b-form-textarea id="synopsis"
@@ -38,7 +40,7 @@
                          :max-rows="3">
         </b-form-textarea>
       </b-form-group>
-      <b-form-group label="장르:"
+      <b-form-group label="장르"
                     label-for="genres"
                     description="">
         <b-form-radio-group id="genres"
@@ -48,19 +50,9 @@
                             :options="options">
         </b-form-radio-group>
       </b-form-group>
-      <b-form-group :label="`마케터 보상 분배 비율: ${$utils.toPercent(record.marketerRate)}%`"
-                    label-for="marketerRate"
-                    description="">
-        <b-form-input id="marketerRate"
-                      :disabled="disabled"
-                      required
-                      type="range"
-                      v-model="record.marketerRate"
-                      min="0.00" max="0.1" step="0.001">
-        </b-form-input>
-      </b-form-group>
       <div align="center">
         <b-button type="submit" variant="primary">{{submitText}}</b-button>
+        <b-button type="submit" variant="secondary" @click="$router.back()">취소</b-button>
       </div>
     </b-form>
   </div>
@@ -87,12 +79,12 @@
         this.$emit('onSubmit', this.record);
       },
       async onChangeImage(event) {
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         var dimensions = await this.$utils.getImageDimensions(url);
         console.log(dimensions)
         this.record.thumbnail = url;
-        this.$loading.close();
+        loader.hide();
       },
     },
     created() {

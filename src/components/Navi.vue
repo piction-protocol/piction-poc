@@ -56,7 +56,6 @@
         });
       },
       async newContents() {
-        this.$loading('loading...');
         let deposit = BigNumber(await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account));
         let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
@@ -66,10 +65,11 @@
         } else if (pxl.lt(initialDeposit)) {
           alert(message)
         } else if (confirm(`${message}\n등록하시겠습니까?`)) {
+          let loader = this.$loading.show();
           await this.$contract.pxl.approveAndCall(this.pictionConfig.managerAddress.contentsManager, this.pictionConfig.pictionValue.initialDeposit);
+          loader.hide();
           this.$router.push({name: 'new-content'});
         }
-        this.$loading.close();
       }
     },
     async created() {

@@ -43,7 +43,7 @@
         });
       },
       async purchase() {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         if (this.episode.purchased) {
           this.show()
         } else if (confirm(`소장하시겠습니까? (${this.$utils.toPXL(this.episode.price)}PXL)`)) {
@@ -61,7 +61,7 @@
             alert(e);
           }
         }
-        this.$loading.close();
+        loader.hide();
       }
     }
   }

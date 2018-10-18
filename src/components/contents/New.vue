@@ -3,7 +3,7 @@
     <Form
       :record="record"
       action="new"
-      submitText="작품등록"
+      submitText="등록"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>
@@ -21,14 +21,14 @@
     },
     methods: {
       async onSubmit(record) {
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiContents.addContents(record);
           this.$router.push({name: 'contents'})
         } catch (e) {
           alert(e)
         }
-        this.$loading.close();
+        loader.hide();
       },
     },
     created() {

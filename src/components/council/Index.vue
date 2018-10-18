@@ -95,14 +95,14 @@
       },
       async reportProcess(success) {
         const report = this.$refs.reportModal.$data.selectedReport;
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiReport.reportProcess(report.id, report.content_id, report.user, success);
         } catch (e) {
           alert(e)
         }
         this.hideModal();
-        this.$loading.close();
+        loader.hide();
       },
       result(item) {
         if (item.complete) {

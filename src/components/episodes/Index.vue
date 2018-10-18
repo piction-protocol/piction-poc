@@ -13,15 +13,20 @@
       <b-badge variant="secondary bg-dark mb-2">{{content.genres}}</b-badge>
       <div class="synopsis-text">{{content.synopsis}}</div>
     </div>
-    <i v-if="my"
-       class="ml-2 fas fa-plus-square fa-lg"
-       v-b-tooltip.hover :title="`회차등록`"
-       @click="addEpisode"></i>
     <div class="sort-text mb-2 float-right pr-3" @click="sort">
       <i :class="orderBy == 'desc' ? 'ml-2 fas fa-arrow-down' : 'ml-2 fas fa-arrow-up'"></i> 에피소드 정렬
     </div>
     <div class="clearfix"/>
     <b-row class="pl-3 pr-3">
+      <b-col v-if="my" cols="12" sm="12" md="6" lg="6"
+             @click="addEpisode"
+             style="padding: 2px; text-align: center">
+        <h1 class="add-episode">
+          <i v-if="my" class="ml-2 fas fa-plus-square" style="line-height: 100px"
+             v-b-tooltip.hover :title="`회차등록`"
+             @click="addEpisode"></i>
+        </h1>
+      </b-col>
       <b-col cols="12" sm="12" md="6" lg="6" style="padding: 2px;"
              v-for="episode in episodes"
              :key="content.id">
@@ -124,5 +129,11 @@
 
   .sort-text {
     font-size: 12px;
+  }
+
+  .add-episode {
+    height: 100px;
+    padding: 0px;
+    border: 1px dotted #979797;
   }
 </style>

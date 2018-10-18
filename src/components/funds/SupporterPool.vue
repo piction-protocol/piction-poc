@@ -66,13 +66,13 @@
         }
       },
       vote: async function (index) {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiFund.vote(this.fund_id, index);
         } catch (e) {
           alert(e)
         }
-        this.$loading.close();
+        loader.hide();
       },
       getStateString: function (state) {
         if (state == 0) {

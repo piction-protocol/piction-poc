@@ -70,11 +70,11 @@
     },
     methods: {
       join: async function () {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         const isRegistered = await this.$contract.accountManager.isRegistered(this.userName);
         if (isRegistered) {
+          loader.hide();
           alert('사용중인 닉네임입니다')
-          this.$loading.close();
           return;
         }
 

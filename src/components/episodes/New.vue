@@ -22,7 +22,7 @@
     },
     methods: {
       async onSubmit(record) {
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         try {
           var price = record.price;
           var cuts = record.cuts;
@@ -34,7 +34,7 @@
         } catch (e) {
           alert(e)
         }
-        this.$loading.close();
+        loader.hide();
       },
     },
     created() {

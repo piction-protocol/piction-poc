@@ -172,17 +172,17 @@
           return;
         }
         this.$refs.myModalRef.hide();
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.pxl.approveAndCall(this.fund_id, this.$utils.appendDecimals(this.supportAmount));
           this.init();
         } catch (e) {
           alert(e)
         }
-        this.$loading.close()
+        loader.hide()
       },
       async endFund(tabIndex) {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiFund.endFund(this.fund_id);
           this.init();
@@ -190,17 +190,17 @@
         } catch (e) {
           alert(e)
         }
-        this.$loading.close()
+        loader.hide()
       },
       async releaseDistribution() {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiFund.releaseDistribution(this.fund_id);
           this.init();
         } catch (e) {
           alert(e)
         }
-        this.$loading.close()
+        loader.hide()
       }
     },
     async created() {

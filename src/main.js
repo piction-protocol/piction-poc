@@ -17,7 +17,8 @@ import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import Toast from 'vue2-toast';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
 import Toasted from 'vue-toasted';
 import 'vue2-toast/lib/toast.css';
 import Datetime from 'vue-datetime'
@@ -28,7 +29,13 @@ Vue.config.productionTip = false
 
 Vue.use(BootstrapVue);
 Vue.use(Datetime);
-Vue.use(Toast);
+Vue.use(Loading, {
+  container: null,
+  loader: 'dots',
+  color: '#0095FF',
+  opacity: 0.7,
+  backgroundColor: '#000000'
+});
 Vue.use(Toasted, {
   iconPack: 'material', // set your iconPack, defaults to material. material|fontawesome
   theme: "primary",

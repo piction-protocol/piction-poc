@@ -106,14 +106,14 @@
         this.$router.push({name: 'new-episode', params: {content_id: this.content_id}})
       },
       release: async function () {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.depositPool.release(this.content_id);
           this.init();
         } catch (e) {
           alert('완료되지 않은 신고내역이 있습니다.')
         }
-        this.$loading.close();
+        loader.hide();
       }
     },
     async created() {

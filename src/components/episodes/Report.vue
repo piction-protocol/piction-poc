@@ -43,7 +43,6 @@
         this.etcReason = null;
       },
       async showModal() {
-        this.$loading('loading...');
         try {
           this.restoreData();
           let registrationInfo = await this.$contract.apiReport.getRegistrationAmount();
@@ -56,23 +55,25 @@
           } else if (pxl.lt(initialDeposit)) {
             this.$toasted.show(message, {position: "top-center"});
           } else if (confirm(`${message}\n등록하시겠습니까?`)) {
+            let loader = this.$loading.show();
             await this.$contract.pxl.approveAndCall(this.pictionConfig.pictionAddress.report, initialDeposit);
             this.$refs.reportModal.show()
+            loader.hide();
           }
         } catch (e) {
           alert(e);
         }
-        this.$loading.close();
       },
       hideModal() {
         this.$refs.reportModal.hide()
       },
       async report() {
-        this.$loading('loading...');
         try {
           const reason = this.selected ? this.selected : this.etcReason;
           if (reason) {
+            let loader = this.$loading.show();
             await this.$contract.apiReport.sendReport(this.content_id, reason);
+            loader.hide();
             this.$toasted.show("신고되었습니다.", {position: "top-center"});
             this.hideModal();
           } else {
@@ -81,7 +82,6 @@
         } catch (e) {
           alert(e);
         }
-        this.$loading.close();
       },
     },
     created() {

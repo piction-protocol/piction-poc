@@ -119,7 +119,7 @@
       onSubmit: async function (evt) {
         evt.preventDefault();
         let hour = 60 * 60 * 1000;
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiFund.addFund(
             this.content_id,
@@ -135,7 +135,7 @@
         } catch (e) {
           alert(e);
         }
-        this.$loading.close();
+        loader.hide();
       }
     },
     async created() {

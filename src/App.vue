@@ -59,13 +59,16 @@
   }
 
   .page-title {
-
     font-size: 36px;
     font-weight: bold;
   }
 
   .overflow-hidden {
     overflow: hidden;
+  }
+
+  .vld-overlay {
+    z-index: 9999 !important;
   }
 
   /* Chrome, Safari, Opera */

@@ -39,7 +39,7 @@
         }
       },
       async deposit() {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         if (pxl.lt(initialDeposit)) {
@@ -48,7 +48,7 @@
           await this.$contract.pxl.approveAndCall(this.pictionConfig.managerAddress.contentsManager, this.pictionConfig.pictionValue.initialDeposit);
           this.init();
         }
-        this.$loading.close();
+        loader.hide();
       }
     },
     async created() {

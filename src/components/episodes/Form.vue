@@ -83,19 +83,19 @@
         this.$emit('onSubmit', this.record);
       },
       async onChangeThumbnail(event) {
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         this.record.thumbnail = url;
-        this.$loading.close();
+        loader.hide();
       },
       removeCut(index) {
         this.record.cuts.splice(0, 1);
       },
       async addCut(event) {
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         this.record.cuts.push(url);
-        this.$loading.close();
+        loader.hide();
       },
     },
     created() {

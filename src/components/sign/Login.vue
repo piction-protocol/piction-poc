@@ -78,11 +78,11 @@
         this.$router.push({name: 'join', query: this.$route.query})
       },
       login: async function () {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         const loginInfo = await this.$contract.accountManager.login(this.userName, this.password);
         if (!loginInfo.result_) {
+          loader.hide();
           alert('닉네임 혹은 비밀번호가 일치하지 않습니다')
-          this.$loading.close();
           return;
         }
         try {

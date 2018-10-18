@@ -42,7 +42,7 @@
     },
     methods: {
       async release() {
-        this.$loading('loading...');
+        let loader = this.$loading.show();
         await this.$contract.userPaybackPool.release();
         window.location.reload();
       }

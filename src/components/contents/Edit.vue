@@ -3,7 +3,7 @@
     <Form
       :record="record"
       action="edit"
-      submitText="작품수정"
+      submitText="수정"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>
@@ -22,14 +22,14 @@
     },
     methods: {
       async onSubmit(record, marketerRate) {
-        this.$loading('Uploading...');
+        let loader = this.$loading.show();
         try {
           await this.$contract.apiContents.updateContent(this.content_id, record);
           this.$router.push({name: 'episodes', params: {content_id: this.content_id}})
         } catch (e) {
           alert(e)
         }
-        this.$loading.close();
+        loader.hide();
       },
     },
     async created() {
