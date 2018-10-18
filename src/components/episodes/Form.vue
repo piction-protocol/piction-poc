@@ -1,7 +1,9 @@
 <template>
   <div>
+    <div v-once class="page-title">{{action == 'new' ? `에피소드 등록` : `에피소드 수정`}}</div>
+    <br>
     <b-form @submit="onSubmit">
-      <b-form-group label="회차명:"
+      <b-form-group label="회차명"
                     label-for="title"
                     description="">
         <b-form-input id="title"
@@ -13,7 +15,7 @@
         </b-form-input>
       </b-form-group>
 
-      <b-form-group label="썸네일:"
+      <b-form-group label="썸네일"
                     label-for="thumbnail"
                     description="">
         <img class="preview-thumbnail form-control"
@@ -27,7 +29,7 @@
                      placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
       </b-form-group>
 
-      <b-form-group label="웹툰 이미지:"
+      <b-form-group label="웹툰 이미지"
                     label-for="cuts"
                     description="">
         <div v-if="record.cuts.length > 0" class="preview-cuts form-control">
@@ -57,6 +59,7 @@
       </b-form-group>
       <div align="center">
         <b-button type="submit" variant="primary">{{submitText}}</b-button>
+        <b-button type="submit" variant="secondary" @click="$router.back()">취소</b-button>
       </div>
     </b-form>
   </div>

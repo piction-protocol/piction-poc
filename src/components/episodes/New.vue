@@ -3,7 +3,7 @@
     <Form
       :record="record"
       action="new"
-      submitText="회차등록"
+      submitText="등록"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>
