@@ -8,10 +8,12 @@ import "contracts/interface/ICouncil.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/BytesLib.sol";
+import "contracts/utils/TimeLib.sol";
 
 contract Content is IContent, ExtendsOwnable, ValidValue {
     using SafeMath for uint256;
     using BytesLib for bytes;
+    using TimeLib for *;
 
     struct Episode {
         string record;
@@ -63,7 +65,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         writer = _writer;
         writerName = _writerName;
 
-        contentCreationTime = now;
+        contentCreationTime = TimeLib.currentTime();
 
         council = ICouncil(_council);
 
@@ -91,7 +93,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         external
         validAccessAddress(msg.sender)
     {
-        uint256 episodeCreationTime = now;
+        uint256 episodeCreationTime = TimeLib.currentTime();
         episodes.push(Episode(_record, _cuts, _price, 0, _publishDate, episodeCreationTime, _isPublished));
         episodeLastUpdatedTime = episodeCreationTime;
 
@@ -177,7 +179,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         uint256 publishLength;
 
         for(uint i = 0 ; i < episodes.length ; i++) {
-            if(episodes[i].isPublished && episodes[i].publishDate < now) {
+            if(episodes[i].isPublished && episodes[i].publishDate < TimeLib.currentTime()) {
                 publishLength = publishLength.add(1);
             }
         }
@@ -185,7 +187,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         episodeIndex_ = new uint256[](publishLength);
 
         for(i = 0 ; i < episodes.length ; i++) {
-            if(episodes[i].isPublished && episodes[i].publishDate < now) {
+            if(episodes[i].isPublished && episodes[i].publishDate < TimeLib.currentTime()) {
                 episodeIndex_[idx] = i;
                 idx++;
             }
@@ -232,6 +234,22 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         if(council.getApiContents() == msg.sender) {
             episodeCuts_ = episodes[_index].cuts;
         }
+    }
+
+    function getIsBlockContent()
+        external
+        view
+        returns (bool isBlockContent_)
+    {
+        isBlockContent_ = isBlockContent;
+    }
+
+    function setIsBlockContent(bool _isBlockContent)
+        external
+    {
+        require(msg.sender == address(council), "Content blocking failed : access denied");
+
+        isBlockContent = _isBlockContent;
     }
 
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount)
