@@ -45,20 +45,22 @@ contract SupporterPool is Ownable, ISupporterPool {
     * @param _interval 후원받을 간격
     * @param _amount 후원받을 금액
     * @param _size 후원받을 횟수
+    * @param _supportFirstTime 첫 후원을 받을 수 있는 시간
     */
     function addSupport(
         address _fund,
         address _writer,
         uint256 _interval,
         uint256 _amount,
-        uint256 _size)
+        uint256 _size,
+        uint256 _supportFirstTime)
         external
     {
-        require(_fund == msg.sender);
-
+        require(_fund == msg.sender, "msg sender is not fund");
+        
         uint256 poolAmount = _amount.div(_size);
         for (uint256 i = 0; i < _size; i++) {
-            addDistribution(_fund, _writer, _interval, poolAmount);
+            addDistribution(_fund, _writer, _interval, _supportFirstTime, poolAmount);
         }
 
         uint256 remainder = _amount.sub(poolAmount.mul(_size));
@@ -72,18 +74,20 @@ contract SupporterPool is Ownable, ISupporterPool {
     * @param _fund 종료된 투자의 주소
     * @param _writer 후원받을 작가의 주소
     * @param _interval 후원받을 간격
+    * @param _supportFirstTime 첫 후원을 받을 수 있는 시간
     * @param _amount 후원받을 금액
     */
     function addDistribution(
         address _fund,
         address _writer,
         uint256 _interval,
+        uint256 _supportFirstTime,
         uint256 _amount)
         private
     {
         uint256 _distributableTime;
         if (funds[_fund].length == 0) {
-            _distributableTime = TimeLib.currentTime().add(_interval);
+            _distributableTime = _supportFirstTime;
         } else {
             _distributableTime = funds[_fund][funds[_fund].length - 1].distributableTime.add(_interval);
         }
@@ -154,27 +158,26 @@ contract SupporterPool is Ownable, ISupporterPool {
     * @param _sender 투표 하고자 하는 투자자 주소
     */
     function vote(address _fund, uint256 _index, address _sender) external {
-        require(ICouncil(council).getApiFund() == msg.sender);
-        require(IFund(_fund).isSupporter(_sender));
-        require(funds[_fund].length > _index);
-        require(funds[_fund][_index].state == State.PENDING);
+        require(ICouncil(council).getApiFund() == msg.sender, "sender is not ApiFund");
+        require(IFund(_fund).isSupporter(_sender), "sender is not Supporter");
+        require(funds[_fund].length > _index, "fund length error");
+        require(funds[_fund][_index].state == State.PENDING, "fund state error");
         uint256 votableTime = funds[_fund][_index].distributableTime;
-        require(TimeLib.currentTime().between(votableTime.sub(funds[_fund][_index].interval), votableTime));
-
-        if (funds[_fund][_index].voting[_sender]) {
-            revert();
-        } else {
-            funds[_fund][_index].voting[_sender] = true;
-            funds[_fund][_index].votingCount = funds[_fund][_index].votingCount.add(1);
-            if (IFund(_fund).getSupporterCount().mul(10 ** 18).div(2) <= funds[_fund][_index].votingCount.mul(10 ** 18)) {
-                funds[_fund][_index].state = State.CANCEL_PAYMENT;
-                addDistribution(
-                    funds[_fund][_index].fund,
-                    funds[_fund][_index].writer,
-                    funds[_fund][_index].interval,
-                    funds[_fund][_index].amount);
-            }
+        require(TimeLib.currentTime().between(votableTime.sub(funds[_fund][_index].interval), votableTime), "fund vote time error");
+        require(!funds[_fund][_index].voting[_sender], "already vote");
+        
+        funds[_fund][_index].voting[_sender] = true;
+        funds[_fund][_index].votingCount = funds[_fund][_index].votingCount.add(1);
+        if (IFund(_fund).getSupporterCount().mul(10 ** 18).div(2) <= funds[_fund][_index].votingCount.mul(10 ** 18)) {
+            funds[_fund][_index].state = State.CANCEL_PAYMENT;
+            addDistribution(
+                funds[_fund][_index].fund,
+                funds[_fund][_index].writer,
+                funds[_fund][_index].interval,
+                0,
+                funds[_fund][_index].amount);
         }
+    
     }
 
     /**
@@ -182,7 +185,7 @@ contract SupporterPool is Ownable, ISupporterPool {
     * @param _fund 배포하고자 하는 투자 주소
     */
     function releaseDistribution(address _fund) external {
-        require(ICouncil(council).getApiFund() == msg.sender);
+        require(ICouncil(council).getApiFund() == msg.sender, "msg sender is not ApiFund");
 
         ERC20 token = ERC20(ICouncil(council).getToken());
         for (uint256 i = 0; i < funds[_fund].length; i++) {
