@@ -31,15 +31,13 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     address writer;
     string writerName;
     
-    bool isPublished;
-    uint256 publishDate;
-
     uint256 totalPurchasedCount;
     uint256 totalPurchasedAmount;
 
     uint256 contentCreationTime;
     uint256 episodeLastUpdatedTime;
-    
+
+    bool isBlockContent;
 
     modifier validEpisodeLength(uint256 _index) {
         require(episodes.length > _index);
@@ -55,8 +53,6 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         string _record,
         address _writer,
         string _writerName,
-        bool _isPublished,
-        uint256 _publishDate,
         address _council
     )
         public
@@ -66,29 +62,23 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         record = _record;
         writer = _writer;
         writerName = _writerName;
-        isPublished = _isPublished;
-        publishDate = _publishDate;
 
         contentCreationTime = now;
 
         council = ICouncil(_council);
 
-        emit ContentCreation(msg.sender, _writer, _writerName, _record, _isPublished, _publishDate, contentCreationTime);
+        emit ContentCreation(msg.sender, _writer, _writerName, _record, contentCreationTime);
     }
 
     function updateContent(
-        string _record,
-        bool _isPublished,
-        uint256 _publishDate
+        string _record
     )
         external
         validAccessAddress(msg.sender)
     {
         record = _record;
-        isPublished = _isPublished;
-        publishDate = _publishDate;
 
-        emit ChangeContent(address(this), writer, _record, _isPublished, _publishDate);
+        emit ChangeContent(address(this), writer, _record);
     }
 
     function addEpisode(
@@ -140,14 +130,6 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         writerName_ =  writerName;
     }
 
-    function getIsPublished() public view returns (bool isPublished_) {
-        isPublished_ = isPublished;
-    }
-
-    function getPublishDate() public view returns (uint256 publishDate_) {
-        publishDate_ = publishDate;
-    }
-
     function getTotalPurchasedCount() public view returns (uint256 totalPurchasedCount_) {
         totalPurchasedCount_ = totalPurchasedCount;
     }
@@ -164,12 +146,6 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         episodeLastUpdatedTime_ = episodeLastUpdatedTime;
     }
 
-    function getIsPublisheContent() external view returns (bool isPublished_) {
-        if(isPublished && publishDate < now) {
-            isPublished_ = true;
-        }
-    }
-
     function getComicsInfo()
         external
         view
@@ -177,8 +153,6 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
             string record_,
             address writer_,
             string writerName_,
-            bool isPublished_,
-            uint256 publishDate_,
             uint256 totalPurchasedCount_,
             uint256 totalPurchasedAmount_,
             uint256 contentCreationTime_,
@@ -188,8 +162,6 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         record_ = record;
         writer_ = writer;
         writerName_ = writerName;
-        isPublished_ = isPublished;
-        publishDate_ = publishDate;
         totalPurchasedCount_ = totalPurchasedCount;
         totalPurchasedAmount_ = totalPurchasedAmount;
         contentCreationTime_ = contentCreationTime;

@@ -36,13 +36,9 @@ contract ApiContents is ValidValue {
     *
     * @notice 메뉴 publish의 새 작품 등록
     * @param _record Json string 타입의 작품 세부 정보
-    * @param _isPublished 작품 공개 여부
-    * @param _publishDate 작품 공개 시간
     */
     function createComic (
-        string _record,
-        bool _isPublished,
-        uint256 _publishDate
+        string _record
     )
         external
         validString(_record)
@@ -56,7 +52,7 @@ contract ApiContents is ValidValue {
         (writerName, result) = IAccountManager(council.getAccountManager()).getUserName(msg.sender);
 
         require(result, "Content creation failed: Please register account.");
-        contentsManager.addContents(msg.sender, writerName, _record, _isPublished, _publishDate);
+        contentsManager.addContents(msg.sender, writerName, _record);
     }
 
     /**
@@ -65,14 +61,10 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 publish의 등록 된 작품 수정
     * @param _comicAddress 수정하고자 하는 컨텐츠 주소
     * @param _record Json string 타입의 작품 세부 정보
-    * @param _isPublished 작품 공개 여부
-    * @param _publishDate 작품 공개 시간
     */
     function updateComic(
         address _comicAddress,
-        string _record,
-        bool _isPublished,
-        uint256 _publishDate
+        string _record
     )
         external
         validAddress(_comicAddress) validString(_record)
@@ -82,7 +74,7 @@ contract ApiContents is ValidValue {
         IContent content = IContent(_comicAddress);
         require(_checkAccessRole(content), "Update contents failed: Access denied.");
 
-        content.updateContent(_record, _isPublished, _publishDate);
+        content.updateContent(_record);
     }
 
     /**
@@ -196,7 +188,7 @@ contract ApiContents is ValidValue {
             uint256[] memory episodeLastUpdatedTime_
         )
     {
-        comicAddress_ = contentsManager.getPublishContentsAddress();
+        comicAddress_ = contentsManager.getContentsAddress();
 
         if(comicAddress_.length == 0) {
             return;
@@ -210,7 +202,7 @@ contract ApiContents is ValidValue {
         episodeLastUpdatedTime_ = new uint256[](comicAddress_.length);
 
         for(uint256 i = 0 ; i < comicAddress_.length ; i++) {
-            (, writer_[i], , , , totalPurchasedCount_[i], , contentCreationTime_[i], 
+            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i], 
                 episodeLastUpdatedTime_[i]) = IContent(comicAddress_[i]).getComicsInfo();
         }
     }
@@ -237,7 +229,7 @@ contract ApiContents is ValidValue {
             bool isFavorite
         )
     {
-        (records_, writer_, writerName_, , , , , ,) = IContent(_comicAddress).getComicsInfo();
+        (records_, writer_, writerName_, , , ,) = IContent(_comicAddress).getComicsInfo();
         isFavorite = getFavorite(_comicAddress);
     }
 
@@ -303,7 +295,6 @@ contract ApiContents is ValidValue {
         returns (
             address[] comicAddress_,
             bytes records_,
-            bool[] isPublishedComic_,
             uint256[] totalPurchasedAmount_,
             uint256[] publishedEpisode_,
             uint256[] privateEpisode_
@@ -320,7 +311,6 @@ contract ApiContents is ValidValue {
         uint256 episodeLength;
         for(uint256 i = 0 ; i < comicAddress_.length ; i++) {
             if(IContent(comicAddress_[i]).getWriter() == msg.sender){
-                isPublishedComic_[i] = IContent(comicAddress_[i]).getIsPublisheContent();
                 totalPurchasedAmount_[i] = IContent(comicAddress_[i]).getTotalPurchasedAmount();
                 
                 episodeLength = IContent(comicAddress_[i]).getEpisodeLength();
