@@ -20,7 +20,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import Toasted from 'vue-toasted';
-import 'vue2-toast/lib/toast.css';
 import Datetime from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
 import config from './config.js'
