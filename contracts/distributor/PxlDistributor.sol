@@ -5,7 +5,6 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IContent.sol";
-import "contracts/interface/IMarketer.sol";
 import "contracts/interface/IFundManager.sol";
 import "contracts/interface/IAccountManager.sol";
 
@@ -49,14 +48,12 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
 
         // address cdAddr = _data.toAddress(0);
         // address contentAddr = _data.toAddress(20);
-        // address marketerAddr = _data.toAddress(40);
         // uint256 idx = _data.toUint(60);
 
         //PoC 임시 코드
         address cdAddr = council.getContentsDistributor();
         address contentAddr = _data.toAddress(0);
-        address marketerAddr = _data.toAddress(20);
-        uint256 idx = _data.toUint(40);
+        uint256 idx = _data.toUint(20);
 
         require(_customValidAddress(cdAddr), "Invalid contents distributor address.");
         require(_customValidAddress(contentAddr), "Invalid contents address.");
@@ -69,7 +66,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             // clear DistributionDetail array
             _clearDistributionDetail();
 
-            _purchaseTokenDistribution(_from, cdAddr, contentAddr, marketerAddr, _value);
+            _purchaseTokenDistribution(_from, cdAddr, contentAddr, _value);
         }
 
         // update episode purchase
@@ -83,7 +80,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         address _buyerAddress,
         address _contentDistributor,
         address _contentAddress,
-        address _marketerAddress,
         uint256 _purchaseAmount
     )
         private
@@ -115,16 +111,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
                 council.getDepositPool(), tempVar, true, _contentAddress)
         );
 
-        // marketer amount
-        if(_marketerAddress != address(0)) {
-            tempVar = _getRateToPxlAmount(_purchaseAmount, getMarketerRate(_contentAddress));
-            compareAmount = compareAmount.sub(tempVar);
-            distribution.push(
-                DistributionDetail(
-                    _marketerAddress, tempVar, false, address(0))
-            );
-        }
-
         //supporter amount
         if(council.getFundAvailable()) {
             compareAmount = compareAmount.sub(_supportersAmount(_contentAddress, compareAmount));
@@ -140,7 +126,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         }
 
         // transfer
-        for(uint256 i  = 0 ; i < distribution.length ; i ++) {
+        for(uint256 i = 0 ; i < distribution.length ; i ++) {
             _transferDistributePxl(
                 distribution[i].transferAddress,
                 distribution[i].tokenAmount,
@@ -157,22 +143,16 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         uint256 amount = _amount;
 
         IFundManager fund = IFundManager(council.getFundManager());
-        address[] memory fundAddress = fund.getFunds(_content);
+        address fundAddress = fund.getFund(_content);
 
-        for(uint256 i = 0 ; i < fundAddress.length ; i ++){
-            if(amount == 0) {
-                break;
-            }
+        (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
-            (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress[i], amount);
-
-            for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-                compareAmount = compareAmount.add(supporterAmount[j]);
-                distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, address(0)));
-            }
-
-            amount = amount.sub(compareAmount);
+        for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
+            compareAmount = compareAmount.add(supporterAmount[j]);
+            distribution.push(DistributionDetail(supporterAddress[j], supporterAmount[j], false, address(0)));
         }
+
+        amount = amount.sub(compareAmount);
     }
 
     function _clearDistributionDetail()
@@ -188,17 +168,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     {
         return _amount.mul(_rate).div(DECIMALS);
     }
-
-    function getMarketerRate(address _content)
-        private
-        view
-        returns (uint256 rate)
-    {
-        uint256 contentRate = IContent(_content).getMarketerRate();
-
-        rate = (contentRate > 0) ? contentRate : council.getMarketerDefaultRate();
-    }
-
 
     function _transferDistributePxl(address _to, uint256 _amount, bool _isCustom, address _param)
         private
@@ -217,7 +186,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         view
         returns (bool)
     {
-            return (_address != address(this) && _address != address(0)) ? true : false;
+        return (_address != address(this) && _address != address(0)) ? true : false;
     }
 
     event InvalidJsonParameter(address _sender, uint256 _pxl);

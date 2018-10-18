@@ -7,5 +7,5 @@ interface ISupporterPool {
     function isVoting(address _fund, uint256 _index, address _sender) external view returns (bool voting_);
 
     function getDistributionsCount(address _fund) external view returns(uint256 count_);
-    function addSupport(address _fund, address _writer, uint256 _interval, uint256 _amount, uint256 _size) external;
+    function addSupport(address _fund, address _writer, uint256 _interval, uint256 _amount, uint256 _size, uint256 _supportFirstTime) external;
 }

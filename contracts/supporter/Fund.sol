@@ -34,7 +34,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     uint256 decimals = 18;
 
     uint256 startTime;
-    uint256 public endTime;
+    uint256 endTime;
     string detail;
 
     address council;
@@ -44,11 +44,14 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     uint256 fundRise;
     uint256 maxcap;
     uint256 softcap;
+    uint256 minimum;
+    uint256 maximum;
 
     Supporter[] supporters;
 
     uint256 poolSize;
     uint256 releaseInterval;
+    uint256 supportFirstTime;
     uint256 distributionRate;
 
     constructor(
@@ -58,28 +61,42 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         uint256 _endTime,
         uint256 _maxcap,
         uint256 _softcap,
+        uint256 _minimum,
+        uint256 _maximum,
         uint256 _poolSize,
         uint256 _releaseInterval,
+        uint256 _supportFirstTime,
         uint256 _distributionRate,
         string _detail)
     public validAddress(_content) validAddress(_council) {
-        require(_startTime > TimeLib.currentTime());
-        require(_endTime > _startTime);
-        require(_maxcap > _softcap);
-        require(_poolSize > 0);
-        require(_releaseInterval > 0);
-        require(distributionRate <= 10 ** decimals);
+        require(_maxcap >= _softcap, "maxcap < softcap");
+        require(_minimum > 0, "minimum is zero");
+        require(_maximum > 0, "maximum is zero");
+        require(_poolSize > 0, "poolsize is zero");
+        require(_releaseInterval > 0, "releaseInterval is zero");
+        require(_supportFirstTime > _endTime, "_supportFirstTime <= _endTime");
+        require(distributionRate <= 10 ** decimals, "distributionRate > 10%");
 
         council = _council;
         content = _content;
         writer = IContent(_content).getWriter();
-        startTime = _startTime;
+        
+        if (_startTime <= TimeLib.currentTime()) {
+            startTime = TimeLib.currentTime();
+        } else {
+            startTime = _startTime;
+        }
+        require(_endTime > _startTime, "startTime > endTime");
+
         endTime = _endTime;
         maxcap = _maxcap;
         softcap = _softcap;
+        minimum = _minimum;
+        maximum = _maximum;
         detail = _detail;
         poolSize = _poolSize;
         releaseInterval = _releaseInterval;
+        supportFirstTime = _supportFirstTime;
         distributionRate = _distributionRate;
     }
 
@@ -94,24 +111,25 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @param _token 사용된 Token Contract 주소
     */
     function support(address _from, uint256 _value, address _token) private {
-        require(TimeLib.currentTime().between(startTime, endTime));
-        require(fundRise < maxcap);
-
+        require(TimeLib.currentTime().between(startTime, endTime), "End Punding, Time");
+        require(fundRise < maxcap, "End Punding, Maxcap");
         ERC20 token = ERC20(ICouncil(council).getToken());
-        require(address(token) == _token);
-
-        (uint256 possibleValue, uint256 refundValue) = getRefundAmount(_value);
-
+        require(address(token) == _token, "token is abnormal");
 
         (uint256 index, bool success) = findSupporterIndex(_from);
-        if (success) {
-            supporters[index].investment = supporters[index].investment.add(possibleValue);
-        } else {
-            supporters.push(Supporter(_from, possibleValue, 0, 0, false));
+        (uint256 possibleValue, uint256 refundValue) = getRefundAmount(success ? supporters[index].investment : 0, _value);
+        
+        if(possibleValue > 0) {
+            if (success) {
+                supporters[index].investment = supporters[index].investment.add(possibleValue);
+            } else {
+                require(_value >= minimum, "value < minimum");
+                supporters.push(Supporter(_from, possibleValue, 0, 0, false));
+            }
+        
+            fundRise = fundRise.add(possibleValue);
+            token.safeTransferFrom(_from, address(this), _value);
         }
-
-        fundRise = fundRise.add(possibleValue);
-        token.safeTransferFrom(_from, address(this), _value);
 
         if (refundValue > 0) {
             token.safeTransfer(_from, refundValue);
@@ -119,18 +137,22 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 
         // update support history
         IAccountManager(ICouncil(council).getAccountManager()).setSupportHistory(_from, content, address(this), possibleValue, false);
-        emit Support(_from, possibleValue, refundValue);
+        emit Support(_from, fundRise, maxcap, softcap, possibleValue, refundValue);
     }
+
+    event Support(address _from, uint256 _fundRise, uint256 _maxcap, uint256 _softcap, uint256 _amount, uint256 _refundAmount);
 
     /**
     * @dev 투자 가능한 금액과 환불금을 산출함
+    * @param _userValue 유저의 기존 투자금액
     * @param _fromValue 투자를 원하는 금액
     * @return possibleValue_ 투자 가능한 금액
     * @return refundValue_ maxcap 도달로 환불해야하는 금액
     */
-    function getRefundAmount(uint256 _fromValue) private view returns (uint256 possibleValue_, uint256 refundValue_) {
+    function getRefundAmount(uint256 _userValue, uint256 _fromValue) private view returns (uint256 possibleValue_, uint256 refundValue_) {
         uint256 d1 = maxcap.sub(fundRise);
-        possibleValue_ = d1.min(_fromValue);
+        uint256 d2 = maximum.sub(_userValue);
+        possibleValue_ = (d1.min(d2)).min(_fromValue);
         refundValue_ = _fromValue.sub(possibleValue_);
     }
 
@@ -138,20 +160,20 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @dev 투자의 종료를 진행, 후원 풀로 토큰을 전달하며 softcap 미달 시 환불을 진행함
     */
     function endFund() external {
-        require(ICouncil(council).getApiFund() == msg.sender);
-        require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0);
-        require(fundRise == maxcap || TimeLib.currentTime() > endTime);
+        require(ICouncil(council).getApiFund() == msg.sender, "msg sender is not ApiFund");
+        require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0, "Fund SupporterPool is already");
+        require(fundRise == maxcap || TimeLib.currentTime() > endTime, "fundRise not maxcap or endTime not over");
 
         uint256 totalInvestment;
         for (uint256 i = 0; i < supporters.length; i++) {
             totalInvestment = totalInvestment.add(supporters[i].investment);
         }
         ERC20 token = ERC20(ICouncil(council).getToken());
-        require(totalInvestment == token.balanceOf(address(this)));
+        require(totalInvestment == token.balanceOf(address(this)), "fund balance abnormal");
 
         if (fundRise >= softcap) {
             setDistributionRate();
-            ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize);
+            ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize, supportFirstTime);
 
             token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
         } else {
@@ -189,7 +211,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
     * @return amounts_ 투자자가 정산받을 금액
     */
     function distribution(uint256 _total) external returns (address[] memory supporters_, uint256[] memory amounts_) {
-        require(ICouncil(council).getFundManager() == msg.sender);
+        require(ICouncil(council).getFundManager() == msg.sender, "msg sender is not FundManager");
 
         supporters_ = new address[](supporters.length);
         amounts_ = new uint256[](supporters.length);
@@ -249,36 +271,40 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 
     /**
     * dev 투자 정보 조회
-    * @return _startTime 투자를 시작할 시간
-    * @return _endTime 투자를 종료하는 시간
-    * @return _maxcap 투자 총 모집금액
-    * @return _softcap 투자 총 모집금액 하한
-    * @return _poolSize 몇회에 걸쳐 후원 받을것인가
-    * @return _releaseInterval 후원 받을 간격
-    * @return _distributionRate 서포터가 분배 받을 비율
-    * @return _detail 투자의 기타 상세 정보
+    * @return startTime_ 투자를 시작할 시간
+    * @return endTime_ 투자를 종료하는 시간
+    * @return limit_ 투자 총 모집금액
+    * @return poolSize_ 몇회에 걸쳐 후원 받을것인가
+    * @return releaseInterval_ 후원 받을 간격
+    * @return supportFirstTime_ 첫 후원을 받을 수 있는 시간
+    * @return distributionRate_ 서포터가 분배 받을 비율
+    * @return detail_ 투자의 기타 상세 정보
     */
-    function info()
+    function getFundInfo()
         external
         view
         returns (
             uint256 startTime_,
             uint256 endTime_,
-            uint256 maxcap_,
-            uint256 softcap_,
+            uint256[] memory limit_,
             uint256 fundRise_,
             uint256 poolSize_,
             uint256 releaseInterval_,
+            uint256 supportFirstTime_,
             uint256 distributionRate_,
             string detail_)
     {
         startTime_ = startTime;
         endTime_ = endTime;
-        maxcap_ = maxcap;
-        softcap_ = softcap;
+        limit_ = new uint256[](4);
+        limit_[0] = maxcap;
+        limit_[1] = softcap;
+        limit_[2] = minimum;
+        limit_[3] = maximum;
         fundRise_ = fundRise;
         poolSize_ = poolSize;
         releaseInterval_ = releaseInterval;
+        supportFirstTime_ = supportFirstTime;
         distributionRate_ = distributionRate;
         detail_ = detail;
     }
@@ -310,6 +336,5 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         }
     }
 
-    event Support(address _from, uint256 _amount, uint256 _refundAmount);
     event Refund(address _to, uint256 _amount);
 }
