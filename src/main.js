@@ -43,6 +43,17 @@ Vue.use(Toasted, {
 });
 Vue.use(Vuex);
 
+Vue.mixin({
+  data() {
+    return {
+      web3Events: []
+    }
+  },
+  async destroyed() {
+    this.web3Events.forEach(async event => await event.unsubscribe());
+  }
+});
+
 (async () => {
   if (store.getters.isLoggedIn) {
     await web3.eth.accounts.wallet.add(store.getters.token);
@@ -69,6 +80,7 @@ Vue.use(Vuex);
     data() {
       return {
         now: new Date().getTime(),
+        web3Events: []
       }
     },
     methods: {
