@@ -284,7 +284,7 @@ contract ApiContents is ValidValue {
 
         string memory strRecord;
         for(uint256 i = 0 ; i < episodeIndex_.length ; i++) {
-            (strRecord, price_[i], , isPurchased_[i], , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
+            (strRecord, price_[i], , isPurchased_[i], , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(episodeIndex_[i], msg.sender);
 
             records_ = records_.concat(bytes(strRecord));
             if(i != episodeIndex_.length - 1) {
