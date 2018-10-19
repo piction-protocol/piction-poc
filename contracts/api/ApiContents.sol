@@ -267,15 +267,15 @@ contract ApiContents is ValidValue {
             return;
         }
 
-        uint256[] memory episodeIndex = IContent(_comicAddress).getPublishEpisodeIndex();
+        episodeIndex_ = IContent(_comicAddress).getPublishEpisodeIndex();
 
-        if(episodeIndex.length == 0) {
+        if(episodeIndex_.length == 0) {
             return;
         }
 
-        price_ = new uint256[](episodeIndex.length);
-        isPurchased_ = new bool[](episodeIndex.length);
-        episodeCreationTime_ = new uint256[](episodeIndex.length);
+        price_ = new uint256[](episodeIndex_.length);
+        isPurchased_ = new bool[](episodeIndex_.length);
+        episodeCreationTime_ = new uint256[](episodeIndex_.length);
         
         bytes memory start = "[";
         bytes memory end = "]";
@@ -283,15 +283,52 @@ contract ApiContents is ValidValue {
         records_ = records_.concat(start);
 
         string memory strRecord;
-        for(uint256 i = 0 ; i < episodeIndex.length ; i++) {
+        for(uint256 i = 0 ; i < episodeIndex_.length ; i++) {
             (strRecord, price_[i], , isPurchased_[i], , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
 
             records_ = records_.concat(bytes(strRecord));
-            if(i != episodeIndex.length - 1) {
+            if(i != episodeIndex_.length - 1) {
                 records_ = records_.concat(separator);
             }
         }
         records_ = records_.concat(end);
+    }
+
+    /**
+    * @dev 작품 에피소드 정보 조회
+    *
+    * @param _comicAddress 작품 주소
+    * @param _index episode 회차
+    * @return records_ Json string 타입의 작품 정보
+    * @return price_ 총 판매 pxl
+    * @return buyCount_ 공개한 episode 수
+    * @return isPurchased_ episode 구매 여부
+    * @return isPublished_ episode 공개 여부
+    * @return publishDate_ episode 공개 일자
+    * @return episodeCreationTime_ episode 등록 일자
+    */
+    function getEpisode(
+        address _comicAddress,
+        uint256 _index
+    )
+        external
+        view
+        returns(
+            string records_,
+            uint256 price_,
+            uint256 buyCount_,
+            bool isPurchased_,
+            bool isPublished_,
+            uint256 publishDate_,
+            uint256 episodeCreationTime_
+        )
+    {
+        if(msg.sender != IContent(_comicAddress).getWriter()) {
+            return;
+        }
+
+        (records_, price_, buyCount_, isPurchased_, isPublished_, publishDate_, 
+            episodeCreationTime_) = IContent(_comicAddress).getEpisodeDetail(_index, msg.sender);
     }
 
     /**
