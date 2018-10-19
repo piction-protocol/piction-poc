@@ -10,7 +10,7 @@
                       :disabled="disabled"
                       required
                       type="text"
-                      v-model="record.title"
+                      v-model="episode.title"
                       placeholder="회차명을 입력하세요">
         </b-form-input>
       </b-form-group>
@@ -19,21 +19,21 @@
                     label-for="thumbnail"
                     description="">
         <img class="preview-thumbnail form-control"
-             v-if="record.thumbnail"
-             :src="record.thumbnail">
+             v-if="episode.thumbnail"
+             :src="episode.thumbnail">
         <b-form-file id="thumbnail"
                      :disabled="disabled"
                      :required="action == 'new'"
                      @change="onChangeThumbnail"
-                     :state="Boolean(record.thumbnail)"
+                     :state="Boolean(episode.thumbnail)"
                      placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
       </b-form-group>
 
       <b-form-group label="웹툰 이미지"
                     label-for="cuts"
                     description="">
-        <div v-if="record.cuts.length > 0" class="preview-cuts form-control">
-          <div class="preview-cut" v-for="(cut, index) in record.cuts">
+        <div v-if="episode.cuts.length > 0" class="preview-cuts form-control">
+          <div class="preview-cut" v-for="(cut, index) in episode.cuts">
             <img class="cut" :src="cut">
             <b-button class="remove-cut" variant="danger" @click="removeCut(index)">Remove</b-button>
           </div>
@@ -42,20 +42,42 @@
                      :disabled="disabled"
                      :required="action == 'new'"
                      @change="addCut"
-                     :state="record.cuts.length > 0"
+                     :state="episode.cuts.length > 0"
                      placeholder="클릭해서 웹툰 이미지를 등록하세요"></b-form-file>
       </b-form-group>
 
-      <b-form-group label="판매가격:"
+      <b-form-group label="판매가격"
                     label-for="price"
                     description="">
         <b-form-input id="price"
                       :disabled="disabled"
                       required
                       type="number"
-                      v-model="record.price"
+                      v-model="episode.price"
                       placeholder="판매 가격을 입력하세요">
         </b-form-input>
+      </b-form-group>
+
+      <b-form-group label="공개일시"
+                    label-for="price"
+                    description="">
+        <datetime id="startTime"
+                  required
+                  type="datetime"
+                  hidden-name="Enter start time"
+                  v-model="episode.publishedAt"
+                  input-class="form-control"></datetime>
+      </b-form-group>
+
+      <b-form-group label="공개"
+                    label-for="price"
+                    description="">
+        <b-form-select :disabled="disabled"
+                       required
+                       v-model="episode.status">
+          <option :value="true">공개</option>
+          <option :value="false">비공개</option>
+        </b-form-select>
       </b-form-group>
       <div align="center">
         <b-button type="submit" variant="primary">{{submitText}}</b-button>
@@ -67,7 +89,7 @@
 
 <script>
   export default {
-    props: ['record', 'action', 'submitText'],
+    props: ['episode', 'action', 'submitText'],
     data() {
       return {}
     },
@@ -79,26 +101,26 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
-        if (this.record.cuts.length == 0) {
+        if (this.episode.cuts.length == 0) {
           alert('웹툰 이미지를 등록하세요')
           return;
         }
-        this.$emit('onSubmit', this.record);
+        this.$emit('onSubmit', this.episode);
       },
       async onChangeThumbnail(event) {
         let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
-        this.record.thumbnail = url;
+        this.episode.thumbnail = url;
         loader.hide();
-      },
-      removeCut(index) {
-        this.record.cuts.splice(0, 1);
       },
       async addCut(event) {
         let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
-        this.record.cuts.push(url);
+        this.episode.cuts.push(url);
         loader.hide();
+      },
+      removeCut(index) {
+        this.episode.cuts.splice(index, 1);
       },
     },
     created() {

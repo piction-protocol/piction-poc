@@ -7,10 +7,10 @@
       </b-navbar-brand>
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
-          <router-link active-class="active" class="nav-link" to="/contents">Comics</router-link>
-          <router-link active-class="active" class="nav-link" to="/funds">Waiting for supporters</router-link>
-          <router-link active-class="active" class="nav-link" to="/my">My</router-link>
-          <router-link active-class="active" class="nav-link" to="/council">Council</router-link>
+          <router-link active-class="active" class="nav-link" :to="{name: 'comics'}">Comics</router-link>
+          <router-link active-class="active" class="nav-link" :to="{name: 'funds'}">Waiting for supporters</router-link>
+          <router-link active-class="active" class="nav-link" :to="{name: 'account'}">My</router-link>
+          <router-link active-class="active" class="nav-link" :to="{name: 'council'}">Council</router-link>
         </b-navbar-nav>
         <b-navbar-nav class="ml-auto">
           <b-nav-item style="margin-right: 10px;" v-b-tooltip.hover :title="pxl">
@@ -61,14 +61,14 @@
         let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
         let message = `작품을 등록하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
         if (deposit.eq(initialDeposit)) {
-          this.$router.push({name: 'new-content'});
+          this.$router.push({name: 'new-comic'});
         } else if (pxl.lt(initialDeposit)) {
           alert(message)
         } else if (confirm(`${message}\n등록하시겠습니까?`)) {
           let loader = this.$loading.show();
           await this.$contract.pxl.approveAndCall(this.pictionConfig.managerAddress.contentsManager, this.pictionConfig.pictionValue.initialDeposit);
           loader.hide();
-          this.$router.push({name: 'new-content'});
+          this.$router.push({name: 'new-comic'});
         }
       }
     },

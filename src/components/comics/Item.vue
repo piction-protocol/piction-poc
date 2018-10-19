@@ -1,15 +1,15 @@
 <template>
-  <router-link class="item d-inline-block w-100 mb-4" :to="{ name: 'episodes', params: { content_id: content.id }}">
-    <b-img fluid :src="content.thumbnail" class="thumbnail"/>
-    <div class="title-text">{{content.title}}</div>
-    <div class="writer-text">{{content.writerName}}</div>
-    <b-badge variant="secondary bg-dark">{{content.genres}}</b-badge>
+  <router-link class="item d-inline-block w-100 mb-4" :to="{ name: 'episodes', params: { comic_id: comic.address }}">
+    <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
+    <div class="title-text">{{comic.title}}</div>
+    <div class="writer-text">{{comic.writer.name}}</div>
+    <b-badge variant="secondary bg-dark">{{comic.genres}}</b-badge>
   </router-link>
 </template>
 
 <script>
   export default {
-    props: ['content'],
+    props: ['comic'],
     data() {
       return {}
     },

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :record="record"
+      :comic="comic"
       action="new"
       submitText="등록"
       @onSubmit="onSubmit"></Form>
@@ -10,21 +10,21 @@
 
 <script>
   import Form from './Form'
-  import {record, genres} from './helper'
+  import Comic from '@models/Comic'
 
   export default {
     components: {Form},
     data() {
       return {
-        record: record(),
+        comic: new Comic().toJSON(),
       }
     },
     methods: {
-      async onSubmit(record) {
+      async onSubmit(comic) {
         let loader = this.$loading.show();
         try {
-          await this.$contract.apiContents.addContents(record);
-          this.$router.push({name: 'contents'})
+          await this.$contract.apiContents.createComic(comic);
+          this.$router.push({name: 'comics'})
         } catch (e) {
           alert(e)
         }
@@ -32,7 +32,7 @@
       },
     },
     created() {
-      this.record.genres = genres[0].value
+      this.comic.genres = genres[0].value
     }
   }
 </script>

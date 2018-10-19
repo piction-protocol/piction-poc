@@ -4,11 +4,10 @@ import store from '../store/index.js'
 // sign
 import Login from '@/components/sign/Login'
 import Join from '@/components/sign/Join'
-// contents
-import ContentIndex from '@/components/contents/Index'
-import ContentNew from '@/components/contents/New'
-import ContentShow from '@/components/contents/Show'
-import ContentEdit from '@/components/contents/Edit'
+// comics
+import ComicIndex from '@/components/comics/Index'
+import ComicNew from '@/components/comics/New'
+import ComicEdit from '@/components/comics/Edit'
 // episodes
 import EpisodeIndex from '@/components/episodes/Index'
 import EpisodeNew from '@/components/episodes/New'
@@ -39,23 +38,17 @@ const router = new Router({
     {path: '/join', name: 'join', component: Join},
     // contents
     {
-      path: '/contents', name: 'contents', component: ContentIndex,
+      path: '/comics', name: 'comics', component: ComicIndex,
       props: (route) => ({genre: route.query.genre})
     },
-    {path: '/contents/new', name: 'new-content', component: ContentNew},
-    {path: '/contents/:content_id/show', name: 'show-content', component: ContentShow, props: true},
-    {path: '/contents/:content_id/edit', name: 'edit-content', component: ContentEdit, props: true},
+    {path: '/comics/new', name: 'new-comic', component: ComicNew},
+    {path: '/comics/:comic_id/edit', name: 'edit-comic', component: ComicEdit, props: true},
     // episodes
-    {path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'},
-    {path: '/contents/:content_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
-    {path: '/contents/:content_id/episodes/new', name: 'new-episode', component: EpisodeNew, props: true},
-    {path: '/contents/:content_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
-    {
-      path: '/contents/:content_id/episodes/:episode_id/edit',
-      name: 'edit-episode',
-      component: EpisodeEdit,
-      props: true
-    },
+    {path: '/comics/:comic_id', redirect: '/contents/:content_id/episodes'},
+    {path: '/comics/:comic_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
+    {path: '/comics/:comic_id/episodes/new', name: 'new-episode', component: EpisodeNew, props: true},
+    {path: '/comics/:comic_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
+    {path: '/comics/:comic_id/episodes/:episode_id/edit', name: 'edit-episode', component: EpisodeEdit, props: true},
     // trends
     {
       path: '/funds', name: 'funds', component: FundIndex,

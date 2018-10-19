@@ -1,27 +1,23 @@
 <template>
   <div style="max-width: 720px; padding-bottom: 20px">
-    <img v-for="cut in cuts" :src="cut" style="max-width: 720px;"/>
-    <router-link class="back" :to="{ name: 'episodes', params: { content_id: content_id }}">목록으로</router-link>
+    <img v-for="cut in episode.cuts" :src="cut" style="max-width: 720px;"/>
+    <router-link class="back" :to="{ name: 'episodes', params: { comic_id: comic_id }}">목록으로</router-link>
   </div>
 </template>
 
 <script>
+  import Episode from '@models/Episode'
+
   export default {
-    props: ['content_id', 'episode_id'],
+    props: ['comic_id', 'episode_id'],
     data() {
       return {
-        cuts: [],
+        episode: new Episode().toJSON()
       }
     },
     methods: {},
     async created() {
-      let cuts = await this.$contract.apiContents.getEpisodeCuts(this.content_id, this.episode_id);
-      if (cuts.length == 0) {
-        alert('잘못된 접근입니다')
-        this.$router.push({name: 'episodes', params: {content_id: this.content_id}});
-      } else {
-        this.cuts = JSON.parse(cuts);
-      }
+      this.episode = await this.$contract.apiContents.getEpisode(this.comic_id, this.episode_id);
     }
   }
 </script>
