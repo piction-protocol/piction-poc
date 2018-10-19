@@ -1,4 +1,4 @@
-import {abi} from '../../../build/contracts/PXL.json'
+import {abi} from '@contract-build-source/PXL'
 
 class PXL {
   constructor(address, from, gas) {

@@ -1,19 +1,86 @@
-import {abi} from '../../../build/contracts/ApiContents.json'
+import {abi} from '@contract-build-source/ApiContents'
+import Comic from '@models/Comic';
+import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
-import Web3Utils from '../../utils/Web3Utils.js'
 
 class ApiContents {
   constructor(address, from, gas) {
     this._contract = new web3.eth.Contract(abi, address);
     this._contract.options.from = from;
     this._contract.options.gas = gas;
-    this.registerContents = (() => {
-    })
-    this.episodeCreation = (() => {
-    })
-    this._contract.events.RegisterContents({fromBlock: 'latest'}, (error, event) => this.registerContents(error, event))
-    this._contract.events.EpisodeCreation({fromBlock: 'latest'}, (error, event) => this.episodeCreation(error, event))
   }
+
+  // 작품 목록 조회
+  async getComics(accountManagerContract) {
+    let result = await this._contract.methods.getComics().call();
+    result = Web3Utils.prettyJSON(result);
+    if (result.comicAddress.length == 0) {
+      return [];
+    } else {
+      let comics = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      let writerNames = await accountManagerContract.getUserNames(result.writer);
+      records.forEach((record, i) => {
+        let comic = new Comic(
+          result.comicAddress[i],
+          record,
+          result.totalPurchasedCount[i],
+          result.episodeLastUpdatedTime[i],
+          result.contentCreationTime[i]
+        );
+        comic.setWriter(result.writer[i], writerNames[i]);
+        comics.push(comic.toJSON());
+      });
+      return comics;
+    }
+  }
+
+  // 작품 조회
+  async getComic(address) {
+    let result = await this._contract.methods.getComic(address).call();
+    return Web3Utils.prettyJSON(result);
+  };
+
+  // 에피소드 목록 조회
+  async getEpisodes(address) {
+    console.log(address)
+    let result = await this._contract.methods.getEpisodes(address).call();
+    console.log(result)
+    return result;
+  }
+
+  // 작품 등록
+  createComic(record) {
+    return this._contract.methods.createComic(JSON.stringify(record)).send();
+  }
+
+  // 에피소드 등록
+  createEpisode(address, episode) {
+    return this._contract.methods.createEpisode(
+      address,
+      JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
+      JSON.stringify(episode.cuts),
+      BigNumber(episode.price * Math.pow(10, 18)),
+      episode.status,
+      new Date(episode.publishedAt).getTime()
+    ).send();
+  }
+
+  // 에피소드 수정
+  updateEpisode(address, episode) {
+    return this._contract.methods.createEpisode(
+      address,
+      episode.index,
+      JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
+      JSON.stringify(episode.cuts),
+      BigNumber(episode.price * Math.pow(10, 18)),
+      episode.status,
+      new Date(episode.publishedAt).getTime()
+    ).send();
+  }
+
+
+  // 여기까지
 
   getContract() {
     return this._contract;

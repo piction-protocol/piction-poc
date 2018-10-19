@@ -1,6 +1,6 @@
-import {abi} from '../../../build/contracts/ApiFund.json'
+import {abi} from '@contract-build-source/ApiFund'
+import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
-import Web3Utils from '../../utils/Web3Utils.js'
 
 class ApiFund {
   constructor(address, from, gas) {

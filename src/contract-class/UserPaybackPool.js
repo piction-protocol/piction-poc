@@ -1,4 +1,4 @@
-import {abi} from '../../../build/contracts/UserPaybackPool.json'
+import {abi} from '@contract-build-source/UserPaybackPool'
 
 class UserPaybackPool {
   constructor(address, from, gas) {
