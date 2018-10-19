@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 contract ICouncil {
     function getPictionConfig() external view returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_, address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_);
     function getCdRate() external view returns (uint256 cdRate_);
-    function getDepositRate() external view returns (uint256 depositRate_);
     function getInitialDeposit() external view returns (uint256 initialDeposit_);
     function getFundAvailable() external view returns (bool fundAvailable_);
     function getUserPaybackRate() external view returns (uint256 userPaybackRate_);
@@ -30,7 +29,7 @@ contract ICouncil {
 
     event RegisterCouncil(address _sender, address _token);
     event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee, bool _fundAvailable);
-    event InitialRate(uint256 _cdRate, uint256 _initialDeposit, uint256 _userPaybackRate, uint256 _reportRewardRate);
+    event InitialRate(uint256 _cdRate, uint256 _userPaybackRate, uint256 _reportRewardRate);
     event InitialAddress(address _userPaybackPool, address _depositPool, address _supporterPool, address _pixelDistributor, address _report, address _contentsDistributor);
     event InitialManagerAddress(address _depositPool, address _contentsManager, address _accountManager);
     event InitialApiAddress(address _apiContents, address _apiReport, address _apiFund);

@@ -22,7 +22,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     struct PictionRate {
         uint256 cdRate;
-        uint256 depositRate;
         uint256 userPaybackRate;
         uint256 reportRewardRate;
     }
@@ -93,19 +92,17 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function initialRate(
         uint256 _cdRate,
-        uint256 _depositRate,
         uint256 _userPaybackRate,
         uint256 _reportRewardRate)
         external onlyOwner
         validRange(_cdRate)
-        validRange(_depositRate)
         validRange(_userPaybackRate)
         validRange(_reportRewardRate)
     {
 
-        pictionRate = PictionRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate);
+        pictionRate = PictionRate(_cdRate, _userPaybackRate, _reportRewardRate);
 
-        emit InitialRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate);
+        emit InitialRate(_cdRate, _userPaybackRate, _reportRewardRate);
     }
 
     function initialPictionAddress(
@@ -174,7 +171,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
              address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_)
     {
         pictionValue_ = new uint256[](3);
-        pictionRate_ = new uint256[](4);
+        pictionRate_ = new uint256[](3);
         pictionAddress_ = new address[](5);
         managerAddress_ = new address[](3);
         apiAddress_ = new address[](3);
@@ -186,9 +183,8 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         pictionValue_[1] = pictionValue.reportRegistrationFee;
 
         pictionRate_[0] = pictionRate.cdRate;
-        pictionRate_[1] = pictionRate.depositRate;
-        pictionRate_[2] = pictionRate.userPaybackRate;
-        pictionRate_[3] = pictionRate.reportRewardRate;
+        pictionRate_[1] = pictionRate.userPaybackRate;
+        pictionRate_[2] = pictionRate.reportRewardRate;
 
         pictionAddress_[0] = pictionAddress.userPaybackPool;
         pictionAddress_[1] = pictionAddress.depositPool;
@@ -273,10 +269,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getCdRate() external view returns (uint256 cdRate_) {
         return pictionRate.cdRate;
-    }
-
-    function getDepositRate() external view returns (uint256 depositRate_) {
-        return pictionRate.depositRate;
     }
 
     function getUserPaybackRate() external view returns (uint256 userPaybackRate_) {
