@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IReport.sol";
+import "contracts/interface/IContent.sol";
 import "contracts/interface/IDepositPool.sol";
 
 import "contracts/utils/ExtendsOwnable.sol";
@@ -252,8 +253,12 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
     }
 
+    function contentBlocking(address _contentAddress, bool _isBlocked) public {
+        require(apiAddress.apiReport == msg.sender || members[msg.sender], "Content blocking failed : access denied");
 
-
+        IContent(_contentAddress).setIsBlocked(_isBlocked);
+        emit ContentBlocking(msg.sender, _contentAddress, _isBlocked);
+    }
 
     function getToken() external view returns (address token_) {
         return token;

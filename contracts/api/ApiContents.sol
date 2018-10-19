@@ -145,6 +145,8 @@ contract ApiContents is ValidValue {
         external
         validAddress(_comicAddress)
     {
+        bool status = getFavorite(_comicAddress);
+        IContent(_comicAddress).updateFavoriteCount(status);
         IAccountManager(council.getAccountManager()).changeFavoriteContent(msg.sender, _comicAddress);
     }
 
@@ -188,7 +190,7 @@ contract ApiContents is ValidValue {
             uint256[] memory episodeLastUpdatedTime_
         )
     {
-        comicAddress_ = contentsManager.getContentsAddress();
+        comicAddress_ = contentsManager.getPublishContentsAddress();
 
         if(comicAddress_.length == 0) {
             return;
@@ -229,6 +231,10 @@ contract ApiContents is ValidValue {
             bool isFavorite
         )
     {
+        if(IContent(_comicAddress).getIsBlocked()) {
+            return;
+        }
+
         (records_, writer_, writerName_, , , ,) = IContent(_comicAddress).getComicsInfo();
         isFavorite = getFavorite(_comicAddress);
     }
@@ -242,6 +248,7 @@ contract ApiContents is ValidValue {
     * @return price_ 판매 가격 
     * @return isPurchased_ 구매 유무
     * @return episodeCreationTime_ episode 등록 시간 정보
+    * @return episodeIndex_ episode 회차 
     */
     function getEpisodes(
         address _comicAddress
@@ -252,14 +259,23 @@ contract ApiContents is ValidValue {
             bytes records_,
             uint256[] memory price_,
             bool[] memory isPurchased_,
-            uint256[] memory episodeCreationTime_
+            uint256[] memory episodeCreationTime_,
+            uint256[] memory episodeIndex_
         )
     {
+        if(IContent(_comicAddress).getIsBlocked()) {
+            return;
+        }
+
         uint256[] memory episodeIndex = IContent(_comicAddress).getPublishEpisodeIndex();
 
         if(episodeIndex.length == 0) {
             return;
         }
+
+        price_ = new uint256[](episodeIndex.length);
+        isPurchased_ = new bool[](episodeIndex.length);
+        episodeCreationTime_ = new uint256[](episodeIndex.length);
         
         bytes memory start = "[";
         bytes memory end = "]";
@@ -283,8 +299,8 @@ contract ApiContents is ValidValue {
     *
     * @notice 메뉴 publish의 만화 작품 관리
     * @return comicAddress_ 내 작품 주소
+    * @return isBlockComic_ 작품 차단 여부
     * @return records_ Json string 타입의 작품 정보
-    * @return isPublishedComic_ 작품 공개 여부
     * @return totalPurchasedAmount_ 총 판매 pxl
     * @return publishedEpisode_ 공개한 episode 수
     * @return privateEpisode_ 비 공개 episode 수
@@ -294,6 +310,7 @@ contract ApiContents is ValidValue {
         view
         returns (
             address[] comicAddress_,
+            bool[] isBlockComic_,
             bytes records_,
             uint256[] totalPurchasedAmount_,
             uint256[] publishedEpisode_,
@@ -306,11 +323,17 @@ contract ApiContents is ValidValue {
             return;
         }
 
+        isBlockComic_ = new bool[](comicAddress_.length);
+        totalPurchasedAmount_ = new uint256[](comicAddress_.length);
+        publishedEpisode_ = new uint256[](comicAddress_.length);
+        privateEpisode_ = new uint256[](comicAddress_.length);
+
         records_ = _getComicRecords(comicAddress_);
 
         uint256 episodeLength;
         for(uint256 i = 0 ; i < comicAddress_.length ; i++) {
             if(IContent(comicAddress_[i]).getWriter() == msg.sender){
+                isBlockComic_[i] = IContent(comicAddress_[i]).getIsBlocked();
                 totalPurchasedAmount_[i] = IContent(comicAddress_[i]).getTotalPurchasedAmount();
                 
                 episodeLength = IContent(comicAddress_[i]).getEpisodeLength();
@@ -318,6 +341,92 @@ contract ApiContents is ValidValue {
                 privateEpisode_[i] = episodeLength.sub(publishedEpisode_[i]);
             }
         }
+    }
+
+    /**
+    * @dev 작가의 작품 에피소드 관리
+    *
+    * @notice 메뉴 publish의 작품의 에피소드 정보
+    * @param _comicAddress 작품 주소
+    * @return records_ Json string 타입의 episode 정보
+    * @return isPublished 공개 여부
+    * @return price_ 판매 가격 
+    * @return episodeCreationTime_ episode 등록 시간 정보
+    * @return episodeIndex_ episode 회차
+    */
+    function getMyEpisodes(
+        address _comicAddress
+    )
+        external
+        view
+        returns (
+            bytes records_,
+            uint256[] memory price_,
+            bool[] memory isPublished_,
+            uint256[] memory episodeCreationTime_,
+            uint256[] memory episodeIndex_
+        )
+    {
+        if(IContent(_comicAddress).getWriter() != msg.sender) {
+            return;
+        }
+
+        uint256 episodeLength = IContent(_comicAddress).getEpisodeLength();
+        if(episodeLength == 0){
+            return;
+        }
+
+        price_ = new uint256[](episodeLength);
+        isPublished_ = new bool[](episodeLength);
+        episodeCreationTime_ = new uint256[](episodeLength);
+        episodeIndex_ = new uint256[](episodeLength);
+
+        bytes memory start = "[";
+        bytes memory end = "]";
+        bytes memory separator = ",";
+        records_ = records_.concat(start);
+
+        string memory strRecord;
+        for(uint256 i = 0 ; i < episodeLength ; i++) {
+            (strRecord, price_[i], , , , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
+            isPublished_[i] = IContent(_comicAddress).isPublishedEpisode(i);
+            episodeIndex_[i] = i;
+
+            records_ = records_.concat(bytes(strRecord));
+            if(i != episodeLength - 1) {
+                records_ = records_.concat(separator);
+            }
+        }
+        records_ = records_.concat(end);
+    }
+
+    /**
+    * @dev 작품 매출 정보 조회
+    *
+    * @notice publish 메뉴 중 info 탭의 매출 정보 조회
+    * @param _comicAddress 작품 주소
+    * @return totalPurchasedAmount_ 총 구매 pxl 양
+    * @return totalPurchasedCount_ 총 구매 건수
+    * @return favoriteCount_ favorite 유지 건수
+    */
+    function getMyComicSales(
+        address _comicAddress
+    )  
+        external
+        view
+        returns (
+            uint256 totalPurchasedAmount_,
+            uint256 totalPurchasedCount_,
+            uint256 favoriteCount_
+        )
+    {
+        if(IContent(_comicAddress).getWriter() != msg.sender) {
+            return;
+        }
+
+        totalPurchasedAmount_ = IContent(_comicAddress).getTotalPurchasedAmount();
+        totalPurchasedCount_ = IContent(_comicAddress).getTotalPurchasedCount();
+        favoriteCount_ = IContent(_comicAddress).getFavoriteCount();
     }
 
     /**

@@ -156,7 +156,11 @@ contract AccountManager is IAccountManager, ValidValue {
         require(_isContentContract(_contentAddress), "Change favorite content failed: Invalid content address.");
         require(isRegistered(account[addressToIndex[_user]].userName), "Change favorite content failed: Please register account.");
 
-        account[addressToIndex[_user]].addressToFavorite[_contentAddress] = true;
+        if(account[addressToIndex[_user]].addressToFavorite[_contentAddress]) {
+            account[addressToIndex[_user]].addressToFavorite[_contentAddress] = false;
+        } else {
+            account[addressToIndex[_user]].addressToFavorite[_contentAddress] = true;
+        }
     }
 
     function getFavoriteContent(
