@@ -4,6 +4,7 @@ contract ICouncil {
     function getPictionConfig() external view returns (address pxlAddress_, uint256[] pictionValue_, uint256[] pictionRate_, address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_);
     function getCdRate() external view returns (uint256 cdRate_);
     function getInitialDeposit() external view returns (uint256 initialDeposit_);
+    function getDepositReleaseDelay() external view returns (uint256 depositReleaseDelay_);
     function getFundAvailable() external view returns (bool fundAvailable_);
     function getUserPaybackRate() external view returns (uint256 userPaybackRate_);
     function getReportRegistrationFee() view external returns (uint256 reportRegistrationFee_);
@@ -28,7 +29,7 @@ contract ICouncil {
     function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external;
 
     event RegisterCouncil(address _sender, address _token);
-    event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee, bool _fundAvailable);
+    event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee, uint256 _depositReleaseDelay, bool _fundAvailable);
     event InitialRate(uint256 _cdRate, uint256 _userPaybackRate, uint256 _reportRewardRate);
     event InitialAddress(address _userPaybackPool, address _depositPool, address _supporterPool, address _pixelDistributor, address _report, address _contentsDistributor);
     event InitialManagerAddress(address _depositPool, address _contentsManager, address _accountManager);

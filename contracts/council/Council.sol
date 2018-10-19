@@ -17,6 +17,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     struct PictionValue {
         uint256 initialDeposit;
         uint256 reportRegistrationFee;
+        uint256 depositReleaseDelay;
         bool fundAvailable;
     }
 
@@ -80,14 +81,15 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     function initialValue(
         uint256 _initialDeposit,
         uint256 _reportRegistrationFee,
+        uint256 _depositReleaseDelay,
         bool _fundAvailable)
         external onlyOwner
         validRange(_initialDeposit)
         validRange(_reportRegistrationFee) {
 
-        pictionValue = PictionValue(_initialDeposit, _reportRegistrationFee, _fundAvailable);
+        pictionValue = PictionValue(_initialDeposit, _reportRegistrationFee, _depositReleaseDelay, _fundAvailable);
 
-        emit InitialValue(_initialDeposit, _reportRegistrationFee, _fundAvailable);
+        emit InitialValue(_initialDeposit, _reportRegistrationFee, _depositReleaseDelay, _fundAvailable);
     }
 
     function initialRate(
@@ -181,6 +183,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         // 배열의 순서는 구조체 선언 순서
         pictionValue_[0] = pictionValue.initialDeposit;
         pictionValue_[1] = pictionValue.reportRegistrationFee;
+        pictionValue_[2] = pictionValue.depositReleaseDelay;
 
         pictionRate_[0] = pictionRate.cdRate;
         pictionRate_[1] = pictionRate.userPaybackRate;
@@ -261,6 +264,10 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getReportRegistrationFee() view external returns (uint256 reportRegistrationFee_) {
         return pictionValue.reportRegistrationFee;
+    }
+
+    function getDepositReleaseDelay() external view returns (uint256 depositReleaseDelay_) {
+        return pictionValue.depositReleaseDelay;
     }
 
     function getFundAvailable() external view returns (bool fundAvailable_) {

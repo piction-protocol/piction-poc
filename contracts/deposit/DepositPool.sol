@@ -14,6 +14,7 @@ import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
+import "contracts/utils/TimeLib.sol";
 
 /**
  * @title DepositPool
@@ -31,6 +32,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
     ICouncil council;
     mapping (address => uint256) contentDeposit;
+    mapping (address => uint256) possibleReleaseDate;
 
     /**
     * @dev 생성자
@@ -83,6 +85,23 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         return contentDeposit[_content];
     }
 
+    /**
+    * @dev 예치금을 회수할 수있는 날짜를 설정
+    * @param _content 날짜를 설정할 작품 주소
+    * @param _currentDate 설정할 날짜
+    */
+    function setReleaseDate(address _content, uint256 _currentDate) private validAddress(_content) {
+        possibleReleaseDate[_content] = _currentDate;
+    }
+
+    /**
+    * @dev 예치금을 회수할 수있는 날짜 조회
+    * @param _content 작품 주소
+    */
+    function getReleaseDate(address _content) external view returns(uint256 releaseDate_) {
+        return possibleReleaseDate[_content];
+    }
+    
     /**
     * @dev 위원회가 호출하는 보상지급 처리
     * @param _content 신고한 작품 주소
