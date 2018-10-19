@@ -140,8 +140,6 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @param _content 정산을 원하는 작품 주소
     */
     function release(address _content) external validAddress(_content) {
-        //신고 건이 있으면 완결처리되지 않음
-        require(IReport(council.getReport()).getUncompletedReport(_content) == 0, "UncompletedReport");
         require(contentDeposit[_content] > 0, "contentDeposit is zero");
         address writer = IContent(_content).getWriter();
         require(writer == msg.sender, "msg sender is not writer");
