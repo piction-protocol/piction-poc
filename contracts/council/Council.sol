@@ -98,10 +98,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         uint256 _userPaybackRate,
         uint256 _reportRewardRate)
         external onlyOwner
-        validRange(_cdRate)
-        validRange(_depositRate)
-        validRange(_userPaybackRate)
-        validRange(_reportRewardRate)
     {
 
         pictionRate = PictionRate(_cdRate, _depositRate, _userPaybackRate, _reportRewardRate);
