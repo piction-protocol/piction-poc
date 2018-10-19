@@ -39,7 +39,9 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     uint256 contentCreationTime;
     uint256 episodeLastUpdatedTime;
 
-    bool isBlockContent;
+    uint256 favoriteCount;
+
+    bool isBlocked;
 
     modifier validEpisodeLength(uint256 _index) {
         require(episodes.length > _index);
@@ -120,6 +122,14 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         emit ChangeEpisode(_index, address(this), writer, _record, _price, _isPublished, _publishDate);
     }
 
+    function updateFavoriteCount(bool isFavorite) public {
+        if(isFavorite) {
+            favoriteCount = favoriteCount.sub(1);
+        } else {
+            favoriteCount = favoriteCount.add(1);
+        }
+    }
+
     function getRecord() public view returns (string record_) {
         record_ = record;
     }
@@ -146,6 +156,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
     function getEpisodeLastUpdatedTime() public view returns (uint256 episodeLastUpdatedTime_) {
         episodeLastUpdatedTime_ = episodeLastUpdatedTime;
+    }
+
+    function getFavoriteCount() public view returns (uint256 favoriteCount_) {
+        favoriteCount_ = favoriteCount;
     }
 
     function getComicsInfo()
@@ -194,6 +208,14 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         }
     }
 
+    function isPublishedEpisode(uint256 _index)
+        external
+        view
+        returns (bool isPublished_)
+    {
+        isPublished_ = (episodes[_index].isPublished && episodes[_index].publishDate < TimeLib.currentTime())? true : false;
+    }
+
     function isPurchasedEpisode(uint256 _index, address _buyer)
         external
         view
@@ -217,6 +239,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
             uint256 episodeCreationTime_
         )
     {
+        if(isBlocked) {
+            return;
+        }
+
         record_ = episodes[_index].record;
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
@@ -231,25 +257,30 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         view
         returns (string episodeCuts_)
     {
+        if(isBlocked || !episodes[_index].isPublished || episodes[_index].publishDate > TimeLib.currentTime()) {
+            return;
+        }
+
         if(council.getApiContents() == msg.sender) {
             episodeCuts_ = episodes[_index].cuts;
         }
     }
 
-    function getIsBlockContent()
+    function getIsBlocked()
         external
         view
-        returns (bool isBlockContent_)
+        returns (bool isBlocked_)
     {
-        isBlockContent_ = isBlockContent;
+        isBlocked_ = isBlocked;
     }
 
-    function setIsBlockContent(bool _isBlockContent)
+    function setIsBlocked(bool _isBlocked)
         external
     {
         require(msg.sender == address(council), "Content blocking failed : access denied");
 
-        isBlockContent = _isBlockContent;
+        isBlocked = _isBlocked;
+        emit ContentBlocking(writer, address(this), isBlocked);
     }
 
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount)

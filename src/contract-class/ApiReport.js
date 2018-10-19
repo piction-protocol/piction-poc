@@ -1,4 +1,4 @@
-import {abi} from '../../../build/contracts/ApiReport.json'
+import {abi} from '@contract-build-source/ApiReport'
 
 class ApiReport {
   constructor(address, from, gas) {

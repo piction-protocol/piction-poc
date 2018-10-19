@@ -12,6 +12,7 @@ export default class Web3Utils {
   static jsonToArray(obj) {
     obj = Web3Utils.prettyJSON(obj);
     var length = obj[Object.keys(obj)[0]].length;
+    if (length == 0) return [];
     var result = new Array(length).fill().map(() => JSON.parse('{}'));
     Object.keys(obj).forEach((k, i) => obj[k].forEach((v, j) => result[j][k] = v));
     return result;

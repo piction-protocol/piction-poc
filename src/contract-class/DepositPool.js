@@ -1,4 +1,4 @@
-import {abi} from '../../../build/contracts/DepositPool.json'
+import {abi} from '@contract-build-source/DepositPool'
 
 class DepositPool {
   constructor(address, from, gas) {

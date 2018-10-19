@@ -1,5 +1,5 @@
-import {abi} from '../../../build/contracts/AccountManager.json'
-import Web3Utils from '../../utils/Web3Utils.js'
+import {abi} from '@contract-build-source/AccountManager'
+import Web3Utils from '@utils/Web3Utils'
 
 class AccountManager {
   constructor(address, from, gas) {
@@ -14,7 +14,10 @@ class AccountManager {
 
   async getUserNames(addrs) {
     var result = await this._contract.methods.getUserNames(addrs).call();
-    return Web3Utils.bytesToArray(result.writerName_, result.spos_, result.epos_);
+    if (result.writerName_ == '')
+      return [];
+    else
+      return Web3Utils.bytesToArray(result.writerName_, result.spos_, result.epos_);
   }
 
   isRegistered(userName) {

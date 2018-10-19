@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IReport.sol";
+import "contracts/interface/IContent.sol";
 import "contracts/interface/IDepositPool.sol";
 
 import "contracts/utils/ExtendsOwnable.sol";
@@ -98,9 +99,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         uint256 _userPaybackRate,
         uint256 _reportRewardRate)
         external onlyOwner
-        validRange(_cdRate)
-        validRange(_userPaybackRate)
-        validRange(_reportRewardRate)
     {
 
         pictionRate = PictionRate(_cdRate, _userPaybackRate, _reportRewardRate);
@@ -267,7 +265,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         uint256 deductionAmount;
 
         if (_type == uint256(ReportDisposalType.CONTENT_BLOCK)) {
-            //for Charles
+            contentBlocking(_content, true);
             //diposit 모두 차감, 리워드 1 지급
             
             //리포트 처리 완료 type 넘김
@@ -290,6 +288,12 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         emit ReportDisposal(TimeLib.currentTime(), _index, _content, _reporter, _type, _description, deductionAmount);
     }
 
+    function contentBlocking(address _contentAddress, bool _isBlocked) public {
+        require(apiAddress.apiReport == msg.sender || members[msg.sender], "Content blocking failed : access denied");
+
+        IContent(_contentAddress).setIsBlocked(_isBlocked);
+        emit ContentBlocking(msg.sender, _contentAddress, _isBlocked);
+    }
 
     function getToken() external view returns (address token_) {
         return token;

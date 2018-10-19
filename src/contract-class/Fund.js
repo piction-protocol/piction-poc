@@ -1,4 +1,4 @@
-import {abi} from '../../../build/contracts/Fund.json'
+import {abi} from '@contract-build-source/Fund'
 
 class Fund {
   constructor(from, gas) {

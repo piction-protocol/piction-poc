@@ -27,6 +27,7 @@ contract ICouncil {
     function reporterDeduction(address _reporter) external;
     function reporterBlock(address _reporter) external;
     function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external;
+    function contentBlocking(address _contentAddress, bool _isBlocked) public;
 
     event RegisterCouncil(address _sender, address _token);
     event InitialValue(uint256 _depositRate, uint256 _reportRegistrationFee, uint256 _depositReleaseDelay, bool _fundAvailable);
@@ -36,4 +37,5 @@ contract ICouncil {
     event InitialApiAddress(address _apiContents, address _apiReport, address _apiFund);
     event ReportDisposal(uint256 _date, uint256 _index, address _content, address _reporter, uint256 _type, string _description, uint256 _deductionAmount);
     event SetMember(address _member, bool _allow);
+    event ContentBlocking(address indexed _sender, address indexed _contentAddress, bool _isBlocked);
 }

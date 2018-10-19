@@ -62,6 +62,25 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
         contentsAddress_ = contentsAddress;
     }
 
+    function getPublishContentsAddress() external view returns (address[] contentsAddress_) {
+        uint256 _idx;
+
+        for(uint i = 0 ; i < contentsAddress.length ; i++) {
+            if(Content(contentsAddress[i]).getIsBlocked() == false) {
+                _idx = _idx.add(1);
+            }
+        }
+        contentsAddress_ = new address[](_idx);
+
+        _idx = 0;
+        for(i = 0 ; i < contentsAddress.length ; i++) {
+            if(Content(contentsAddress[i]).getIsBlocked() == false) {
+                contentsAddress_[_idx] = contentsAddress[i];
+                _idx++;
+            }
+        }
+    }
+
     function getWriterContentsAddress(address _writer)
         external
         view
