@@ -15,8 +15,8 @@ export default async (network) => {
     userPaybackPool: pictionConfig.pictionAddress_[0],
     depositPool: pictionConfig.pictionAddress_[1],
     pixelDistributor: pictionConfig.pictionAddress_[2],
-    marketer: pictionConfig.pictionAddress_[3],
-    report: pictionConfig.pictionAddress_[4],
+    report: pictionConfig.pictionAddress_[3],
+    contentsDistributor: pictionConfig.pictionAddress_[4]
   };
 
   returnConfig.managerAddress = {
