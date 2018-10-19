@@ -34,8 +34,6 @@ contract ICouncil {
     event InitialAddress(address _userPaybackPool, address _depositPool, address _supporterPool, address _pixelDistributor, address _report, address _contentsDistributor);
     event InitialManagerAddress(address _depositPool, address _contentsManager, address _accountManager);
     event InitialApiAddress(address _apiContents, address _apiReport, address _apiFund);
-    event ReporterDeduction(address _reporter, uint256 deductionAmount);
-    event ReporterBlock(address _reporter);
-    event ReportReword(uint256 _index, address _content, address _reporter, bool _reword, uint256 _rewordAmount);
+    event ReportDisposal(uint256 _date, uint256 _index, address _content, address _reporter, uint256 _type, string _description, uint256 _deductionAmount);
     event SetMember(address _member, bool _allow);
 }

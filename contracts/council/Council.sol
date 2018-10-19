@@ -6,6 +6,7 @@ import "contracts/interface/IDepositPool.sol";
 
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
+import "contracts/utils/TimeLib.sol";
 
 /**
  * @title Council contract
@@ -210,26 +211,26 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @dev 정당하지 않은 신고한 유저의 보증금 차감
     * @param _reporter 신고자 주소
     */
-    function reporterDeduction(address _reporter) external {
-        require(apiAddress.apiReport == msg.sender);
+    // function reporterDeduction(address _reporter) external {
+    //     require(apiAddress.apiReport == msg.sender);
 
-        uint256 deductionAmount;
-        deductionAmount = IReport(pictionAddress.report).deduction(_reporter);
+    //     uint256 deductionAmount;
+    //     deductionAmount = IReport(pictionAddress.report).deduction(_reporter);
 
-        emit ReporterDeduction(_reporter, deductionAmount);
-    }
+    //     emit ReporterDeduction(_reporter, deductionAmount);
+    // }
 
     /**
     * @dev 정당하지 않은 신고한 유저의 블락
     * @param _reporter 신고자 주소
     */
-    function reporterBlock(address _reporter) external {
-        require(apiAddress.apiReport == msg.sender);
+    // function reporterBlock(address _reporter) external {
+    //     require(apiAddress.apiReport == msg.sender);
 
-        IReport(pictionAddress.report).reporterBlock(_reporter);
+    //     IReport(pictionAddress.report).reporterBlock(_reporter);
 
-        emit ReporterBlock(_reporter);
-    }
+    //     emit ReporterBlock(_reporter);
+    // }
 
     /**
     * @dev Report 목록의 신고를 처리함
@@ -238,20 +239,56 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     * @param _reporter Reporter의 주소
     * @param _reword 리워드 지급 여부
     */
-    function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external {
-        require(apiAddress.apiReport == msg.sender);
+    // function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external {
+    //     require(apiAddress.apiReport == msg.sender);
 
-        uint256 rewordAmount;
-        if (_reword) {
-            rewordAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
+    //     uint256 rewordAmount;
+    //     if (_reword) {
+    //         rewordAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
+    //     }
+
+    //     IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
+
+    //     emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
+    // }
+
+    enum ReportDisposalType {CONTENT_BLOCK, WARNS_WRITER, PASS, DUPLICATE, WRONG_REPORT}
+
+    /**
+    * @dev 신고 목록을 처리함
+    * @param _index Report 인덱스 값
+    * @param _content 작품의 주소
+    * @param _reporter 신고자의 주소
+    * @param _type 처리 타입 : 0 작품 차단, 1 작가 경고, 2 신고 무효, 3 중복 신고, 4 잘못된 신고
+    */
+    function reportDisposal(uint256 _index, address _content, address _reporter, uint256 _type, string _description) external {
+        require(apiAddress.apiReport == msg.sender, "msg sender is not apiReport");
+
+        uint256 deductionAmount;
+
+        if (_type == uint256(ReportDisposalType.CONTENT_BLOCK)) {
+            //for Charles
+            //diposit 모두 차감, 리워드 1 지급
+            
+            //리포트 처리 완료 type 넘김
+            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
+        } else if (_type == uint256(ReportDisposalType.WARNS_WRITER)) {
+            //diposit 1차감 , 리워드 1 지급
+
+            //리포트 처리 완료 type 넘김
+            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
+        } else if ((_type == uint256(ReportDisposalType.PASS)) || (_type == uint256(ReportDisposalType.DUPLICATE))) {
+            //리포트 처리 완료 type 넘김
+            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
+        } else if (_type == uint256(ReportDisposalType.WRONG_REPORT)) {
+            //신고 예치금 1차감, 카운실 1전송
+            
+            //리포트 처리 완료 type 넘김
+            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
         }
 
-        IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
-
-        emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
+        emit ReportDisposal(TimeLib.currentTime(), _index, _content, _reporter, _type, _description, deductionAmount);
     }
-
-
 
 
     function getToken() external view returns (address token_) {

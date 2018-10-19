@@ -8,7 +8,6 @@ import "contracts/interface/IContent.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IDepositPool.sol";
 import "contracts/interface/IReport.sol";
-import "contracts/interface/IFundManager.sol";
 
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -65,16 +64,20 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @dev receiveApproval의 구현, token을 전송 받고 Content 별로 잔액을 기록함
     */
     function addDeposit(address _from, uint256 _value, address _token, bytes _data) private {
-        require(_data.length > 0);
+        require(council.getContentsManager() == _from, "msg sender is not contentManager");
+        require(_data.length > 0, "data is empty");
+        require(contentDeposit[content] == 0, "deposit not empty");
         ERC20 token = ERC20(council.getToken());
-        require(address(token) == _token);
-
+        require(address(token) == _token, "token abnormal");
 
         address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);
         token.safeTransferFrom(_from, address(this), _value);
+        
+        uint256 releaseDate = TimeLib.currentTime() + council.getDepositReleaseDelay().mul(1000);
+        setReleaseDate(content, releaseDate);
 
-        emit AddDeposit(_from, _value, _token);
+        emit AddDeposit(content, _value, _token);
     }
 
     /**
@@ -113,20 +116,23 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         validAddress(_reporter)
         returns(uint256)
     {
-        require(address(council) == msg.sender);
+        require(address(council) == msg.sender, "msg sender is not council");
 
         uint256 amount;
         if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
             amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
 
-            require(token.balanceOf(address(this)) >= amount);
+            require(token.balanceOf(address(this)) >= amount, "token balance abnormal");
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
             token.safeTransfer(_reporter, amount);
         } else {
             amount = 0;
         }
-        emit ReportReward(_content, _reporter, amount);
+        //todo
+        //emit ReportReward(_content, _reporter, amount);
+        //setReleaseDate 갱신
+        //emit DepositChange()
 
         return amount;
     }
@@ -143,39 +149,21 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         require(contentDeposit[_content] > 0, "contentDeposit is zero");
         address writer = IContent(_content).getWriter();
         require(writer == msg.sender, "msg sender is not writer");
+        require(possibleReleaseDate[_content] <= TimeLib.currentTime(), "releaseData setError");
+
         ERC20 token = ERC20(council.getToken());
         require(token.balanceOf(address(this)) >= contentDeposit[_content], "token balance abnormal");
-
-        IFundManager fund = IFundManager(council.getFundManager());
-
-        address fundAddress = fund.getFund(_content);
-
-        uint256 compareAmount;
+        
         uint256 amount = contentDeposit[_content];
-
-        (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
-
-        //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
-        for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-            compareAmount = compareAmount.add(supporterAmount[j]);
-            contentDeposit[_content] = contentDeposit[_content].sub(supporterAmount[j]);
-
-            token.safeTransfer(supporterAddress[j], supporterAmount[j]);
-            emit Release(_content, supporterAddress[j], supporterAmount[j]);
-        }
-        amount = amount.sub(compareAmount);
-
-        if (amount > 0) {
-            contentDeposit[_content] = contentDeposit[_content].sub(amount);
-
-            token.safeTransfer(writer, amount);
-            emit Release(_content, writer, amount);
-        }
-
-        require(contentDeposit[_content] == 0, "release deposit abnormal");
+        contentDeposit[_content] = 0;
+        token.safeTransfer(writer, amount);
+        
+        //todo
+        //emit Release(_content, writer, amount);
+        //emit DepositChange
+        
     }
 
-    event AddDeposit(address _from, uint256 _value, address _token);
-    event ReportReward(address _content, address _reporter, uint256 _amount);
-    event Release(address _content, address _to, uint256 _amount);
+    event AddDeposit(address content, uint256 _value, address _token);
+    event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _descripstion);
 }
