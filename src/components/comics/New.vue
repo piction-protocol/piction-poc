@@ -16,7 +16,7 @@
     components: {Form},
     data() {
       return {
-        comic: new Comic().toJSON(),
+        comic: new Comic()
       }
     },
     methods: {

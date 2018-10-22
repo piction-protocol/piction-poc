@@ -49,7 +49,7 @@
     components: {Item, Report},
     data() {
       return {
-        comic: new Comic().toJSON(),
+        comic: new Comic(),
         episodes: [],
         orderBy: 'desc'
       }

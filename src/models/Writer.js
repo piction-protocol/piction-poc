@@ -3,11 +3,4 @@ export default class Writer {
     this.address = address ? address.toLowerCase() : '';
     this.name = name;
   }
-
-  toJSON() {
-    return {
-      address: this.address,
-      name: this.name
-    };
-  }
 }

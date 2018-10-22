@@ -14,19 +14,4 @@ export default class Episode {
     this.status = status;
     this.createdAt = createdAt;
   }
-
-  toJSON() {
-    return {
-      key: this.key,
-      number: this.number,
-      title: this.title,
-      thumbnail: this.thumbnail,
-      price: this.price,
-      isPurchased: this.isPurchased,
-      cuts: this.cuts,
-      publishedAt: this.publishedAt,
-      status: this.status,
-      createdAt: this.createdAt,
-    };
-  }
 }

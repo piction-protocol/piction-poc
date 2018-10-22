@@ -17,7 +17,7 @@
     props: ['comic_id', 'episode_id'],
     data() {
       return {
-        episode: new Episode().toJSON(),
+        episode: new Episode()
       }
     },
     methods: {

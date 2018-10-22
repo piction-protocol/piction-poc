@@ -30,18 +30,4 @@ export default class Comic {
     {text: 'BL', value: 'BL'},
     {text: '성인', value: '성인'}
   ]
-
-  toJSON() {
-    return {
-      address: this.address,
-      title: this.title,
-      thumbnail: this.thumbnail,
-      genres: this.genres,
-      synopsis: this.synopsis,
-      purchasedCount: this.purchasedCount,
-      lastUploadedAt: this.lastUploadedAt,
-      createdAt: this.createdAt,
-      writer: this.writer
-    };
-  }
 }
