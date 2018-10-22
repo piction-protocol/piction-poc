@@ -7,6 +7,7 @@ import "contracts/interface/IContent.sol";
 import "contracts/interface/IContentsManager.sol";
 import "contracts/interface/IFundManager.sol";
 import "contracts/interface/IAccountManager.sol";
+import "contracts/token/CustomToken.sol";
 
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
@@ -62,7 +63,7 @@ contract AccountManager is IAccountManager, ValidValue {
         addressToIndex[_wallet] = account.length.sub(1);
 
         if (airdropAmount > 0 && token.balanceOf(address(this)) >= airdropAmount) {
-            token.safeTransfer(msg.sender, airdropAmount);
+            CustomToken(address(token)).transferPxl(msg.sender, airdropAmount, "에어드롭 픽셀 입금");
         }
 
         emit RegisterNewAccount(account.length.sub(1), _wallet, _userName);
