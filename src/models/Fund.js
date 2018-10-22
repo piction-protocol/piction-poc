@@ -2,8 +2,8 @@ import Comic from '@models/Comic'
 
 export default class Fund {
   constructor(address,
-              startTime,
-              endTime,
+              startTime = 0,
+              endTime = 0,
               rise = 0,
               maxcap = 0,
               softcap = 0,
@@ -11,7 +11,7 @@ export default class Fund {
               max = 0,
               poolSize = 3,
               interval = 1,
-              firstDistributionTime,
+              firstDistributionTime = 0,
               distributionRate = 0.01,
               detail) {
     this.address = address ? address.toLowerCase() : '';

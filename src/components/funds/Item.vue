@@ -5,7 +5,8 @@
     <div class="fund-info">
       <div class="mt-2">
         <b-badge variant="secondary bg-dark">{{fund.comic.genres}}</b-badge>
-        <b-badge v-if="!disableLabel" variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}</b-badge>
+        <b-badge v-if="$route.hash != '#closed'" variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}
+        </b-badge>
       </div>
       <div class="title-text mt-2">{{fund.comic.title}}</div>
       <div class="writer-text mt2">{{fund.comic.writer.name}}</div>
@@ -34,7 +35,7 @@
   import Web3Utils from '@utils/Web3Utils'
 
   export default {
-    props: ['fund', 'disableLabel'],
+    props: ['fund'],
     computed: {
       rise() {
         return Number(this.$utils.toPXL(this.fund.rise));
@@ -64,9 +65,8 @@
     },
     methods: {
       async setEvent() {
-//        const supportEvent = this.$contract.fund.getContract(this.fund.fund).events
-//          .Support({fromBlock: 'latest'}, () => this.$parent.init());
-//        this.events.push(supportEvent);
+        this.web3Events.push(this.$contract.fund.getContract(this.fund.address).events
+          .Support({fromBlock: 'latest'}, () => this.$parent.setFunds()));
       },
     },
     created() {

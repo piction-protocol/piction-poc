@@ -50,11 +50,7 @@ const router = new Router({
     {path: '/comics/:comic_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
     {path: '/comics/:comic_id/episodes/:episode_id/edit', name: 'edit-episode', component: EpisodeEdit, props: true},
     // trends
-    {
-      path: '/funds', name: 'funds', component: FundIndex,
-      props: (route) => ({filter: route.query.filter})
-    },
-    // funds
+    {path: '/funds', name: 'funds', component: FundIndex},// funds
     {path: '/comics/:comic_id/funds/new', name: 'new-fund', component: FundNew, props: true},
     {path: '/comics/:comic_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
     // my
