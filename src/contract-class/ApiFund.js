@@ -42,8 +42,30 @@ class ApiFund {
       funds.push(fund);
     });
     const rises = await this.getFundRise(funds.map(fund => fund.address));
-    events.map((event, i) => event.rise = rises[i]);
+    funds.map((fund, i) => fund.rise = rises[i]);
     return funds;
+  }
+
+  async getFund(vue, address) {
+    let result = await this._contract.methods.getFundInfo(address).call();
+    result = Web3Utils.prettyJSON(result);
+    let fund = new Fund();
+    fund.address = address;
+    fund.startTime = result.startTime;
+    fund.endTime = result.endTime;
+    fund.maxcap = result.limit[0];
+    fund.softcap = result.limit[1];
+    fund.min = result.limit[2];
+    fund.max = result.limit[3];
+    fund.poolSize = result.poolSize;
+    fund.interval = result.releaseInterval;
+    fund.firstDistributionTime = result.supportFirstTime;
+    fund.distributionRate = result.distributionRate;
+    fund.detail = result.detail;
+    fund.rise = result.fundRise;
+    let comic = await vue.$contract.apiContents.getComic(result.content)
+    fund.setComic(comic);
+    return fund;
   }
 
   // 펀드 등록
@@ -72,36 +94,13 @@ class ApiFund {
     return await this._contract.methods.getFundRise(funds).call();
   }
 
-
-  // 여기까지
-  /**
-   * 펀드 상세 정보 조회
-   * @param {Address} fund - 펀드 주소
-   * @returns {Fund} - 펀드 상세 정보
-   */
-  async fundInfo(fund) {
-    var fund = await this._contract.methods.fundInfo(fund).call();
-    return Web3Utils.prettyJSON(fund);
-  }
-
-  /**
-   *  서포터 정보 조회
-   * @param {Address} fund - 펀드 주소
-   * @returns {Support.<Array>} - 펀드 상세 정보
-   */
-  async getSupporters(fund) {
-    var supporters = await this._contract.methods.getSupporters(fund).call();
-    return Web3Utils.jsonToArray(supporters);
-  }
-
-  /**
-   * 서포터 풀 정보 조회
-   * @param {Address} fund - 펀드 주소
-   * @returns {Distribution.<Array>} - 서포터 풀 정보
-   */
-  async getDistributions(fund) {
-    var distributions = await this._contract.methods.getDistributions(fund).call();
-    return Web3Utils.jsonToArray(distributions);
+  // 서포터 목록 조회
+  async getSupporters(vue, fund) {
+    let supporters = await this._contract.methods.getSupporters(fund).call();
+    supporters = Web3Utils.jsonToArray(supporters);
+    let writers = await vue.$contract.accountManager.getUserNames(supporters.map(s => s.user));
+    supporters.forEach((supporter, index) => supporter.userName = writers[index]);
+    return supporters;
   }
 
   endFund(fund) {

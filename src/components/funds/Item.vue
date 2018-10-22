@@ -16,7 +16,8 @@
           <b-progress :max="maxcap" height="5px" variant="dark">
             <b-progress-bar :value="rise"></b-progress-bar>
           </b-progress>
-          <b-progress v-if="rise < softcap" :max="maxcap" height="5px" variant="dark" class="position-absolute w-100"
+          <b-progress v-if="rise < softcap"
+                      :max="maxcap" height="5px" variant="dark" class="position-absolute w-100"
                       style="top:0; opacity: 0.15">
             <b-progress-bar variant="danger" :value="softcap"></b-progress-bar>
           </b-progress>
@@ -24,7 +25,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-end"><span class="rise-pxl-text">{{rise.toFixed(2)}}</span>
             <span class="symbol-text ml-1">PXL raised</span></div>
-          <div class="percent-text">{{percent}}%</div>
+          <div class="percent-text">{{fund.getRisePercent()}}%</div>
         </div>
       </div>
     </div>
@@ -45,9 +46,6 @@
       },
       maxcap() {
         return Number(this.$utils.toPXL(this.fund.maxcap));
-      },
-      percent() {
-        return (this.rise / this.maxcap * 100).toFixed(0);
       },
       riseTooltip() {
         return `Softcap ${this.softcap} PXL\nMaxcap ${this.maxcap} PXL`;

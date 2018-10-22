@@ -32,7 +32,7 @@
       },
     },
     created() {
-      this.comic.genres = genres[0].value
+      this.comic.genres = Comic.genres[0].value
     }
   }
 </script>

@@ -28,9 +28,16 @@ export default class Fund {
     this.distributionRate = Number(distributionRate);
     this.detail = detail;
     this.comic = new Comic();
+    this.supporters = [];
+  }
+  
+  getRisePercent() {
+    return (this.rise / this.maxcap * 100).toFixed(0);
   }
 
   setComic(comic) {
     this.comic = comic;
   }
 }
+
+Object.prototype

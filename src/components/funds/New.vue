@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-alert show variant="secondary">작품명: {{content ? `${content.record.title}` : ''}}</b-alert>
+    <b-alert show variant="secondary">작품명: {{fund.comic.title}}</b-alert>
     <b-form @submit="onSubmit">
       <b-form-group label="모집 시작 일시:"
                     label-for="startTime">
@@ -9,7 +9,7 @@
           required
           type="datetime"
           hidden-name="Enter start time"
-          v-model="record.startTime"
+          v-model="fund.startTime"
           input-class="form-control"></datetime>
       </b-form-group>
 
@@ -20,7 +20,7 @@
           required
           type="datetime"
           hidden-name="Enter end time"
-          v-model="record.endTime"
+          v-model="fund.endTime"
           input-class="form-control"/>
       </b-form-group>
 
@@ -31,7 +31,7 @@
           required
           type="number"
           hidden-name="Enter softcap"
-          v-model="record.softcap"
+          v-model="fund.softcap"
           min="10"
           class="form-control"/>
       </b-form-group>
@@ -42,41 +42,76 @@
           id="maxcap"
           required
           type="number"
-          :min="record.softcap"
+          :min="fund.softcap"
           hidden-name="Enter maxcap"
-          v-model="record.maxcap"
+          v-model="fund.maxcap"
           class="form-control"/>
       </b-form-group>
 
-      <b-form-group :label="`회수 횟수: ${record.poolSize}`"
+      <b-form-group label="min:"
+                    label-for="min">
+        <input
+          id="min"
+          required
+          type="number"
+          :min="1"
+          hidden-name="Enter min"
+          v-model="fund.min"
+          class="form-control"/>
+      </b-form-group>
+
+      <b-form-group label="max:"
+                    label-for="max">
+        <input
+          id="max"
+          required
+          type="number"
+          :min="fund.min"
+          hidden-name="Enter max"
+          v-model="fund.max"
+          class="form-control"/>
+      </b-form-group>
+
+      <b-form-group :label="`회수 횟수: ${fund.poolSize}`"
                     label-for="poolSize"
                     description="">
         <b-form-input id="poolSize"
                       required
                       type="range"
-                      v-model="record.poolSize"
+                      v-model="fund.poolSize"
                       min="3" max="12" step="1">
         </b-form-input>
       </b-form-group>
 
-      <b-form-group :label="`회수 간격: ${record.interval} 시간`"
+      <b-form-group :label="`회수 간격: ${fund.interval} 시간`"
                     label-for="interval"
                     description="">
         <b-form-input id="interval"
                       required
                       type="range"
-                      v-model="record.interval"
+                      v-model="fund.interval"
                       min="1" max="720" step="1">
         </b-form-input>
       </b-form-group>
 
-      <b-form-group :label="`보상 분배 비율: ${$utils.toPercent(record.distributionRate)}%`"
+      <b-form-group label="첫 분배:"
+                    label-for="firstDistributionTime">
+        <datetime
+          id="firstDistributionTime"
+          required
+          type="datetime"
+          hidden-name="Enter first distribution time"
+          v-model="fund.firstDistributionTime"
+          input-class="form-control"></datetime>
+      </b-form-group>
+
+      <b-form-group :label="`보상 분배 비율: ${$utils.toPercent(fund.distributionRate)}%`"
                     label-for="distributionRate"
                     description="">
         <b-form-input id="distributionRate"
                       required
                       type="range"
-                      v-model="record.distributionRate"
+                      v-model="fund.distributionRate"
                       min="0.01" max="0.5" step="0.001">
         </b-form-input>
       </b-form-group>
@@ -87,7 +122,7 @@
         <b-form-textarea id="description"
                          required
                          type="text"
-                         v-model="record.description"
+                         v-model="fund.detail"
                          placeholder=""
                          :rows="2"
                          :max-rows="3">
@@ -105,14 +140,13 @@
 <script>
   import moment from 'moment';
   import {Datetime} from 'vue-datetime';
-  import {record as _record} from './helper';
+  import Fund from '@models/Fund';
 
   export default {
-    props: ['content_id'],
+    props: ['comic_id'],
     data() {
       return {
-        content: null,
-        record: _record()
+        fund: new Fund()
       }
     },
     methods: {
@@ -121,16 +155,17 @@
         let hour = 60 * 60 * 1000;
         let loader = this.$loading.show();
         try {
-          await this.$contract.apiFund.addFund(
-            this.content_id,
-            new Date(this.record.startTime).getTime(),
-            new Date(this.record.endTime).getTime(),
-            this.record.maxcap,
-            this.record.softcap,
-            this.record.poolSize,
-            this.record.interval * hour,
-            this.record.distributionRate,
-            this.record.description);
+          await this.$contract.apiFund.createFund(this.comic_id, this.fund);
+//          await this.$contract.apiFund.createFund(
+//            this.content_id,
+//            new Date(this.fund.startTime).getTime(),
+//            new Date(this.fund.endTime).getTime(),
+//            this.fund.maxcap,
+//            this.fund.softcap,
+//            this.fund.poolSize,
+//            this.fund.interval * hour,
+//            this.fund.distributionRate,
+//            this.fund.description);
           this.$router.push({name: 'show-my-content', params: {content_id: this.content_id}});
         } catch (e) {
           alert(e);
@@ -139,7 +174,6 @@
       }
     },
     async created() {
-      this.content = await this.$contract.apiContents.getContentsDetail(this.content_id);
     }
   }
 </script>

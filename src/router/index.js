@@ -52,7 +52,7 @@ const router = new Router({
     // trends
     {path: '/funds', name: 'funds', component: FundIndex},// funds
     {path: '/comics/:comic_id/funds/new', name: 'new-fund', component: FundNew, props: true},
-    {path: '/comics/:comic_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
+    {path: '/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
     // my
     {
       path: '/my', component: MyIndex,
