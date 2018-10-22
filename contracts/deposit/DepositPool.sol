@@ -86,7 +86,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @dev Content 별 쌓여있는 Deposit의 양을 반환함
     * @param _content 작품의 주소
     */
-    function getDeposit(address _content) external view returns(uint256) {
+    function getDeposit(address _content) external view returns(uint256 depositAmount_) {
         return contentDeposit[_content];
     }
 
