@@ -284,6 +284,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         external
         view
         returns (
+            address content_,
             uint256 startTime_,
             uint256 endTime_,
             uint256[] memory limit_,
@@ -294,6 +295,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
             uint256 distributionRate_,
             string detail_)
     {
+        content_ = content;
         startTime_ = startTime;
         endTime_ = endTime;
         limit_ = new uint256[](4);
