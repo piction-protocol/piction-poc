@@ -16,7 +16,7 @@ class ApiContents {
   }
 
   // 작품 목록 조회
-  async getComics(accountManagerContract) {
+  async getComics(vue) {
     let result = await this._contract.methods.getComics().call();
     result = Web3Utils.prettyJSON(result);
     if (result.comicAddress.length == 0) {
@@ -24,7 +24,7 @@ class ApiContents {
     } else {
       let comics = [];
       let records = JSON.parse(web3.utils.hexToUtf8(result.records));
-      let writerNames = await accountManagerContract.getUserNames(result.writer);
+      let writerNames = await vue.$contract.accountManager.getUserNames(result.writer);
       records.forEach((record, i) => {
         let comic = new Comic(
           result.comicAddress[i],
@@ -34,7 +34,7 @@ class ApiContents {
           result.contentCreationTime[i]
         );
         comic.setWriter(result.writer[i], writerNames[i]);
-        comics.push(comic.toJSON());
+        comics.push(comic);
       });
       return comics;
     }
@@ -46,7 +46,7 @@ class ApiContents {
     result = Web3Utils.prettyJSON(result);
     let comic = new Comic(address, JSON.parse(result.records))
     comic.setWriter(result.writer, result.writerName);
-    return comic.toJSON();
+    return comic;
   };
 
   // 에피소드 목록 조회
@@ -68,7 +68,7 @@ class ApiContents {
           undefined, undefined, undefined,
           result.episodeCreationTime[i]
         );
-        episodes.push(episode.toJSON());
+        episodes.push(episode);
       });
       return episodes;
     }
@@ -88,7 +88,7 @@ class ApiContents {
       new Date(Number(result.publishDate)),
       result.isPublished
     )
-    return episode.toJSON();
+    return episode;
   }
 
   // 작품 등록

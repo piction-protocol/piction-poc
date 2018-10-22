@@ -43,7 +43,7 @@
     },
     methods: {
       async setComics() {
-        let comics = await this.$contract.apiContents.getComics(this.$contract.accountManager);
+        let comics = await this.$contract.apiContents.getComics(this);
         this.comics = comics.reverse();
       },
       setEvents() {
