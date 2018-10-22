@@ -104,7 +104,6 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
             require(token.balanceOf(address(this)) >= amount);
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
-            //token.safeTransfer(_reporter, amount);
             CustomToken(address(token)).transferPxl(_reporter, amount, "신고 활동 보상금");
         } else {
             amount = 0;
