@@ -193,7 +193,7 @@ contract SupporterPool is Ownable, ISupporterPool {
             if (distributable(funds[_fund][i])) {
                 funds[_fund][i].distributedTime = TimeLib.currentTime();
                 funds[_fund][i].state = State.PAID;
-                CustomToken(address(token)).transferPxl(funds[_fund][i].writer, funds[_fund][i].amount, "투자 모금액 수령 : " + i + "회차");
+                CustomToken(address(token)).transferPxl(funds[_fund][i].writer, funds[_fund][i].amount, "투자 모금액 수령");
 
                 emit ReleaseDistribution(_fund, funds[_fund][i].amount);
             }

@@ -93,7 +93,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         compareAmount = compareAmount.sub(tempVar);
         distribution.push(
             DistributionDetail(
-                tempVal, false, _contentDistributor, address(0), "CD 플랫폼 수수료"
+                tempVar, false, _contentDistributor, address(0), "CD 플랫폼 수수료"
             )
         );
 
@@ -102,7 +102,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         compareAmount = compareAmount.sub(tempVar);
         distribution.push(
             DistributionDetail(
-                tempVal, true, council.getUserPaybackPool(), _buyerAddress, ""
+                tempVar, true, council.getUserPaybackPool(), _buyerAddress, ""
             )
         );
 

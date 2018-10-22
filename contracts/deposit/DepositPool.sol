@@ -10,6 +10,7 @@ import "contracts/interface/IDepositPool.sol";
 import "contracts/interface/IReport.sol";
 import "contracts/interface/IFundManager.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -67,7 +68,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
-        string memory message = (_from == council.getPixelDistributor241())? "에피소드 판매 적립금" : "작품 초기 보증금 예치";
+        string memory message = (_from == council.getPixelDistributor())? "에피소드 판매 적립금" : "작품 초기 보증금 예치";
 
         address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);

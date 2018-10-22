@@ -78,7 +78,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
 
         registrationFee[_from].amount = _value;
         registrationFee[_from].lockTime = TimeLib.currentTime().add(interval);
-        CustomToken(address(token)).tranferFromPxl(_from, address(this), _value, "신고 보증금 예치");
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "신고 보증금 예치");
 
         emit RegistrationFee(_from, _value, _token);
     }
@@ -223,7 +223,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         uint256 tempAmount = registrationFee[_reporter].amount;
 
         registrationFee[_reporter].amount = 0;
-        CustomTokne(address(token)).transferPxl(_reporter, tempAmount, "신고 보증금 환불");
+        CustomToken(address(token)).transferPxl(_reporter, tempAmount, "신고 보증금 환불");
 
         emit WithdrawRegistration(_reporter, tempAmount);
     }
