@@ -26,7 +26,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     struct PictionRate {
         uint256 cdRate;
         uint256 userPaybackRate;
-        uint256 reportRewardRate;
     }
 
     struct PictionAddress {
@@ -96,14 +95,13 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function initialRate(
         uint256 _cdRate,
-        uint256 _userPaybackRate,
-        uint256 _reportRewardRate)
+        uint256 _userPaybackRate)
         external onlyOwner
     {
 
-        pictionRate = PictionRate(_cdRate, _userPaybackRate, _reportRewardRate);
+        pictionRate = PictionRate(_cdRate, _userPaybackRate);
 
-        emit InitialRate(_cdRate, _userPaybackRate, _reportRewardRate);
+        emit InitialRate(_cdRate, _userPaybackRate);
     }
 
     function initialPictionAddress(
@@ -172,7 +170,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
              address[] pictionAddress_, address[] managerAddress_, address[] apiAddress_, bool fundAvailable_)
     {
         pictionValue_ = new uint256[](3);
-        pictionRate_ = new uint256[](3);
+        pictionRate_ = new uint256[](2);
         pictionAddress_ = new address[](5);
         managerAddress_ = new address[](3);
         apiAddress_ = new address[](3);
@@ -186,7 +184,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
         pictionRate_[0] = pictionRate.cdRate;
         pictionRate_[1] = pictionRate.userPaybackRate;
-        pictionRate_[2] = pictionRate.reportRewardRate;
 
         pictionAddress_[0] = pictionAddress.userPaybackPool;
         pictionAddress_[1] = pictionAddress.depositPool;
@@ -250,42 +247,38 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
     //     emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
     // }
 
-    enum ReportDisposalType {CONTENT_BLOCK, WARNS_WRITER, PASS, DUPLICATE, WRONG_REPORT}
+    enum ReportDisposalType {DEFAULT, CONTENT_BLOCK, WARNS_WRITER, PASS, DUPLICATE, WRONG_REPORT}
 
     /**
     * @dev 신고 목록을 처리함
     * @param _index Report 인덱스 값
     * @param _content 작품의 주소
     * @param _reporter 신고자의 주소
-    * @param _type 처리 타입 : 0 작품 차단, 1 작가 경고, 2 신고 무효, 3 중복 신고, 4 잘못된 신고
+    * @param _type 처리 타입 : 1 작품 차단, 2 작가 경고, 3 신고 무효, 4 중복 신고, 5 잘못된 신고
+    * @param _description 처리내역
     */
-    function reportDisposal(uint256 _index, address _content, address _reporter, uint256 _type, string _description) external {
+    function reportDisposal(uint256 _index, address _content, address _reporter, uint256 _type, string _description) 
+        external 
+        returns (uint256 deductionAmount_) 
+    {
         require(apiAddress.apiReport == msg.sender, "msg sender is not apiReport");
 
-        uint256 deductionAmount;
+        if ((_type == uint256(ReportDisposalType.CONTENT_BLOCK)) || (_type == uint256(ReportDisposalType.WARNS_WRITER))) {
+            bool contentBlock;
+            (deductionAmount_, contentBlock) = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter, _type, _description);        
+            if (contentBlock) {
+                contentBlocking(_content, true);
+            }
 
-        if (_type == uint256(ReportDisposalType.CONTENT_BLOCK)) {
-            contentBlocking(_content, true);
-            //diposit 모두 차감, 리워드 1 지급
-            
-            //리포트 처리 완료 type 넘김
-            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
-        } else if (_type == uint256(ReportDisposalType.WARNS_WRITER)) {
-            //diposit 1차감 , 리워드 1 지급
-
-            //리포트 처리 완료 type 넘김
-            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
-        } else if ((_type == uint256(ReportDisposalType.PASS)) || (_type == uint256(ReportDisposalType.DUPLICATE))) {
-            //리포트 처리 완료 type 넘김
-            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
+            IReport(pictionAddress.report).completeReport(_index, _type, deductionAmount_);
         } else if (_type == uint256(ReportDisposalType.WRONG_REPORT)) {
             //신고 예치금 1차감, 카운실 1전송
-            
-            //리포트 처리 완료 type 넘김
-            //IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
+            deductionAmount_ = IReport(pictionAddress.report).deduction(_reporter);
         }
 
-        emit ReportDisposal(TimeLib.currentTime(), _index, _content, _reporter, _type, _description, deductionAmount);
+        IReport(pictionAddress.report).completeReport(_index, _type, deductionAmount_);
+
+        emit ReportDisposal(TimeLib.currentTime(), _index, _content, _reporter, _type, _description, deductionAmount_);
     }
 
     function contentBlocking(address _contentAddress, bool _isBlocked) public {
@@ -321,10 +314,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
 
     function getUserPaybackRate() external view returns (uint256 userPaybackRate_) {
         return pictionRate.userPaybackRate;
-    }
-
-    function getReportRewardRate() view external returns (uint256 reportRewardRate_) {
-        return pictionRate.reportRewardRate;
     }
 
     function getUserPaybackPool() external view returns (address userPaybackPool_) {

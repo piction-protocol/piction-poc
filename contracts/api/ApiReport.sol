@@ -4,6 +4,7 @@ import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IReport.sol";
 
 import "contracts/utils/ValidValue.sol";
+import "contracts/utils/TimeLib.sol";
 
 contract ApiReport is ValidValue {
 
@@ -47,48 +48,43 @@ contract ApiReport is ValidValue {
     }
 
     /**
-    * @dev 문제가 있는 신고자 처리
-    * @param _reporter 막을 대상
-    * @param _deduction 신고자 보증금 차감
-    * @param _block 신고자 추가 신고 막음
+    * @dev 신고 목록을 처리함
+    * @param _index Report 인덱스 값
+    * @param _content 작품의 주소
+    * @param _reporter 신고자의 주소
+    * @param _type 처리 타입 : 1 작품 차단, 2 작가 경고, 3 신고 무효, 4 중복 신고, 5 잘못된 신고
+    * @param _description 처리내역
     */
-    function reporterJudge(address _reporter, bool _deduction, bool _block) external validAddress(_reporter) {
-        require(council.isMember(msg.sender));
-        if (_deduction) {
-            council.reporterDeduction(_reporter);
-        }
+    function reportDisposal(uint256 _index, address _content, address _reporter, uint256 _type, string _description) 
+        external 
+        validAddress(_content)
+        validAddress(_reporter)
+    {
+        require(council.isMember(msg.sender), "msg sender is not council member");
+        require(_type > 0 && _type < 6, "out of type");
 
-        if (_block) {
-            council.reporterBlock(_reporter);
-        }
+        uint256 deductionAmount;
+        deductionAmount = council.reportDisposal(_index, _content, _reporter, _type, _description);
+        emit ReportDisposal(TimeLib.currentTime(), _index, _content, _reporter, _type, _description, deductionAmount);
     }
 
-    /**
-    * @dev Report 목록의 신고를 처리함
-    * @param _index Report의 reports 인덱스 값
-    * @param _content Content의 주소
-    * @param _reporter Reporter의 주소
-    * @param _reword 리워드 지급 여부
-    */
-    function reportProcess(uint256 _index, address _content, address _reporter, bool _reword) external validAddress(_reporter) {
-        require(council.isMember(msg.sender));
-        council.reportReword(_index, _content, _reporter, _reword);
-    }
+    event ReportDisposal(uint256 _date, uint256 _index, address indexed _content, address indexed _reporter, uint256 _type, string _description, uint256 _deductionAmount);
 
     /**
-    * @dev 신고 목록의 id 값으로 처리여부, 보상 토큰량을 회신함
+    * @dev 신고 목록의 id 값으로 처리여부, 처리타입, 보상 토큰량을 회신함
     * @param ids 신고 id 목록
     */
     function getReportResult(uint256[] ids)
         external
         view
-        returns(bool[] memory complete_, uint256[] memory completeAmount_)
+        returns(uint256[] memory completeDate_, uint256[] memory completeType_, uint256[] memory completeAmount_)
     {
-        complete_ = new bool[](ids.length);
+        completeDate_ = new uint256[](ids.length);
+        completeType_ = new uint256[](ids.length);
         completeAmount_ = new uint256[](ids.length);
 
         for(uint i = 0; i < ids.length; i++) {
-            (,,,complete_[i],, completeAmount_[i]) = IReport(council.getReport()).getReport(ids[i]);
+            (,,,,completeDate_[i],completeType_[i], completeAmount_[i]) = IReport(council.getReport()).getReport(ids[i]);
         }
     }
 }

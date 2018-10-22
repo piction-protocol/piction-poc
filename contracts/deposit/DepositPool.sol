@@ -80,6 +80,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         emit AddDeposit(content, _value, _token);
     }
 
+    event AddDeposit(address content, uint256 _value, address _token);
+
     /**
     * @dev Content 별 쌓여있는 Deposit의 양을 반환함
     * @param _content 작품의 주소
@@ -106,39 +108,51 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     }
     
     /**
-    * @dev 위원회가 호출하는 보상지급 처리
+    * @dev 위원회가 호출하는 보증금 차감 및 신고자 보상 처리
     * @param _content 신고한 작품 주소
     * @param _reporter 신고자 주소
+    * @param _type 처리 타입, 1 : 전액 차감, 2 : 1PXL 차감
     */
-    function reportReward(address _content, address _reporter)
+    function reportReward(address _content, address _reporter, uint256 _type, string _descripstion)
         external
         validAddress(_content)
         validAddress(_reporter)
-        returns(uint256)
+        returns(uint256 deduction_, bool contentBlock_)
     {
         require(address(council) == msg.sender, "msg sender is not council");
+        require(_type < 2, "out of type");
 
-        uint256 amount;
-        if (contentDeposit[_content] > 0) {
+        uint256 rewardOnePXL;
+
+        if (contentDeposit[_content] > rewardOnePXL) {
             ERC20 token = ERC20(council.getToken());
-            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
+            rewardOnePXL = 1 ** DECIMALS;
 
-            require(token.balanceOf(address(this)) >= amount, "token balance abnormal");
-            contentDeposit[_content] = contentDeposit[_content].sub(amount);
-            token.safeTransfer(_reporter, amount);
+            if (_type == 1) {
+                deduction_ = contentDeposit[_content].sub(rewardOnePXL);
+                contentDeposit[_content] = 0;
+                contentBlock_ = true;
+            } else if (_type == 2) {
+                if (contentDeposit[_content].sub(rewardOnePXL) == 0) {
+                    contentBlock_ = true;
+                }
+                contentDeposit[_content] = contentDeposit[_content].sub(rewardOnePXL);
+            }
+
+            require(token.balanceOf(address(this)) >= deduction_ + rewardOnePXL, "token balance abnormal");
+            if ((deduction_ + rewardOnePXL) > 0) { 
+                token.safeTransfer(_reporter, rewardOnePXL);
+                token.safeTransfer(address(council), deduction_);
+            }
+            
+            deduction_ = deduction_ + rewardOnePXL;
         } else {
-            amount = 0;
+            deduction_ = 0;
         }
-        //todo
-        //emit ReportReward(_content, _reporter, amount);
-        //setReleaseDate 갱신
-        //emit DepositChange()
 
-        return amount;
-    }
+        setReleaseDate(_content, TimeLib.currentTime() + council.getDepositReleaseDelay().mul(1000));
 
-    function getReportRate(address _content) external view returns(uint256) {
-        return contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
+        emit DepositChange(TimeLib.currentTime(), _content, _type, deduction_, _descripstion);
     }
 
     /**
@@ -158,12 +172,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         contentDeposit[_content] = 0;
         token.safeTransfer(writer, amount);
         
-        //todo
-        //emit Release(_content, writer, amount);
-        //emit DepositChange
-        
+        emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 예치금 회수");
     }
 
-    event AddDeposit(address content, uint256 _value, address _token);
     event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _descripstion);
 }

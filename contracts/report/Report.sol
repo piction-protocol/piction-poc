@@ -37,11 +37,12 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
 
     //신고내용과 처리유무
     struct ReportData {
+        uint256 reportDate;
         address content;
         address reporter;
         string detail;
-        bool complete;
-        bool completeValid;
+        uint256 completeDate;
+        uint256 completeType;
         uint256 completeAmount;
     }
     //신고 목록
@@ -96,9 +97,9 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         require(registrationFee[reporter].amount > 0);
         require(registrationFee[reporter].blockTime < TimeLib.currentTime());
 
-        reports.push(ReportData(_content, reporter, _detail, false, false, 0));
+        reports.push(ReportData(TimeLib.currentTime(), _content, reporter, _detail, 0, 0, 0));
 
-        emit SendReport(reports.length-1, _content, reporter, _detail);
+        emit SendReport(TimeLib.currentTime(), reports.length-1, _content, reporter, _detail);
     }
 
     /**
@@ -108,15 +109,16 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     function getReport(uint256 _index)
         external
         view
-        returns(address content_, address reporter_, string detail_, bool complete_, bool completeValid_, uint256 completeAmount_)
+        returns(uint256 reportDate_, address content_, address reporter_, string detail_, uint256 completeDate_, uint256 completeType, uint256 completeAmount_)
     {
         return
         (
+            reports[_index].reportDate,
             reports[_index].content,
             reports[_index].reporter,
             reports[_index].detail,
-            reports[_index].complete,
-            reports[_index].completeValid,
+            reports[_index].completeDate,
+            reports[_index].completeType,
             reports[_index].completeAmount
         );
     }
@@ -139,8 +141,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     */
     function getUncompletedReport(address _content) external view returns(uint256 count) {
         for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].content == _content
-                && reports[i].complete == false) {
+            if (reports[i].content == _content && reports[i].completeDate != 0) {
                 count = count.add(1);
             }
         }
@@ -152,8 +153,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     */
     function getUncompletedReporter(address _reporter) private view returns(uint256 count) {
         for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].reporter == _reporter
-                && reports[i].complete == false) {
+            if (reports[i].reporter == _reporter && reports[i].completeDate != 0) {
                 count = count.add(1);
             }
         }
@@ -162,19 +162,20 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     /**
     * @dev 신고 처리 완료 후 호출하는 메소드, deduction나 DepositPool의 reportReward 처리 후 호출
     * @param _index 신고 목록의 인덱스
-    * @param _reword 신고 리워드를 받았는가?
-    * @param _rewordAmount 리워드 금액
+    * @param _type 신고처리 타입 / 1 작품 차단, 2 작가 경고, 3 신고 무효, 4 중복 신고, 5 잘못된 신고
+    * @param _deductionAmount 변경된 관련 금액
     */
-    function completeReport(uint256 _index, bool _reword, uint256 _rewordAmount) external {
-        require(msg.sender == address(council));
-        require(_index < reports.length);
-        require(!reports[_index].complete);
+    function completeReport(uint256 _index, uint256 _type, uint256 _deductionAmount) external {
+        require(msg.sender == address(council), "msg sender is not council");
+        require(_index < reports.length, "out of index");
+        require(reports[_index].completeDate == 0, "already complete");
+        require(_type != 0, "type error");
 
-        reports[_index].complete = true;
-        reports[_index].completeValid = _reword;
-        reports[_index].completeAmount = _rewordAmount;
+        reports[_index].completeDate = TimeLib.currentTime();
+        reports[_index].completeType = _type;
+        reports[_index].completeAmount = _deductionAmount;
 
-        emit CompleteReport(_index, reports[_index].detail, _reword, _rewordAmount);
+        emit CompleteReport(reports[_index].reportDate, reports[_index].completeDate, _index, reports[_index].content, reports[_index].reporter, reports[_index].detail, _type, _deductionAmount);
     }
 
     /**
@@ -252,9 +253,9 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     event RegistrationFee(address _from, uint256 _value, address _token);
-    event SendReport(uint256 indexed _id, address indexed _content, address indexed _from, string _detail);
+    event SendReport(uint256 _date, uint256 indexed _id, address indexed _content, address indexed _from, string _detail);
     event WithdrawRegistration(address _to, uint256 _amount);
-    event CompleteReport(uint256 _index, string _detail, bool _valid, uint256 _resultAmount);
+    event CompleteReport(uint256 _reportDate, uint256 _completeDate, uint256 indexed _index, address indexed _content, address indexed _reporter, string _detail, uint256 _type, uint256 _deductionAmount);
     event Deduction(address _reporter, uint256 _amount);
     event ReporterBlock(address _reporter, uint256 _blockTime);
 
