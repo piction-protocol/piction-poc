@@ -134,6 +134,7 @@ contract ApiFund is ValidValue {
         external
         view
         returns (
+            address content_,
             uint256 startTime_,
             uint256 endTime_,
             uint256[] memory limit_,
@@ -155,7 +156,7 @@ contract ApiFund is ValidValue {
         fundRise_ = new uint256[](_funds.length);
 
         for(uint i = 0; i < _funds.length; i++) {
-            (,,,fundRise_[i],,,,,) = IFund(_funds[i]).getFundInfo();
+            (,,,,fundRise_[i],,,,,) = IFund(_funds[i]).getFundInfo();
         }
     }
 
