@@ -15,8 +15,8 @@ export default class Fund {
               distributionRate = 0.01,
               detail) {
     this.address = address ? address.toLowerCase() : '';
-    this.startTime = startTime;
-    this.endTime = endTime;
+    this.startTime = Number(startTime);
+    this.endTime = Number(endTime);
     this.rise = Number(rise);
     this.maxcap = Number(maxcap);
     this.softcap = Number(softcap);
@@ -24,7 +24,7 @@ export default class Fund {
     this.max = Number(max);
     this.poolSize = Number(poolSize);
     this.interval = Number(interval);
-    this.firstDistributionTime = firstDistributionTime;
+    this.firstDistributionTime = Number(firstDistributionTime);
     this.distributionRate = Number(distributionRate);
     this.detail = detail;
     this.comic = new Comic();
