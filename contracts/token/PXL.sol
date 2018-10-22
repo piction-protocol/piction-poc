@@ -63,6 +63,12 @@ contract PXL is ERC20, CustomToken, ExtendsOwnable {
         return super.transferFrom(_from, _to, _value);
     }
 
+    function transferFromPxl(address _from, address _to, uint256 _value, string message) public returns (bool) {
+        this.transferFrom(_from, _to, _value);
+        emit PxlTransfer(_from, _to, _value, message);
+        return true;
+    }
+
     /**
      * @dev PXL 토큰 전송 함수
      *
@@ -74,6 +80,12 @@ contract PXL is ERC20, CustomToken, ExtendsOwnable {
     function transfer(address _to, uint256 _value) public returns (bool) {
         require(isTransferable || owners[msg.sender]);
         return super.transfer(_to, _value);
+    }
+
+    function transferPxl(address _to, uint256 _value, string message) public returns (bool) {
+        this.transfer(_to, _value);
+        emit PxlTransfer(msg.sender, _to, _value, message);
+        return true;
     }
 
     /**
