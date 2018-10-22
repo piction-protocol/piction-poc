@@ -94,6 +94,10 @@
     border-bottom: 1px solid #ff6e27;
   }
 
+  .active {
+    color: #0046EC !important;
+  }
+
   .pxl {
     color: #ff6e27;
     font-size: 1.2em;
