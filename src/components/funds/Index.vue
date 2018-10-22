@@ -12,7 +12,7 @@
     <b-row>
       <b-col cols="12" sm="6" md="4" lg="3"
              v-for="fund in filteredFunds"
-             :key="fund.fund">
+             :key="fund.address">
         <Item :fund="fund" :disableLabel="filter=='completed'"/>
       </b-col>
     </b-row>
@@ -21,7 +21,7 @@
 
 <script>
   import Item from './Item'
-  import Web3Utils from '../../utils/Web3Utils.js'
+  import Web3Utils from '@utils/Web3Utils'
 
   export default {
     components: {Item},
@@ -48,28 +48,18 @@
           {value: 'completed', text: '종료'},
         ],
         funds: [],
-        events: []
       }
     },
     methods: {
-      async init() {
-        const funds = await this.$contract.apiFund.getFunds();
-        const records = (await this.$contract.apiContents.getRecords(funds.map(fund => fund.content)));
-        const rise = await this.$contract.apiFund.getFundRise(funds.map(fund => fund.fund));
-        let writers = await this.$contract.apiContents.getContentsWriterName(funds.map(fund => fund.content));
-        writers = this.$utils.bytesToArray(writers.writerName_, writers.spos_, writers.epos_);
-        funds.forEach((fund, i) => {
-          fund.record = records[i];
-          fund.record.writerName = writers[i];
-          fund.rise = rise[i]
-        });
+      async setFunds() {
+        const funds = await this.$contract.apiFund.getFunds(this);
         this.funds = funds.reverse();
       },
       async setEvent() {
-        const event = this.$contract.apiFund.getContract().events.AddFund({fromBlock: 'latest'}, async (error, event) => {
-          this.init();
-        });
-        this.events.push(event);
+//        const event = this.$contract.apiFund.getContract().events.AddFund({fromBlock: 'latest'}, async (error, event) => {
+//          this.init();
+//        });
+//        this.events.push(event);
       },
       setFilter(value) {
         this.$router.push({query: {filter: value}})
@@ -77,11 +67,8 @@
     },
     async created() {
       this.setEvent();
-      this.init();
+      this.setFunds();
     },
-    async destroyed() {
-      this.events.forEach(async event => await event.unsubscribe());
-    }
   }
 </script>
 

@@ -55,8 +55,8 @@ const router = new Router({
       props: (route) => ({filter: route.query.filter})
     },
     // funds
-    {path: '/contents/:content_id/funds/new', name: 'new-fund', component: FundNew, props: true},
-    {path: '/contents/:content_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
+    {path: '/comics/:comic_id/funds/new', name: 'new-fund', component: FundNew, props: true},
+    {path: '/comics/:comic_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
     // my
     {
       path: '/my', component: MyIndex,

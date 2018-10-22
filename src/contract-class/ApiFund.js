@@ -1,4 +1,5 @@
 import {abi} from '@contract-build-source/ApiFund'
+import Fund from '@models/Fund';
 import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
 
@@ -13,54 +14,66 @@ class ApiFund {
     return this._contract;
   }
 
-  /**
-   * 펀드 등록
-   * @param {Address} contentAddress - 작품 주소
-   * @param {Number} startTime - 모집 시작 시간
-   * @param {Number} endTime - 모집 종료 시간
-   * @param {Number} maxcap - maxcap
-   * @param {Number} softcap - softcap
-   * @param {Number} poolSize - 회수 횟수
-   * @param {Number} interval - 회수 간격
-   * @param {Number} distributionRate - 분배비율
-   * @param {String} detail - 상세내용
-   */
-  addFund(contentAddress, startTime, endTime, maxcap, softcap, poolSize, interval, distributionRate, detail) {
-    return this._contract.methods.addFund(
-      contentAddress,
-      startTime,
-      endTime,
-      BigNumber(maxcap * Math.pow(10, 18)),
-      BigNumber(softcap * Math.pow(10, 18)),
-      poolSize,
-      interval,
-      BigNumber(distributionRate * Math.pow(10, 18)),
-      detail
+  // 펀드 목록 조회
+  async getFunds(vue, address) {
+    const comics = await vue.$contract.apiContents.getComics(vue);
+    const filter = {};
+    if (address) {
+      filter._content = address;
+    }
+    const funds = [];
+    let events = await this._contract.getPastEvents('CreateFund', {filter: filter, fromBlock: 0, toBlock: 'latest'});
+    events.forEach(async event => {
+      event = Web3Utils.prettyJSON(event.returnValues);
+      let fund = new Fund();
+      fund.address = event.fund;
+      fund.startTime = event.startTime;
+      fund.endTime = event.endTime;
+      fund.maxcap = event.limit[0];
+      fund.softcap = event.limit[1];
+      fund.min = event.limit[2];
+      fund.max = event.limit[3];
+      fund.poolSize = event.poolSize;
+      fund.interval = event.releaseInterval;
+      fund.firstDistributionTime = event.supportFirstTime;
+      fund.distributionRate = event.distributionRate;
+      fund.detail = event.detail;
+      fund.setComic(comics.find(comic => comic.address == event.content.toLowerCase()));
+      funds.push(fund);
+    });
+    const rises = await this.getFundRise(funds.map(fund => fund.address));
+    events.map((event, i) => event.rise = rises[i]);
+    return funds;
+  }
+
+  // 펀드 등록
+  createFund(address, fund) {
+    let hour = 60 * 60 * 1000;
+    return this._contract.methods.createFund(
+      address,
+      new Date(fund.startTime).getTime(),
+      new Date(fund.endTime).getTime(),
+      [
+        BigNumber(fund.maxcap * Math.pow(10, 18)),
+        BigNumber(fund.softcap * Math.pow(10, 18)),
+        BigNumber(fund.min * Math.pow(10, 18)),
+        BigNumber(fund.max * Math.pow(10, 18)),
+      ],
+      fund.poolSize,
+      fund.interval * hour,
+      new Date(fund.firstDistributionTime).getTime(),
+      BigNumber(fund.distributionRate * Math.pow(10, 18)),
+      fund.detail
     ).send();
   }
 
-  /**
-   * 펀드 목록 조회
-   * @returns [{Fund}] 펀드 목록
-   */
-  async getFunds(contentAddress) {
-    const filter = {};
-    if (contentAddress) {
-      filter._content = contentAddress;
-    }
-    let events = await this._contract.getPastEvents('AddFund', {filter: filter, fromBlock: 0, toBlock: 'latest'});
-    return events.map(event => Web3Utils.prettyJSON(event.returnValues));
-  }
-
-  /**
-   * 모집 금액 조회
-   * @param {Address.<Array>} funds - 펀드 주소 목록
-   * @returns {Number.<Array>} - 모집 금액 목록
-   */
+  // 모집 금액 조회
   async getFundRise(funds) {
     return await this._contract.methods.getFundRise(funds).call();
   }
 
+
+  // 여기까지
   /**
    * 펀드 상세 정보 조회
    * @param {Address} fund - 펀드 주소

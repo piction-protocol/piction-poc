@@ -1,14 +1,14 @@
 <template>
   <router-link class="item d-inline-block w-100 mb-4 position-relative"
-               :to="{name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}}">
-    <div v-if="!disableLabel" class="position-absolute mr-1" style="right: 0;">
-      <b-badge variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}</b-badge>
-    </div>
-    <b-img fluid :src="fund.record.thumbnail" class="thumbnail"/>
+               :to="{name: 'show-fund', params: {comic_id: fund.comic.address, fund_id: fund.address}}">
+    <b-img fluid :src="fund.comic.thumbnail" class="thumbnail"/>
     <div class="fund-info">
-      <b-badge variant="secondary bg-dark mt-2">{{fund.record.genres}}</b-badge>
-      <div class="title-text mt-2">{{fund.record.title}}</div>
-      <div class="writer-text mt2">{{fund.record.writerName}}</div>
+      <div class="mt-2">
+        <b-badge variant="secondary bg-dark">{{fund.comic.genres}}</b-badge>
+        <b-badge v-if="!disableLabel" variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}</b-badge>
+      </div>
+      <div class="title-text mt-2">{{fund.comic.title}}</div>
+      <div class="writer-text mt2">{{fund.comic.writer.name}}</div>
       <div class="detail-text mt-2">{{fund.detail}}</div>
       <div v-b-tooltip.hover :title="riseTooltip" class="pb-2 pt-2">
         <div class="position-relative">
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-  import Web3Utils from '../../utils/Web3Utils.js'
+  import Web3Utils from '@utils/Web3Utils'
 
   export default {
     props: ['fund', 'disableLabel'],
@@ -60,22 +60,17 @@
       }
     },
     data() {
-      return {
-        events: []
-      }
+      return {}
     },
     methods: {
       async setEvent() {
-        const supportEvent = this.$contract.fund.getContract(this.fund.fund).events
-          .Support({fromBlock: 'latest'}, () => this.$parent.init());
-        this.events.push(supportEvent);
+//        const supportEvent = this.$contract.fund.getContract(this.fund.fund).events
+//          .Support({fromBlock: 'latest'}, () => this.$parent.init());
+//        this.events.push(supportEvent);
       },
     },
     created() {
       this.setEvent();
-    },
-    async destroyed() {
-      this.events.forEach(async event => await event.unsubscribe());
     },
   }
 </script>
@@ -99,17 +94,17 @@
   }
 
   .rise-pxl-text {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 900;
   }
 
   .symbol-text {
-    font-size: 8px;
+    font-size: 14px;
     color: #4a4a4a;
   }
 
   .percent-text {
-    font-size: 10px;
+    font-size: 12px;
     color: #4a4a4a;
   }
 
