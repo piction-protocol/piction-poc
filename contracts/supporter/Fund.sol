@@ -11,6 +11,7 @@ import "contracts/interface/IFund.sol";
 import "contracts/interface/ISupporterPool.sol";
 import "contracts/interface/IAccountManager.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/supporter/SupporterPool.sol";
 import "contracts/utils/ExtendsOwnable.sol";
@@ -128,11 +129,11 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
             }
         
             fundRise = fundRise.add(possibleValue);
-            token.safeTransferFrom(_from, address(this), _value);
+            CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "서포터 참여, 투자금 모금");
         }
 
         if (refundValue > 0) {
-            token.safeTransfer(_from, refundValue);
+            CustomToken(address(token)).transferPxl(_from, refundValue, "서포터 참여, 투자금 환불");
         }
 
         // update support history
@@ -171,17 +172,18 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
         ERC20 token = ERC20(ICouncil(council).getToken());
         require(totalInvestment == token.balanceOf(address(this)), "fund balance abnormal");
 
+        CustomToken customToken = CustomToken(address(token));
         if (fundRise >= softcap) {
             setDistributionRate();
             ISupporterPool(ICouncil(council).getSupporterPool()).addSupport(address(this), writer, releaseInterval, fundRise, poolSize, supportFirstTime);
 
-            token.safeTransfer(ICouncil(council).getSupporterPool(), fundRise);
+            customToken.transferPxl(ICouncil(council).getSupporterPool(), fundRise, "투자 종료, 후원풀로 전송");
         } else {
             //추후 환불 시 Block Gas limit 고려 필요
             for (uint256 j = 0; j < supporters.length; j++) {
                 if (!supporters[j].refund) {
                     supporters[j].refund = true;
-                    token.safeTransfer(supporters[j].user, supporters[j].investment);
+                    customToken.transferPxl(supporters[j].user, supporters[j].investment, "투자 종료, 최소 모집 금액 미달성으로 환불");
 
                     // update support history
                     IAccountManager(ICouncil(council).getAccountManager()).setSupportHistory(supporters[j].user, content, address(this), supporters[j].investment, true);
