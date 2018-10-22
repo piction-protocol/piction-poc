@@ -10,7 +10,12 @@
         <div class="label">최소 모집 금액</div>
       </b-col>
       <b-col class="text-center">
-        <div class="value">{{$utils.toPXL(fund.rise).toFixed(0)}} <span class="symbol">PXL</span></div>
+        <div class="value">
+          <animated-number
+            class="pxl"
+            :value="fund.rise"
+            :formatValue="formatValue"
+            :duration="1000"/> <span class="symbol">PXL</span></div>
         <div class="label">현재 모금액</div>
       </b-col>
       <b-col class="text-center">
@@ -41,8 +46,18 @@
 </template>
 
 <script>
+  import AnimatedNumber from "animated-number-vue";
+
   export default {
+    components: {
+      AnimatedNumber
+    },
     props: ['fund'],
+    methods: {
+      formatValue(value) {
+        return `${this.$utils.toPXL(value).toFixed(0)}`;
+      },
+    },
   }
 </script>
 
