@@ -39,5 +39,3 @@ export default class Fund {
     this.comic = comic;
   }
 }
-
-Object.prototype
