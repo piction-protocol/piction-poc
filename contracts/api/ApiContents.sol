@@ -415,6 +415,7 @@ contract ApiContents is ValidValue {
         }
 
         price_ = new uint256[](episodeLength);
+        purchasedAmount_ = new uint256[](episodeLength);
         isPublished_ = new bool[](episodeLength);
         episodeCreationTime_ = new uint256[](episodeLength);
         episodeIndex_ = new uint256[](episodeLength);
