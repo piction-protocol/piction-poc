@@ -386,9 +386,10 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 publish의 작품의 에피소드 정보
     * @param _comicAddress 작품 주소
     * @return records_ Json string 타입의 episode 정보
-    * @return isPublished 공개 여부
     * @return price_ 판매 가격 
-    * @return episodeCreationTime_ episode 등록 시간 정보
+    * @return purchasedAmount_ 에피소드 별 매출
+    * @return isPublished 공개 여부
+    * @return publishDate_ episode 공개 시간
     * @return episodeIndex_ episode 회차
     */
     function getMyEpisodes(
@@ -401,7 +402,7 @@ contract ApiContents is ValidValue {
             uint256[] memory price_,
             uint256[] memory purchasedAmount_,
             bool[] memory isPublished_,
-            uint256[] memory episodeCreationTime_,
+            uint256[] memory publishDate_,
             uint256[] memory episodeIndex_
         )
     {
@@ -417,7 +418,7 @@ contract ApiContents is ValidValue {
         price_ = new uint256[](episodeLength);
         purchasedAmount_ = new uint256[](episodeLength);
         isPublished_ = new bool[](episodeLength);
-        episodeCreationTime_ = new uint256[](episodeLength);
+        publishDate_ = new uint256[](episodeLength);
         episodeIndex_ = new uint256[](episodeLength);
 
         bytes memory start = "[";
@@ -427,8 +428,7 @@ contract ApiContents is ValidValue {
 
         string memory strRecord;
         for(uint256 i = 0 ; i < episodeLength ; i++) {
-            (strRecord, price_[i], , purchasedAmount_[i], , , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
-            isPublished_[i] = IContent(_comicAddress).isPublishedEpisode(i);
+            (strRecord, price_[i], , purchasedAmount_[i], , isPublished_[i], publishDate_[i], ) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
             episodeIndex_[i] = i;
 
             records_ = records_.concat(bytes(strRecord));
