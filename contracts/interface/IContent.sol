@@ -18,8 +18,8 @@ contract IContent {
     function getEpisodeLength() public view returns (uint256 episodeLength_);
     function getPublishEpisodeIndex() public view returns (uint256[] episodeIndex_);
     function isPublishedEpisode(uint256 _index) external view returns (bool isPublished_);
-    function getEpisodeDetail(uint256 _index, address _buyer) external view returns (string record_, uint256 price_, uint256 buyCount_, bool isPurchased_, bool isPublished_, uint256 publishDate_, uint256 episodeCreationTime_);
-    function getEpisodeCuts(uint256 _index) external view returns (string episodeCuts_);
+    function getEpisodeDetail(uint256 _index, address _buyer) external view returns (string record_, uint256 price_, uint256 buyCount_, uint256 purchasedAmount_, bool isPurchased_, bool isPublished_, uint256 publishDate_, uint256 episodeCreationTime_);
+    function getEpisodeCuts(uint256 _index, address _user) external view returns (string episodeCuts_);
     function getIsBlocked() external view returns (bool isBlockContent_);
     function setIsBlocked(bool _isBlockContent) external;
     function episodePurchase(uint256 _index, address _buyer, uint256 _amount) external;

@@ -22,6 +22,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         uint256 buyCount;
         uint256 publishDate;
         uint256 episodeCreationTime;
+        uint256 episodePurchasedAmount;
         bool isPublished;
         mapping (address => bool) buyUser;
     }
@@ -96,7 +97,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         validAccessAddress(msg.sender)
     {
         uint256 episodeCreationTime = TimeLib.currentTime();
-        episodes.push(Episode(_record, _cuts, _price, 0, _publishDate, episodeCreationTime, _isPublished));
+        episodes.push(Episode(_record, _cuts, _price, 0, _publishDate, episodeCreationTime, 0, _isPublished));
         episodeLastUpdatedTime = episodeCreationTime;
 
         emit EpisodeCreation(episodes.length.sub(1), address(this), writer, _record, _price, _isPublished, _publishDate, episodeCreationTime);
@@ -232,7 +233,8 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         returns (
             string record_, 
             uint256 price_, 
-            uint256 buyCount_, 
+            uint256 buyCount_,
+            uint256 purchasedAmount_,
             bool isPurchased_,
             bool isPublished_,
             uint256 publishDate_,
@@ -246,22 +248,28 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         record_ = episodes[_index].record;
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
+        purchasedAmount_ = episodes[_index].episodePurchasedAmount;
         isPurchased_ = (writer == _buyer)? true : episodes[_index].buyUser[_buyer];
         isPublished_ = episodes[_index].isPublished;
         publishDate_ = episodes[_index].publishDate;
         episodeCreationTime_ = episodes[_index].episodeCreationTime;
     }
 
-    function getEpisodeCuts(uint256 _index)
+    function getEpisodeCuts(uint256 _index, address _user)
         external
         view
         returns (string episodeCuts_)
     {
-        if(isBlocked || !episodes[_index].isPublished || episodes[_index].publishDate > TimeLib.currentTime()) {
+        if(isBlocked || council.getApiContents() != msg.sender) {
             return;
         }
 
-        if(council.getApiContents() == msg.sender) {
+        if(_user == writer) {
+            episodeCuts_ = episodes[_index].cuts;
+        } else {
+            if(!episodes[_index].isPublished || episodes[_index].publishDate > TimeLib.currentTime()) {
+                return;
+            }
             episodeCuts_ = episodes[_index].cuts;
         }
     }
@@ -293,6 +301,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
         episodes[_index].buyUser[_buyer] = true;
         episodes[_index].buyCount = episodes[_index].buyCount.add(1);
+        episodes[_index].episodePurchasedAmount = episodes[_index].episodePurchasedAmount.add(_amount);
 
         totalPurchasedCount = totalPurchasedCount.add(1);
         totalPurchasedAmount = totalPurchasedAmount.add(_amount);

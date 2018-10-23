@@ -284,7 +284,7 @@ contract ApiContents is ValidValue {
 
         string memory strRecord;
         for(uint256 i = 0 ; i < episodeIndex_.length ; i++) {
-            (strRecord, price_[i], , isPurchased_[i], , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(episodeIndex_[i], msg.sender);
+            (strRecord, price_[i], , , isPurchased_[i], , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(episodeIndex_[i], msg.sender);
 
             records_ = records_.concat(bytes(strRecord));
             if(i != episodeIndex_.length - 1) {
@@ -327,7 +327,7 @@ contract ApiContents is ValidValue {
             return;
         }
 
-        (records_, price_, buyCount_, isPurchased_, isPublished_, publishDate_, 
+        (records_, price_, buyCount_, , isPurchased_, isPublished_, publishDate_, 
             episodeCreationTime_) = IContent(_comicAddress).getEpisodeDetail(_index, msg.sender);
     }
 
@@ -399,6 +399,7 @@ contract ApiContents is ValidValue {
         returns (
             bytes records_,
             uint256[] memory price_,
+            uint256[] memory purchasedAmount_,
             bool[] memory isPublished_,
             uint256[] memory episodeCreationTime_,
             uint256[] memory episodeIndex_
@@ -425,7 +426,7 @@ contract ApiContents is ValidValue {
 
         string memory strRecord;
         for(uint256 i = 0 ; i < episodeLength ; i++) {
-            (strRecord, price_[i], , , , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
+            (strRecord, price_[i], , purchasedAmount_[i], , , , episodeCreationTime_[i]) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
             isPublished_[i] = IContent(_comicAddress).isPublishedEpisode(i);
             episodeIndex_[i] = i;
 
@@ -483,7 +484,7 @@ contract ApiContents is ValidValue {
         returns (string cuts_)
     {
         if(isPurchasedEpisode(_comicAddress, _index, msg.sender)) {
-            cuts_ = IContent(_comicAddress).getEpisodeCuts(_index);
+            cuts_ = IContent(_comicAddress).getEpisodeCuts(_index, msg.sender);
         }
     }
 
