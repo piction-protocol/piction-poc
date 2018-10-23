@@ -82,7 +82,7 @@
           const account = await web3.eth.accounts.create();
           await web3.eth.accounts.wallet.add(account.privateKey);
           await this.$contract.accountManager.createNewAccount(this.userName, this.password, account.privateKey, account.address);
-          this.$store.dispatch('LOGIN', account.privateKey);
+          this.$store.dispatch('LOGIN', {name: this.userName, token: account.privateKey});
         } catch (e) {
           alert(e);
         }

@@ -12,7 +12,7 @@
           <router-link active-class="active" class="nav-link" :to="{name: 'account'}">My</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'council'}">Council</router-link>
         </b-navbar-nav>
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav v-if="$store.getters.name" class="ml-auto">
           <b-nav-item style="margin-right: 10px;" v-b-tooltip.hover :title="pxl">
             <animated-number
               class="pxl"
@@ -21,9 +21,16 @@
               :formatValue="formatValue"
               :duration="1000"/>
           </b-nav-item>
-          <b-nav-form>
-            <b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">작품등록</b-button>
-          </b-nav-form>
+          <b-nav-item-dropdown :text="$store.getters.name" right>
+            <b-dropdown-item href="#">내 정보</b-dropdown-item>
+            <b-dropdown-item href="#">서포트 관리</b-dropdown-item>
+            <b-dropdown-item href="#">작품 구매 보상</b-dropdown-item>
+            <b-dropdown-item href="#">신고 처리 내역</b-dropdown-item>
+            <b-dropdown-item @click="logout">로그아웃</b-dropdown-item>
+          </b-nav-item-dropdown>
+          <!--<b-nav-form>-->
+            <!--<b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">작품등록</b-button>-->
+          <!--</b-nav-form>-->
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
@@ -54,6 +61,10 @@
           this.pxl = this.$utils.toPXL(pxl);
           this.pxlChange = true;
         });
+      },
+      logout() {
+        this.$store.dispatch('LOGOUT');
+        window.location.reload();
       },
       async newContents() {
         let deposit = BigNumber(await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account));
@@ -100,6 +111,6 @@
 
   .pxl {
     color: #ff6e27;
-    font-size: 1.2em;
+    font-weight: bold;
   }
 </style>
