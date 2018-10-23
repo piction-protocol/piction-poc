@@ -25,14 +25,14 @@ contract ApiReport is ValidValue {
     }
 
     /**
-    * @dev 신고자가 맞긴 신고 보증금 잔액과 잠금 기간, 블락 기간을 조회한다
+    * @dev 신고자가 맞긴 신고 보증금 잔액과 잠금 기간, 블락 유무을 조회한다
     */
-    function getRegistrationAmount() external view returns(uint256 amount_, uint256 lockTime_, uint256 blockTime_) {
+    function getRegistrationAmount() external view returns(uint256 amount_, uint256 lockTime_, bool isBlock_) {
         IReport report = IReport(council.getReport());
         return (
             report.getRegistrationAmount(msg.sender),
             report.getRegistrationLockTime(msg.sender),
-            report.getReporterBlockTime(msg.sender)
+            report.getReporterBlock(msg.sender)
         );
     }
 

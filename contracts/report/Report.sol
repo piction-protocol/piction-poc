@@ -24,11 +24,12 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     //유저 등록금
     // amount 등록금의 양
     // lockTime 잠김이 풀리는 시간
-    // blockTime 다시 활동이 가능한 시간
+    // block 다시 활동이 가능한 시간
     struct Registration {
+        address reporter;
         uint256 amount;
         uint256 lockTime;
-        uint256 blockTime;
+        bool reporterBlock;
     }
     mapping (address => Registration) registrationFee;
 
@@ -70,17 +71,19 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @dev receiveApproval의 구현, token을 전송 받고 신고자의 등록금을 기록함
     */
     function registration(address _from, uint256 _value, address _token) private {
-        require(council.getReportRegistrationFee() == _value);
-        require(registrationFee[_from].amount == 0);
-        require(registrationFee[_from].lockTime < TimeLib.currentTime());
+        require(council.getReportRegistrationFee() == _value, "value error");
+        require(registrationFee[_from].amount == 0, "already registration");
+        require(!registrationFee[_from].reporterBlock, "repoter is Block");
         ERC20 token = ERC20(council.getToken());
-        require(address(token) == _token);
+        require(address(token) == _token, "token is abnormal");
 
         registrationFee[_from].amount = _value;
         registrationFee[_from].lockTime = TimeLib.currentTime().add(interval);
+        registrationFee[_from].reporterBlock = false;
+
         token.safeTransferFrom(_from, address(this), _value);
 
-        emit RegistrationFee(_from, _value, _token);
+        emit RegistrationFee(TimeLib.currentTime(), _from, _value);
     }
 
     /**
@@ -93,9 +96,10 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         validAddress(reporter)
         validString(_detail)
     {
-        require(council.getApiReport() == msg.sender);
-        require(registrationFee[reporter].amount > 0);
-        require(registrationFee[reporter].blockTime < TimeLib.currentTime());
+        require(council.getApiReport() == msg.sender, "msg sender is not ApiReport");
+        require(registrationFee[reporter].amount > 0, "Insufficient registrationFee");
+        require(!registrationFee[reporter].reporterBlock, "repoter is block");
+        require(registrationFee[reporter].lockTime < TimeLib.currentTime(), "over the lockTime");
 
         reports.push(ReportData(TimeLib.currentTime(), _content, reporter, _detail, 0, 0, 0));
 
@@ -109,7 +113,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     function getReport(uint256 _index)
         external
         view
-        returns(uint256 reportDate_, address content_, address reporter_, string detail_, uint256 completeDate_, uint256 completeType, uint256 completeAmount_)
+        returns(uint256 reportDate_, address content_, address reporter_, string detail_, uint256 completeDate_, uint256 completeType_, uint256 completeAmount_)
     {
         return
         (
@@ -142,18 +146,6 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     function getUncompletedReport(address _content) external view returns(uint256 count) {
         for(uint256 i = 0; i < reports.length; i++) {
             if (reports[i].content == _content && reports[i].completeDate != 0) {
-                count = count.add(1);
-            }
-        }
-    }
-
-    /**
-    * @dev 신고자의 신고 중 처리되지 않은 건수 조회, 신고자 신고금 반환 시 조회에 사용
-    * @param _reporter 확인할 신고자의 주소
-    */
-    function getUncompletedReporter(address _reporter) private view returns(uint256 count) {
-        for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].reporter == _reporter && reports[i].completeDate != 0) {
                 count = count.add(1);
             }
         }
@@ -203,21 +195,20 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @param _reporter 막을 대상
     */
     function reporterBlock(address _reporter) external {
-        require(msg.sender == address(council));
+        require(msg.sender == address(council), "msg sender is not council");
 
-        registrationFee[_reporter].blockTime = registrationFee[_reporter].lockTime;
+        registrationFee[_reporter].reporterBlock = true;
 
-        emit ReporterBlock(_reporter, registrationFee[_reporter].blockTime);
+        emit ReporterBlock(_reporter);
     }
 
     /**
     * @dev 신고자가 맞긴 보증금을 찾아감
     */
     function withdrawRegistration(address _reporter) external {
-        require(council.getApiReport() == msg.sender);
-        require(registrationFee[_reporter].amount > 0);
-        require(registrationFee[_reporter].lockTime < TimeLib.currentTime());
-        require(getUncompletedReporter(_reporter) == 0);
+        require(council.getApiReport() == msg.sender, "msg sender is not ApiReport");
+        require(registrationFee[_reporter].amount > 0, "empty amount");
+        require(registrationFee[_reporter].lockTime < TimeLib.currentTime(), "not over locktime");
 
         ERC20 token = ERC20(council.getToken());
         uint256 tempAmount = registrationFee[_reporter].amount;
@@ -245,18 +236,17 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     /**
-    * @dev 신고자의 블락 기간을 조회한다
+    * @dev 신고자의 블락 유무를 조회한다
     * @param _reporter 확인 할 대상
     */
-    function getReporterBlockTime(address _reporter) external view returns(uint256 blockTime_) {
-        return registrationFee[_reporter].blockTime;
+    function getReporterBlock(address _reporter) external view returns(bool isBlock_) {
+        return registrationFee[_reporter].reporterBlock;
     }
 
-    event RegistrationFee(address _from, uint256 _value, address _token);
-    event SendReport(uint256 _date, uint256 indexed _id, address indexed _content, address indexed _from, string _detail);
+    event RegistrationFee(uint256 _date, address _from, uint256 _value);
+    event Deduction(address _reporter, uint256 _amount);
+    event ReporterBlock(address _reporter);
+    event SendReport(uint256 _date, uint256 indexed _index, address indexed _content, address indexed _from, string _detail);
     event WithdrawRegistration(address _to, uint256 _amount);
     event CompleteReport(uint256 _reportDate, uint256 _completeDate, uint256 indexed _index, address indexed _content, address indexed _reporter, string _detail, uint256 _type, uint256 _deductionAmount);
-    event Deduction(address _reporter, uint256 _amount);
-    event ReporterBlock(address _reporter, uint256 _blockTime);
-
 }
