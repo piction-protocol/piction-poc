@@ -2,17 +2,14 @@
   <div @click="purchase" class="item">
     <div class="d-flex">
       <img :src="episode.thumbnail" class="thumbnail"/>
-      <div class="d-flex align-items flex-column p-3 overflow-hidden">
+      <div class="d-flex align-items flex-column p-2 overflow-hidden">
+        <div class="created-at">{{$utils.dateFmt(episode.createdAt)}}</div>
         <div class="title-text h-50">{{episode.title}}</div>
         <div class="purchase-info-text h-50">
-          {{!my && episode.isPurchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
+          {{episode.isPurchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
         </div>
       </div>
       <div class="ml-auto p-2 d-flex align-items-end flex-column">
-        <div class="h-75">
-          <i v-if="my" class="ml-2 fas fa-edit"
-             v-on:click.stop="updateEpisode"
-             v-b-tooltip.hover :title="`회차수정`"></i></div>
         <div class="h-25">#{{episode.number}}</div>
       </div>
     </div>
@@ -42,6 +39,10 @@
         });
       },
       async purchase() {
+        if(this.episode.isPurchased) {
+          this.show();
+          return;
+        }
         let loader = this.$loading.show();
         if (this.episode.purchased) {
           this.show()
@@ -66,6 +67,11 @@
 </script>
 
 <style scoped>
+  .created-at {
+    font-size: 14px;
+    color: #9b9b9b;
+  }
+
   .title-text {
     font-size: 16px;
     font-weight: bold;

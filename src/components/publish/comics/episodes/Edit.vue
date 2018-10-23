@@ -25,7 +25,7 @@
         let loader = this.$loading.show();
         try {
           await this.$contract.apiContents.updateEpisode(this.comic_id, episode);
-          this.$router.push({name: 'episodes', params: {comic_id: this.comic_id}})
+          this.$router.replace({name: 'publish-episodes', params: {comic_id: this.comic_id}})
         } catch (e) {
           alert(e)
         }
@@ -34,6 +34,7 @@
     },
     async created() {
       this.episode = await this.$contract.apiContents.getEpisode(this.comic_id, this.episode_id);
+      this.episode.price = this.episode.price / Math.pow(10, 18);
     }
   }
 </script>

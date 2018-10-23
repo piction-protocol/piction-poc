@@ -9,6 +9,7 @@
         <b-navbar-nav>
           <router-link active-class="active" class="nav-link" :to="{name: 'comics'}">Comics</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'funds'}">Waiting for supporters</router-link>
+          <router-link active-class="active" class="nav-link" :to="{name: 'publish-comics'}">Publish</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'account'}">My</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'council'}">Council</router-link>
         </b-navbar-nav>

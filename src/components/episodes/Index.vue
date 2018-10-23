@@ -1,14 +1,18 @@
 <template>
   <div>
-    <Report v-if="!my" :comic_id="comic_id" class="float-right"/>
+    <div v-if="my">
+      <b-button variant="outline-secondary"
+                :to="{name:'publish-episodes', params:{comic_id:comic_id}}"
+                size="sm" class="float-right">관리
+      </b-button>
+    </div>
+    <div v-else>
+      <Report :comic_id="comic_id" class="float-right"/>
+    </div>
     <div class="clearfix"/>
     <div class="pt-4" align="center">
       <img :src="comic.thumbnail" class="thumbnail mb-4"/>
-      <h2 class="font-weight-bold mb-2">{{comic.title}}
-        <i v-if="my" class="ml-2 fas fa-edit"
-           @click="updateContent"
-           v-b-tooltip.hover :title="`작품수정`"></i>
-      </h2>
+      <h2 class="font-weight-bold mb-2">{{comic.title}}</h2>
       <div class="text-secondary font-italic mb-2">{{comic.writer.name}}</div>
       <b-badge variant="secondary bg-dark mb-2">{{comic.genres}}</b-badge>
       <div class="synopsis-text">{{comic.synopsis}}</div>
@@ -18,22 +22,12 @@
     </div>
     <div class="clearfix"/>
     <b-row class="pl-3 pr-3">
-      <b-col v-if="my" cols="12" sm="12" md="6" lg="6"
-             @click="addEpisode"
-             style="padding: 2px; text-align: center">
-        <h1 class="add-episode">
-          <i v-if="my" class="ml-2 fas fa-plus-square" style="line-height: 100px"
-             v-b-tooltip.hover :title="`회차등록`"
-             @click="addEpisode"></i>
-        </h1>
-      </b-col>
       <b-col cols="12" sm="12" md="6" lg="6" style="padding: 2px;"
              v-for="(episode, index) in episodes"
              :key="episode.key">
         <Item :comic="comic"
               :episode="episode"
-              :comic_id="comic_id"
-              :my="my"/>
+              :comic_id="comic_id"/>
       </b-col>
     </b-row>
   </div>

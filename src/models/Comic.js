@@ -15,6 +15,10 @@ export default class Comic {
     this.purchasedCount = Number(purchasedCount);
     this.lastUploadedAt = Number(lastUploadedAt);
     this.createdAt = Number(createdAt);
+    this.privateEpisodesCount = 0;
+    this.publishedEpisodesCount = 0;
+    this.totalPurchasedAmount = 0;
+    this.isBlock = false;
     this.writer = new Writer();
   }
 

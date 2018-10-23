@@ -95,7 +95,7 @@ class ApiContents {
   createComic(comic) {
     return this._contract.methods.createComic(JSON.stringify(comic)).send();
   }
-  
+
   // 작품 수정
   updateComic(address, comic) {
     return this._contract.methods.updateComic(address, JSON.stringify(comic)).send();
@@ -126,8 +126,50 @@ class ApiContents {
     ).send();
   }
 
-  getInitialDeposit(writer) {
-    return this._contract.methods.getInitialDeposit(writer).call();
+  // 예치금 조회
+  getInitialDeposit(address) {
+    return this._contract.methods.getInitialDeposit(address).call();
+  }
+
+  // 내 작품 조회
+  async getMyComics(vue) {
+    let result = await this._contract.methods.getMyComics().call();
+    result = Web3Utils.prettyJSON(result);
+    if (result.comicAddress.length == 0) {
+      return [];
+    } else {
+      let comics = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let comic = new Comic(result.comicAddress[i], record);
+        comic.privateEpisodesCount = Number(result.privateEpisode[i]);
+        comic.publishedEpisodesCount = Number(result.publishedEpisode[i]);
+        comic.totalPurchasedAmount = Number(result.totalPurchasedAmount[i]);
+        comic.isBlock = result.isBlockComic[i]
+        comic.setWriter(vue.$store.getters.publicKey, vue.$store.getters.name);
+        comics.push(comic);
+      });
+      return comics;
+    }
+  }
+
+  // 내 에피소드 목록 조회
+  async getMyEpisodes(address) {
+    let result = await this._contract.methods.getMyEpisodes(address).call();
+    result = Web3Utils.prettyJSON(result);
+    if (result.episodeIndex.length == 0) {
+      return [];
+    } else {
+      let episodes = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let episode = new Episode(result.episodeIndex[i], i + 1, record, result.price[i]);
+        episode.publishedAt = result.publishDate[i]
+        episode.status = result.isPublished[i];
+        episodes.push(episode);
+      });
+      return episodes;
+    }
   }
 }
 

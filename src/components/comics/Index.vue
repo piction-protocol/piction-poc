@@ -19,7 +19,7 @@
         <b-nav-item slot="tabs" @click="setTab('updated')" :active="$route.hash == '#updated'">Updated</b-nav-item>
       </template>
       <template slot="tabs">
-        <b-nav-item slot="tabs" @click="setTab('new')" :active="$route.hash == '#closed'">New</b-nav-item>
+        <b-nav-item slot="tabs" @click="setTab('new')" :active="$route.hash == '#new'">New</b-nav-item>
       </template>
     </b-tabs>
     <br>
@@ -43,7 +43,6 @@
     props: ['genre'],
     computed: {
       filteredComics() {
-        console.log(this.comics)
         if (!this.$route.hash || this.$route.hash == '#popular') {
           return this.comics.sort((a, b) => b.purchasedCount - a.purchasedCount);
         } else if(this.$route.hash == '#updated') {
