@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="page-title">Waiting for supporters</div>
-    <br/>
+    <br>
     <b-tabs>
       <template slot="tabs">
         <b-nav-item slot="tabs" @click="setTab('opened')" :active="!$route.hash || $route.hash == '#opened'">Opened
@@ -42,9 +42,6 @@
       }
     },
     methods: {
-      async setTab(tab) {
-        this.$router.replace({hash: `#${tab}`});
-      },
       async setFunds() {
         const funds = await this.$contract.apiFund.getFunds(this);
         this.funds = funds.reverse();
@@ -53,6 +50,9 @@
         this.web3Events.push(this.$contract.apiFund.getContract().events
           .CreateFund({fromBlock: 'latest'}, async () => this.init()));
       },
+      async setTab(tab) {
+        this.$router.replace({hash: `#${tab}`});
+      }
     },
     async created() {
       this.setEvent();

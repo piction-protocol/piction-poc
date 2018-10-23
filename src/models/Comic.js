@@ -12,9 +12,9 @@ export default class Comic {
     this.thumbnail = record.thumbnail
     this.genres = record.genres
     this.synopsis = record.synopsis
-    this.purchasedCount = purchasedCount;
-    this.lastUploadedAt = lastUploadedAt;
-    this.createdAt = createdAt;
+    this.purchasedCount = Number(purchasedCount);
+    this.lastUploadedAt = Number(lastUploadedAt);
+    this.createdAt = Number(createdAt);
     this.writer = new Writer();
   }
 
