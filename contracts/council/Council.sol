@@ -202,51 +202,6 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
         fundAvailable_ = pictionValue.fundAvailable;
     }
 
-    /**
-    * @dev 정당하지 않은 신고한 유저의 보증금 차감
-    * @param _reporter 신고자 주소
-    */
-    // function reporterDeduction(address _reporter) external {
-    //     require(apiAddress.apiReport == msg.sender);
-
-    //     uint256 deductionAmount;
-    //     deductionAmount = IReport(pictionAddress.report).deduction(_reporter);
-
-    //     emit ReporterDeduction(_reporter, deductionAmount);
-    // }
-
-    /**
-    * @dev 정당하지 않은 신고한 유저의 블락
-    * @param _reporter 신고자 주소
-    */
-    // function reporterBlock(address _reporter) external {
-    //     require(apiAddress.apiReport == msg.sender);
-
-    //     IReport(pictionAddress.report).reporterBlock(_reporter);
-
-    //     emit ReporterBlock(_reporter);
-    // }
-
-    /**
-    * @dev Report 목록의 신고를 처리함
-    * @param _index Report의 reports 인덱스 값
-    * @param _content Content의 주소
-    * @param _reporter Reporter의 주소
-    * @param _reword 리워드 지급 여부
-    */
-    // function reportReword(uint256 _index, address _content, address _reporter, bool _reword) external {
-    //     require(apiAddress.apiReport == msg.sender);
-
-    //     uint256 rewordAmount;
-    //     if (_reword) {
-    //         rewordAmount = IDepositPool(pictionAddress.depositPool).reportReward(_content, _reporter);
-    //     }
-
-    //     IReport(pictionAddress.report).completeReport(_index, _reword, rewordAmount);
-
-    //     emit ReportReword(_index, _content, _reporter, _reword, rewordAmount);
-    // }
-
     enum ReportDisposalType {DEFAULT, CONTENT_BLOCK, WARNS_WRITER, PASS, DUPLICATE, WRONG_REPORT}
 
     /**
@@ -269,10 +224,7 @@ contract Council is ExtendsOwnable, ValidValue, ICouncil {
             if (contentBlock) {
                 contentBlocking(_content, true);
             }
-
-            IReport(pictionAddress.report).completeReport(_index, _type, deductionAmount_);
         } else if (_type == uint256(ReportDisposalType.WRONG_REPORT)) {
-            //신고 예치금 1차감, 카운실 1전송
             deductionAmount_ = IReport(pictionAddress.report).deduction(_reporter);
         }
 

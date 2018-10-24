@@ -15,7 +15,7 @@ contract ApiReport is ValidValue {
         council = ICouncil(_councilAddress);
     }
 
-    //-------- 등록금 관련 --------
+    //-------- 신고 등록금 관련 --------
 
     /**
     * @dev 신고자가 맞긴 보증금을 찾아감

@@ -119,13 +119,13 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         returns(uint256 deduction_, bool contentBlock_)
     {
         require(address(council) == msg.sender, "msg sender is not council");
-        require(_type < 2, "out of type");
+        require(_type > 0 && _type < 3, "out of type");
 
         if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
             uint256 rewardOnePXL = 1 ** DECIMALS;
 
-            if (contentDeposit[_content] > rewardOnePXL) {
+            if (contentDeposit[_content] >= rewardOnePXL) {
                 deduction_ = contentDeposit[_content].sub(rewardOnePXL);
                 if (_type == 1) {
                     contentDeposit[_content] = 0;

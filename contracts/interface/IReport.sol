@@ -10,7 +10,6 @@ interface IReport {
 
     function completeReport(uint256 _index, uint256 _type, uint256 _deductionAmount) external;
     function deduction(address _reporter) external returns(uint256 result_);
-    function reporterBlock(address _reporter) external;
     function getReportCount(address _content) external view returns(uint256);
     function getUncompletedReport(address _content) external view returns(uint256 count);
 }

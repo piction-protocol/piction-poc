@@ -18,13 +18,15 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
+    uint256 DECIMALS = 10 ** 18;
+
     //위원회
     ICouncil council;
 
     //유저 등록금
     // amount 등록금의 양
     // lockTime 잠김이 풀리는 시간
-    // block 다시 활동이 가능한 시간
+    // block 유저의 블락 유무
     struct Registration {
         address reporter;
         uint256 amount;
@@ -174,32 +176,31 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @dev 문제가 있는 신고자의 RegFee 차감, 위원회가 호출함
     * @param _reporter 차감 시킬 대상
     */
-    function deduction(address _reporter) external validAddress(_reporter) returns(uint256 result_) {
-        require(msg.sender == address(council));
+    function deduction(address _reporter) external validAddress(_reporter) returns(uint256 deduction_) {
+        require(msg.sender == address(council), "msg sender is not council");
 
-        uint256 amount = registrationFee[_reporter].amount;
-        if (amount > 0) {
-            registrationFee[_reporter].amount = 0;
+        uint256 onePXL = 1 ** DECIMALS;
+        uint256 remain;
+        if (registrationFee[_reporter].amount > 0) {
+            if (registrationFee[_reporter].amount >= onePXL) {
+                remain = registrationFee[_reporter].amount.sub(onePXL);
+                registrationFee[_reporter].amount = remain;
+                deduction_ = onePXL;
+                if (remain == 0) {
+                    registrationFee[_reporter].reporterBlock = true;
+                }
+            } else {
+                deduction_ = registrationFee[_reporter].amount;
+                registrationFee[_reporter].amount = 0;
+                registrationFee[_reporter].reporterBlock = true;
+            }
 
             ERC20 token = ERC20(council.getToken());
             //임시 Ecosystem Growth Fund가 없음으로 위원회로 전송함
-            token.safeTransfer(address(council), amount);
-            result_ = amount;
+            token.safeTransfer(address(council), deduction_);
         }
 
-        emit Deduction(_reporter, result_);
-    }
-
-    /**
-    * @dev 문제가 있는 신고자 추가 신고를 막음
-    * @param _reporter 막을 대상
-    */
-    function reporterBlock(address _reporter) external {
-        require(msg.sender == address(council), "msg sender is not council");
-
-        registrationFee[_reporter].reporterBlock = true;
-
-        emit ReporterBlock(_reporter);
+        emit Deduction(_reporter, deduction_);
     }
 
     /**
