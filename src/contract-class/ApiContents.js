@@ -1,5 +1,6 @@
 import {abi} from '@contract-build-source/ApiContents'
 import Comic from '@models/Comic';
+import Episode from '@models/Episode';
 import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
 
@@ -10,8 +11,12 @@ class ApiContents {
     this._contract.options.gas = gas;
   }
 
+  getContract() {
+    return this._contract;
+  }
+
   // 작품 목록 조회
-  async getComics(accountManagerContract) {
+  async getComics(vue) {
     let result = await this._contract.methods.getComics().call();
     result = Web3Utils.prettyJSON(result);
     if (result.comicAddress.length == 0) {
@@ -19,7 +24,7 @@ class ApiContents {
     } else {
       let comics = [];
       let records = JSON.parse(web3.utils.hexToUtf8(result.records));
-      let writerNames = await accountManagerContract.getUserNames(result.writer);
+      let writerNames = await vue.$contract.accountManager.getUserNames(result.writer);
       records.forEach((record, i) => {
         let comic = new Comic(
           result.comicAddress[i],
@@ -29,7 +34,7 @@ class ApiContents {
           result.contentCreationTime[i]
         );
         comic.setWriter(result.writer[i], writerNames[i]);
-        comics.push(comic.toJSON());
+        comics.push(comic);
       });
       return comics;
     }
@@ -38,20 +43,62 @@ class ApiContents {
   // 작품 조회
   async getComic(address) {
     let result = await this._contract.methods.getComic(address).call();
-    return Web3Utils.prettyJSON(result);
+    result = Web3Utils.prettyJSON(result);
+    let comic = new Comic(address, JSON.parse(result.records))
+    comic.setWriter(result.writer, result.writerName);
+    return comic;
   };
 
   // 에피소드 목록 조회
   async getEpisodes(address) {
-    console.log(address)
     let result = await this._contract.methods.getEpisodes(address).call();
-    console.log(result)
-    return result;
+    result = Web3Utils.prettyJSON(result);
+    if (result.episodeIndex.length == 0) {
+      return [];
+    } else {
+      let episodes = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let episode = new Episode(
+          result.episodeIndex[i],
+          i + 1,
+          record,
+          result.price[i],
+          result.isPurchased[i],
+          undefined, undefined, undefined,
+          result.episodeCreationTime[i]
+        );
+        episodes.push(episode);
+      });
+      return episodes;
+    }
+  }
+
+  async getEpisode(address, key) {
+    let result = await this._contract.methods.getEpisode(address, key).call();
+    let cuts = await this._contract.methods.getCuts(address, key).call();
+    result = Web3Utils.prettyJSON(result);
+    let episode = new Episode(
+      key,
+      0,
+      JSON.parse(result.records),
+      result.price,
+      result.isPurchased,
+      JSON.parse(cuts),
+      new Date(Number(result.publishDate)),
+      result.isPublished
+    )
+    return episode;
   }
 
   // 작품 등록
-  createComic(record) {
-    return this._contract.methods.createComic(JSON.stringify(record)).send();
+  createComic(comic) {
+    return this._contract.methods.createComic(JSON.stringify(comic)).send();
+  }
+
+  // 작품 수정
+  updateComic(address, comic) {
+    return this._contract.methods.updateComic(address, JSON.stringify(comic)).send();
   }
 
   // 에피소드 등록
@@ -68,9 +115,9 @@ class ApiContents {
 
   // 에피소드 수정
   updateEpisode(address, episode) {
-    return this._contract.methods.createEpisode(
+    return this._contract.methods.updateEpisode(
       address,
-      episode.index,
+      episode.key,
       JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
       JSON.stringify(episode.cuts),
       BigNumber(episode.price * Math.pow(10, 18)),
@@ -79,102 +126,51 @@ class ApiContents {
     ).send();
   }
 
-
-  // 여기까지
-
-  getContract() {
-    return this._contract;
+  // 예치금 조회
+  getInitialDeposit(address) {
+    return this._contract.methods.getInitialDeposit(address).call();
   }
 
-  setRegisterContents(f) {
-    this.registerContents = f;
-  }
-
-  setEpisodeCreation(f) {
-    this.episodeCreation = f;
-  }
-
-  addContents(record) {
-    return this._contract.methods.addContents(JSON.stringify(record), BigNumber(record.marketerRate).multipliedBy(Math.pow(10, 18))).send();
-  }
-
-  updateContent(contentsAddress, record) {
-    return this._contract.methods.updateContent(contentsAddress, JSON.stringify(record), BigNumber(record.marketerRate).multipliedBy(Math.pow(10, 18))).send();
-  }
-
-  getContentsFullList() {
-    return this._contract.methods.getContentsFullList().call();
-  }
-
-  getContentsRecord(contentsAddress) {
-    return this._contract.methods.getContentsRecord(contentsAddress).call();
-  }
-
-  getWriterContentsList(writer) {
-    return this._contract.methods.getWriterContentsList(writer).call();
-  }
-
-  /**
-   * 작품 레코드 조회
-   * @param {Address.<Array>} contentsAddress - 작품 주소 목록
-   * @returns {Object.<Array>} 작품 레코드 목록
-   */
-  async getRecords(contentsAddress) {
-    var contents = await this._contract.methods.getContentsRecord(contentsAddress).call();
-    return contents.records_ ? JSON.parse(web3.utils.hexToUtf8(contents.records_)) : [];
-  }
-
-  /**
-   * 작품 상세 정보 조회
-   * @param {Address} contentsAddress
-   * @returns {Object} 작품 상세 정보
-   */
-  async getContentsDetail(contentsAddress) {
-    var result = await this._contract.methods.getContentsDetail(contentsAddress).call();
+  // 내 작품 조회
+  async getMyComics(vue) {
+    let result = await this._contract.methods.getMyComics().call();
     result = Web3Utils.prettyJSON(result);
-    result.record = JSON.parse(result.record);
-    return result;
+    if (result.comicAddress.length == 0) {
+      return [];
+    } else {
+      let comics = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let comic = new Comic(result.comicAddress[i], record);
+        comic.privateEpisodesCount = Number(result.privateEpisode[i]);
+        comic.publishedEpisodesCount = Number(result.publishedEpisode[i]);
+        comic.totalPurchasedAmount = Number(result.totalPurchasedAmount[i]);
+        comic.isBlock = result.isBlockComic[i]
+        comic.setWriter(vue.$store.getters.publicKey, vue.$store.getters.name);
+        comics.push(comic);
+      });
+      return comics;
+    }
   }
 
-  getContentsWriterName(contentsAddress) {
-    return this._contract.methods.getContentsWriterName(contentsAddress).call();
+  // 내 에피소드 목록 조회
+  async getMyEpisodes(address) {
+    let result = await this._contract.methods.getMyEpisodes(address).call();
+    result = Web3Utils.prettyJSON(result);
+    if (result.episodeIndex.length == 0) {
+      return [];
+    } else {
+      let episodes = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let episode = new Episode(result.episodeIndex[i], i + 1, record, result.price[i]);
+        episode.publishedAt = result.publishDate[i]
+        episode.status = result.isPublished[i];
+        episodes.push(episode);
+      });
+      return episodes;
+    }
   }
-
-  addEpisode(contentsAddress, record, cuts, price) {
-    return this._contract.methods.addEpisode(
-      contentsAddress,
-      JSON.stringify(record),
-      JSON.stringify(cuts),
-      BigNumber(price * Math.pow(10, 18))
-    ).send();
-  }
-
-  updateEpisode(contentsAddress, index, record, cuts, price) {
-    return this._contract.methods.updateEpisode(
-      contentsAddress,
-      index,
-      JSON.stringify(record),
-      JSON.stringify(cuts),
-      BigNumber(price * Math.pow(10, 18))
-    ).send();
-  }
-
-  getEpisodeDetail(contentsAddress, index, buyer) {
-    return this._contract.methods.getEpisodeDetail(contentsAddress, index, buyer).call();
-  }
-
-  getEpisodeFullList(contentsAddress) {
-    return this._contract.methods.getEpisodeFullList(contentsAddress).call();
-  }
-
-  getEpisodeCuts(contentsAddress, index) {
-    return this._contract.methods.getEpisodeCuts(contentsAddress, index).call();
-  }
-
-  getInitialDeposit(writer) {
-    return this._contract.methods.getInitialDeposit(writer).call();
-  }
-
 }
 
 export default ApiContents;

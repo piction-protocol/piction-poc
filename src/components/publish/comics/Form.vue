@@ -10,7 +10,7 @@
                       :disabled="disabled"
                       required
                       type="text"
-                      v-model="record.title"
+                      v-model="comic.title"
                       placeholder="작품명을 입력하세요">
         </b-form-input>
       </b-form-group>
@@ -18,13 +18,13 @@
                     label-for="thumbnail"
                     description="">
         <img class="preview form-control"
-             v-if="record.thumbnail"
-             :src="record.thumbnail">
+             v-if="comic.thumbnail"
+             :src="comic.thumbnail">
         <b-form-file id="thumbnail"
                      :disabled="disabled"
                      :required="action == 'new'"
                      @change="onChangeImage"
-                     :state="Boolean(record.thumbnail)"
+                     :state="Boolean(comic.thumbnail)"
                      placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
       </b-form-group>
       <b-form-group label="시놉시스"
@@ -34,7 +34,7 @@
                          :disabled="disabled"
                          required
                          type="text"
-                         v-model="record.synopsis"
+                         v-model="comic.synopsis"
                          placeholder="시놉시스를 입력하세요"
                          :rows="2"
                          :max-rows="3">
@@ -46,7 +46,7 @@
         <b-form-radio-group id="genres"
                             :disabled="disabled"
                             required
-                            v-model="record.genres"
+                            v-model="comic.genres"
                             :options="options">
         </b-form-radio-group>
       </b-form-group>
@@ -59,13 +59,13 @@
 </template>
 
 <script>
-  import {genres} from './helper'
+  import Comic from '@models/Comic'
 
   export default {
-    props: ['record', 'action', 'submitText'],
+    props: ['comic', 'action', 'submitText'],
     data() {
       return {
-        options: genres
+        options: Comic.genres
       }
     },
     computed: {
@@ -76,14 +76,14 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
-        this.$emit('onSubmit', this.record);
+        this.$emit('onSubmit', this.comic);
       },
       async onChangeImage(event) {
         let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         var dimensions = await this.$utils.getImageDimensions(url);
         console.log(dimensions)
-        this.record.thumbnail = url;
+        this.comic.thumbnail = url;
         loader.hide();
       },
     },

@@ -23,7 +23,7 @@
   import {BigNumber} from 'bignumber.js';
 
   export default {
-    props: ['content_id'],
+    props: ['comic_id'],
     data() {
       return {
         selected: null,
@@ -72,7 +72,7 @@
           const reason = this.selected ? this.selected : this.etcReason;
           if (reason) {
             let loader = this.$loading.show();
-            await this.$contract.apiReport.sendReport(this.content_id, reason);
+            await this.$contract.apiReport.sendReport(this.comic_id, reason);
             loader.hide();
             this.$toasted.show("신고되었습니다.", {position: "top-center"});
             this.hideModal();

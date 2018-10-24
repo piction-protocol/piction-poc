@@ -24,7 +24,7 @@ const Utils = {
         return (timestamp && timestamp > 0) ? moment(timestamp).format('YYYY-MM-DD HH:mm') : null;
       },
       toPXL: function (amount) {
-        return BigNumber(amount).div(Math.pow(10, 18)).toString();
+        return BigNumber(amount).div(Math.pow(10, 18)).toNumber();
       },
       appendDecimals: function (amount) {
         return BigNumber(amount).multipliedBy(Math.pow(10, 18));

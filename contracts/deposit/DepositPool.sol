@@ -9,6 +9,7 @@ import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IDepositPool.sol";
 import "contracts/interface/IReport.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -71,7 +72,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
         address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);
-        token.safeTransferFrom(_from, address(this), _value);
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "작품 초기 보증금 예치");
         
         uint256 releaseDate = TimeLib.currentTime() + council.getDepositReleaseDelay();
         setReleaseDate(content, releaseDate);
@@ -144,11 +145,11 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
             require(token.balanceOf(address(this)) >= deduction_ + rewardOnePXL, "token balance abnormal");
             if (deduction_ > 0) {
-                token.safeTransfer(address(council), deduction_);
+                CustomToken(address(token)).transferPxl(address(council), deduction_, "신고 등록금 차감");
             }
             
             if (rewardOnePXL > 0) {
-                token.safeTransfer(_reporter, rewardOnePXL);
+                CustomToken(address(token)).transferPxl(_reporter, rewardOnePXL, "신고 활동 보상금");
                 deduction_ = deduction_ + rewardOnePXL;
             }
         }
@@ -173,9 +174,9 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         
         uint256 amount = contentDeposit[_content];
         contentDeposit[_content] = 0;
-        token.safeTransfer(writer, amount);
+        CustomToken(address(token)).transferPxl(writer, amount, "작품 등록 보증금 회수");
         
-        emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 예치금 회수");
+        emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 보증금 회수");
     }
 
     event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _descripstion);

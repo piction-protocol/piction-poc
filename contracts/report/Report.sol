@@ -8,6 +8,7 @@ import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IReport.sol";
 import "contracts/interface/IDepositPool.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -83,7 +84,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         registrationFee[_from].lockTime = TimeLib.currentTime().add(interval);
         registrationFee[_from].reporterBlock = false;
 
-        token.safeTransferFrom(_from, address(this), _value);
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "신고 보증금 예치");
 
         emit RegistrationFee(TimeLib.currentTime(), _from, _value);
     }
@@ -197,7 +198,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
 
             ERC20 token = ERC20(council.getToken());
             //임시 Ecosystem Growth Fund가 없음으로 위원회로 전송함
-            token.safeTransfer(address(council), deduction_);
+            CustomToken(address(token)).transferPxl(address(council), deduction_, "신고 보증금 차감");
         }
 
         emit Deduction(_reporter, deduction_);
@@ -215,7 +216,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         uint256 tempAmount = registrationFee[_reporter].amount;
 
         registrationFee[_reporter].amount = 0;
-        token.safeTransfer(_reporter, tempAmount);
+        CustomToken(address(token)).transferPxl(_reporter, tempAmount, "신고 보증금 환불");
 
         emit WithdrawRegistration(_reporter, tempAmount);
     }

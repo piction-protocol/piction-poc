@@ -8,6 +8,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IFund.sol";
 import "contracts/interface/ISupporterPool.sol";
+import "contracts/token/CustomToken.sol";
 
 import "contracts/utils/TimeLib.sol";
 
@@ -192,7 +193,7 @@ contract SupporterPool is Ownable, ISupporterPool {
             if (distributable(funds[_fund][i])) {
                 funds[_fund][i].distributedTime = TimeLib.currentTime();
                 funds[_fund][i].state = State.PAID;
-                token.safeTransfer(funds[_fund][i].writer, funds[_fund][i].amount);
+                CustomToken(address(token)).transferPxl(funds[_fund][i].writer, funds[_fund][i].amount, "투자 모금액 수령");
 
                 emit ReleaseDistribution(_fund, funds[_fund][i].amount);
             }

@@ -1,49 +1,32 @@
 <template>
-  <div>
-    <b-card :title="content ? `${content.record.title}` : ''"
-            tag="article"
-            class="mb-2">
-      <b-alert show variant="secondary" style="white-space: pre-line">{{fund.detail}}</b-alert>
-      <div class="card-text mb-2">
-        <b-row>
-          <b-col>모집기간 : {{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}</b-col>
-        </b-row>
-        <hr>
-        <b-row>
-          <b-col>모집금액: {{$utils.toPXL(fund.fundRise)}} PXL</b-col>
-          <b-col>분배횟수: {{fund.poolSize}}</b-col>
-        </b-row>
-        <b-row>
-          <b-col>softcap: {{$utils.toPXL(fund.softcap)}} PXL</b-col>
-          <b-col>분배간격: {{fund.releaseInterval / (60 * 60 * 1000)}} 시간</b-col>
-        </b-row>
-        <b-row>
-          <b-col>maxcap: {{$utils.toPXL(fund.maxcap)}} PXL</b-col>
-          <b-col>분배비율: {{fund.distributionRate / Math.pow(10, 18) * 100}}%</b-col>
-        </b-row>
-      </div>
-      <hr>
-      <b-button variant="primary" size="sm" block
-                @click="button.action"
-                :variant="button.variant"
-                :disabled="button.disabled">{{button.text}}
+  <div v-if="fund.address">
+    <div class="pt-4" align="center">
+      <img :src="fund.comic.thumbnail" class="thumbnail mb-4"/>
+      <h2 class="font-weight-bold mb-2">{{fund.comic.title}}</h2>
+      <div class="text-secondary font-italic mb-2">{{fund.comic.writer.name}}</div>
+      <div class="synopsis-text">{{fund.detail}}</div>
+    </div>
+    <State :fund="fund"/>
+    <div class="text-center mb-5">
+      <b-button variant="outline-secondary"
+                :disabled="!supportable || isMy"
+                @click="$refs.myModalRef.show()">서포터 신청
       </b-button>
-    </b-card>
-    <hr>
-    <b-card no-body>
-      <b-tabs card v-model="tabIndex">
-        <b-tab title="서포터" active>
-          <Supporters :supporters="supporters"/>
-        </b-tab>
-        <b-tab title="서포터 풀">
-          <SupporterPool :distributions="distributions"
-                         :fund_id="fund_id"
-                         :fund="fund"
-                         :isDisabled="isMy || !isSupporter"/>
-        </b-tab>
-      </b-tabs>
-    </b-card>
-
+      <b-button variant="outline-secondary ml-2" :to="{name: 'episodes', params:{comic_id:fund.comic.address}}">작품 보기
+      </b-button>
+    </div>
+    <div class="title">시놉시스</div>
+    <div class="mb-5">{{fund.comic.synopsis}}</div>
+    <b-row>
+      <b-col cols="12" sm="12" md="6" lg="6">
+        <div class="title">모집 정보</div>
+        <Plan :fund="fund"/>
+      </b-col>
+      <b-col cols="12" sm="12" md="6" lg="6">
+        <div class="title">서포터</div>
+        <Supporters :supporters="supporters"/>
+      </b-col>
+    </b-row>
     <b-modal ref="myModalRef"
              title="참여"
              @ok="support"
@@ -58,112 +41,45 @@
 </template>
 
 <script>
-  import moment from 'moment';
-  import {record} from './helper';
-  import SupporterPool from './SupporterPool';
+  import Fund from '@models/Fund'
+  import State from './State';
+  import Plan from './Plan';
   import Supporters from './Supporters';
   import BigNumber from 'bignumber.js'
-  import AnimatedNumber from "animated-number-vue";
 
   export default {
-    components: {SupporterPool, Supporters, AnimatedNumber},
-    props: ['content_id', 'fund_id'],
+    components: {State, Plan, Supporters},
+    props: ['fund_id'],
     computed: {
       isMy() {
-        return this.content && this.content.writer.toLowerCase() == this.pictionConfig.account;
-      },
-      isSupporter() {
-        return this.supporters.find(supporter => supporter.user == this.pictionConfig.account);
-      },
-      button() {
-        if (Number(this.fund.startTime) > this.$root.now) {
-          return {id: this.$root.now, text: '참여 가능 시간이 아닙니다', variant: 'primary', disabled: true, action: () => null}
-        } else if (this.supportable) {
-          return {
-            id: this.$root.now,
-            text: '참여',
-            variant: 'primary',
-            disabled: this.isMy,
-            action: () => this.$refs.myModalRef.show()
-          }
-        } else if (this.supporters.length == 0) {
-          return {id: this.$root.now, text: '종료', variant: 'primary', disabled: true, action: () => null}
-        } else {
-          if (this.supporters.find(supporter => supporter.refund)) {
-            return {id: this.$root.now, text: '환불 (softcap 미달성)', variant: 'danger', disabled: true, action: () => null}
-          } else if (this.supporters.find(supporter => supporter.distributionRate > 0)) {
-            var amount = this.distributions
-              .filter(d => d.distributableTime < this.$root.now && d.state == 0)
-              .reduce((a, b) => a + Number(b.amount), 0);
-            var text = `서포터 풀 ${this.$utils.toPXL(amount)} PXL 작가에게 지급`;
-            return {
-              id: this.$root.now,
-              text: text,
-              variant: 'primary',
-              disabled: amount == 0,
-              action: () => this.releaseDistribution()
-            }
-          } else if (this.fund.softcap > this.fund.fundRise) {
-            return {id: this.$root.now, text: '환불', variant: 'danger', disabled: false, action: () => this.endFund(0)}
-          } else {
-            return {
-              id: this.$root.now,
-              text: '서포터 풀 생성',
-              variant: 'primary',
-              disabled: false,
-              action: () => this.endFund(1)
-            }
-          }
-        }
+        return this.fund.comic.writer.address == this.pictionConfig.account;
       },
       supportable() {
-        return moment(this.$root.now).isBetween(Number(this.fund.startTime), Number(this.fund.endTime)) &&
-          Number(this.fund.maxcap) > Number(this.fund.fundRise);
+        return this.fund.startTime < this.$root.now && this.$root.now < this.fund.endTime &&
+          this.fund.maxcap > this.fund.rise;
       },
     },
     data() {
       return {
-        content: null,
-        fund: record(),
+        fund: new Fund(),
         supporters: [],
-        distributions: [],
         supportAmount: 10,
-        tabIndex: 0,
-        events: []
       }
     },
     methods: {
       async init() {
-        this.loadFundInfo();
-        this.loadSupporters();
-        this.loadDistributions();
+        this.setFundState();
+        this.setSupporters();
       },
-      async setEvent() {
-        const supportEvent = this.$contract.fund.getContract(this.fund_id).events
-          .Support({fromBlock: 'latest'}, () => this.init());
-        this.events.push(supportEvent);
-        const endFundEvent = this.$contract.apiFund.getContract().events
-          .EndFund({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.init());
-        this.events.push(endFundEvent);
-        const releaseDistributionEvent = this.$contract.apiFund.getContract().events
-          .ReleaseDistribution({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.init());
-        this.events.push(releaseDistributionEvent);
-        const voteEvent = this.$contract.apiFund.getContract().events
-          .Vote({filter: {_fund: this.fund_id}, fromBlock: 'latest'}, () => this.loadDistributions());
-        this.events.push(voteEvent);
+      async setFundState() {
+        this.fund = await this.$contract.apiFund.getFund(this, this.fund_id);
       },
-      async loadFundInfo() {
-        this.content = await this.$contract.apiContents.getContentsDetail(this.content_id);
-        this.fund = await this.$contract.apiFund.fundInfo(this.fund_id);
+      async setSupporters() {
+        this.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
       },
-      async loadSupporters() {
-        const supporters = await this.$contract.apiFund.getSupporters(this.fund_id);
-        const writers = await this.$contract.accountManager.getUserNames(supporters.map(s => s.user));
-        supporters.forEach((supporter, index) => supporter.userName = writers[index]);
-        this.supporters = supporters;
-      },
-      async loadDistributions() {
-        this.distributions = await this.$contract.apiFund.getDistributions(this.fund_id);
+      async setEvents() {
+        this.web3Events.push(this.$contract.fund.getContract(this.fund_id).events
+          .Support({fromBlock: 'latest'}, () => this.init()));
       },
       async support(evt) {
         evt.preventDefault();
@@ -181,38 +97,26 @@
         }
         loader.hide()
       },
-      async endFund(tabIndex) {
-        let loader = this.$loading.show();
-        try {
-          await this.$contract.apiFund.endFund(this.fund_id);
-          this.init();
-          this.tabIndex = tabIndex;
-        } catch (e) {
-          alert(e)
-        }
-        loader.hide()
-      },
-      async releaseDistribution() {
-        let loader = this.$loading.show();
-        try {
-          await this.$contract.apiFund.releaseDistribution(this.fund_id);
-          this.init();
-        } catch (e) {
-          alert(e)
-        }
-        loader.hide()
-      }
     },
     async created() {
-      this.setEvent();
+      this.setEvents();
       this.init();
-    },
-    async destroyed() {
-      this.events.forEach(async event => await event.unsubscribe());
-    },
+    }
   }
 </script>
 
 <style scoped>
+  .thumbnail {
+    width: 200px;
+    height: 200px;
+    background-position: center;
+    background-size: cover;
+    border: 1px solid #979797;
+  }
 
+  .title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
 </style>

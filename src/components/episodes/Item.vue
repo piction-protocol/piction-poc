@@ -2,18 +2,15 @@
   <div @click="purchase" class="item">
     <div class="d-flex">
       <img :src="episode.thumbnail" class="thumbnail"/>
-      <div class="d-flex align-items flex-column p-3 overflow-hidden">
+      <div class="d-flex align-items flex-column p-2 overflow-hidden">
+        <div class="created-at">{{$utils.dateFmt(episode.createdAt)}}</div>
         <div class="title-text h-50">{{episode.title}}</div>
         <div class="purchase-info-text h-50">
-          {{!my && episode.purchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
+          {{episode.isPurchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
         </div>
       </div>
       <div class="ml-auto p-2 d-flex align-items-end flex-column">
-        <div class="h-75">
-          <i v-if="my" class="ml-2 fas fa-edit"
-             v-on:click.stop="updateEpisode"
-             v-b-tooltip.hover :title="`회차수정`"></i></div>
-        <div class="h-25">#{{Number(episode.number) + 1}}</div>
+        <div class="h-25">#{{episode.number}}</div>
       </div>
     </div>
   </div>
@@ -23,7 +20,7 @@
   import index from "../../store/index";
 
   export default {
-    props: ['content_id', 'episode', 'my'],
+    props: ['comic', 'episode', 'my'],
     data() {
       return {}
     },
@@ -31,30 +28,32 @@
       show() {
         this.$router.push({
           name: 'show-episode',
-          params: {content_id: this.content_id, episode_id: this.episode.number}
+          params: {comic_id: this.comic.address, episode_id: this.episode.key}
         });
       },
       updateEpisode(evt) {
-        console.log(evt)
         evt.preventDefault();
         this.$router.push({
           name: 'edit-episode',
-          params: {content_id: this.content_id, episode_id: this.episode.number}
+          params: {comic_id: this.comic.address, episode_id: this.episode.key}
         });
       },
       async purchase() {
+        if(this.episode.isPurchased) {
+          this.show();
+          return;
+        }
         let loader = this.$loading.show();
         if (this.episode.purchased) {
           this.show()
         } else if (confirm(`소장하시겠습니까? (${this.$utils.toPXL(this.episode.price)}PXL)`)) {
           try {
-            const content = this.content_id
-            const marketer = this.$utils.toHexString(0).substr(2)
-            const index = this.$utils.toHexString(this.episode.number, 64).substr(2);
+            const comic = this.comic.address;
+            const key = this.$utils.toHexString(this.episode.key, 64).substr(2);
             await this.$contract.pxl.approveAndCall(
               this.pictionConfig.pictionAddress.pixelDistributor,
               this.episode.price,
-              `${content}${marketer}${index}`
+              `${comic}${key}`
             );
             this.show();
           } catch (e) {
@@ -68,6 +67,11 @@
 </script>
 
 <style scoped>
+  .created-at {
+    font-size: 14px;
+    color: #9b9b9b;
+  }
+
   .title-text {
     font-size: 16px;
     font-weight: bold;

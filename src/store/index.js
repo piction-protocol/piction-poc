@@ -5,15 +5,18 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    name: localStorage.getItem('name') || null,
     token: localStorage.getItem('token') || null,
   },
   getters: {
     isLoggedIn: state => state.token != null,
+    name: state => state.name,
     token: state => state.token,
     publicKey: state => state.token ? web3.eth.accounts.privateKeyToAccount(state.token).address : '0x0000000000000000000000000000000000000000'
   },
   mutations: {
-    LOGIN(state, token) {
+    LOGIN(state, name, token) {
+      state.name = name
       state.token = token
     },
     LOGOUT(state) {
@@ -21,12 +24,14 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    LOGIN({commit}, token) {
-      commit('LOGIN', token)
+    LOGIN({commit}, {name, token}) {
+      commit('LOGIN', name, token)
+      localStorage.setItem('name', name)
       localStorage.setItem('token', token)
     },
     LOGOUT({commit}) {
       commit('LOGOUT')
+      localStorage.removeItem('name')
       localStorage.removeItem('token')
     },
   },

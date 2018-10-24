@@ -9,6 +9,7 @@ var ContentsManager = artifacts.require("ContentsManager");
 var FundManager = artifacts.require("FundManager");
 var AccountManager = artifacts.require("AccountManager");
 var ApiContents = artifacts.require("ApiContents");
+
 const BigNumber = web3.BigNumber;
 
 require("chai")
@@ -16,18 +17,20 @@ require("chai")
     .use(require("chai-bignumber")(BigNumber))
     .should();
 
-contract("ApiContents", function (accounts) {
+contract("AccountManager", function (accounts) {
     const owner = accounts[0];
     const writer = accounts[1];
-    const user1 = accounts[2];
-    const user2 = accounts[3];
+    const buyer = accounts[2];
+    const user = accounts[3];
+    const denied = accounts[4];
+    const cd = accounts[5];
 
     const decimals = Math.pow(10, 18);
     const initialBalance = new BigNumber(1000000000 * decimals);
 
     const initialDeposit = new BigNumber(100 * decimals);
     const reportRegistrationFee = new BigNumber(50 * decimals);
-    const fundAvailable = true;
+    const fundAvailable = false;
 
     const cdRate = 0.15 * decimals;
     const depositRate = 0.03 * decimals;
@@ -43,16 +46,20 @@ contract("ApiContents", function (accounts) {
     const record = '{"title": "권짱님의 스트레스!!","genres": "액션, 판타지","synopsis": "요괴가 지니고 있는 능력으로 합법적 무력을 행사하고 사회적 문제를 해결하는 단체, \'연옥학원\'. 빼앗긴 심장과 기억을 되찾기 위해 연옥학원에 들어간 좀비, 블루의 모험이 다시 시작된다! 더욱 파워풀한 액션으로 돌아온 연옥학원, 그 두 번째 이야기!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
     const updateRecord = '{"title": "권짱님의 업그레이드 스트레스!!","genres": "액션, 판타지","synopsis": "요괴가 지니고 있는 능력으로 합법적 무력을 행사하고 사회적 문제를 해결하는 단체, \'연옥학원\'. 빼앗긴 심장과 기억을 되찾기 위해 연옥학원에 들어간 좀비, 블루의 모험이 다시 시작된다! 더욱 파워풀한 액션으로 돌아온 연옥학원, 그 두 번째 이야기!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
     const episode = '{"title": "똥쟁이님의 신발 구매???????","genres": "일상","synopsis": "여기 이 남자를 보시라! 뭘 해도 어그로 가 끌리는 미친 존재감! 낙천적이며 교활하기 까지한 티이모 유저 제인유와 그의 친구들의 좌충우돌 스토리!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
-    const updateEpisode = '{"title": "똥쟁이님의 조던 11!!!","genres": "일상","synopsis": "여기 이 남자를 보시라! 뭘 해도 어그로 가 끌리는 미친 존재감! 낙천적이며 교활하기 까지한 티이모 유저 제인유와 그의 친구들의 좌충우돌 스토리!","titleImage": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg","thumbnail": "https://www.battlecomics.co.kr/webtoons/467"}';
     const imageUrl = '{"cuts": "https://www.battlecomics.co.kr/assets/img-logo-692174dc5a66cb2f8a4eae29823bb2b3de2411381f69a187dca62464c6f603ef.svg,https://www.battlecomics.co.kr/webtoons/467"}';
 
     let token;
     let council;
-    let apiContents;
-    let content;
-    let contentsManager;
-    let accountManager;
+    let userPaybackPool;
     let depositPool;
+    let distributor;
+    let marketer;
+    let report;
+    let contentsManager;
+    let fundManager;
+    let accountManager;
+    let apiContents;
+    let pxlDistributor;
 
     let toBigNumber = function bigNumberToPaddedBytes32(num) {
         var n = num.toString(16).replace(/^0x/, '');
@@ -103,7 +110,8 @@ contract("ApiContents", function (accounts) {
             depositPool.address,
             pxlDistributor.address,
             marketer.address,
-            report.address
+            report.address,
+            cd
         ).should.be.fulfilled;
 
         await council.initialManagerAddress(
@@ -123,152 +131,128 @@ contract("ApiContents", function (accounts) {
         await token.transfer(accountManager.address, 1000000 * decimals, {from: owner}).should.be.fulfilled;
     });
 
-    describe("Test api contents.", () => {
+    describe("Test accountManager.", () => {
         it("Create new account.", async () => {
-
             let writerBalance = await token.balanceOf.call(writer, {from: writer});
-            let user1Balance = await token.balanceOf.call(user1, {from: user1});
-            let user2Balance = await token.balanceOf.call(user2, {from: user2});
+            let buyerBalance = await token.balanceOf.call(buyer, {from: buyer});
+            let userBalance = await token.balanceOf.call(user, {from: user});
 
             writerBalance.should.be.bignumber.equal(0);
-            user1Balance.should.be.bignumber.equal(0);
-            user2Balance.should.be.bignumber.equal(0);
+            buyerBalance.should.be.bignumber.equal(0);
+            userBalance.should.be.bignumber.equal(0);
 
             await accountManager.createNewAccount(
                 "writer",
-                "qwer1234",
-                "asdfasdfasdfasdf",
+                "writer1234",
+                "writer privateKey",
                 writer,
                 {from: writer}
             ).should.be.fulfilled;
 
             await accountManager.createNewAccount(
-                "user1",
-                "qwer1234",
-                "asdfasdfasdfasdf",
-                user1,
-                {from: user1}
+                "buyer",
+                "buyer1234",
+                "buyer privateKey",
+                buyer,
+                {from: buyer}
             ).should.be.fulfilled;
 
             await accountManager.createNewAccount(
-                "user2",
-                "qwer1234",
-                "asdfasdfasdfasdf",
-                user2,
-                {from: user2}
+                "user",
+                "user1234",
+                "user privateKey",
+                user,
+                {from: user}
             ).should.be.fulfilled;
 
             writerBalance = await token.balanceOf.call(writer, {from: writer});
-            user1Balance = await token.balanceOf.call(user1, {from: user1});
-            user2Balance = await token.balanceOf.call(user2, {from: user2});
+            buyerBalance = await token.balanceOf.call(buyer, {from: buyer});
+            userBalance = await token.balanceOf.call(user, {from: user});
 
             writerBalance.should.be.bignumber.equal(airdropAmount);
-            user1Balance.should.be.bignumber.equal(airdropAmount);
-            user2Balance.should.be.bignumber.equal(airdropAmount);
+            buyerBalance.should.be.bignumber.equal(airdropAmount);
+            userBalance.should.be.bignumber.equal(airdropAmount);
 
             let _isRegisterd = await accountManager.isRegistered.call("writer", {from:writer});
             _isRegisterd.should.be.equal(true);
-            _isRegisterd = await accountManager.isRegistered.call("user1", {from:user1});
+
+            _isRegisterd = false;
+            _isRegisterd = await accountManager.isRegistered.call("buyer", {from:buyer});
             _isRegisterd.should.be.equal(true);
-            _isRegisterd = await accountManager.isRegistered.call("user2", {from:user2});
+
+            _isRegisterd = false;
+            _isRegisterd = await accountManager.isRegistered.call("user", {from:user});
             _isRegisterd.should.be.equal(true);
         });
 
-        it("Transfer initial deposit.", async () => {
-            const _toAddress = await council.getContentsManager.call({from: writer});
+        it("Login test.", async () => {
+            const _deniedResult = await accountManager.login.call("denied", "denied1234", {from:denied});
+            _deniedResult[0].should.be.equal("Login failed: Please register account.");
+            _deniedResult[1].should.be.equal(false);
 
+            const _writerResult = await accountManager.login.call("writer", "writer1234", {from:writer});
+            _writerResult[0].should.be.equal("writer privateKey");
+            _writerResult[1].should.be.equal(true);
+
+            const _buyerResult = await accountManager.login.call("buyer", "buyer1234", {from:buyer});
+            _buyerResult[0].should.be.equal("buyer privateKey");
+            _buyerResult[1].should.be.equal(true);
+
+            const _userResult = await accountManager.login.call("user", "user1234", {from:user});
+            _userResult[0].should.be.equal("user privateKey");
+            _userResult[1].should.be.equal(true);
+        });
+
+        it("User Purchase history.", async () =>{
+            const episodePrice = 10 * decimals;
+            const _toAddress = await council.getContentsManager.call({from: writer});
             await token.approveAndCall(_toAddress, initialDeposit, "", {from: writer});
 
             const _initialDeposit = await apiContents.getInitialDeposit.call(writer, {from: writer});
-
             _initialDeposit.should.be.bignumber.equal(initialDeposit);
-        });
 
-        it("Add contents.", async () => {
-            await apiContents.addContents(record, 10 * decimals, {from:writer});
+            await apiContents.addContents(record, marketerRate, {from: writer});
+            const _contentsAddressInfo = await apiContents.getWriterContentsAddress.call(writer, {from:writer});
+            _contentsAddressInfo.length.should.be.equal(1);
 
-            const _contentsAddress = await apiContents.getWriterContentsAddress.call(writer, {from:writer});
-            _contentsAddress.length.should.be.equal(1);
+            const _contentsAddress = _contentsAddressInfo[0];
+            await apiContents.addEpisode(_contentsAddress, episode, imageUrl, episodePrice, {from:writer});
 
-            const _contentsRecords = await apiContents.getContentsRecord.call(_contentsAddress, {from: writer});
-            const _record = JSON.parse(web3.toUtf8(_contentsRecords[1]));
+            let _episodeInfo = await apiContents.getEpisodeFullList.call(_contentsAddress, {from:buyer});
+            let _episodeRecord = _episodeInfo[0];
+            let _episodePrice = _episodeInfo[1][0];
+            let _episodeBuyCount = _episodeInfo[2][0];
+            let _episodeIsPurchased = _episodeInfo[3][0];
 
-            _record.length.should.be.equal(1);
-            _record[0].title.should.be.equal('권짱님의 스트레스!!');
-        });
+            _episodeBuyCount.toNumber().should.be.equal(0);
+            _episodePrice.should.be.bignumber.equal(episodePrice);
+            _episodeIsPurchased.should.be.equal(false);
 
-        it("Update contents record.", async () => {
-            const _contentsDetail = await apiContents.getWriterContentsList.call(writer, {from: writer});
-            const _contentsAddress = _contentsDetail[0];
-            const _originalRecord = JSON.parse(web3.toUtf8(_contentsDetail[1]));
-            _contentsAddress.length.should.be.equal(1);
-            _originalRecord[0].title.should.be.equal('권짱님의 스트레스!!');
+            await token.approveAndCall(
+                pxlDistributor.address,
+                episodePrice,
+                _contentsAddress + user.substr(2) + toBigNumber(0).substring(2),
+                {from: buyer}
+            );
 
-            await apiContents.updateContent(_contentsAddress[0], updateRecord, marketerRate, {from:writer});
+            const cdBalance = await token.balanceOf.call(cd, {from:cd});
+            cdBalance.should.be.bignumber.equal(1.5 * decimals);
 
-            const _updateContentsDetail = await apiContents.getWriterContentsList.call(writer, {from: writer});
-            const _updateContentsAddress = _updateContentsDetail[0];
-            const _updateRecord = JSON.parse(web3.toUtf8(_updateContentsDetail[1]));
+            _episodeInfo = await apiContents.getEpisodeFullList.call(_contentsAddress, {from:buyer});
+            _episodeBuyCount = _episodeInfo[2][0];
+            _episodeIsPurchased = _episodeInfo[3][0];
 
-            _updateContentsAddress[0].should.be.equal(_contentsAddress[0]);
-            _updateRecord[0].title.should.be.equal('권짱님의 업그레이드 스트레스!!');
-        });
+            _episodeBuyCount.toNumber().should.be.equal(1);
+            _episodeIsPurchased.should.be.equal(true);
 
-        it("Add episode.", async () => {
-            const episodePrice = 10 * decimals;
+            const _purchaseContentsAddress = await accountManager.getPurcahsedContents({from:buyer});
+            _purchaseContentsAddress.length.should.be.equal(1);
+            _purchaseContentsAddress[0].should.be.equal(_contentsAddress);
 
-            const _contentsDetail = await apiContents.getWriterContentsList.call(writer, {from: writer});
-            const _contentsAddress = _contentsDetail[0][0];
-            
-            await apiContents.addEpisode(_contentsAddress, episode, imageUrl, episodePrice, {from: owner}).should.be.rejected;
-            await apiContents.addEpisode(_contentsAddress, episode, imageUrl, episodePrice, {from: writer}).should.be.fulfilled;
-
-            const _episodeDetail = await apiContents.getEpisodeFullList(_contentsAddress, {from: writer});
-            const _episodeRecord = JSON.parse(web3.toUtf8(_episodeDetail[0]));
-            const _episodePrice = _episodeDetail[1];
-            const _episodeBuyCount = _episodeDetail[2];
-            const _episodePurchased = _episodeDetail[3];
-
-            _episodePrice.length.should.be.equal(_episodeBuyCount.length);
-            _episodeBuyCount.length.should.be.equal(_episodePurchased.length);
-            
-            _episodeRecord[0].title.should.be.equal('똥쟁이님의 신발 구매???????');
-            episodePrice.should.be.equal(_episodePrice[0].toNumber());
-            _episodeBuyCount[0].toNumber().should.be.equal(0);
-            _episodePurchased[0].should.be.equal(true);
-        });
-
-        it("Update episode.", async () => {
-            const episodePrice = 10 * decimals;
-
-            const _contentsDetail = await apiContents.getWriterContentsList.call(writer, {from: writer});
-            const _contentsAddress = _contentsDetail[0][0];
-
-            await apiContents.updateEpisode(_contentsAddress, 0, updateEpisode, imageUrl, episodePrice, {from: owner}).should.be.rejected;
-            await apiContents.updateEpisode(_contentsAddress, 0, updateEpisode, imageUrl, episodePrice, {from: writer}).should.be.fulfilled;
-
-            const _episodeDetail = await apiContents.getEpisodeFullList(_contentsAddress, {from: writer});
-            const _episodeRecord = JSON.parse(web3.toUtf8(_episodeDetail[0]));
-            const _episodePrice = _episodeDetail[1];
-            const _episodeBuyCount = _episodeDetail[2];
-            const _episodePurchased = _episodeDetail[3];
-
-            _episodePrice.length.should.be.equal(_episodeBuyCount.length);
-            _episodeBuyCount.length.should.be.equal(_episodePurchased.length);
-
-            _episodeRecord[0].title.should.be.equal('똥쟁이님의 조던 11!!!');
-        });
-
-        it("Pick count test.", async () => {
-            const _contentsDetail = await apiContents.getWriterContentsList.call(writer, {from: writer});
-            const _contentsAddress = _contentsDetail[0][0];
-
-            let pickCount = await apiContents.getPickCount(_contentsAddress, {from: owner});
-            pickCount.toNumber().should.be.equal(0);
-
-            await apiContents.addPickCount(_contentsAddress, {from: owner});
-            pickCount = await apiContents.getPickCount(_contentsAddress, {from: owner});
-            pickCount.toNumber().should.be.equal(1);
+            const _purchaseContentEpisodes = await accountManager.getPurchasedContentEpisodes(_contentsAddress, {from: buyer});
+            _purchaseContentEpisodes[0].should.be.equal(_contentsAddress);
+            _purchaseContentEpisodes[1].length.should.be.equal(1);
+            _purchaseContentEpisodes[2][0].should.be.equal(true);
         });
     });
 });

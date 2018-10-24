@@ -4,20 +4,26 @@ import store from '../store/index.js'
 // sign
 import Login from '@/components/sign/Login'
 import Join from '@/components/sign/Join'
-// contents
-import ContentIndex from '@/components/contents/Index'
-import ContentNew from '@/components/contents/New'
-import ContentShow from '@/components/contents/Show'
-import ContentEdit from '@/components/contents/Edit'
+// comics
+import ComicIndex from '@/components/comics/Index'
 // episodes
 import EpisodeIndex from '@/components/episodes/Index'
-import EpisodeNew from '@/components/episodes/New'
 import EpisodeShow from '@/components/episodes/Show'
-import EpisodeEdit from '@/components/episodes/Edit'
+
 // fund
 import FundIndex from '@/components/funds/Index'
 import FundNew from '@/components/funds/New'
 import FundShow from '@/components/funds/Show'
+// publish
+import PublishComicIndex from '@/components/publish/comics/Index'
+import PublishComicShow from '@/components/publish/comics/Show'
+import PublishComicNew from '@/components/publish/comics/New'
+import PublishComicEdit from '@/components/publish/comics/Edit'
+import PublishEpisodeIndex from '@/components/publish/comics/episodes/Index'
+import PublishEpisodeNew from '@/components/publish/comics/episodes/New'
+import PublishEpisodeEdit from '@/components/publish/comics/episodes/Edit'
+import PublishComicInfoIndex from '@/components/publish/comics/info/Index'
+import PublishSupporterIndex from '@/components/publish/comics/supporter/Index'
 // my
 import MyIndex from '@/components/my/Index'
 import AccountIndex from '@/components/my/account/Index'
@@ -39,31 +45,31 @@ const router = new Router({
     {path: '/join', name: 'join', component: Join},
     // contents
     {
-      path: '/contents', name: 'contents', component: ContentIndex,
+      path: '/comics', name: 'comics', component: ComicIndex,
       props: (route) => ({genre: route.query.genre})
     },
-    {path: '/contents/new', name: 'new-content', component: ContentNew},
-    {path: '/contents/:content_id/show', name: 'show-content', component: ContentShow, props: true},
-    {path: '/contents/:content_id/edit', name: 'edit-content', component: ContentEdit, props: true},
     // episodes
-    {path: '/contents/:content_id', redirect: '/contents/:content_id/episodes'},
-    {path: '/contents/:content_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
-    {path: '/contents/:content_id/episodes/new', name: 'new-episode', component: EpisodeNew, props: true},
-    {path: '/contents/:content_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
-    {
-      path: '/contents/:content_id/episodes/:episode_id/edit',
-      name: 'edit-episode',
-      component: EpisodeEdit,
-      props: true
-    },
-    // trends
-    {
-      path: '/funds', name: 'funds', component: FundIndex,
-      props: (route) => ({filter: route.query.filter})
-    },
+    {path: '/comics/:comic_id', redirect: '/contents/:content_id/episodes'},
+    {path: '/comics/:comic_id/episodes', name: 'episodes', component: EpisodeIndex, props: true},
+    {path: '/comics/:comic_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
     // funds
-    {path: '/contents/:content_id/funds/new', name: 'new-fund', component: FundNew, props: true},
-    {path: '/contents/:content_id/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
+    {path: '/funds', name: 'funds', component: FundIndex},
+    {path: '/comics/:comic_id/funds/new', name: 'new-fund', component: FundNew, props: true},
+    {path: '/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
+    // publish
+    {path: '/publish/comics', name: 'publish-comics', component: PublishComicIndex},
+    {path: '/publish/comics/new', name: 'publish-new-comic', component: PublishComicNew},
+    {path: '/publish/comics/:comic_id/edit', name: 'publish-edit-comic', component: PublishComicEdit, props: true},
+    {
+      path: '/publish/comics/:comic_id', component: PublishComicShow, props: true,
+      children: [
+        {path: 'episodes', name: 'publish-episodes', component: PublishEpisodeIndex, props: true},
+        {path: 'info', name: 'publish-info', component: PublishComicInfoIndex, props: true},
+        {path: 'supporter', name: 'publish-supporter', component: PublishSupporterIndex, props: true},
+      ]
+    },
+    {path: '/publish/comics/:comic_id/episodes/new', name: 'publish-new-episode', component: PublishEpisodeNew, props: true},
+    {path: '/publish/comics/:comic_id/episodes/:episode_id/edit', name: 'publish-edit-episode', component: PublishEpisodeEdit, props: true},
     // my
     {
       path: '/my', component: MyIndex,

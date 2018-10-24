@@ -32,7 +32,6 @@
 <script>
   import moment from 'moment';
   import {Datetime} from 'vue-datetime';
-  import {record as _record} from './helper';
   import BigNumber from 'bignumber.js'
 
   export default {

@@ -1,21 +1,23 @@
 <template>
   <router-link class="item d-inline-block w-100 mb-4 position-relative"
-               :to="{name: 'show-fund', params: {content_id: fund.content, fund_id: fund.fund}}">
-    <div v-if="!disableLabel" class="position-absolute mr-1" style="right: 0;">
-      <b-badge variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}</b-badge>
-    </div>
-    <b-img fluid :src="fund.record.thumbnail" class="thumbnail"/>
+               :to="{name: 'show-fund', params: {comic_id: fund.comic.address, fund_id: fund.address}}">
+    <b-img fluid :src="fund.comic.thumbnail" class="thumbnail"/>
     <div class="fund-info">
-      <b-badge variant="secondary bg-dark mt-2">{{fund.record.genres}}</b-badge>
-      <div class="title-text mt-2">{{fund.record.title}}</div>
-      <div class="writer-text mt2">{{fund.record.writerName}}</div>
+      <div class="mt-2">
+        <b-badge variant="secondary bg-dark">{{fund.comic.genres}}</b-badge>
+        <b-badge v-if="$route.hash != '#closed'" variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}
+        </b-badge>
+      </div>
+      <div class="title-text mt-2">{{fund.comic.title}}</div>
+      <div class="writer-text mt2">{{fund.comic.writer.name}}</div>
       <div class="detail-text mt-2">{{fund.detail}}</div>
       <div v-b-tooltip.hover :title="riseTooltip" class="pb-2 pt-2">
         <div class="position-relative">
           <b-progress :max="maxcap" height="5px" variant="dark">
             <b-progress-bar :value="rise"></b-progress-bar>
           </b-progress>
-          <b-progress v-if="rise < softcap" :max="maxcap" height="5px" variant="dark" class="position-absolute w-100"
+          <b-progress v-if="rise < softcap"
+                      :max="maxcap" height="5px" variant="dark" class="position-absolute w-100"
                       style="top:0; opacity: 0.15">
             <b-progress-bar variant="danger" :value="softcap"></b-progress-bar>
           </b-progress>
@@ -23,7 +25,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-end"><span class="rise-pxl-text">{{rise.toFixed(2)}}</span>
             <span class="symbol-text ml-1">PXL raised</span></div>
-          <div class="percent-text">{{percent}}%</div>
+          <div class="percent-text">{{fund.getRisePercent()}}%</div>
         </div>
       </div>
     </div>
@@ -31,10 +33,10 @@
 </template>
 
 <script>
-  import Web3Utils from '../../utils/Web3Utils.js'
+  import Web3Utils from '@utils/Web3Utils'
 
   export default {
-    props: ['fund', 'disableLabel'],
+    props: ['fund'],
     computed: {
       rise() {
         return Number(this.$utils.toPXL(this.fund.rise));
@@ -44,9 +46,6 @@
       },
       maxcap() {
         return Number(this.$utils.toPXL(this.fund.maxcap));
-      },
-      percent() {
-        return (this.rise / this.maxcap * 100).toFixed(0);
       },
       riseTooltip() {
         return `Softcap ${this.softcap} PXL\nMaxcap ${this.maxcap} PXL`;
@@ -60,22 +59,16 @@
       }
     },
     data() {
-      return {
-        events: []
-      }
+      return {}
     },
     methods: {
       async setEvent() {
-        const supportEvent = this.$contract.fund.getContract(this.fund.fund).events
-          .Support({fromBlock: 'latest'}, () => this.$parent.init());
-        this.events.push(supportEvent);
+        this.web3Events.push(this.$contract.fund.getContract(this.fund.address).events
+          .Support({fromBlock: 'latest'}, () => this.$parent.setFunds()));
       },
     },
     created() {
       this.setEvent();
-    },
-    async destroyed() {
-      this.events.forEach(async event => await event.unsubscribe());
     },
   }
 </script>
@@ -99,17 +92,17 @@
   }
 
   .rise-pxl-text {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 900;
   }
 
   .symbol-text {
-    font-size: 8px;
+    font-size: 14px;
     color: #4a4a4a;
   }
 
   .percent-text {
-    font-size: 10px;
+    font-size: 12px;
     color: #4a4a4a;
   }
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :record="record"
+      :episode="episode"
       action="new"
       submitText="등록"
       @onSubmit="onSubmit"></Form>
@@ -9,22 +9,23 @@
 </template>
 
 <script>
+  import Episode from '@models/Episode'
   import Form from './Form'
-  import {record, genres} from './helper'
 
   export default {
     components: {Form},
+    props: ['comic_id'],
     data() {
       return {
-        record: record(),
+        episode: new Episode()
       }
     },
     methods: {
-      async onSubmit(record) {
+      async onSubmit(episode) {
         let loader = this.$loading.show();
         try {
-          await this.$contract.apiContents.addContents(record);
-          this.$router.push({name: 'contents'})
+          await this.$contract.apiContents.createEpisode(this.comic_id, episode);
+          this.$router.push({name: 'publish-episodes', params: {comic_id: this.comic_id}})
         } catch (e) {
           alert(e)
         }
@@ -32,7 +33,6 @@
       },
     },
     created() {
-      this.record.genres = genres[0].value
     }
   }
 </script>
