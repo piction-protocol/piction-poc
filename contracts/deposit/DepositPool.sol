@@ -10,6 +10,7 @@ import "contracts/interface/IDepositPool.sol";
 import "contracts/interface/IReport.sol";
 import "contracts/interface/IFundManager.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
@@ -67,10 +68,11 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         ERC20 token = ERC20(council.getToken());
         require(address(token) == _token);
 
+        string memory message = (_from == council.getPixelDistributor())? "에피소드 판매 적립금" : "작품 초기 보증금 예치";
 
         address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);
-        token.safeTransferFrom(_from, address(this), _value);
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, message);
 
         emit AddDeposit(_from, _value, _token);
     }
@@ -103,7 +105,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
             require(token.balanceOf(address(this)) >= amount);
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
-            token.safeTransfer(_reporter, amount);
+            CustomToken(address(token)).transferPxl(_reporter, amount, "신고 활동 보상금");
         } else {
             amount = 0;
         }
@@ -138,12 +140,14 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
         (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
+        CustomToken customToken = CustomToken(address(token));
+
         //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
         for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
             compareAmount = compareAmount.add(supporterAmount[j]);
             contentDeposit[_content] = contentDeposit[_content].sub(supporterAmount[j]);
 
-            token.safeTransfer(supporterAddress[j], supporterAmount[j]);
+            customToken.transferPxl(supporterAddress[j], supporterAmount[j], "작품 초기 보증금 분배");
             emit Release(_content, supporterAddress[j], supporterAmount[j]);
         }
         amount = amount.sub(compareAmount);
@@ -151,7 +155,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         if (amount > 0) {
             contentDeposit[_content] = contentDeposit[_content].sub(amount);
 
-            token.safeTransfer(writer, amount);
+            customToken.transferPxl(writer, amount, "작품 초기 보증금 분배");
             emit Release(_content, writer, amount);
         }
 

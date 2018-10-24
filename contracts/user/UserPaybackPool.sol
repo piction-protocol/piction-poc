@@ -6,6 +6,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "contracts/interface/ICouncil.sol";
 
+import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/TimeLib.sol";
@@ -86,7 +87,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
             createPaybackPool();
         }
 
-        token.safeTransferFrom(_from, address(this), _value);
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "에피소드 구매 리워드 예치");
 
         address user = _data.toAddress(0);
         paybackPool[currentIndex].paybackInfo[user] = paybackPool[currentIndex].paybackInfo[user].add(_value);
@@ -107,7 +108,7 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
                     uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
                     paybackPool[i].released[msg.sender] = true;
 
-                    token.safeTransfer(msg.sender, paybackAmount);
+                    CustomToken(address(token)).transferPxl(msg.sender, paybackAmount, "에피소드 구매 리워드 지급");
 
                     emit Release(msg.sender, i, paybackAmount);
                 }
