@@ -323,7 +323,7 @@ contract ApiContents is ValidValue {
             uint256 episodeCreationTime_
         )
     {
-        if(msg.sender != IContent(_comicAddress).getWriter()) {
+        if(!isPurchasedEpisode(_comicAddress, _index, msg.sender)) {
             return;
         }
 
