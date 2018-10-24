@@ -26,7 +26,6 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     using SafeMath for uint256;
     using BytesLib for bytes;
 
-
     uint256 DECIMALS = 10 ** 18;
 
     ICouncil council;
@@ -74,7 +73,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         contentDeposit[content] = contentDeposit[content].add(_value);
         token.safeTransferFrom(_from, address(this), _value);
         
-        uint256 releaseDate = TimeLib.currentTime() + council.getDepositReleaseDelay().mul(1000);
+        uint256 releaseDate = TimeLib.currentTime() + council.getDepositReleaseDelay();
         setReleaseDate(content, releaseDate);
 
         emit AddDeposit(content, _value, _token);
@@ -122,35 +121,40 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         require(address(council) == msg.sender, "msg sender is not council");
         require(_type < 2, "out of type");
 
-        uint256 rewardOnePXL;
-
-        if (contentDeposit[_content] > rewardOnePXL) {
+        if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
-            rewardOnePXL = 1 ** DECIMALS;
+            uint256 rewardOnePXL = 1 ** DECIMALS;
 
-            if (_type == 1) {
+            if (contentDeposit[_content] > rewardOnePXL) {
                 deduction_ = contentDeposit[_content].sub(rewardOnePXL);
-                contentDeposit[_content] = 0;
-                contentBlock_ = true;
-            } else if (_type == 2) {
-                if (contentDeposit[_content].sub(rewardOnePXL) == 0) {
+                if (_type == 1) {
+                    contentDeposit[_content] = 0;
                     contentBlock_ = true;
+                } else if (_type == 2) {
+                    contentDeposit[_content] = contentDeposit[_content].sub(rewardOnePXL);
+                    if (deduction_ == 0) {
+                        contentBlock_ = true;
+                    }
                 }
-                contentDeposit[_content] = contentDeposit[_content].sub(rewardOnePXL);
+            } else {
+                deduction_ = contentDeposit[_content];
+                contentDeposit[_content] = 0;
+                rewardOnePXL = 0;
+                contentBlock_ = true;
             }
 
             require(token.balanceOf(address(this)) >= deduction_ + rewardOnePXL, "token balance abnormal");
-            if ((deduction_ + rewardOnePXL) > 0) { 
-                token.safeTransfer(_reporter, rewardOnePXL);
+            if (deduction_ > 0) {
                 token.safeTransfer(address(council), deduction_);
             }
             
-            deduction_ = deduction_ + rewardOnePXL;
-        } else {
-            deduction_ = 0;
+            if (rewardOnePXL > 0) {
+                token.safeTransfer(_reporter, rewardOnePXL);
+                deduction_ = deduction_ + rewardOnePXL;
+            }
         }
 
-        setReleaseDate(_content, TimeLib.currentTime() + council.getDepositReleaseDelay().mul(1000));
+        setReleaseDate(_content, TimeLib.currentTime() + council.getDepositReleaseDelay());
 
         emit DepositChange(TimeLib.currentTime(), _content, _type, deduction_, _descripstion);
     }
