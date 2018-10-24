@@ -14,6 +14,7 @@ contract IContent {
     function getContentCreationTime() public view returns (uint256 contentCreationTime_);
     function getEpisodeLastUpdatedTime() public view returns (uint256 episodeLastUpdatedTime_);
     function getFavoriteCount() public view returns (uint256 favoriteCount_);
+    function getSalesInfo() public view returns (uint256 totalPurchasedAmount_, uint256 totalPurchasedCount_, uint256 favoriteCount_, uint256 totalPurchasedUserCount_);
     function getComicsInfo() external view returns(string record_, address writer_, string writerName_, uint256 totalPurchasedCount_, uint256 totalPurchasedAmount_, uint256 contentCreationTime_, uint256 episodeLastUpdatedTime_);
     function getEpisodeLength() public view returns (uint256 episodeLength_);
     function getPublishEpisodeIndex() public view returns (uint256[] episodeIndex_);

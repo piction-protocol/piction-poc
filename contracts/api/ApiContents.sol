@@ -447,6 +447,7 @@ contract ApiContents is ValidValue {
     * @return totalPurchasedAmount_ 총 구매 pxl 양
     * @return totalPurchasedCount_ 총 구매 건수
     * @return favoriteCount_ favorite 유지 건수
+    * @return totalPurchasedUserCount_ 구매 유저 수
     */
     function getMyComicSales(
         address _comicAddress
@@ -456,16 +457,15 @@ contract ApiContents is ValidValue {
         returns (
             uint256 totalPurchasedAmount_,
             uint256 totalPurchasedCount_,
-            uint256 favoriteCount_
+            uint256 favoriteCount_,
+            uint256 totalPurchasedUserCount_
         )
     {
         if(IContent(_comicAddress).getWriter() != msg.sender) {
             return;
         }
 
-        totalPurchasedAmount_ = IContent(_comicAddress).getTotalPurchasedAmount();
-        totalPurchasedCount_ = IContent(_comicAddress).getTotalPurchasedCount();
-        favoriteCount_ = IContent(_comicAddress).getFavoriteCount();
+        (totalPurchasedAmount_, totalPurchasedCount_, favoriteCount_, totalPurchasedUserCount_) = IContent(_comicAddress).getSalesInfo();
     }
 
     /**
