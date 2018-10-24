@@ -1,12 +1,15 @@
 <template>
-  <router-link class="d-flex mb-2" :to="{ name: 'publish-episodes', params: { comic_id: comic.address }}">
-    <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
-    <div class="d-flex align-content-between flex-wrap p-3">
-      <div class="title-text w-100">{{comic.title}}</div>
-      <div class="episode-count-text w-100">{{episodeCountText}}</div>
-      <div :class="comic.isBlock ? 'block-text' : 'purchased-amount-text'" class="w-100">{{purchasedAmountText}}</div>
-    </div>
-  </router-link>
+  <div>
+    <router-link class="d-flex mb-2" :to="{ name: 'publish-episodes', params: { comic_id: comic.address }}">
+      <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
+      <div class="d-flex align-content-between flex-wrap p-3">
+        <div class="title-text w-100">{{comic.title}}</div>
+        <div class="episode-count-text w-100">{{episodeCountText}}</div>
+        <div :class="comic.isBlock ? 'block-text' : 'purchased-amount-text'" class="w-100">{{purchasedAmountText}}</div>
+      </div>
+    </router-link>
+    <hr>
+  </div>
 </template>
 
 <script>

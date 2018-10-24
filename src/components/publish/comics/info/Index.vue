@@ -5,12 +5,17 @@
 </template>
 
 <script>
+  import Comic from '@models/Comic'
+
   export default {
     data() {
-      return {}
+      return {
+        comic: new Comic()
+      }
     },
     methods: {},
-    created() {
+    async created() {
+      this.comic = this.$parent.comic;
     }
   }
 </script>

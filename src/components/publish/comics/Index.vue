@@ -62,7 +62,7 @@
       }
     },
     async created() {
-      this.comics = await this.$contract.apiContents.getMyComics(this);
+      this.comics = (await this.$contract.apiContents.getMyComics(this)).reverse();
       this.setDeposit();
     }
   }
