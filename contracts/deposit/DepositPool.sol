@@ -137,9 +137,8 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
                     }
                 }
             } else {
-                deduction_ = contentDeposit[_content];
+                rewardOnePXL = contentDeposit[_content];
                 contentDeposit[_content] = 0;
-                rewardOnePXL = 0;
                 contentBlock_ = true;
             }
 
