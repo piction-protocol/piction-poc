@@ -38,71 +38,59 @@
   }
 </script>
 
-<style>
-  @import url(https://use.fontawesome.com/releases/v5.4.1/css/all.css);
-  @import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+<style lang="sass">
+  @import "https://use.fontawesome.com/releases/v5.4.1/css/all.css"
+  @import "http://fonts.googleapis.com/earlyaccess/nanumgothic.css"
 
-  #app {
-    font-family: 'Nanum Gothic', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color: #2c3e50;
-    margin: 0px auto;
-  }
+  #app
+    font-family: 'Nanum Gothic', Helvetica, Arial, sans-serif
+    -webkit-font-smoothing: antialiased
+    -moz-osx-font-smoothing: grayscale
+    color: #2c3e50
+    margin: 0px auto
 
-  .container {
-    margin: 80px auto 40px auto;
-  }
+  .container
+    margin: 80px auto 40px auto
 
-  .pxl-change {
-    animation-name: example;
-    animation-duration: 5s;
-  }
+  .pxl-change
+    animation-name: example
+    animation-duration: 5s
 
-  .page-title {
-    font-size: 36px;
-    font-weight: bold;
-  }
+  .page-title
+    font-size: 36px
+    font-weight: bold
 
-  .overflow-hidden {
-    overflow: hidden;
-  }
+  .overflow-hidden
+    overflow: hidden
 
-  .vld-overlay {
-    z-index: 9999 !important;
-  }
+  .vld-overlay
+    z-index: 9999 !important
+
+  @for $i from 10 through 40
+    .font-size-#{$i}
+      font-size: #{$i}px
 
   /* Chrome, Safari, Opera */
-  @-webkit-keyframes example {
-    0% {
-      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
-    }
-    50% {
-      text-shadow: rgb(255, 0, 0) 0px 0px 30px;
-    }
-    100% {
-      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
-    }
-  }
+  @-webkit-keyframes example
+    0%
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px
+    50%
+      text-shadow: rgb(255, 0, 0) 0px 0px 30px
+    100%
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px
 
   /* Standard syntax */
-  @keyframes example {
-    0% {
-      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
-    }
-    50% {
-      text-shadow: rgb(255, 0, 0) 0px 0px 30px;
-    }
-    100% {
-      text-shadow: rgb(255, 255, 255) 0px 0px 30px;
-    }
-  }
+  @keyframes example
+    0%
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px
+    50%
+      text-shadow: rgb(255, 0, 0) 0px 0px 30px
+    100%
+      text-shadow: rgb(255, 255, 255) 0px 0px 30px
 
-  a {
-    color: inherit !important;
-  }
+  a
+    color: inherit !important
 
-  a:hover {
-    text-decoration: inherit !important;
-  }
+  a:hover
+    text-decoration: inherit !important
 </style>

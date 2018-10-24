@@ -3,10 +3,10 @@
     <div class="page-title">{{comic.title}}</div>
     <br>
     <b-nav tabs>
-      <router-link active-class="active" class="nav-link" :to="{name: 'publish-episodes'}" replace exact>Episodes
+      <router-link active-class="active" class="nav-link" :to="{name: 'publish-episodes'}" replace>Episodes
       </router-link>
-      <router-link active-class="active" class="nav-link" :to="{name: 'publish-info'}" replace exact>Info</router-link>
-      <router-link active-class="active" class="nav-link" :to="{name: 'publish-supporter'}" replace exact>Supporter
+      <router-link active-class="active" class="nav-link" :to="{name: 'publish-info'}" replace>Info</router-link>
+      <router-link active-class="active" class="nav-link" :to="{name: 'publish-supporter'}" replace>Supporter
       </router-link>
     </b-nav>
     <br>

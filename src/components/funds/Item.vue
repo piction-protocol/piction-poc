@@ -12,18 +12,12 @@
       <div class="writer-text mt2">{{fund.comic.writer.name}}</div>
       <div class="detail-text mt-2">{{fund.detail}}</div>
       <div v-b-tooltip.hover :title="riseTooltip" class="pb-2 pt-2">
-        <div class="position-relative">
-          <b-progress :max="maxcap" height="5px" variant="dark">
-            <b-progress-bar :value="rise"></b-progress-bar>
-          </b-progress>
-          <b-progress v-if="rise < softcap"
-                      :max="maxcap" height="5px" variant="dark" class="position-absolute w-100"
-                      style="top:0; opacity: 0.15">
-            <b-progress-bar variant="danger" :value="softcap"></b-progress-bar>
-          </b-progress>
-        </div>
+        <b-progress :max="fund.maxcap" height="5px" variant="primary" class="position-relative">
+          <div class="position-absolute" :style="`width: 1px; height: 5px; background-color: #FF6E27; left: ${fund.getSoftcapPercent()}%`"></div>
+          <b-progress-bar :value="fund.rise"></b-progress-bar>
+        </b-progress>
         <div class="d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-end"><span class="rise-pxl-text">{{rise.toFixed(2)}}</span>
+          <div class="d-flex align-items-end"><span class="rise-pxl-text">{{fund.rise.toFixed(2)}}</span>
             <span class="symbol-text ml-1">PXL raised</span></div>
           <div class="percent-text">{{fund.getRisePercent()}}%</div>
         </div>
@@ -38,23 +32,14 @@
   export default {
     props: ['fund'],
     computed: {
-      rise() {
-        return Number(this.$utils.toPXL(this.fund.rise));
-      },
-      softcap() {
-        return Number(this.$utils.toPXL(this.fund.softcap));
-      },
-      maxcap() {
-        return Number(this.$utils.toPXL(this.fund.maxcap));
-      },
       riseTooltip() {
-        return `Softcap ${this.softcap} PXL\nMaxcap ${this.maxcap} PXL`;
+        return `Softcap ${this.fund.softcap} PXL\nMaxcap ${this.fund.maxcap} PXL`;
       },
       dDay() {
-        if (Number(this.fund.startTime) > this.$root.now) {
+        if (new Date(this.fund.startTime).getTime() > this.$root.now) {
           return '모집예정'
         } else {
-          return Web3Utils.remainTimeToStr(this.$root.now, this.fund.endTime);
+          return Web3Utils.remainTimeToStr(this.$root.now, new Date(this.fund.endTime).getTime());
         }
       }
     },

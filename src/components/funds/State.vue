@@ -2,11 +2,11 @@
   <div class="pt-5 pl-5 pr-5 pb-2">
     <b-row>
       <b-col class="text-center">
-        <div class="value">{{$utils.toPXL(fund.maxcap).toFixed(0)}} <span class="symbol">PXL</span></div>
+        <div class="value">{{fund.maxcap}} <span class="symbol">PXL</span></div>
         <div class="label">목표 모집 금액</div>
       </b-col>
       <b-col class="text-center">
-        <div class="value">{{$utils.toPXL(fund.softcap).toFixed(0)}} <span class="symbol">PXL</span></div>
+        <div class="value">{{fund.softcap}} <span class="symbol">PXL</span></div>
         <div class="label">최소 모집 금액</div>
       </b-col>
       <b-col class="text-center">
@@ -23,21 +23,17 @@
         <div class="label">참여자 수</div>
       </b-col>
       <b-col class="text-center">
-        <div class="value">7 <span class="symbol">일</span></div>
+        <div class="value">XX <span class="symbol">일</span></div>
         <div class="label">남은 모집 기간</div>
       </b-col>
     </b-row>
-    <div class="mt-3 position-relative">
-      <b-progress :max="$utils.toPXL(fund.maxcap)" height="5px" variant="dark">
-        <b-progress-bar :value="$utils.toPXL(fund.rise)"></b-progress-bar>
+    <br>
+    <div class="position-relative" style="height: 12px">
+      <b-progress :max="fund.maxcap" height="6px" variant="primary" class="position-relative">
+        <b-progress-bar :value="fund.rise"></b-progress-bar>
       </b-progress>
-      <b-progress v-if="fund.rise < fund.softcap"
-                  :value="$utils.toPXL(fund.rise)"
-                  :max="$utils.toPXL(fund.maxcap)" height="5px" variant="dark"
-                  class="position-absolute w-100"
-                  style="top:0; opacity: 0.15">
-        <b-progress-bar variant="danger" :value="$utils.toPXL(fund.softcap)"></b-progress-bar>
-      </b-progress>
+      <div class="position-absolute"
+           :style="`top:-2px; width: 10px; height: 10px; border-radius: 10px; background-color: #FF6E27; left: ${fund.getSoftcapPercent()}%`"></div>
     </div>
     <div class="d-flex justify-content-end">
       <div class="label">{{fund.getRisePercent()}}% 모금됨</div>
@@ -55,7 +51,7 @@
     props: ['fund'],
     methods: {
       formatValue(value) {
-        return `${this.$utils.toPXL(value).toFixed(0)}`;
+        return `${value.toFixed(0)}`;
       },
     },
   }

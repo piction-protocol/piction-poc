@@ -27,23 +27,28 @@ class ApiFund {
       event = Web3Utils.prettyJSON(event.returnValues);
       let fund = new Fund();
       fund.address = event.fund;
-      fund.startTime = Number(event.startTime);
-      fund.endTime = Number(event.endTime);
-      fund.maxcap = Number(event.limit[0]);
-      fund.softcap = Number(event.limit[1]);
-      fund.min = Number(event.limit[2]);
-      fund.max = Number(event.limit[3]);
+      fund.startTime = new Date(Number(event.startTime)).toISOString();
+      fund.endTime = new Date(Number(event.endTime)).toISOString();
+      fund.maxcap = Number(event.limit[0]) / Math.pow(10, 18);
+      fund.softcap = Number(event.limit[1]) / Math.pow(10, 18);
+      fund.min = Number(event.limit[2]) / Math.pow(10, 18);
+      fund.max = Number(event.limit[3]) / Math.pow(10, 18);
       fund.poolSize = Number(event.poolSize);
       fund.interval = Number(event.releaseInterval);
-      fund.firstDistributionTime = Number(event.supportFirstTime);
-      fund.distributionRate = Number(event.distributionRate);
+      fund.firstDistributionTime = new Date(Number(event.supportFirstTime)).toISOString();
+      fund.distributionRate = Number(event.distributionRate) / Math.pow(10, 18);
       fund.detail = event.detail;
       fund.setComic(comics.find(comic => comic.address == event.content.toLowerCase()));
       funds.push(fund);
     });
     const rises = await this.getFundRise(funds.map(fund => fund.address));
-    funds.map((fund, i) => fund.rise = Number(rises[i]));
+    funds.map((fund, i) => fund.rise = Number(rises[i]) / Math.pow(10, 18));
     return funds;
+  }
+
+  async getFundAddress(address) {
+    let result = await this._contract.methods.getFund(address).call();
+    return (result == 0) ? null : result
   }
 
   async getFund(vue, address) {
@@ -51,18 +56,18 @@ class ApiFund {
     result = Web3Utils.prettyJSON(result);
     let fund = new Fund();
     fund.address = address;
-    fund.startTime = Number(result.startTime);
-    fund.endTime = Number(result.endTime);
-    fund.maxcap = Number(result.limit[0]);
-    fund.softcap = Number(result.limit[1]);
-    fund.min = Number(result.limit[2]);
-    fund.max = Number(result.limit[3]);
+    fund.startTime = new Date(Number(result.startTime)).toISOString();
+    fund.endTime = new Date(Number(result.endTime)).toISOString();
+    fund.maxcap = Number(result.limit[0]) / Math.pow(10, 18);
+    fund.softcap = Number(result.limit[1]) / Math.pow(10, 18);
+    fund.min = Number(result.limit[2]) / Math.pow(10, 18);
+    fund.max = Number(result.limit[3]) / Math.pow(10, 18);
     fund.poolSize = Number(result.poolSize);
     fund.interval = Number(result.releaseInterval);
-    fund.firstDistributionTime = Number(result.supportFirstTime);
-    fund.distributionRate = Number(result.distributionRate);
+    fund.firstDistributionTime = new Date(Number(result.supportFirstTime)).toISOString();
+    fund.distributionRate = Number(result.distributionRate) / Math.pow(10, 18);
     fund.detail = result.detail;
-    fund.rise = Number(result.fundRise);
+    fund.rise = Number(result.fundRise) / Math.pow(10, 18);
     let comic = await vue.$contract.apiContents.getComic(result.content)
     fund.setComic(comic);
     return fund;
@@ -70,7 +75,6 @@ class ApiFund {
 
   // 펀드 등록
   createFund(address, fund) {
-    let hour = 60 * 60 * 1000;
     return this._contract.methods.createFund(
       address,
       new Date(fund.startTime).getTime(),
@@ -82,7 +86,7 @@ class ApiFund {
         BigNumber(fund.max * Math.pow(10, 18)),
       ],
       fund.poolSize,
-      fund.interval * hour,
+      fund.interval,
       new Date(fund.firstDistributionTime).getTime(),
       BigNumber(fund.distributionRate * Math.pow(10, 18)),
       fund.detail

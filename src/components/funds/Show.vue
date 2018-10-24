@@ -24,7 +24,7 @@
       </b-col>
       <b-col cols="12" sm="12" md="6" lg="6">
         <div class="title">서포터</div>
-        <Supporters :supporters="supporters"/>
+        <Supporters :supporters="fund.supporters"/>
       </b-col>
     </b-row>
     <b-modal ref="myModalRef"
@@ -55,27 +55,27 @@
         return this.fund.comic.writer.address == this.pictionConfig.account;
       },
       supportable() {
-        return this.fund.startTime < this.$root.now && this.$root.now < this.fund.endTime &&
+        return new Date(this.fund.startTime).getTime() < this.$root.now &&
+          this.$root.now < new Date(this.fund.endTime).getTime() &&
           this.fund.maxcap > this.fund.rise;
       },
     },
     data() {
       return {
         fund: new Fund(),
-        supporters: [],
         supportAmount: 10,
       }
     },
     methods: {
       async init() {
-        this.setFundState();
-        this.setSupporters();
+        await this.setFundState();
+        await this.setSupporters();
       },
       async setFundState() {
         this.fund = await this.$contract.apiFund.getFund(this, this.fund_id);
       },
       async setSupporters() {
-        this.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
+        this.fund.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
       },
       async setEvents() {
         this.web3Events.push(this.$contract.fund.getContract(this.fund_id).events
