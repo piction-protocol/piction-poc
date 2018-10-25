@@ -34,6 +34,7 @@ export default async (network) => {
   returnConfig.pictionValue = {
     initialDeposit: Number(pictionConfig.pictionValue_[0]),
     reportRegistrationFee: Number(pictionConfig.pictionValue_[1]),
+    depositReleaseDelay: Number(pictionConfig.pictionValue_[2]),
     defaultGas: 6000000,
   };
 
