@@ -64,7 +64,7 @@ contract PXL is ERC20, CustomToken, ExtendsOwnable {
     }
 
     function transferFromPxl(address _from, address _to, uint256 _value, string message) public returns (bool) {
-        require(this.transferFrom(_from, _to, _value), "transfer from failed");
+        require(transferFrom(_from, _to, _value), "transfer from failed");
         emit PxlTransfer(_from, _to, _value, message);
         return true;
     }
@@ -83,7 +83,7 @@ contract PXL is ERC20, CustomToken, ExtendsOwnable {
     }
 
     function transferPxl(address _to, uint256 _value, string message) public returns (bool) {
-        require(this.transfer(_to, _value), "transfer failed");
+        require(transfer(_to, _value), "transfer failed");
         emit PxlTransfer(msg.sender, _to, _value, message);
         return true;
     }
