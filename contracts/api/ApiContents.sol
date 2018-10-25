@@ -388,6 +388,7 @@ contract ApiContents is ValidValue {
     * @return records_ Json string 타입의 episode 정보
     * @return price_ 판매 가격 
     * @return purchasedAmount_ 에피소드 별 매출
+    * @return buyCount_ 구매한 독자 수
     * @return isPublished 공개 여부
     * @return publishDate_ episode 공개 시간
     * @return episodeIndex_ episode 회차
@@ -401,6 +402,7 @@ contract ApiContents is ValidValue {
             bytes records_,
             uint256[] memory price_,
             uint256[] memory purchasedAmount_,
+            uint256[] memory buyCount_,
             bool[] memory isPublished_,
             uint256[] memory publishDate_,
             uint256[] memory episodeIndex_
@@ -417,6 +419,7 @@ contract ApiContents is ValidValue {
 
         price_ = new uint256[](episodeLength);
         purchasedAmount_ = new uint256[](episodeLength);
+        buyCount_ = new uint256[](episodeLength); 
         isPublished_ = new bool[](episodeLength);
         publishDate_ = new uint256[](episodeLength);
         episodeIndex_ = new uint256[](episodeLength);
@@ -428,7 +431,7 @@ contract ApiContents is ValidValue {
 
         string memory strRecord;
         for(uint256 i = 0 ; i < episodeLength ; i++) {
-            (strRecord, price_[i], , purchasedAmount_[i], , isPublished_[i], publishDate_[i], ) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
+            (strRecord, price_[i], buyCount_[i], purchasedAmount_[i], , isPublished_[i], publishDate_[i], ) = IContent(_comicAddress).getEpisodeDetail(i, msg.sender);
             episodeIndex_[i] = i;
 
             records_ = records_.concat(bytes(strRecord));
