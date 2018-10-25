@@ -8,13 +8,13 @@ import "contracts/interface/IContent.sol";
 import "contracts/interface/ICouncil.sol";
 import "contracts/interface/IDepositPool.sol";
 import "contracts/interface/IReport.sol";
-import "contracts/interface/IFundManager.sol";
 
 import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
 import "contracts/utils/ExtendsOwnable.sol";
 import "contracts/utils/ValidValue.sol";
 import "contracts/utils/BytesLib.sol";
+import "contracts/utils/TimeLib.sol";
 
 /**
  * @title DepositPool
@@ -27,11 +27,11 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     using SafeMath for uint256;
     using BytesLib for bytes;
 
-
     uint256 DECIMALS = 10 ** 18;
 
     ICouncil council;
     mapping (address => uint256) contentDeposit;
+    mapping (address => uint256) possibleReleaseDate;
 
     /**
     * @dev 생성자
@@ -64,58 +64,99 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @dev receiveApproval의 구현, token을 전송 받고 Content 별로 잔액을 기록함
     */
     function addDeposit(address _from, uint256 _value, address _token, bytes _data) private {
-        require(_data.length > 0);
+        require(council.getContentsManager() == _from, "msg sender is not contentManager");
+        require(_data.length > 0, "data is empty");
+        require(contentDeposit[content] == 0, "deposit not empty");
         ERC20 token = ERC20(council.getToken());
-        require(address(token) == _token);
-
-        string memory message = (_from == council.getPixelDistributor())? "에피소드 판매 적립금" : "작품 초기 보증금 예치";
+        require(address(token) == _token, "token abnormal");
 
         address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);
-        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, message);
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "작품 초기 보증금 예치");
+        
+        uint256 releaseDate = TimeLib.currentTime() + council.getDepositReleaseDelay();
+        setReleaseDate(content, releaseDate);
 
-        emit AddDeposit(_from, _value, _token);
+        emit AddDeposit(content, _value, _token);
     }
+
+    event AddDeposit(address content, uint256 _value, address _token);
 
     /**
     * @dev Content 별 쌓여있는 Deposit의 양을 반환함
     * @param _content 작품의 주소
     */
-    function getDeposit(address _content) external view returns(uint256) {
+    function getDeposit(address _content) external view returns(uint256 depositAmount_) {
         return contentDeposit[_content];
     }
 
     /**
-    * @dev 위원회가 호출하는 보상지급 처리
+    * @dev 예치금을 회수할 수있는 날짜를 설정
+    * @param _content 날짜를 설정할 작품 주소
+    * @param _currentDate 설정할 날짜
+    */
+    function setReleaseDate(address _content, uint256 _currentDate) private validAddress(_content) {
+        possibleReleaseDate[_content] = _currentDate;
+    }
+
+    /**
+    * @dev 예치금을 회수할 수있는 날짜 조회
+    * @param _content 작품 주소
+    */
+    function getReleaseDate(address _content) external view returns(uint256 releaseDate_) {
+        return possibleReleaseDate[_content];
+    }
+    
+    /**
+    * @dev 위원회가 호출하는 보증금 차감 및 신고자 보상 처리
     * @param _content 신고한 작품 주소
     * @param _reporter 신고자 주소
+    * @param _type 처리 타입, 1 : 전액 차감, 2 : 1PXL 차감
     */
-    function reportReward(address _content, address _reporter)
+    function reportReward(address _content, address _reporter, uint256 _type, string _descripstion)
         external
         validAddress(_content)
         validAddress(_reporter)
-        returns(uint256)
+        returns(uint256 deduction_, bool contentBlock_)
     {
-        require(address(council) == msg.sender);
+        require(address(council) == msg.sender, "msg sender is not council");
+        require(_type > 0 && _type < 3, "out of type");
 
-        uint256 amount;
         if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
-            amount = contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
+            uint256 rewardOnePXL = 1 ** DECIMALS;
 
-            require(token.balanceOf(address(this)) >= amount);
-            contentDeposit[_content] = contentDeposit[_content].sub(amount);
-            CustomToken(address(token)).transferPxl(_reporter, amount, "신고 활동 보상금");
-        } else {
-            amount = 0;
+            if (contentDeposit[_content] >= rewardOnePXL) {
+                deduction_ = contentDeposit[_content].sub(rewardOnePXL);
+                if (_type == 1) {
+                    contentDeposit[_content] = 0;
+                    contentBlock_ = true;
+                } else if (_type == 2) {
+                    contentDeposit[_content] = contentDeposit[_content].sub(rewardOnePXL);
+                    if (deduction_ == 0) {
+                        contentBlock_ = true;
+                    }
+                }
+            } else {
+                rewardOnePXL = contentDeposit[_content];
+                contentDeposit[_content] = 0;
+                contentBlock_ = true;
+            }
+
+            require(token.balanceOf(address(this)) >= deduction_ + rewardOnePXL, "token balance abnormal");
+            if (deduction_ > 0) {
+                CustomToken(address(token)).transferPxl(address(council), deduction_, "신고 등록금 차감");
+            }
+            
+            if (rewardOnePXL > 0) {
+                CustomToken(address(token)).transferPxl(_reporter, rewardOnePXL, "신고 활동 보상금");
+                deduction_ = deduction_ + rewardOnePXL;
+            }
         }
-        emit ReportReward(_content, _reporter, amount);
 
-        return amount;
-    }
+        setReleaseDate(_content, TimeLib.currentTime() + council.getDepositReleaseDelay());
 
-    function getReportRate(address _content) external view returns(uint256) {
-        return contentDeposit[_content].mul(council.getReportRewardRate()).div(DECIMALS);
+        emit DepositChange(TimeLib.currentTime(), _content, _type, deduction_, _descripstion);
     }
 
     /**
@@ -123,46 +164,20 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
     * @param _content 정산을 원하는 작품 주소
     */
     function release(address _content) external validAddress(_content) {
-        //신고 건이 있으면 완결처리되지 않음
-        require(IReport(council.getReport()).getUncompletedReport(_content) == 0, "UncompletedReport");
         require(contentDeposit[_content] > 0, "contentDeposit is zero");
         address writer = IContent(_content).getWriter();
         require(writer == msg.sender, "msg sender is not writer");
+        require(possibleReleaseDate[_content] <= TimeLib.currentTime(), "releaseData setError");
+
         ERC20 token = ERC20(council.getToken());
         require(token.balanceOf(address(this)) >= contentDeposit[_content], "token balance abnormal");
-
-        IFundManager fund = IFundManager(council.getFundManager());
-
-        address fundAddress = fund.getFund(_content);
-
-        uint256 compareAmount;
+        
         uint256 amount = contentDeposit[_content];
-
-        (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
-
-        CustomToken customToken = CustomToken(address(token));
-
-        //supporter 크기가 커질 경우 Gas Limit 우려됨 개선 필요
-        for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-            compareAmount = compareAmount.add(supporterAmount[j]);
-            contentDeposit[_content] = contentDeposit[_content].sub(supporterAmount[j]);
-
-            customToken.transferPxl(supporterAddress[j], supporterAmount[j], "작품 초기 보증금 분배");
-            emit Release(_content, supporterAddress[j], supporterAmount[j]);
-        }
-        amount = amount.sub(compareAmount);
-
-        if (amount > 0) {
-            contentDeposit[_content] = contentDeposit[_content].sub(amount);
-
-            customToken.transferPxl(writer, amount, "작품 초기 보증금 분배");
-            emit Release(_content, writer, amount);
-        }
-
-        require(contentDeposit[_content] == 0, "release deposit abnormal");
+        contentDeposit[_content] = 0;
+        CustomToken(address(token)).transferPxl(writer, amount, "작품 등록 보증금 회수");
+        
+        emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 보증금 회수");
     }
 
-    event AddDeposit(address _from, uint256 _value, address _token);
-    event ReportReward(address _content, address _reporter, uint256 _amount);
-    event Release(address _content, address _to, uint256 _amount);
+    event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _descripstion);
 }

@@ -19,17 +19,20 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
+    uint256 DECIMALS = 10 ** 18;
+
     //위원회
     ICouncil council;
 
     //유저 등록금
     // amount 등록금의 양
     // lockTime 잠김이 풀리는 시간
-    // blockTime 다시 활동이 가능한 시간
+    // block 유저의 블락 유무
     struct Registration {
+        address reporter;
         uint256 amount;
         uint256 lockTime;
-        uint256 blockTime;
+        bool reporterBlock;
     }
     mapping (address => Registration) registrationFee;
 
@@ -38,11 +41,12 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
 
     //신고내용과 처리유무
     struct ReportData {
+        uint256 reportDate;
         address content;
         address reporter;
         string detail;
-        bool complete;
-        bool completeValid;
+        uint256 completeDate;
+        uint256 completeType;
         uint256 completeAmount;
     }
     //신고 목록
@@ -70,17 +74,19 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @dev receiveApproval의 구현, token을 전송 받고 신고자의 등록금을 기록함
     */
     function registration(address _from, uint256 _value, address _token) private {
-        require(council.getReportRegistrationFee() == _value);
-        require(registrationFee[_from].amount == 0);
-        require(registrationFee[_from].lockTime < TimeLib.currentTime());
+        require(council.getReportRegistrationFee() == _value, "value error");
+        require(registrationFee[_from].amount == 0, "already registration");
+        require(!registrationFee[_from].reporterBlock, "repoter is Block");
         ERC20 token = ERC20(council.getToken());
-        require(address(token) == _token);
+        require(address(token) == _token, "token is abnormal");
 
         registrationFee[_from].amount = _value;
         registrationFee[_from].lockTime = TimeLib.currentTime().add(interval);
+        registrationFee[_from].reporterBlock = false;
+
         CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "신고 보증금 예치");
 
-        emit RegistrationFee(_from, _value, _token);
+        emit RegistrationFee(TimeLib.currentTime(), _from, _value);
     }
 
     /**
@@ -93,13 +99,14 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         validAddress(reporter)
         validString(_detail)
     {
-        require(council.getApiReport() == msg.sender);
-        require(registrationFee[reporter].amount > 0);
-        require(registrationFee[reporter].blockTime < TimeLib.currentTime());
+        require(council.getApiReport() == msg.sender, "msg sender is not ApiReport");
+        require(registrationFee[reporter].amount > 0, "Insufficient registrationFee");
+        require(!registrationFee[reporter].reporterBlock, "repoter is block");
+        require(registrationFee[reporter].lockTime < TimeLib.currentTime(), "over the lockTime");
 
-        reports.push(ReportData(_content, reporter, _detail, false, false, 0));
+        reports.push(ReportData(TimeLib.currentTime(), _content, reporter, _detail, 0, 0, 0));
 
-        emit SendReport(reports.length-1, _content, reporter, _detail);
+        emit SendReport(TimeLib.currentTime(), reports.length-1, _content, reporter, _detail);
     }
 
     /**
@@ -109,15 +116,16 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     function getReport(uint256 _index)
         external
         view
-        returns(address content_, address reporter_, string detail_, bool complete_, bool completeValid_, uint256 completeAmount_)
+        returns(uint256 reportDate_, address content_, address reporter_, string detail_, uint256 completeDate_, uint256 completeType_, uint256 completeAmount_)
     {
         return
         (
+            reports[_index].reportDate,
             reports[_index].content,
             reports[_index].reporter,
             reports[_index].detail,
-            reports[_index].complete,
-            reports[_index].completeValid,
+            reports[_index].completeDate,
+            reports[_index].completeType,
             reports[_index].completeAmount
         );
     }
@@ -140,21 +148,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     */
     function getUncompletedReport(address _content) external view returns(uint256 count) {
         for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].content == _content
-                && reports[i].complete == false) {
-                count = count.add(1);
-            }
-        }
-    }
-
-    /**
-    * @dev 신고자의 신고 중 처리되지 않은 건수 조회, 신고자 신고금 반환 시 조회에 사용
-    * @param _reporter 확인할 신고자의 주소
-    */
-    function getUncompletedReporter(address _reporter) private view returns(uint256 count) {
-        for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].reporter == _reporter
-                && reports[i].complete == false) {
+            if (reports[i].content == _content && reports[i].completeDate != 0) {
                 count = count.add(1);
             }
         }
@@ -163,61 +157,60 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     /**
     * @dev 신고 처리 완료 후 호출하는 메소드, deduction나 DepositPool의 reportReward 처리 후 호출
     * @param _index 신고 목록의 인덱스
-    * @param _reword 신고 리워드를 받았는가?
-    * @param _rewordAmount 리워드 금액
+    * @param _type 신고처리 타입 / 1 작품 차단, 2 작가 경고, 3 신고 무효, 4 중복 신고, 5 잘못된 신고
+    * @param _deductionAmount 변경된 관련 금액
     */
-    function completeReport(uint256 _index, bool _reword, uint256 _rewordAmount) external {
-        require(msg.sender == address(council));
-        require(_index < reports.length);
-        require(!reports[_index].complete);
+    function completeReport(uint256 _index, uint256 _type, uint256 _deductionAmount) external {
+        require(msg.sender == address(council), "msg sender is not council");
+        require(_index < reports.length, "out of index");
+        require(reports[_index].completeDate == 0, "already complete");
+        require(_type != 0, "type error");
 
-        reports[_index].complete = true;
-        reports[_index].completeValid = _reword;
-        reports[_index].completeAmount = _rewordAmount;
+        reports[_index].completeDate = TimeLib.currentTime();
+        reports[_index].completeType = _type;
+        reports[_index].completeAmount = _deductionAmount;
 
-        emit CompleteReport(_index, reports[_index].detail, _reword, _rewordAmount);
+        emit CompleteReport(reports[_index].reportDate, reports[_index].completeDate, _index, reports[_index].content, reports[_index].reporter, reports[_index].detail, _type, _deductionAmount);
     }
 
     /**
     * @dev 문제가 있는 신고자의 RegFee 차감, 위원회가 호출함
     * @param _reporter 차감 시킬 대상
     */
-    function deduction(address _reporter) external validAddress(_reporter) returns(uint256 result_) {
-        require(msg.sender == address(council));
+    function deduction(address _reporter) external validAddress(_reporter) returns(uint256 deduction_) {
+        require(msg.sender == address(council), "msg sender is not council");
 
-        uint256 amount = registrationFee[_reporter].amount;
-        if (amount > 0) {
-            registrationFee[_reporter].amount = 0;
+        uint256 onePXL = 1 ** DECIMALS;
+        uint256 remain;
+        if (registrationFee[_reporter].amount > 0) {
+            if (registrationFee[_reporter].amount >= onePXL) {
+                remain = registrationFee[_reporter].amount.sub(onePXL);
+                registrationFee[_reporter].amount = remain;
+                deduction_ = onePXL;
+                if (remain == 0) {
+                    registrationFee[_reporter].reporterBlock = true;
+                }
+            } else {
+                deduction_ = registrationFee[_reporter].amount;
+                registrationFee[_reporter].amount = 0;
+                registrationFee[_reporter].reporterBlock = true;
+            }
 
             ERC20 token = ERC20(council.getToken());
             //임시 Ecosystem Growth Fund가 없음으로 위원회로 전송함
-            CustomToken(address(token)).transferPxl(address(council), amount, "신고 보증금 차감");
-            result_ = amount;
+            CustomToken(address(token)).transferPxl(address(council), deduction_, "신고 보증금 차감");
         }
 
-        emit Deduction(_reporter, result_);
-    }
-
-    /**
-    * @dev 문제가 있는 신고자 추가 신고를 막음
-    * @param _reporter 막을 대상
-    */
-    function reporterBlock(address _reporter) external {
-        require(msg.sender == address(council));
-
-        registrationFee[_reporter].blockTime = registrationFee[_reporter].lockTime;
-
-        emit ReporterBlock(_reporter, registrationFee[_reporter].blockTime);
+        emit Deduction(_reporter, deduction_);
     }
 
     /**
     * @dev 신고자가 맞긴 보증금을 찾아감
     */
     function withdrawRegistration(address _reporter) external {
-        require(council.getApiReport() == msg.sender);
-        require(registrationFee[_reporter].amount > 0);
-        require(registrationFee[_reporter].lockTime < TimeLib.currentTime());
-        require(getUncompletedReporter(_reporter) == 0);
+        require(council.getApiReport() == msg.sender, "msg sender is not ApiReport");
+        require(registrationFee[_reporter].amount > 0, "empty amount");
+        require(registrationFee[_reporter].lockTime < TimeLib.currentTime(), "not over locktime");
 
         ERC20 token = ERC20(council.getToken());
         uint256 tempAmount = registrationFee[_reporter].amount;
@@ -245,18 +238,17 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
 
     /**
-    * @dev 신고자의 블락 기간을 조회한다
+    * @dev 신고자의 블락 유무를 조회한다
     * @param _reporter 확인 할 대상
     */
-    function getReporterBlockTime(address _reporter) external view returns(uint256 blockTime_) {
-        return registrationFee[_reporter].blockTime;
+    function getReporterBlock(address _reporter) external view returns(bool isBlock_) {
+        return registrationFee[_reporter].reporterBlock;
     }
 
-    event RegistrationFee(address _from, uint256 _value, address _token);
-    event SendReport(uint256 indexed _id, address indexed _content, address indexed _from, string _detail);
-    event WithdrawRegistration(address _to, uint256 _amount);
-    event CompleteReport(uint256 _index, string _detail, bool _valid, uint256 _resultAmount);
+    event RegistrationFee(uint256 _date, address _from, uint256 _value);
     event Deduction(address _reporter, uint256 _amount);
-    event ReporterBlock(address _reporter, uint256 _blockTime);
-
+    event ReporterBlock(address _reporter);
+    event SendReport(uint256 _date, uint256 indexed _index, address indexed _content, address indexed _from, string _detail);
+    event WithdrawRegistration(address _to, uint256 _amount);
+    event CompleteReport(uint256 _reportDate, uint256 _completeDate, uint256 indexed _index, address indexed _content, address indexed _reporter, string _detail, uint256 _type, uint256 _deductionAmount);
 }

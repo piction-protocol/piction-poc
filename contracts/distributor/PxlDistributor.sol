@@ -106,15 +106,6 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             )
         );
 
-        //deposit amount
-        tempVar = _getRateToPxlAmount(_purchaseAmount, council.getDepositRate());
-        compareAmount = compareAmount.sub(tempVar);
-        distribution.push(
-            DistributionDetail(
-                tempVar, true, council.getDepositPool(), _contentAddress, ""
-            )
-        );
-
         //supporter amount
         if(council.getFundAvailable()) {
             compareAmount = compareAmount.sub(_supportersAmount(_contentAddress, compareAmount));
