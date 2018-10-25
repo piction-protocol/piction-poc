@@ -4,8 +4,6 @@
              show-empty
              empty-text="조회된 목록이 없습니다"
              :fields="fields"
-             :current-page="currentPage"
-             :per-page="perPage"
              :items="distributions"
              thead-class="text-center"
              tbody-class="text-center"
@@ -35,7 +33,7 @@
   import BigNumber from 'bignumber.js'
 
   export default {
-    props: ['fund_id', 'fund', 'distributions', 'isDisabled'],
+    props: ['fund', 'distributions', 'isDisabled'],
     data() {
       return {
         fields: [
@@ -52,8 +50,7 @@
     },
     methods: {
       disabled(row) {
-//        if (this.isDisabled) {
-        if (false) {
+        if (this.isDisabled) {
           return true;
         } else if (row.item.state == 2) {
           return true;

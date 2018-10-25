@@ -6,7 +6,7 @@
         <div class="created-at">{{$utils.dateFmt(episode.createdAt)}}</div>
         <div class="title-text h-50">{{episode.title}}</div>
         <div class="purchase-info-text h-50">
-          {{episode.isPurchased ? '구매완료' : $utils.toPXL(episode.price) + 'PXL'}}
+          {{episode.isPurchased ? '구매완료' : episode.price + 'PXL'}}
         </div>
       </div>
       <div class="ml-auto p-2 d-flex align-items-end flex-column">
@@ -39,20 +39,20 @@
         });
       },
       async purchase() {
-        if(this.episode.isPurchased) {
+        if (this.episode.isPurchased) {
           this.show();
           return;
         }
         let loader = this.$loading.show();
         if (this.episode.purchased) {
           this.show()
-        } else if (confirm(`소장하시겠습니까? (${this.$utils.toPXL(this.episode.price)}PXL)`)) {
+        } else if (confirm(`소장하시겠습니까? (${this.episode.price}PXL)`)) {
           try {
             const comic = this.comic.address;
             const key = this.$utils.toHexString(this.episode.key, 64).substr(2);
             await this.$contract.pxl.approveAndCall(
               this.pictionConfig.pictionAddress.pixelDistributor,
-              this.episode.price,
+              this.episode.price * Math.pow(10, 18),
               `${comic}${key}`
             );
             this.show();

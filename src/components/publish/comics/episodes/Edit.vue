@@ -34,7 +34,6 @@
     },
     async created() {
       this.episode = await this.$contract.apiContents.getEpisode(this.comic_id, this.episode_id);
-      this.episode.price = this.episode.price / Math.pow(10, 18);
     }
   }
 </script>

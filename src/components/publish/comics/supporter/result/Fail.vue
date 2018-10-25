@@ -3,8 +3,7 @@
     <div class="font-size-20 mb-2 font-weight-bold">모집기간</div>
     <div class="font-size-18 mb-4">
       {{$utils.dateFmt(new Date(fund.startTime).getTime())}} ~ {{$utils.dateFmt(new Date(fund.endTime).getTime())}}
-      <span v-if="new Date(fund.endTime).getTime() > $root.now" class="ml-1">(현재 모집 중)</span>
-      <span v-else class="ml-1">(모집종료)</span>
+      <span class="ml-1">(모집종료)</span>
     </div>
     <div class="font-size-20 mb-2 font-weight-bold">모집 현황</div>
     <div class="d-flex justify-content-between mb-1">
@@ -30,32 +29,17 @@
         <div class="font-size-12">현재까지 모금액</div>
       </div>
     </div>
-    <div class="font-size-20 mb-2 font-weight-bold">모집 정보</div>
-    <b-row>
-      <b-col cols="2">1인당 모금 가능액</b-col>
-      <b-col cols="2">{{fund.min}}PXL ~ {{fund.max}}PXL</b-col>
-    </b-row>
-    <b-row>
-      <b-col cols="2">모금액 수령 방법</b-col>
-      <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval / (1000 * 60 * 60)}}시간 간격</b-col>
-    </b-row>
-    <b-row class="mb-4">
-      <b-col cols="2">최초 모금액 수령일</b-col>
-      <b-col cols="2">{{$utils.dateFmt(new Date(fund.firstDistributionTime).getTime())}}</b-col>
-    </b-row>
-    <div class="font-size-20 mb-2 font-weight-bold">서포터</div>
-    <Supporters :supporters="fund.supporters"/>
+    <div class="font-size-24 text-center p-5">
+      <div>서포터 모집 모금액을 달성하지 못했습니다.</div>
+      <div>모금된 금액은 모두 환급되었습니다.</div>
+    </div>
   </div>
 </template>
 
 <script>
-  import moment from 'moment';
-  import {Datetime} from 'vue-datetime';
   import Fund from '@models/Fund';
-  import Supporters from '@/components/funds/Supporters'
 
   export default {
-    components: {Supporters},
     props: ['comic_id', 'fund_id'],
     data() {
       return {
@@ -66,13 +50,9 @@
       async setFundState() {
         this.fund = await this.$contract.apiFund.getFund(this, this.fund_id);
       },
-      async setSupporters() {
-        this.fund.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
-      },
     },
     async created() {
       await this.setFundState();
-      await this.setSupporters();
     }
   }
 </script>

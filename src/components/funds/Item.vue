@@ -13,7 +13,8 @@
       <div class="detail-text mt-2">{{fund.detail}}</div>
       <div v-b-tooltip.hover :title="riseTooltip" class="pb-2 pt-2">
         <b-progress :max="fund.maxcap" height="5px" variant="primary" class="position-relative">
-          <div class="position-absolute" :style="`width: 1px; height: 5px; background-color: #FF6E27; left: ${fund.getSoftcapPercent()}%`"></div>
+          <div class="position-absolute"
+               :style="`width: 1px; height: 5px; background-color: #FF6E27; left: ${fund.getSoftcapPercent()}%`"></div>
           <b-progress-bar :value="fund.rise"></b-progress-bar>
         </b-progress>
         <div class="d-flex justify-content-between align-items-center">
@@ -39,7 +40,8 @@
         if (new Date(this.fund.startTime).getTime() > this.$root.now) {
           return '모집예정'
         } else {
-          return Web3Utils.remainTimeToStr(this.$root.now, new Date(this.fund.endTime).getTime());
+          let time = Web3Utils.remainTimeToStr(this, new Date(this.fund.endTime).getTime());
+          return time ? `${time.number}${time.text}남음` : '종료'
         }
       }
     },
