@@ -27,6 +27,8 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         mapping (address => bool) buyUser;
     }
 
+    mapping (address => bool) isBuyer;
+
     ICouncil council;
     Episode[] episodes;
 
@@ -36,6 +38,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
     
     uint256 totalPurchasedCount;
     uint256 totalPurchasedAmount;
+    uint256 totalPurchasedUserCount;
 
     uint256 contentCreationTime;
     uint256 episodeLastUpdatedTime;
@@ -151,6 +154,10 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         totalPurchasedAmount_ = totalPurchasedAmount;
     }
 
+    function getTotalPurchasedUserCount() public view returns (uint256 totalPurchasedUserCount_) {
+        totalPurchasedUserCount_ = totalPurchasedUserCount;
+    }
+
     function getContentCreationTime() public view returns (uint256 contentCreationTime_) {
         contentCreationTime_ = contentCreationTime;
     }
@@ -161,6 +168,22 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
     function getFavoriteCount() public view returns (uint256 favoriteCount_) {
         favoriteCount_ = favoriteCount;
+    }
+
+    function getSalesInfo() 
+        public 
+        view 
+        returns (
+            uint256 totalPurchasedAmount_,
+            uint256 totalPurchasedCount_,
+            uint256 favoriteCount_,
+            uint256 totalPurchasedUserCount_
+        )
+    {
+        totalPurchasedAmount_ = totalPurchasedAmount;
+        totalPurchasedCount_ = totalPurchasedCount;
+        favoriteCount_ = favoriteCount;
+        totalPurchasedUserCount_ = totalPurchasedUserCount;
     }
 
     function getComicsInfo()
@@ -249,7 +272,7 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
         price_ = episodes[_index].price;
         buyCount_ = episodes[_index].buyCount;
         purchasedAmount_ = episodes[_index].episodePurchasedAmount;
-        isPurchased_ = (writer == _buyer)? true : episodes[_index].buyUser[_buyer];
+        isPurchased_ = episodes[_index].buyUser[_buyer];
         isPublished_ = episodes[_index].isPublished;
         publishDate_ = episodes[_index].publishDate;
         episodeCreationTime_ = episodes[_index].episodeCreationTime;
@@ -305,6 +328,11 @@ contract Content is IContent, ExtendsOwnable, ValidValue {
 
         totalPurchasedCount = totalPurchasedCount.add(1);
         totalPurchasedAmount = totalPurchasedAmount.add(_amount);
+
+        if(!isBuyer[_buyer]) {
+            isBuyer[_buyer] = true;
+            totalPurchasedUserCount = totalPurchasedUserCount.add(1);
+        }
 
         emit EpisodePurchase(_index, address(this), _buyer, _amount, episodes[_index].buyCount);
     }
