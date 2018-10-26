@@ -6,7 +6,7 @@
         <div class="published-at">{{$utils.dateFmt(episode.publishedAt)}}</div>
         <div class="title-text">{{episode.title}}</div>
         <div class="purchase-info-text">
-          {{$utils.toPXL(episode.price) + 'PXL'}}
+          {{episode.price}}PXL
         </div>
       </div>
       <div class="ml-auto p-2 align-self-end">

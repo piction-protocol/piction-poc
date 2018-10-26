@@ -12,7 +12,7 @@
       <div v-if="myDeposit == 0">
         <div class="title">작품을 등록하기 위해서는 <b>작품 등록 예치금</b>이 필요합니다.</div>
         <div class="title">정상적인 작품이 확인되는 경우 예치금은 환급받을 수 있습니다.</div>
-        <b-button variant="outline-secondary mt-2" @click="deposit">{{$utils.toPXL(initialDeposit)}} PXL 예치하기</b-button>
+        <b-button variant="outline-secondary mt-2" @click="deposit">{{initialDeposit}} PXL 예치하기</b-button>
       </div>
       <div v-else>
         <div v-if="comics.length == 0" class="title">등록된 작품이 없습니다. 새 작품을 등록해주세요.</div>
@@ -38,9 +38,9 @@
     },
     methods: {
       async setDeposit() {
-        this.myDeposit = BigNumber(await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account));
-        this.initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
-        this.pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
+        this.myDeposit = await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account);
+        this.initialDeposit = Number(this.pictionConfig.pictionValue.initialDeposit) / Math.pow(10, 18);
+        this.pxl = Number(await this.$contract.pxl.balanceOf(this.pictionConfig.account)) / Math.pow(10, 18);
       },
       newComic() {
         this.$router.push({name: 'publish-new-comic'});
