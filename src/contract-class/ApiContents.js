@@ -1,6 +1,7 @@
 import {abi} from '@contract-build-source/ApiContents'
 import Comic from '@models/Comic';
 import Episode from '@models/Episode';
+import Sales from '@models/Sales'
 import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
 
@@ -63,7 +64,7 @@ class ApiContents {
           result.episodeIndex[i],
           i + 1,
           record,
-          result.price[i],
+          result.price[i] / Math.pow(10, 18),
           result.isPurchased[i],
           undefined, undefined, undefined,
           result.episodeCreationTime[i]
@@ -82,7 +83,7 @@ class ApiContents {
       key,
       0,
       JSON.parse(result.records),
-      result.price,
+      result.price / Math.pow(10, 18),
       result.isPurchased,
       JSON.parse(cuts),
       new Date(Number(result.publishDate)),
@@ -127,8 +128,9 @@ class ApiContents {
   }
 
   // 예치금 조회
-  getInitialDeposit(address) {
-    return this._contract.methods.getInitialDeposit(address).call();
+  async getInitialDeposit(address) {
+    let result = await this._contract.methods.getInitialDeposit(address).call();
+    return Number(result) / Math.pow(10, 18);
   }
 
   // 내 작품 조회
@@ -163,13 +165,25 @@ class ApiContents {
       let episodes = [];
       let records = JSON.parse(web3.utils.hexToUtf8(result.records));
       records.forEach((record, i) => {
-        let episode = new Episode(result.episodeIndex[i], i + 1, record, result.price[i]);
+        let episode = new Episode(result.episodeIndex[i], i + 1, record, result.price[i] / Math.pow(10, 18));
         episode.publishedAt = result.publishDate[i]
         episode.status = result.isPublished[i];
+        episode.purchasedAmount = result.purchasedAmount[i] / Math.pow(10, 18);
         episodes.push(episode);
       });
       return episodes;
     }
+  }
+
+  async getMyComicSales(address) {
+    let result = await this._contract.methods.getMyComicSales(address).call();
+    result = Web3Utils.prettyJSON(result);
+    let sales = new Sales();
+    sales.favoriteCount = Number(result.favoriteCount);
+    sales.totalPurchasedAmount = Number(result.totalPurchasedAmount) / Math.pow(10, 18);
+    sales.totalPurchasedCount = Number(result.totalPurchasedCount);
+    sales.totalPurchasedUserCount = Number(result.totalPurchasedUserCount);
+    return sales;
   }
 }
 

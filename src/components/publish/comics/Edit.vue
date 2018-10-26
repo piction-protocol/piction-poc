@@ -25,7 +25,7 @@
         let loader = this.$loading.show();
         try {
           await this.$contract.apiContents.updateComic(this.comic_id, comic);
-          this.$router.push({name: 'episodes', params: {comic_id: this.comic_id}});
+          this.$router.push({name: 'publish-info', params: {comic_id: this.comic_id}});
         } catch (e) {
           alert(e)
         }

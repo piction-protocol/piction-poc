@@ -95,7 +95,7 @@ contract ApiFund is ValidValue {
         emit EndFund(_fund);
     }
 
-    event EndFund(address _fund);
+    event EndFund(address indexed _fund);
 
     /**
     * @dev 투자자 정보 조회
