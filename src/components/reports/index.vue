@@ -2,47 +2,134 @@
     <div>
         <div class="page-title">신고 처리 내역</div>
         <br>
-        <div align="center">
-            <div v-if="true">
+        <div v-if="reporterRegistrationAmount == 0 && !reporterReporterBlock">
+            <div align="center">
                 <div class="title">신고 권한을 획득하시려면 <b>신고 예치금</b>이 필요합니다.</div>
                 <div class="title">신고 예치금 예치 후 30일 간 신고 권한이 부여되며,</div>
-                <div class="title">30일 후 신고 예치금은 반환됩니다.</div>
+                <div class="title">30일 후 신고 예치금은 반환됩니다.(임시 10분)</div>
                 <b-button variant="outline-secondary mt-2" @click="transferFee">{{$utils.toPXL(reportRegistrationFee)}} PXL 예치하기</b-button>
             </div>
-            <!-- <div v-else>
-                
-            </div> -->
+        </div>
+        <div v-else="">
+            <div class="font-size-20 font-weight-bold mt-5 mb-2">예치금</div>
+            <b-row>
+            <b-col cols="2">
+                <div>
+                <span class="font-size-24">{{reporterRegistrationAmount / Math.pow(10, 18)}}</span>
+                <span class="font-size-14 text-secondary">PXL</span>
+                </div>
+                <div class="font-size-12">신고 예치금</div>
+            </b-col>
+            <b-col cols="2">
+                <div>
+                <span class="font-size-24">{{reporterReporterBlock ? "-" : reporterRegistrationLockTimeText.number}}</span>
+                <span class="font-size-14 text-secondary">{{reporterRegistrationLockTimeText.text}}</span>
+                </div>
+                <div class="font-size-12">신고권한 종료까지 남은 시간</div>
+            </b-col>
+            </b-row>
+            <b-row class="pt-2 pb-2">
+            <b-col cols="4">
+                <b-progress :max="1"
+                            height="12px" variant="primary">
+                <b-progress-bar
+                    :value="progressValue"></b-progress-bar>
+                </b-progress>
+            </b-col>
+            </b-row>
+            <b-row>
+            <b-col cols="4">
+                <b-button
+                v-if="reporterRegistrationLockTime < $root.now && reporterRegistrationAmount > 0"
+                type="submit" size="sm" variant="outline-secondary" block @click="withdrawRegistration">예치금 반환
+                </b-button>
+                <div v-if="reporterReporterBlock">
+                돌려받을 예치금이 없으며 신고 권한을 신청하실 수 없습니다.
+                </div>
+                <div v-if="reporterRegistrationLockTime >= $root.now && reporterRegistrationAmount > 0">
+                신고 권한이 만료되면 예치금을 돌려받을 수 있습니다. 신고 예치금이 0 PXL이 되는 경우 신고 권한이 박탈됩니다.
+                </div>
+            </b-col>
+            </b-row>
+            <br>
+            <b-table striped hover
+                    show-empty
+                    empty-text="조회된 목록이 없습니다"
+                    :fields="fields"
+                    :items="reports"
+                    :small="true">
+            <template slot="reportDate" slot-scope="data">{{$utils.dateFmt(data.value)}}</template>
+            <template slot="completeDate" slot-scope="data">{{$utils.dateFmt(data.value)}}</template>
+            <template slot="reportDetail" slot-scope="data">{{data.value}}</template>
+            <template slot="completeType" slot-scope="data">-{{data.value}}( PXL)</template>
+            </b-table>
         </div>
     </div>
 </template>
 
 <script>
     import {BigNumber} from 'bignumber.js';
+    import ReportHistory from '@models/ReportHistory';
+    import Web3Utils from '@utils/Web3Utils';
 
     export default {
         props: ['page', 'filter'],
-
+        computed: {
+            progressValue() {
+                if (this.reporterRegistrationLockTime == 0) {
+                    return 0;
+                } else {
+                    return 1 - (this.reporterRegistrationLockTime - this.$root.now) / this.interval;
+                }
+            },
+            reporterRegistrationLockTimeText() {
+                let time = Web3Utils.remainTimeToStr(this, this.reporterRegistrationLockTime)
+                return time ? time : {number: '0', text: '초'};
+            }
+        },
         data() {
             return {
+                fields: [
+                    {key: 'reportDate', label: '신고 일시'},
+                    {key: 'completeDate', label: '처리 일시'},
+                    {key: 'reportDetail', label: '신고 내용'},
+                    {key: 'completeType', label: '처리'},
+                ],
                 reporterRegistrationAmount: 0,
                 reporterRegistrationLockTime: 0,
+                reporterReporterBlock: false,
                 reportRegistrationFee: 0,
-                pxl: 0
+                interval: 0,
+                pxl: 0,
+                reports: []
             }
         },
         methods: {
-            async getRegistrationAmount() {
+            async init() {
+                this.reportRegistrationFee = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
+                this.pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
                 let reagistration = await this.$contract.apiReport.getRegistrationAmount();
                 this.reporterRegistrationAmount = BigNumber(reagistration[0]);
                 this.reporterRegistrationLockTime = reagistration[1];
                 this.reporterReporterBlock = reagistration[2];
-                console.log("amount "+this.reporterRegistrationAmount);
-                console.log("time "+this.reporterRegistrationLockTime);
-                console.log("block "+this.reporterReporterBlock);
-            },
-            async setReportDeposit() {
-                this.reportRegistrationFee = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
-                this.pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
+                this.interval = 10 * 60 * 1000; //test 10 min
+                this.$contract.report.getMyReportList();
+
+                //ReportList
+                let events = await this.$contract.report.getMyReportList();
+                events.forEach(event => {
+                    event = Web3Utils.prettyJSON(event.returnValues);
+                    history = new ReportHistory();
+                    history.index = event.index;
+                    history.reportDate = event.date;
+                    history.reportDetail = event.detail;
+                    reports.push(history);
+                });
+                events = await this.$contract.report.getMyCompleteReportList();
+                events.forEach(event => {
+                    //todo 하나씩 매핑함 reports에다가
+                });
+
             },
             async transferFee() {
                 let loader = this.$loading.show();
@@ -53,7 +140,17 @@
                 }
                 try {
                     await this.$contract.pxl.approveAndCall(this.pictionConfig.pictionAddress.report, this.reportRegistrationFee);
-                    this.setReportDeposit();
+                    this.init();
+                } catch (e) {
+                    alert(e)
+                }
+                loader.hide();
+            },
+            async withdrawRegistration() {
+                let loader = this.$loading.show();
+                try {
+                    await this.$contract.apiReport.withdrawRegistration();
+                    this.init();
                 } catch (e) {
                     alert(e)
                 }
@@ -61,8 +158,7 @@
             }
         },
         async created() {
-            this.getRegistrationAmount();
-            this.setReportDeposit();
+            this.init();
         }
     }
 </script>

@@ -7,20 +7,16 @@
       <b-col>
         <ContentDeposit/>
       </b-col>
-      <b-col>
-        <ReportDeposit/>
-      </b-col>
     </b-row>
   </div>
 </template>
 
 <script>
   import ContentDeposit from './ContentDeposit'
-  import ReportDeposit from './ReportDeposit'
   import {BigNumber} from 'bignumber.js';
 
   export default {
-    components: {ContentDeposit, ReportDeposit},
+    components: {ContentDeposit},
     data() {
       return {
         name: null,
