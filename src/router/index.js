@@ -36,6 +36,9 @@ import MyContentsShow from '@/components/my/contents/Show'
 // council
 import CouncilIndex from '@/components/council/Index'
 
+// userpaybackpool
+import UserPaybackPoolIndex from '@/components/my/userpayback/Index'
+
 Vue.use(Router)
 
 const router = new Router({
@@ -99,6 +102,12 @@ const router = new Router({
       component: CouncilIndex,
       props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
     },
+    //user payback pool
+    {
+      path: '/rewards',
+      name: 'my-rewards',
+      component: UserPaybackPoolIndex
+    },
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
@@ -132,3 +141,4 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router;
+

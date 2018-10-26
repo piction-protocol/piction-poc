@@ -26,31 +26,21 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
     using TimeLib for *;
     using BytesLib for bytes;
 
-    struct PaybackPool {
-        uint256 createTime;
-        mapping (address => uint256) paybackInfo;
-        mapping (address => bool) released;
-    }
-    PaybackPool[] paybackPool;
+    mapping(address => uint256) userPaybackPxl;
+    mapping(address => uint256) userReleasedTime;
 
     ICouncil council;
 
-    uint256 currentIndex;
     uint256 releaseInterval;
-    uint256 createPoolInterval;
-
-    mapping (address => uint256) lastReleaseTime; // 유저별 릴리즈 interval
 
     constructor(
-        address _councilAddress,
-        uint256 _createPoolInterval)
+        address _councilAddress
+    )
         public
         validAddress(_councilAddress)
-        validRange(_createPoolInterval)
     {
         council = ICouncil(_councilAddress);
-        createPoolInterval = _createPoolInterval * 1 seconds;
-        releaseInterval = 10 minutes;//600000; //for test 10min
+        releaseInterval = 10 minutes * 1000; 
     }
 
     function receiveApproval(
@@ -65,80 +55,73 @@ contract UserPaybackPool is ExtendsOwnable, ContractReceiver, ValidValue {
         addPayback(_from, _value, _token, _data);
     }
 
-    function createPaybackPool() private {
-        if (paybackPool.length > 0) { // paybackpool이 없으면 currentIndex 0으로 유지
-            currentIndex = currentIndex.add(1);
-        }
-        uint256 createTime = TimeLib.currentTime();
-
-        paybackPool.push(PaybackPool(createTime));
-
-        emit CreatePaybackPool(currentIndex);
-    }
-
-    function addPayback(address _from, uint256 _value, address _token, bytes _data) private {
-        require(council.getPixelDistributor() == _from);
+    function addPayback(
+        address _from, 
+        uint256 _value, 
+        address _token, 
+        bytes _data
+    )
+        private 
+    {
+        require(council.getPixelDistributor() == _from, "Add payback failed: access denied.");
 
         ERC20 token = ERC20(council.getToken());
-        require(address(token) == _token);
-
-        // 현재 paybackpool 의 생성 시간이 createPoolInterval만큼 지났으면 새로 생성
-        if (paybackPool.length == 0 || TimeLib.currentTime() >= paybackPool[currentIndex].createTime.add(createPoolInterval)) {
-            createPaybackPool();
-        }
+        require(address(token) == _token, "Add payback failed: check pixel address");
 
         CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "에피소드 구매 리워드 예치");
 
         address user = _data.toAddress(0);
-        paybackPool[currentIndex].paybackInfo[user] = paybackPool[currentIndex].paybackInfo[user].add(_value);
+        userPaybackPxl[user] = userPaybackPxl[user].add(_value);
 
-        emit AddPayback(user, currentIndex, _value);
+        if(userReleasedTime[user] == 0) {
+            userReleasedTime[user] = TimeLib.currentTime();
+        }
+
+        emit AddPayback(user, TimeLib.currentTime(), _data.toAddress(20), _data.toUint(40), _value);
     }
-
+ 
     function release() public {
         ERC20 token = ERC20(council.getToken());
-        require(TimeLib.currentTime() >= lastReleaseTime[msg.sender].add(releaseInterval)); // 릴리즈 주기
+        require(TimeLib.currentTime() >= userReleasedTime[msg.sender].add(releaseInterval), "Release failed: Check release interval");
 
-        lastReleaseTime[msg.sender] = TimeLib.currentTime();
+        if(userPaybackPxl[msg.sender] > 0) {
+            userReleasedTime[msg.sender] = TimeLib.currentTime();
+            
+            uint256 rewardPxl = userPaybackPxl[msg.sender];
+            userPaybackPxl[msg.sender] = 0;
+            
+            CustomToken(address(token)).transferPxl(msg.sender, rewardPxl, "에피소드 구매 리워드 지급");
 
-        for (uint256 i = 0; i < paybackPool.length; i++) {
-            if (TimeLib.currentTime() >= paybackPool[i].createTime.add(createPoolInterval)) { // createPoolInterval만큼 지난것만
-                bool released = paybackPool[i].released[msg.sender];
-                if (!released) {
-                    uint256 paybackAmount = paybackPool[i].paybackInfo[msg.sender];
-                    paybackPool[i].released[msg.sender] = true;
-
-                    CustomToken(address(token)).transferPxl(msg.sender, paybackAmount, "에피소드 구매 리워드 지급");
-
-                    emit Release(msg.sender, i, paybackAmount);
-                }
-            }
+            emit Release(msg.sender, userReleasedTime[msg.sender], rewardPxl);
         }
     }
 
-    function getCurrentIndex() public view returns(uint256) {
-        return currentIndex;
+    function getPaybackInfo()
+        public
+        view
+        returns(
+            uint256 paybackPxlAmount_,
+            uint256 releasedTime_,
+            uint256 nextReleaseTime_
+        )
+    {
+        paybackPxlAmount_ = userPaybackPxl[msg.sender];
+        releasedTime_ = userReleasedTime[msg.sender];
+        nextReleaseTime_ = userReleasedTime[msg.sender].add(releaseInterval);
     }
 
-    function getPaybackInfo() public view returns(uint256[], uint256[], uint256[], uint256[], bool[]) {
-        uint256[] memory poolIndex = new uint256[](paybackPool.length);
-        uint256[] memory paybackAmount = new uint256[](paybackPool.length);
-        uint256[] memory createdTime = new uint256[](paybackPool.length);
-        uint256[] memory distributableTime = new uint256[](paybackPool.length);
-        bool[] memory released = new bool[](paybackPool.length);
-
-        for (uint256 i = 0; i < paybackPool.length; i++) {
-            poolIndex[i] = i;
-            paybackAmount[i] = paybackPool[i].paybackInfo[msg.sender];
-            createdTime[i] = paybackPool[i].createTime;
-            distributableTime[i] = paybackPool[i].createTime.add(createPoolInterval);
-            released[i] = paybackPool[i].released[msg.sender];
-        }
-
-        return (poolIndex, paybackAmount, createdTime, distributableTime, released);
+    function getUserPaybackPxl() public view returns (uint256 paybackPxlAmount_) {
+        paybackPxlAmount_ = userPaybackPxl[msg.sender];
     }
 
-    event AddPayback(address _user, uint256 _currentIndex, uint256 _value);
-    event CreatePaybackPool(uint256 _currentIndex);
-    event Release(address _user, uint256 _currentIndex, uint256 _releaseAmount);
+    function getUserReleasedTime() public view returns (uint256 userReleasedTime_) {
+        userReleasedTime_ = userReleasedTime[msg.sender];
+    }
+
+    function getReleaseInterval() public view returns (uint256 releaseInterval_) {
+        releaseInterval_ = releaseInterval;
+    }
+    
+    event AddPayback(address indexed _userAddress, uint256 _accumulationTime, address _contentAddress, uint256 _episodeIndex, uint256 _value);
+    event Release(address indexed _user, uint256 releasedTime, uint256 _amount);
 }
