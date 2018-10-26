@@ -27,17 +27,10 @@ import PublishSupporterNew from '@/components/publish/comics/supporter/New'
 import PublishSupporterEdit from '@/components/publish/comics/supporter/Edit'
 import PublishSupporterShow from '@/components/publish/comics/supporter/Show'
 // my
-import MyIndex from '@/components/my/Index'
 import AccountIndex from '@/components/my/account/Index'
-import PayckbackPoolIndex from '@/components/my/paybackpool/Index'
-import MyReportIndex from '@/components/my/reports/Index'
-import MyContentsIndex from '@/components/my/contents/Index'
-import MyContentsShow from '@/components/my/contents/Show'
+import UserPaybackIndex from '@/components/my/userpayback/Index'
 // council
 import CouncilIndex from '@/components/council/Index'
-
-// userpaybackpool
-import UserPaybackPoolIndex from '@/components/my/userpayback/Index'
 
 Vue.use(Router)
 
@@ -75,25 +68,17 @@ const router = new Router({
         {path: 'supporter/:fund_id/show', name: 'publish-show-supporter', component: PublishSupporterShow, props: true},
       ]
     },
-    {path: '/publish/comics/:comic_id/episodes/new', name: 'publish-new-episode', component: PublishEpisodeNew, props: true},
-    {path: '/publish/comics/:comic_id/episodes/:episode_id/edit', name: 'publish-edit-episode', component: PublishEpisodeEdit, props: true},
-    // my
     {
-      path: '/my', component: MyIndex,
-      children: [
-        {path: '', name: 'account', component: AccountIndex},
-        {path: 'payback-pool', name: 'payback-pool', component: PayckbackPoolIndex},
-        {
-          path: 'my-reports', name: 'my-reports', component: MyReportIndex,
-          props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
-        },
-        {
-          path: 'contents', name: 'my-contents', component: MyContentsIndex,
-          children: [
-            {path: ':content_id', name: 'show-my-content', component: MyContentsShow, props: true},
-          ]
-        },
-      ]
+      path: '/publish/comics/:comic_id/episodes/new',
+      name: 'publish-new-episode',
+      component: PublishEpisodeNew,
+      props: true
+    },
+    {
+      path: '/publish/comics/:comic_id/episodes/:episode_id/edit',
+      name: 'publish-edit-episode',
+      component: PublishEpisodeEdit,
+      props: true
     },
     // council
     {
@@ -102,12 +87,9 @@ const router = new Router({
       component: CouncilIndex,
       props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
     },
-    //user payback pool
-    {
-      path: '/rewards',
-      name: 'my-rewards',
-      component: UserPaybackPoolIndex
-    },
+    // my
+    {path: '/account', name: 'account', component: AccountIndex},
+    {path: '/user-payback', name: 'user-payback', component: UserPaybackIndex},
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],

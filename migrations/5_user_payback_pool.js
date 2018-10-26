@@ -2,5 +2,5 @@ var UserPaybackPool = artifacts.require("UserPaybackPool");
 var Council = artifacts.require("Council");
 
 module.exports = function(deployer) {
-  deployer.deploy(UserPaybackPool, Council.address, 86400 * 30);
+  deployer.deploy(UserPaybackPool, Council.address);
 };
