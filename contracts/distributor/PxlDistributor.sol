@@ -147,6 +147,10 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         IFundManager fund = IFundManager(council.getFundManager());
         address fundAddress = fund.getFund(_content);
 
+        if(fundAddress == address(0)) {
+            return;
+        }
+
         (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
         for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
