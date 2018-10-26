@@ -44,16 +44,6 @@ class DepositPool {
   release(content) {
     return this._contract.methods.release(content).send();
   }
-  
-  // 여기까지
-
-  getRegFee() {
-    return this._contract.methods.getRegFee().call();
-  }
-
-  sendReport(content, detail) {
-    return this._contract.methods.sendReport(content, detail).send();
-  }
 }
 
 export default DepositPool;

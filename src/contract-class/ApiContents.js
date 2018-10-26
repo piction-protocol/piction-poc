@@ -128,8 +128,9 @@ class ApiContents {
   }
 
   // 예치금 조회
-  getInitialDeposit(address) {
-    return this._contract.methods.getInitialDeposit(address).call();
+  async getInitialDeposit(address) {
+    let result = await this._contract.methods.getInitialDeposit(address).call();
+    return Number(result) / Math.pow(10, 18);
   }
 
   // 내 작품 조회

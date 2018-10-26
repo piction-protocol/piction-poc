@@ -30,6 +30,7 @@ export default class Fund {
 
     this.comic = new Comic();
     this.supporters = [];
+    this.distributions = [];
   }
 
   getRisePercent() {

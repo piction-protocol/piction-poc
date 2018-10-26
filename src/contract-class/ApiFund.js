@@ -117,8 +117,9 @@ class ApiFund {
     return this._contract.methods.endFund(fund).send();
   }
 
-  releaseDistribution(fund) {
-    return this._contract.methods.releaseDistribution(fund).send();
+  // 서포터 풀 회수
+  releaseDistribution(address) {
+    return this._contract.methods.releaseDistribution(address).send();
   }
 
   vote(fund, index) {
