@@ -26,7 +26,6 @@ import PublishComicInfoIndex from '@/components/publish/comics/info/Index'
 import PublishSupporterNew from '@/components/publish/comics/supporter/New'
 import PublishSupporterEdit from '@/components/publish/comics/supporter/Edit'
 import PublishSupporterShow from '@/components/publish/comics/supporter/Show'
-
 // my
 import MyIndex from '@/components/my/Index'
 import AccountIndex from '@/components/my/account/Index'
