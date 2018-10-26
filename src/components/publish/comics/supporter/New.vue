@@ -25,7 +25,8 @@
         let loader = this.$loading.show();
         try {
           await this.$contract.apiFund.createFund(this.comic_id, fund);
-          this.$router.replace({name: 'publish-edit-supporter'})
+          const address = await this.$contract.apiFund.getFundAddress(this.comic_id);
+          this.$router.replace({name: 'publish-show-supporter', params: {fund_id: address}});
         } catch (e) {
           alert(e);
         }

@@ -388,6 +388,7 @@ contract ApiContents is ValidValue {
     * @return records_ Json string 타입의 episode 정보
     * @return price_ 판매 가격 
     * @return purchasedAmount_ 에피소드 별 매출
+    * @return buyCount_ 구매한 독자 수
     * @return isPublished 공개 여부
     * @return publishDate_ episode 공개 시간
     * @return episodeIndex_ episode 회차

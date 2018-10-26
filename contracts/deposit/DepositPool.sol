@@ -179,5 +179,5 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 보증금 회수");
     }
 
-    event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _descripstion);
+    event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _description);
 }

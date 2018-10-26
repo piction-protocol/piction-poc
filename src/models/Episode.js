@@ -13,5 +13,6 @@ export default class Episode {
     this.publishedAt = publishedAt.toISOString();
     this.status = status;
     this.createdAt = createdAt;
+    this.purchasedAmount = 0;
   }
 }

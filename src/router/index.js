@@ -23,10 +23,9 @@ import PublishEpisodeIndex from '@/components/publish/comics/episodes/Index'
 import PublishEpisodeNew from '@/components/publish/comics/episodes/New'
 import PublishEpisodeEdit from '@/components/publish/comics/episodes/Edit'
 import PublishComicInfoIndex from '@/components/publish/comics/info/Index'
-import PublishSupporterIndex from '@/components/publish/comics/supporter/Index'
-import PublishSupporterShow from '@/components/publish/comics/supporter/Show'
 import PublishSupporterNew from '@/components/publish/comics/supporter/New'
 import PublishSupporterEdit from '@/components/publish/comics/supporter/Edit'
+import PublishSupporterShow from '@/components/publish/comics/supporter/Show'
 // my
 import MyIndex from '@/components/my/Index'
 import AccountIndex from '@/components/my/account/Index'
@@ -69,7 +68,6 @@ const router = new Router({
       children: [
         {path: 'episodes', name: 'publish-episodes', component: PublishEpisodeIndex, props: true},
         {path: 'info', name: 'publish-info', component: PublishComicInfoIndex, props: true},
-        {path: 'supporter', name: 'publish-supporter', component: PublishSupporterIndex, props: true},
         {path: 'supporter/new', name: 'publish-new-supporter', component: PublishSupporterNew, props: true},
         {path: 'supporter/:fund_id/edit', name: 'publish-edit-supporter', component: PublishSupporterEdit, props: true},
         {path: 'supporter/:fund_id/show', name: 'publish-show-supporter', component: PublishSupporterShow, props: true},

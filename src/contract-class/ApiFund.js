@@ -107,12 +107,19 @@ class ApiFund {
     return supporters;
   }
 
+  async getDistributions(fund) {
+    let distributions = await this._contract.methods.getDistributions(fund).call();
+    return Web3Utils.jsonToArray(distributions);
+  }
+  
+  // 투자 종료 처리, 서포터 풀 생성
   endFund(fund) {
     return this._contract.methods.endFund(fund).send();
   }
 
-  releaseDistribution(fund) {
-    return this._contract.methods.releaseDistribution(fund).send();
+  // 서포터 풀 회수
+  releaseDistribution(address) {
+    return this._contract.methods.releaseDistribution(address).send();
   }
 
   vote(fund, index) {

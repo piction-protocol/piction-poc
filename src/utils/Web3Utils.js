@@ -35,21 +35,21 @@ export default class Web3Utils {
     return arr;
   }
 
-  static remainTimeToStr(currentTime, targetTime) {
+  static remainTimeToStr(vue, targetTime) {
     const min = 1000 * 60;
     const hour = min * 60;
     const day = hour * 24;
-    const remain = Number(targetTime) - currentTime;
+    const remain = Number(targetTime) - vue.$root.now;
     if (parseInt(remain / day) > 0) {
-      return `${parseInt(remain / day)}일 남음`
+      return {number: parseInt(remain / day), text: '일'};
     } else if (parseInt(remain / hour) > 0) {
-      return `${parseInt(remain / hour)}시간 남음`
+      return {number: parseInt(remain / hour), text: '시간'};
     } else if (parseInt(remain / min) > 0) {
-      return `${parseInt(remain / min)}분 남음`
+      return {number: parseInt(remain / min), text: '분'};
     } else if (remain > 0) {
-      return `${parseInt(remain / 1000)}초 남음`
+      return {number: parseInt(remain / 1000), text: '초'};
     } else {
-      return `종료`
+      return null;
     }
   }
 }
