@@ -173,9 +173,9 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 comics의 작품 전시 화면
     * @return comicAddress_ 공개가 가능한 컨텐츠 주소 목록
     * @return records_ Json string 타입의 작품 세부 정보
-    * @return writer_ 작가 주소 
-    * @return totalPurchasedCount_ 작품 판매 수 
-    * @return contentCreationTime_ 컨텐츠 등록 시간 
+    * @return writer_ 작가 주소
+    * @return totalPurchasedCount_ 작품 판매 수
+    * @return contentCreationTime_ 컨텐츠 등록 시간
     * @return episodeLastUpdatedTime_ 마지막 등록 된 에피소드 등록 시간
     */
     function getComics()
@@ -197,14 +197,14 @@ contract ApiContents is ValidValue {
         }
 
         records_ = _getComicRecords(comicAddress_);
-        
+
         writer_ = new address[](comicAddress_.length);
         totalPurchasedCount_ = new uint256[](comicAddress_.length);
         contentCreationTime_ = new uint256[](comicAddress_.length);
         episodeLastUpdatedTime_ = new uint256[](comicAddress_.length);
 
         for(uint256 i = 0 ; i < comicAddress_.length ; i++) {
-            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i], 
+            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i],
                 episodeLastUpdatedTime_[i]) = IContent(comicAddress_[i]).getComicsInfo();
         }
     }
@@ -214,9 +214,9 @@ contract ApiContents is ValidValue {
     *
     * @return comicAddress_ 공개가 가능한 컨텐츠 주소 목록
     * @return records_ Json string 타입의 작품 세부 정보
-    * @return writer_ 작가 주소 
-    * @return totalPurchasedCount_ 작품 판매 수 
-    * @return contentCreationTime_ 컨텐츠 등록 시간 
+    * @return writer_ 작가 주소
+    * @return totalPurchasedCount_ 작품 판매 수
+    * @return contentCreationTime_ 컨텐츠 등록 시간
     * @return episodeLastUpdatedTime_ 마지막 등록 된 에피소드 등록 시간
     */
     function getComicsByAddress(
@@ -239,13 +239,14 @@ contract ApiContents is ValidValue {
 
         records_ = _getComicRecords(_comicAddress);
 
+        comicAddress_ = _comicAddress;
         writer_ = new address[](_comicAddress.length);
         totalPurchasedCount_ = new uint256[](_comicAddress.length);
         contentCreationTime_ = new uint256[](_comicAddress.length);
         episodeLastUpdatedTime_ = new uint256[](_comicAddress.length);
 
         for(uint256 i = 0 ; i < _comicAddress.length ; i++) {
-            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i], 
+            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i],
                 episodeLastUpdatedTime_[i]) = IContent(_comicAddress[i]).getComicsInfo();
         }
     }
@@ -256,7 +257,7 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 comics-detail의 작품의 세부 정보
     * @param _comicAddress 작품 주소
     * @return records_ Json string 타입의 작품 세부 정보
-    * @return writer_ 작가 주소 
+    * @return writer_ 작가 주소
     * @return writerName_ 작가 이름
     * @return isFavorite 유저의 즐겨 찾기 설정 여부
     */
@@ -266,9 +267,9 @@ contract ApiContents is ValidValue {
         external
         view
         returns (
-            string records_, 
-            address writer_, 
-            string writerName_, 
+            string records_,
+            address writer_,
+            string writerName_,
             bool isFavorite
         )
     {
@@ -286,10 +287,10 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 comics-detail의 작품의 에피소드 정보
     * @param _comicAddress 작품 주소
     * @return records_ Json string 타입의 episode 정보
-    * @return price_ 판매 가격 
+    * @return price_ 판매 가격
     * @return isPurchased_ 구매 유무
     * @return episodeCreationTime_ episode 등록 시간 정보
-    * @return episodeIndex_ episode 회차 
+    * @return episodeIndex_ episode 회차
     */
     function getEpisodes(
         address _comicAddress
@@ -317,7 +318,7 @@ contract ApiContents is ValidValue {
         price_ = new uint256[](episodeIndex_.length);
         isPurchased_ = new bool[](episodeIndex_.length);
         episodeCreationTime_ = new uint256[](episodeIndex_.length);
-        
+
         bytes memory start = "[";
         bytes memory end = "]";
         bytes memory separator = ",";
@@ -368,7 +369,7 @@ contract ApiContents is ValidValue {
             return;
         }
 
-        (records_, price_, buyCount_, , isPurchased_, isPublished_, publishDate_, 
+        (records_, price_, buyCount_, , isPurchased_, isPublished_, publishDate_,
             episodeCreationTime_) = IContent(_comicAddress).getEpisodeDetail(_index, msg.sender);
     }
 
@@ -413,7 +414,7 @@ contract ApiContents is ValidValue {
             if(IContent(comicAddress_[i]).getWriter() == msg.sender){
                 isBlockComic_[i] = IContent(comicAddress_[i]).getIsBlocked();
                 totalPurchasedAmount_[i] = IContent(comicAddress_[i]).getTotalPurchasedAmount();
-                
+
                 episodeLength = IContent(comicAddress_[i]).getEpisodeLength();
                 publishedEpisode_[i] = IContent(comicAddress_[i]).getPublishEpisodeIndex().length;
                 privateEpisode_[i] = episodeLength.sub(publishedEpisode_[i]);
@@ -427,7 +428,7 @@ contract ApiContents is ValidValue {
     * @notice 메뉴 publish의 작품의 에피소드 정보
     * @param _comicAddress 작품 주소
     * @return records_ Json string 타입의 episode 정보
-    * @return price_ 판매 가격 
+    * @return price_ 판매 가격
     * @return purchasedAmount_ 에피소드 별 매출
     * @return buyCount_ 구매한 독자 수
     * @return isPublished 공개 여부
@@ -493,7 +494,7 @@ contract ApiContents is ValidValue {
     */
     function getMyComicSales(
         address _comicAddress
-    )  
+    )
         external
         view
         returns (
