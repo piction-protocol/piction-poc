@@ -31,9 +31,10 @@ import PublishSupporterEdit from '@/components/publish/comics/supporter/Edit'
 import MyIndex from '@/components/my/Index'
 import AccountIndex from '@/components/my/account/Index'
 import PayckbackPoolIndex from '@/components/my/paybackpool/Index'
-import MyReportIndex from '@/components/my/reports/Index'
 import MyContentsIndex from '@/components/my/contents/Index'
 import MyContentsShow from '@/components/my/contents/Show'
+// report
+import ReportIndex from '@/components/reports/Index'
 // council
 import CouncilIndex from '@/components/council/Index'
 
@@ -83,16 +84,18 @@ const router = new Router({
         {path: '', name: 'account', component: AccountIndex},
         {path: 'payback-pool', name: 'payback-pool', component: PayckbackPoolIndex},
         {
-          path: 'my-reports', name: 'my-reports', component: MyReportIndex,
-          props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
-        },
-        {
           path: 'contents', name: 'my-contents', component: MyContentsIndex,
           children: [
             {path: ':content_id', name: 'show-my-content', component: MyContentsShow, props: true},
           ]
         },
       ]
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: ReportIndex,
+      props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
     },
     // council
     {

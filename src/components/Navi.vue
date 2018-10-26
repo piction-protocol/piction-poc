@@ -26,7 +26,7 @@
             <b-dropdown-item href="#">내 정보</b-dropdown-item>
             <b-dropdown-item href="#">서포트 관리</b-dropdown-item>
             <b-dropdown-item href="#">작품 구매 보상</b-dropdown-item>
-            <b-dropdown-item href="#">신고 처리 내역</b-dropdown-item>
+            <b-dropdown-item href="#"><router-link active-class="active" class="nav-link" :to="{name: 'reports'}">신고 처리 내역</router-link></b-dropdown-item>
             <b-dropdown-item @click="logout">로그아웃</b-dropdown-item>
           </b-nav-item-dropdown>
           <!--<b-nav-form>-->
