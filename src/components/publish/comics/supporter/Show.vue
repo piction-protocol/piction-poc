@@ -50,7 +50,8 @@
           <b-button type="submit" size="sm"
                     @click="releaseDistribution"
                     :disabled="distributionsTotalAmount == 0"
-                    variant="outline-secondary">{{distributionsTotalAmount}} PXL 수령받기</b-button>
+                    variant="outline-secondary">{{distributionsTotalAmount.toString()}} PXL 수령받기
+          </b-button>
         </div>
       </div>
       <div class="font-size-20 font-weight-bold mt-5 mb-2 ">서포터 (총 {{fund.supporters.length}}명)</div>
@@ -67,6 +68,7 @@
   import Fund from '@models/Fund';
   import SupporterPool from './SupporterPool'
   import Supporters from '@/components/funds/Supporters'
+  import BigNumber from 'bignumber.js'
 
   export default {
     components: {SupporterPool, Supporters},
@@ -100,11 +102,11 @@
         this.fund.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
       },
       async setDistributions() {
-        this.fund.distributions = await this.$contract.apiFund.getDistributions(this.fund_id);
+        this.fund.distributions = await this.$contract.apiFund.getDistributions(this.fund);
         this.distributionsTotalAmount = this.fund.distributions
-          .filter(d => Number(d.distributableTime) < this.$root.now && d.state == 0)
-          .map(d => Number(d.amount))
-          .reduce((a, b) => a + b, 0) / Math.pow(10, 18);
+          .filter(d => d.distributableTime < this.$root.now && d.state == 0)
+          .map(d => d.amount)
+          .reduce((a, b) => BigNumber(a).plus(BigNumber(b)), 0);
       },
       async isFundSuccess() {
         let events = await this.$contract.fund.getContract(this.fund_id)

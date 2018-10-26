@@ -1,5 +1,6 @@
 import {abi} from '@contract-build-source/ApiFund'
 import Fund from '@models/Fund';
+import SupporterPool from '@models/SupporterPool';
 import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
 
@@ -108,10 +109,11 @@ class ApiFund {
   }
 
   async getDistributions(fund) {
-    let distributions = await this._contract.methods.getDistributions(fund).call();
-    return Web3Utils.jsonToArray(distributions);
+    let distributions = await this._contract.methods.getDistributions(fund.address).call();
+    distributions = Web3Utils.jsonToArray(distributions).map((d, index) => new SupporterPool(fund, index, d));
+    return distributions;
   }
-  
+
   // 투자 종료 처리, 서포터 풀 생성
   endFund(fund) {
     return this._contract.methods.endFund(fund).send();

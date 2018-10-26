@@ -1,8 +1,8 @@
 export default class DepositHistory {
-  constructor() {
-    this.date = 0;
-    this.type = 0;
-    this.amount = 0;
-    this.description = '';
+  constructor(history) {
+    this.date = history.date;
+    this.type = history.type;
+    this.amount = web3.utils.fromWei(history.amount);
+    this.description = history.description;
   }
 }

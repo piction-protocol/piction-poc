@@ -6,13 +6,13 @@
              :fields="fields"
              :items="fund.distributions"
              :small="true">
-      <template slot="index" slot-scope="row">{{row.index + 1}}회차</template>
-      <template slot="amount" slot-scope="row">{{Number(row.value) / Math.pow(10, 18)}} PXL</template>
+      <template slot="index" slot-scope="row">{{row.value}}회차</template>
+      <template slot="amount" slot-scope="row">{{row.value}} PXL</template>
       <template slot="distributableTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributedTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
-      <template slot="state" slot-scope="row">{{getStateString(row)}}</template>
+      <template slot="state" slot-scope="row">{{row.item.getStateString()}}</template>
       <template slot="vote" slot-scope="row">
-        <div v-if="completed(row) || progress(row)">
+        <div v-if="row.item.completed() || row.item.isCurrentPool()">
           {{row.item.votingCount}} / {{fund.supporters.length}}
         </div>
       </template>
@@ -39,38 +39,7 @@
         ],
       }
     },
-    methods: {
-      completed(row) {
-        if (Number(row.item.distributableTime) < this.$root.now) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      progress(row) {
-        if (Number(row.item.distributableTime) - Number(this.fund.interval) < this.$root.now &&
-          this.$root.now < Number(row.item.distributableTime)) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      getStateString: function (row) {
-        if (row.item.state == 0) {
-          if (this.progress(row)) {
-            return '투표중';
-          } else {
-            return '지급전';
-          }
-        } else if (row.item.state == 1) {
-          return '지급완료';
-        } else if (row.item.state == 2) {
-          return '지급거절';
-        } else {
-          return null
-        }
-      }
-    },
+    methods: {},
   }
 </script>
 
