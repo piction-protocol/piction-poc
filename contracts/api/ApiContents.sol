@@ -210,6 +210,47 @@ contract ApiContents is ValidValue {
     }
 
     /**
+    * @dev 작품 주소를 이용하여 정보 조회
+    *
+    * @return comicAddress_ 공개가 가능한 컨텐츠 주소 목록
+    * @return records_ Json string 타입의 작품 세부 정보
+    * @return writer_ 작가 주소 
+    * @return totalPurchasedCount_ 작품 판매 수 
+    * @return contentCreationTime_ 컨텐츠 등록 시간 
+    * @return episodeLastUpdatedTime_ 마지막 등록 된 에피소드 등록 시간
+    */
+    function getComicsByAddress(
+        address[] _comicAddress
+    )
+        external
+        view
+        returns(
+            address[] memory comicAddress_,
+            bytes memory records_,
+            address[] memory writer_,
+            uint256[] memory totalPurchasedCount_,
+            uint256[] memory contentCreationTime_,
+            uint256[] memory episodeLastUpdatedTime_
+        )
+    {
+        if(_comicAddress.length == 0) {
+            return;
+        }
+
+        records_ = _getComicRecords(_comicAddress);
+
+        writer_ = new address[](_comicAddress.length);
+        totalPurchasedCount_ = new uint256[](_comicAddress.length);
+        contentCreationTime_ = new uint256[](_comicAddress.length);
+        episodeLastUpdatedTime_ = new uint256[](_comicAddress.length);
+
+        for(uint256 i = 0 ; i < _comicAddress.length ; i++) {
+            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i], 
+                episodeLastUpdatedTime_[i]) = IContent(_comicAddress[i]).getComicsInfo();
+        }
+    }
+
+    /**
     * @dev 작품 세부 정보 조회
     *
     * @notice 메뉴 comics-detail의 작품의 세부 정보

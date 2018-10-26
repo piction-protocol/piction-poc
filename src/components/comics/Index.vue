@@ -1,11 +1,11 @@
 <template>
   <div>
     <!--<div class="d-flex justify-content-between align-items-end">-->
-      <!--<div class="page-title">Comics</div>-->
-      <!--<b-form-select style="width: 150px;" :value="genre" @change="setGenre">-->
-        <!--<option :value="undefined">전체</option>-->
-        <!--<option v-for="genre in genres" :value="genre.value">{{genre.text}}</option>-->
-      <!--</b-form-select>-->
+    <!--<div class="page-title">Comics</div>-->
+    <!--<b-form-select style="width: 150px;" :value="genre" @change="setGenre">-->
+    <!--<option :value="undefined">전체</option>-->
+    <!--<option v-for="genre in genres" :value="genre.value">{{genre.text}}</option>-->
+    <!--</b-form-select>-->
     <!--</div>-->
     <!--<br>-->
     <div class="page-title">Comics</div>
@@ -45,7 +45,7 @@
       filteredComics() {
         if (!this.$route.hash || this.$route.hash == '#popular') {
           return this.comics.sort((a, b) => b.purchasedCount - a.purchasedCount);
-        } else if(this.$route.hash == '#updated') {
+        } else if (this.$route.hash == '#updated') {
           return this.comics.sort((a, b) => b.lastUploadedAt - a.lastUploadedAt);
         } else {
           return this.comics.sort((a, b) => b.createdAt - a.createdAt);
