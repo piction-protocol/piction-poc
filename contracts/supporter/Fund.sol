@@ -56,6 +56,8 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	uint256 supportFirstTime;
 	uint256 distributionRate;
 
+	bool isEndFund;
+
 	constructor(
 		address _council,
 		address _content,
@@ -137,6 +139,11 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 			CustomToken(address(token)).transferPxl(_from, refundValue, "서포터 참여, 투자금 환불");
 		}
 
+		// maxcap 도달시 강제 종료
+		if (fundRise == maxcap) {
+			endFund();
+		}
+
 		// update support history
 		IAccountManager(ICouncil(council).getAccountManager()).setSupportHistory(_from, content, address(this), possibleValue, false);
 		emit Support(_from, fundRise, maxcap, softcap, possibleValue, refundValue);
@@ -161,8 +168,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	/**
 	* @dev 투자의 종료를 진행, 후원 풀로 토큰을 전달하며 softcap 미달 시 환불을 진행함
 	*/
-	function endFund() external {
-		require(ICouncil(council).getApiFund() == msg.sender, "msg sender is not ApiFund");
+	function endFund() public {
 		require(ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0, "Fund SupporterPool is already");
 		require(fundRise == maxcap || TimeLib.currentTime() > endTime, "fundRise not maxcap or endTime not over");
 
@@ -194,6 +200,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 			}
 			emit EndFund(false);
 		}
+		isEndFund = true;
 	}
 
 	/*
@@ -302,6 +309,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		uint256 releaseInterval_,
 		uint256 supportFirstTime_,
 		uint256 distributionRate_,
+		bool needEndProcessing_,
 		string detail_)
 	{
 		content_ = content;
@@ -317,6 +325,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		releaseInterval_ = releaseInterval;
 		supportFirstTime_ = supportFirstTime;
 		distributionRate_ = distributionRate;
+		needEndProcessing_ = !isEndFund && (maxcap == fundRise || endTime < TimeLib.currentTime());
 		detail_ = detail;
 	}
 

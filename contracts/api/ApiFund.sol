@@ -144,6 +144,7 @@ contract ApiFund is ValidValue {
             uint256 releaseInterval_,
             uint256 supportFirstTime_,
             uint256 distributionRate_,
+            bool needEndProcessing_,
             string detail_)
     {
         return IFund(_fund).getFundInfo();
@@ -157,7 +158,7 @@ contract ApiFund is ValidValue {
         fundRise_ = new uint256[](_funds.length);
 
         for(uint i = 0; i < _funds.length; i++) {
-            (,,,,fundRise_[i],,,,,) = IFund(_funds[i]).getFundInfo();
+            (,,,,fundRise_[i],,,,,,) = IFund(_funds[i]).getFundInfo();
         }
     }
 
