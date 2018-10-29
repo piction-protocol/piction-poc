@@ -60,6 +60,7 @@
     props: ['comic_id'],
     data() {
       return {
+        fund_id: null,
         comic: new Comic(),
         fund: new Fund(),
         supporter: new Supporter()
@@ -70,11 +71,23 @@
         this.fund.distributions = await this.$contract.apiFund.getDistributions(this.fund);
         this.fund.distributions.forEach(o => o._showDetails = o.isCurrentPool());
       },
+      async endFund() {
+        let loader = this.$loading.show();
+        try {
+          await this.$contract.apiFund.endFund(this.fund_id);
+        } catch (e) {
+          alert(e);
+        }
+        loader.hide();
+      },
     },
     async created() {
       this.comic = await this.$contract.apiContents.getComic(this.comic_id);
-      const address = await this.$contract.apiFund.getFundAddress(this.comic_id);
-      this.fund = await this.$contract.apiFund.getFund(this, address);
+      this.fund_id = await this.$contract.apiFund.getFundAddress(this.comic_id);
+      this.fund = await this.$contract.apiFund.getFund(this, this.fund_id);
+      if(this.fund.needEndProcessing) {
+        await this.endFund();
+      }
       await this.setDistributions();
       this.supporter = await this.$contract.apiFund.getMySupporter(this, this.fund.address);
     }

@@ -94,8 +94,8 @@
     methods: {
       async setFundState() {
         this.fund = await this.$contract.apiFund.getFund(this, this.fund_id);
-        if (new Date(this.fund.endTime).getTime() < this.$root.now || this.fund.rise == this.fund.maxcap) {
-          this.success = await this.isFundSuccess();
+        if(this.fund.needEndProcessing) {
+          await this.endFund();
         }
       },
       async setSupporters() {
@@ -107,16 +107,6 @@
           .filter(d => d.distributableTime < this.$root.now && d.state == 0)
           .map(d => d.amount)
           .reduce((a, b) => BigNumber(a).plus(BigNumber(b)), 0);
-      },
-      async isFundSuccess() {
-        let events = await this.$contract.fund.getContract(this.fund_id)
-          .getPastEvents('EndFund', {fromBlock: 0, toBlock: 'latest'});
-        if (events.length == 0) {
-          await this.endFund(this.fund_id);
-          events = await this.$contract.fund.getContract(this.fund_id)
-            .getPastEvents('EndFund', {fromBlock: 0, toBlock: 'latest'});
-        }
-        return events[0].returnValues.success != null && events[0].returnValues.success;
       },
       async endFund() {
         let loader = this.$loading.show();

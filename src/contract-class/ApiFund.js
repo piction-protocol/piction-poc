@@ -71,6 +71,7 @@ class ApiFund {
     fund.distributionRate = Number(result.distributionRate) / Math.pow(10, 18);
     fund.detail = result.detail;
     fund.rise = Number(result.fundRise) / Math.pow(10, 18);
+    fund.needEndProcessing = result.needEndProcessing;
     let comic = await vue.$contract.apiContents.getComic(result.content)
     fund.setComic(comic);
     return fund;
