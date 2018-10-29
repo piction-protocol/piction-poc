@@ -41,6 +41,32 @@ class ApiContents {
     }
   }
 
+  // 작품 주소로 작품 목록 조회
+  async getComicsByAddress(vue, addrs) {
+    let result = await this._contract.methods.getComicsByAddress(addrs).call();
+    result = Web3Utils.prettyJSON(result);
+    console.log(result)
+    if (result.comicAddress.length == 0) {
+      return [];
+    } else {
+      let comics = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      let writerNames = await vue.$contract.accountManager.getUserNames(result.writer);
+      records.forEach((record, i) => {
+        let comic = new Comic(
+          result.comicAddress[i],
+          record,
+          result.totalPurchasedCount[i],
+          result.episodeLastUpdatedTime[i],
+          result.contentCreationTime[i]
+        );
+        comic.setWriter(result.writer[i], writerNames[i]);
+        comics.push(comic);
+      });
+      return comics;
+    }
+  }
+
   // 작품 조회
   async getComic(address) {
     let result = await this._contract.methods.getComic(address).call();
@@ -175,8 +201,8 @@ class ApiContents {
     }
   }
 
-  async getMyComicSales(address) {
-    let result = await this._contract.methods.getMyComicSales(address).call();
+  async getComicSales(address) {
+    let result = await this._contract.methods.getComicSales(address).call();
     result = Web3Utils.prettyJSON(result);
     let sales = new Sales();
     sales.favoriteCount = Number(result.favoriteCount);

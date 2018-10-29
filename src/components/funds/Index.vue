@@ -48,7 +48,7 @@
       },
       async setEvent() {
         this.web3Events.push(this.$contract.apiFund.getContract().events
-          .CreateFund({fromBlock: 'latest'}, async () => this.init()));
+          .CreateFund({fromBlock: 'latest'}, async () => this.setFunds()));
       },
       async setTab(tab) {
         this.$router.replace({hash: `#${tab}`});

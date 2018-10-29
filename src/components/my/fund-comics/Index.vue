@@ -1,0 +1,36 @@
+<template>
+  <div>
+    <div v-if="comics.length > 0" class="page-title">투자 관리</div>
+    <br>
+    <b-row v-for="comic in comics"
+           :key="comic.address">
+      <b-col>
+        <Item :comic="comic"/>
+      </b-col>
+    </b-row>
+  </div>
+</template>
+
+<script>
+  import Item from './Item'
+
+  export default {
+    components: {Item},
+    data() {
+      return {
+        comics: [],
+      }
+    },
+    methods: {},
+    async created() {
+      const addrs = await this.$contract.accountManager.getSupportComicsAddress(this.pictionConfig.account);
+      console.log(addrs)
+      this.comics = (await this.$contract.apiContents.getComicsByAddress(this, addrs)).reverse();
+      console.log(this.comics)
+
+    }
+  }
+</script>
+
+<style scoped>
+</style>

@@ -1,6 +1,6 @@
 export default class SupporterPool {
   constructor(fund, index, distribution) {
-    this.index = index + 1;
+    this.index = index;
     this.amount = web3.utils.fromWei(distribution.amount);
     this.distributableTime = Number(distribution.distributableTime);
     this.distributedTime = Number(distribution.distributedTime);

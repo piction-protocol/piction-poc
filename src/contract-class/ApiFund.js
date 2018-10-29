@@ -1,5 +1,7 @@
 import {abi} from '@contract-build-source/ApiFund'
 import Fund from '@models/Fund';
+import Writer from '@models/Writer';
+import Supporter from '@models/Supporter';
 import SupporterPool from '@models/SupporterPool';
 import Web3Utils from '@utils/Web3Utils'
 import BigNumber from 'bignumber.js'
@@ -100,12 +102,24 @@ class ApiFund {
   }
 
   // 서포터 목록 조회
-  async getSupporters(vue, fund) {
-    let supporters = await this._contract.methods.getSupporters(fund).call();
-    supporters = Web3Utils.jsonToArray(supporters);
-    let writers = await vue.$contract.accountManager.getUserNames(supporters.map(s => s.user));
-    supporters.forEach((supporter, index) => supporter.userName = writers[index]);
+  async getSupporters(vue, address) {
+    const supporters = [];
+    let results = await this._contract.methods.getSupporters(address).call();
+    results = Web3Utils.jsonToArray(results);
+    let writers = await vue.$contract.accountManager.getUserNames(results.map(s => s.user));
+    results.forEach((r, index) => {
+      let supporter = new Supporter(r);
+      supporter.writer = new Writer(r.user, writers[index]);
+      supporters.push(supporter)
+    });
     return supporters;
+  }
+
+  // 내 투자 정보
+  async getMySupporter(vue, address) {
+    const supporters = await this.getSupporters(vue, address);
+    const supporter = supporters.find(s => s.writer.address == this._contract.options.from);
+    return supporter ? supporter : new Supporter();
   }
 
   async getDistributions(fund) {
