@@ -119,13 +119,13 @@ class ApiContents {
   }
 
   // 작품 등록
-  createComic(comic) {
-    return this._contract.methods.createComic(JSON.stringify(comic)).send();
+  createComic(form) {
+    return this._contract.methods.createComic(JSON.stringify(form)).send();
   }
 
   // 작품 수정
-  updateComic(address, comic) {
-    return this._contract.methods.updateComic(address, JSON.stringify(comic)).send();
+  updateComic(address, form) {
+    return this._contract.methods.updateComic(address, JSON.stringify(form)).send();
   }
 
   // 에피소드 등록
