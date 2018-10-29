@@ -22,7 +22,7 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         uint256 tokenAmount;
         bool isCustomToken;
         address transferAddress;
-        address param;
+        bytes param;
         string message;
     }
 
@@ -67,7 +67,8 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
             // clear DistributionDetail array
             _clearDistributionDetail();
 
-            _purchaseTokenDistribution(_from, cdAddr, contentAddr, _value);
+            _purchaseTokenDistribution(_from, cdAddr, _data, _value);
+
         }
 
         // update episode purchase
@@ -80,29 +81,32 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
     function _purchaseTokenDistribution(
         address _buyerAddress,
         address _contentDistributor,
-        address _contentAddress,
+        bytes _data,
         uint256 _purchaseAmount
     )
         private
     {
         uint256 tempVar;
         uint256 compareAmount = _purchaseAmount;
+        address _contentAddress = _data.toAddress(0);
 
         //cd amount
         tempVar = _getRateToPxlAmount(_purchaseAmount, council.getCdRate());
         compareAmount = compareAmount.sub(tempVar);
         distribution.push(
             DistributionDetail(
-                tempVar, false, _contentDistributor, address(0), "CD 플랫폼 수수료"
+                tempVar, false, _contentDistributor, new bytes(0), "CD 플랫폼 수수료"
             )
         );
 
         //user payback pool amount
+        bytes memory paybackParam = BytesLib.toBytes(_buyerAddress);
+        paybackParam = paybackParam.concat(_data);
         tempVar = _getRateToPxlAmount(_purchaseAmount, council.getUserPaybackRate());
         compareAmount = compareAmount.sub(tempVar);
         distribution.push(
             DistributionDetail(
-                tempVar, true, council.getUserPaybackPool(), _buyerAddress, ""
+                tempVar, true, council.getUserPaybackPool(), paybackParam, ""
             )
         );
 
@@ -115,7 +119,8 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         if(compareAmount > 0) {
             distribution.push(
                 DistributionDetail(
-                    compareAmount, false, IContent(_contentAddress).getWriter(), address(0), "컨텐츠 판매 수익"
+                    compareAmount, false, IContent(_contentAddress).getWriter(), new bytes(0), "컨텐츠 판매 수익"
+
                 )
             );
             compareAmount = 0;
@@ -142,13 +147,17 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         IFundManager fund = IFundManager(council.getFundManager());
         address fundAddress = fund.getFund(_content);
 
+        if(fundAddress == address(0)) {
+            return;
+        }
+
         (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
         for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
             compareAmount = compareAmount.add(supporterAmount[j]);
             distribution.push(
                 DistributionDetail(
-                    supporterAmount[j], false, supporterAddress[j], address(0), "서포터 수익 배분"
+                    supporterAmount[j], false, supporterAddress[j], new bytes(0), "서포터 수익 배분"
                 )
             );
         }
@@ -170,11 +179,11 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         return _amount.mul(_rate).div(DECIMALS);
     }
 
-    function _transferDistributePxl(address _to, uint256 _amount, bool _isCustom, address _param, string message)
+    function _transferDistributePxl(address _to, uint256 _amount, bool _isCustom, bytes _param, string message)
         private
     {
         if(_isCustom) {
-            CustomToken(address(token)).approveAndCall(_to, _amount, BytesLib.toBytes(_param));
+            CustomToken(address(token)).approveAndCall(_to, _amount, _param);
         } else {
             CustomToken(address(token)).transferPxl(_to, _amount, message);
         }

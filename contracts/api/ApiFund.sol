@@ -112,6 +112,7 @@ contract ApiFund is ValidValue {
             address[] memory user_,
             uint256[] memory investment_,
             uint256[] memory collection_,
+            uint256[] memory reward_,
             uint256[] memory distributionRate_,
             bool[] memory refund_)
     {

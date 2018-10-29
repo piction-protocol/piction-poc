@@ -6,11 +6,11 @@
              :fields="fields"
              :items="supporters"
              :small="true">
-      <template slot="user" slot-scope="row">{{row.item.userName}}</template>
-      <template slot="investment" slot-scope="row">{{$utils.toPXL(row.item.investment)}} PXL</template>
-      <template slot="collection" slot-scope="row">{{$utils.toPXL(row.item.collection)}} PXL</template>
+      <template slot="user" slot-scope="row">{{row.item.writer.name}}</template>
+      <template slot="investment" slot-scope="row">{{row.item.investment}} PXL</template>
+      <template slot="collection" slot-scope="row">{{row.item.collection}} PXL</template>
       <template slot="refund" slot-scope="row">{{row.item.refund ? '환불' : '미환불'}}</template>
-      <template slot="distributionRate" slot-scope="row">{{$utils.toPXL(row.item.distributionRate) * 100}} %</template>
+      <template slot="distributionRate" slot-scope="row">{{row.item.distributionRate}} %</template>
     </b-table>
   </div>
 </template>

@@ -12,7 +12,7 @@ class DepositPool {
   // 예치금 조회
   async getDeposit(address) {
     let result = await this._contract.methods.getDeposit(address).call();
-    return Number(result) / Math.pow(10, 18);
+    return web3.utils.fromWei(result);
   }
 
   // 예치금 반환 가능 일 조회
@@ -27,19 +27,10 @@ class DepositPool {
       fromBlock: 0,
       toBlock: 'latest'
     });
-    const result = [];
-    events.forEach(event => {
-      event = Web3Utils.prettyJSON(event.returnValues);
-      let history = new DepositHistory();
-      history.date = event.date;
-      history.type = event.type;
-      history.amount = event.amount / Math.pow(10, 18);
-      history.description = event.description;
-      result.push(history);
-    });
-    return result;
+    return events.map(history => Web3Utils.prettyJSON(history.returnValues))
+      .map(history => new DepositHistory(history));
   }
-  
+
   // 예치금 회수
   release(content) {
     return this._contract.methods.release(content).send();

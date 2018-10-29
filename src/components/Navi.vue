@@ -10,7 +10,6 @@
           <router-link active-class="active" class="nav-link" :to="{name: 'comics'}">Comics</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'funds'}">Waiting for supporters</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'publish-comics'}">Publish</router-link>
-          <router-link active-class="active" class="nav-link" :to="{name: 'account'}">My</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'council'}">Council</router-link>
         </b-navbar-nav>
         <b-navbar-nav v-if="$store.getters.name" class="ml-auto">
@@ -23,15 +22,12 @@
               :duration="1000"/>
           </b-nav-item>
           <b-nav-item-dropdown :text="$store.getters.name" right>
-            <b-dropdown-item href="#">내 정보</b-dropdown-item>
-            <b-dropdown-item href="#">서포트 관리</b-dropdown-item>
-            <b-dropdown-item href="#">작품 구매 보상</b-dropdown-item>
-            <b-dropdown-item href="#"><router-link active-class="active" class="nav-link" :to="{name: 'reports'}">신고 처리 내역</router-link></b-dropdown-item>
+            <b-dropdown-item :to="{name: 'account'}">내 정보</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'my-fund-comics'}">투자 관리</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'user-payback'}">작품 구매 보상</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'reports'}">신고 처리 내역</b-dropdown-item>
             <b-dropdown-item @click="logout">로그아웃</b-dropdown-item>
           </b-nav-item-dropdown>
-          <!--<b-nav-form>-->
-            <!--<b-button variant="outline-success" class="my-2 my-sm-0" @click="newContents">작품등록</b-button>-->
-          <!--</b-nav-form>-->
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
