@@ -23,8 +23,8 @@ class ApiReport {
     return this._contract.methods.sendReport(content, detail).send();
   }
 
-  reportProcess(index, content, reporter, success) {
-    return this._contract.methods.reportProcess(index, content, reporter, success).send();
+  reportDisposal(index, content, reporter, type, description) {
+    return this._contract.methods.reportDisposal(index, content, reporter, type, description).send();
   }
 
 }

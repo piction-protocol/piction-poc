@@ -104,9 +104,7 @@ contract FundManager is IFundManager, ExtendsOwnable, ValidValue {
     * @return amount_ 정산해야하는 금액
     */
     function distribution(address _fund, uint256 _total) external returns (address[] supporter_, uint256[] amount_) {
-        require(
-            msg.sender == ICouncil(council).getPixelDistributor()
-            || msg.sender == ICouncil(council).getDepositPool());
+        require(msg.sender == ICouncil(council).getPixelDistributor(), "msg sender is not PixelDistributor");
 
         return Fund(_fund).distribution(_total);
     }

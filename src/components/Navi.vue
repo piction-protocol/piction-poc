@@ -25,7 +25,7 @@
             <b-dropdown-item :to="{name: 'account'}">내 정보</b-dropdown-item>
             <b-dropdown-item :to="{name: 'my-fund-comics'}">투자 관리</b-dropdown-item>
             <b-dropdown-item :to="{name: 'user-payback'}">작품 구매 보상</b-dropdown-item>
-            <b-dropdown-item href="#">신고 처리 내역</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'my-reports'}">신고 처리 내역</b-dropdown-item>
             <b-dropdown-item @click="logout">로그아웃</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>

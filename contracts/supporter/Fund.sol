@@ -225,6 +225,10 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 	function distribution(uint256 _total) external returns (address[] memory supporters_, uint256[] memory amounts_) {
 		require(ICouncil(council).getFundManager() == msg.sender, "msg sender is not FundManager");
 
+		if (ISupporterPool(ICouncil(council).getSupporterPool()).getDistributionsCount(address(this)) == 0) {
+			return;
+		}
+
 		supporters_ = new address[](supporters.length);
 		amounts_ = new uint256[](supporters.length);
 
