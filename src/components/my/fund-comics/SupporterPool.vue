@@ -69,6 +69,7 @@
         let loader = this.$loading.show();
         try {
           await this.$contract.apiFund.vote(this.fund.address, index);
+          this.$parent.setDistributions();
         } catch (e) {
           alert(e);
         }
