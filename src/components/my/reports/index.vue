@@ -60,12 +60,21 @@
                 empty-text="조회된 목록이 없습니다"
                 :fields="fields"
                 :items="reports"
+                :current-page="currentPage"
+                :per-page="perPage"
                 :small="true">
         <template slot="reportDate" slot-scope="row">{{$utils.dateFmt(row.item.reportDate)}}</template>
         <template slot="completeDate" slot-scope="row">{{$utils.dateFmt(row.item.completeDate)}}</template>
+        <template slot="contentTitle" slot-scope="row">{{row.item.contentTitle}}</template>
         <template slot="reportDetail" slot-scope="row">{{row.item.reportDetail}}</template>
         <template slot="completeType" slot-scope="row">{{row.item.completeType}}</template>
         </b-table>
+        <b-pagination class="d-flex justify-content-center" size="md"
+                :total-rows="reports.length"
+                v-model="currentPage"
+                :per-page="perPage"
+                :limit="limit">
+        </b-pagination>
     </div>
 </template>
 
@@ -75,7 +84,6 @@
     import Web3Utils from '@utils/Web3Utils';
 
     export default {
-        props: ['page', 'filter'],
         computed: {
             progressValue() {
                 if (this.reporterRegistrationLockTime == 0) {
@@ -94,6 +102,7 @@
                 fields: [
                     {key: 'reportDate', label: '신고 일시'},
                     {key: 'completeDate', label: '처리 일시'},
+                    {key: 'contentTitle', label: '작품 명'},
                     {key: 'reportDetail', label: '신고 내용'},
                     {key: 'completeType', label: '처리'},
                 ],
@@ -103,7 +112,10 @@
                 reportRegistrationFee: 0,
                 interval: 0,
                 pxl: 0,
-                reports: []
+                reports: [],
+                perPage: 10,
+                limit: 7,
+                currentPage: 1,
             }
         },
         methods: {
@@ -115,9 +127,11 @@
                 this.reporterRegistrationLockTime = reagistration[1];
                 this.reporterReporterBlock = reagistration[2];
                 this.interval = 10 * 60 * 1000; //test 10 min
-                this.$contract.report.getMyReportList();
-
-                //ReportList
+            },
+            async setTable() {
+                let contentIds = [];
+                let list = [];
+                //신고 이벤트 조회
                 let events = await this.$contract.report.getMyReportList();
                 events.forEach(event => {
                     event = Web3Utils.prettyJSON(event.returnValues);
@@ -125,14 +139,20 @@
                     history.index = event.index;
                     history.reportDate = event.date;
                     history.reportDetail = event.detail;
-                    this.reports.push(history);
+                    list.push(history);
+
+                    contentIds.push(event.content);
                 });
+
+                //작품 명 조회
+                let comics = await this.$contract.apiContents.getComicsByAddress(this, contentIds);
+                list.forEach((history, i) => history.contentTitle = comics[i].title);
                 
-                //CompleteReportList
+                //신고처리 완료 조회
                 events = await this.$contract.report.getMyCompleteReportList();
                 events.forEach(event => {
                     event = Web3Utils.prettyJSON(event.returnValues);
-                    let findObj = this.reports.find(o => o.index == event.index);
+                    let findObj = list.find(o => o.index == event.index);
                     findObj.completeDate = event.completeDate;
                     switch(event.type) {
                         case 1: findObj.completeType = "작품 차단 (-"+event.deductionAmount+"PXL)";
@@ -144,6 +164,7 @@
                     }
                 });
 
+                this.reports = list.reverse();
             },
             async transferFee() {
                 let loader = this.$loading.show();
@@ -173,6 +194,7 @@
         },
         async created() {
             this.init();
+            this.setTable();
         }
     }
 </script>
