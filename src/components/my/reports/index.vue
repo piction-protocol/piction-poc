@@ -51,19 +51,21 @@
                 </div>
             </b-col>
             </b-row>
-            <br>
-            <b-table striped hover
-                    show-empty
-                    empty-text="조회된 목록이 없습니다"
-                    :fields="fields"
-                    :items="reports"
-                    :small="true">
-            <template slot="reportDate" slot-scope="row">{{$utils.dateFmt(row.item.reportDate)}}</template>
-            <template slot="completeDate" slot-scope="row">{{$utils.dateFmt(row.item.completeDate)}}</template>
-            <template slot="reportDetail" slot-scope="row">{{row.item.reportDetail}}</template>
-            <template slot="completeType" slot-scope="row">{{row.item.completeType}}</template>
-            </b-table>
         </div>
+        <br>
+        <br>
+        <br>
+        <b-table striped hover
+                show-empty
+                empty-text="조회된 목록이 없습니다"
+                :fields="fields"
+                :items="reports"
+                :small="true">
+        <template slot="reportDate" slot-scope="row">{{$utils.dateFmt(row.item.reportDate)}}</template>
+        <template slot="completeDate" slot-scope="row">{{$utils.dateFmt(row.item.completeDate)}}</template>
+        <template slot="reportDetail" slot-scope="row">{{row.item.reportDetail}}</template>
+        <template slot="completeType" slot-scope="row">{{row.item.completeType}}</template>
+        </b-table>
     </div>
 </template>
 
