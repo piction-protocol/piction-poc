@@ -4,7 +4,9 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 import "contracts/token/CustomToken.sol";
 import "contracts/token/ContractReceiver.sol";
+
 import "contracts/utils/ExtendsOwnable.sol";
+import "contracts/utils/TimeLib.sol";
 
 /**
  * @title PXL implementation based on StandardToken ERC-20 contract.
@@ -14,6 +16,7 @@ import "contracts/utils/ExtendsOwnable.sol";
  */
 contract PXL is ERC20, CustomToken, ExtendsOwnable {
     using SafeMath for uint256;
+    using TimeLib for *;
 
     // PXL 토큰 기본 정보
     string public constant name = "Pixel";
@@ -65,7 +68,7 @@ contract PXL is ERC20, CustomToken, ExtendsOwnable {
 
     function transferFromPxl(address _from, address _to, uint256 _value, string message) public returns (bool) {
         require(transferFrom(_from, _to, _value), "transfer from failed");
-        emit PxlTransfer(_from, _to, _value, message);
+        emit PxlTransfer(_from, _to, _value, message, TimeLib.currentTime());
         return true;
     }
 
@@ -84,7 +87,7 @@ contract PXL is ERC20, CustomToken, ExtendsOwnable {
 
     function transferPxl(address _to, uint256 _value, string message) public returns (bool) {
         require(transfer(_to, _value), "transfer failed");
-        emit PxlTransfer(msg.sender, _to, _value, message);
+        emit PxlTransfer(msg.sender, _to, _value, message, TimeLib.currentTime());
         return true;
     }
 
