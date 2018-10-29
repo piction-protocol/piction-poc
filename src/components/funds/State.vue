@@ -15,7 +15,8 @@
             class="pxl"
             :value="fund.rise"
             :formatValue="formatValue"
-            :duration="1000"/> <span class="symbol">PXL</span></div>
+            :duration="1000"/>
+          <span class="symbol">PXL</span></div>
         <div class="label">현재 모금액</div>
       </b-col>
       <b-col class="text-center">
@@ -23,7 +24,7 @@
         <div class="label">참여자 수</div>
       </b-col>
       <b-col class="text-center">
-        <div class="value">XX <span class="symbol">일</span></div>
+        <div class="value">{{time ? time.number : 0}} <span class="symbol">{{time ? time.text : '일'}}</span></div>
         <div class="label">남은 모집 기간</div>
       </b-col>
     </b-row>
@@ -43,12 +44,18 @@
 
 <script>
   import AnimatedNumber from "animated-number-vue";
+  import Web3Utils from '@utils/Web3Utils'
 
   export default {
     components: {
       AnimatedNumber
     },
     props: ['fund'],
+    computed: {
+      time() {
+        return this.fund.rise != this.fund.maxcap ? Web3Utils.remainTimeToStr(this, this.fund.endTime) : null;
+      }
+    },
     methods: {
       formatValue(value) {
         return `${value.toFixed(0)}`;

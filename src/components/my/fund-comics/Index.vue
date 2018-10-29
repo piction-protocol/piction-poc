@@ -24,10 +24,7 @@
     methods: {},
     async created() {
       const addrs = await this.$contract.accountManager.getSupportComicsAddress(this.pictionConfig.account);
-      console.log(addrs)
-      this.comics = (await this.$contract.apiContents.getComicsByAddress(this, addrs)).reverse();
-      console.log(this.comics)
-
+      this.comics = (await this.$contract.apiContents.getComics(this, addrs)).reverse();
     }
   }
 </script>

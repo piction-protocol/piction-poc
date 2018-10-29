@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :fund="fund"
+      :form="form"
       action="new"
       submitText="등록"
       @onSubmit="onSubmit"></Form>
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import Fund from '@models/Fund';
+  import FundForm from '@forms/FundForm';
   import Form from './Form.vue'
 
   export default {
@@ -17,14 +17,14 @@
     props: ['comic_id'],
     data() {
       return {
-        fund: new Fund()
+        form: new FundForm()
       }
     },
     methods: {
-      async onSubmit(fund) {
+      async onSubmit(form) {
         let loader = this.$loading.show();
         try {
-          await this.$contract.apiFund.createFund(this.comic_id, fund);
+          await this.$contract.apiFund.createFund(this.comic_id, form);
           const address = await this.$contract.apiFund.getFundAddress(this.comic_id);
           this.$router.replace({name: 'publish-show-supporter', params: {fund_id: address}});
         } catch (e) {

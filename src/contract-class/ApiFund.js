@@ -28,20 +28,9 @@ class ApiFund {
     let events = await this._contract.getPastEvents('CreateFund', {filter: filter, fromBlock: 0, toBlock: 'latest'});
     events.forEach(async event => {
       event = Web3Utils.prettyJSON(event.returnValues);
-      let fund = new Fund();
+      let fund = new Fund(event);
       fund.address = event.fund;
-      fund.startTime = new Date(Number(event.startTime)).toISOString();
-      fund.endTime = new Date(Number(event.endTime)).toISOString();
-      fund.maxcap = Number(event.limit[0]) / Math.pow(10, 18);
-      fund.softcap = Number(event.limit[1]) / Math.pow(10, 18);
-      fund.min = Number(event.limit[2]) / Math.pow(10, 18);
-      fund.max = Number(event.limit[3]) / Math.pow(10, 18);
-      fund.poolSize = Number(event.poolSize);
-      fund.interval = Number(event.releaseInterval);
-      fund.firstDistributionTime = new Date(Number(event.supportFirstTime)).toISOString();
-      fund.distributionRate = Number(event.distributionRate) / Math.pow(10, 18);
-      fund.detail = event.detail;
-      fund.setComic(comics.find(comic => comic.address == event.content.toLowerCase()));
+      fund.comic = comics.find(comic => comic.address == event.content.toLowerCase());
       funds.push(fund);
     });
     const rises = await this.getFundRise(funds.map(fund => fund.address));
@@ -57,23 +46,10 @@ class ApiFund {
   async getFund(vue, address) {
     let result = await this._contract.methods.getFundInfo(address).call();
     result = Web3Utils.prettyJSON(result);
-    let fund = new Fund();
+    let fund = new Fund(result);
     fund.address = address;
-    fund.startTime = new Date(Number(result.startTime)).toISOString();
-    fund.endTime = new Date(Number(result.endTime)).toISOString();
-    fund.maxcap = Number(result.limit[0]) / Math.pow(10, 18);
-    fund.softcap = Number(result.limit[1]) / Math.pow(10, 18);
-    fund.min = Number(result.limit[2]) / Math.pow(10, 18);
-    fund.max = Number(result.limit[3]) / Math.pow(10, 18);
-    fund.poolSize = Number(result.poolSize);
-    fund.interval = Number(result.releaseInterval);
-    fund.firstDistributionTime = new Date(Number(result.supportFirstTime)).toISOString();
-    fund.distributionRate = Number(result.distributionRate) / Math.pow(10, 18);
-    fund.detail = result.detail;
-    fund.rise = Number(result.fundRise) / Math.pow(10, 18);
-    fund.needEndProcessing = result.needEndProcessing;
-    let comic = await vue.$contract.apiContents.getComic(result.content)
-    fund.setComic(comic);
+    fund.rise = Number(web3.utils.fromWei(result.fundRise));
+    fund.comic = await vue.$contract.apiContents.getComic(result.content);
     return fund;
   }
 

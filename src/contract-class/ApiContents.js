@@ -17,8 +17,8 @@ class ApiContents {
   }
 
   // 작품 목록 조회
-  async getComics(vue, address) {
-    let result = address ?
+  async getComics(vue, addrs) {
+    let result = addrs ?
       await this._contract.methods.getComicsByAddress(addrs).call() :
       await this._contract.methods.getComics().call();
     result = Web3Utils.prettyJSON(result);
