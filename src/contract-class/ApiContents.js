@@ -101,12 +101,13 @@ class ApiContents {
     }
   }
 
-  async getEpisode(address, key) {
-    let result = await this._contract.methods.getEpisode(address, key).call();
-    let cuts = await this._contract.methods.getCuts(address, key).call();
+  // 회차 조회
+  async getEpisode(address, id) {
+    let result = await this._contract.methods.getEpisode(address, id).call();
+    let cuts = await this._contract.methods.getCuts(address, id).call();
     result = Web3Utils.prettyJSON(result);
     let episode = new Episode(
-      key,
+      id,
       0,
       JSON.parse(result.records),
       result.price / Math.pow(10, 18),
@@ -134,7 +135,7 @@ class ApiContents {
       address,
       JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
       JSON.stringify(episode.cuts),
-      BigNumber(episode.price * Math.pow(10, 18)),
+      web3.utils.toWei(String(episode.price)),
       episode.status,
       new Date(episode.publishedAt).getTime()
     ).send();
@@ -144,10 +145,10 @@ class ApiContents {
   updateEpisode(address, episode) {
     return this._contract.methods.updateEpisode(
       address,
-      episode.key,
+      episode.id,
       JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
       JSON.stringify(episode.cuts),
-      BigNumber(episode.price * Math.pow(10, 18)),
+      web3.utils.toWei(String(episode.price)),
       episode.status,
       new Date(episode.publishedAt).getTime()
     ).send();

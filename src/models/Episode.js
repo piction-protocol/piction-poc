@@ -1,9 +1,9 @@
 export default class Episode {
-  constructor(key, number = 1, record = {
+  constructor(id, number = 1, record = {
     title: null,
     thumbnail: '',
   }, price = 0, isPurchased = false, cuts = [], publishedAt = new Date(), status = true, createdAt = null) {
-    this.key = key;
+    this.id = id;
     this.number = number;
     this.title = record.title;
     this.thumbnail = record.thumbnail;

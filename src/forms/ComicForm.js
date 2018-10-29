@@ -5,8 +5,4 @@ export default class ComicForm {
     this.genres = comic.genres;
     this.synopsis = comic.synopsis;
   }
-
-  setRecord(record) {
-
-  }
 }
