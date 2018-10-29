@@ -1,174 +1,91 @@
 <template>
-  <div v-if="loaded">
-    <b-alert show variant="danger" class="font-weight-bold">해당 기능은 위원회만 실행 가능합니다.</b-alert>
-    <div align="right">
-      <b-form-select class="mb-2 w-25" :value="filter" @change="setFilter">
-        <option :value="undefined">전체</option>
-        <option :value="`pending`">대기</option>
-        <option :value="`completed`">완료</option>
-      </b-form-select>
-    </div>
-    <b-table striped hover
-             show-empty
-             empty-text="조회된 목록이 없습니다"
-             stacked
-             :fields="fields"
-             :current-page="page"
-             :per-page="perPage"
-             :items="filteredList"
-             :small="true">
-      <template slot="title" slot-scope="row">
-        <router-link size="x-sm" :to="{name: 'episodes', params:{content_id: row.item.content_id}}">
-          {{row.item.title}}
-        </router-link>
+  <div>
+    <!--<div class="d-flex justify-content-between align-items-end">-->
+    <!--<div class="page-title">Comics</div>-->
+    <!--<b-form-select style="width: 150px;" :value="genre" @change="setGenre">-->
+    <!--<option :value="undefined">전체</option>-->
+    <!--<option v-for="genre in genres" :value="genre.value">{{genre.text}}</option>-->
+    <!--</b-form-select>-->
+    <!--</div>-->
+    <!--<br>-->
+    <div class="page-title">Comics</div>
+    <br>
+    <b-tabs>
+      <template slot="tabs">
+        <b-nav-item slot="tabs" @click="setTab('popular')" :active="!$route.hash || $route.hash == '#popular'">Popular
+        </b-nav-item>
       </template>
-      <template slot="user" slot-scope="row">
-        {{row.item.user}}
+      <template slot="tabs">
+        <b-nav-item slot="tabs" @click="setTab('updated')" :active="$route.hash == '#updated'">Updated</b-nav-item>
       </template>
-      <template slot="detail" slot-scope="row">
-        <div style="white-space: pre-line">{{row.item.detail}}</div>
+      <template slot="tabs">
+        <b-nav-item slot="tabs" @click="setTab('new')" :active="$route.hash == '#new'">New</b-nav-item>
       </template>
-      <template slot="complete" slot-scope="row">
-        <b-button :disabled="row.item.complete" size="sm" :variant="result(row.item).variant" class="form-control"
-                  @click="showModal(row.item)">{{result(row.item).text}}
-        </b-button>
-      </template>
-    </b-table>
-    <b-pagination class="d-flex justify-content-center" size="md"
-                  :total-rows="filteredList.length"
-                  :value="page"
-                  :per-page="perPage"
-                  :limit="limit"
-                  @change="changePage">
-    </b-pagination>
-    <b-modal ref="reportModal" hide-footer title="신고처리">
-      <b-btn class="mt-3" variant="outline-primary" block @click="reportProcess(true)">보상지급</b-btn>
-      <b-btn class="mt-3" variant="outline-primary" block @click="reportProcess(false)">반려</b-btn>
-      <b-btn class="mt-3" variant="secondary" block @click="hideModal">취소</b-btn>
-    </b-modal>
+    </b-tabs>
+    <br>
+    <b-row>
+      <b-col cols="12" sm="6" md="4" lg="3"
+             v-for="comic in filteredComics"
+             :key="comic.address">
+        <Item :comic="comic"/>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
 <script>
-  import {BigNumber} from 'bignumber.js';
+  import Item from './Item'
+  import Comic from '@models/Comic'
+  import Web3Utils from '@utils/Web3Utils'
 
   export default {
-    props: ['page', 'filter'],
+    components: {Item},
+    props: ['genre'],
     computed: {
-      filteredList() {
-        if (this.filter == 'pending') {
-          return this.list.filter(o => o.complete == false);
-        } else if (this.filter == 'completed') {
-          return this.list.filter(o => o.complete == true);
+      filteredComics() {
+        if (!this.$route.hash || this.$route.hash == '#popular') {
+          return this.comics.sort((a, b) => b.purchasedCount - a.purchasedCount);
+        } else if (this.$route.hash == '#updated') {
+          return this.comics.sort((a, b) => b.lastUploadedAt - a.lastUploadedAt);
         } else {
-          return this.list;
+          return this.comics.sort((a, b) => b.createdAt - a.createdAt);
         }
       }
     },
     data() {
       return {
-        loaded: false,
-        fields: [
-          {key: 'title', label: '작품명'},
-          {key: 'user', label: '신고자'},
-          {key: 'detail', label: '신고사유'},
-          {key: 'complete', label: '처리결과'},
-        ],
-        perPage: 3,
-        limit: 7,
-        list: [],
+        comics: [],
+        genres: Comic.genres
       }
     },
     methods: {
-      setFilter(value) {
-        this.$router.push({query: {page: 1, filter: value}})
+      async setComics() {
+        let comics = await this.$contract.apiContents.getComics(this);
+        this.comics = comics.reverse();
       },
-      changePage(value) {
-        this.$router.push({query: {page: value, filter: this.filter}})
+      setEvents() {
+        const event = this.$contract.contentsManager.getContract()
+          .events.RegisterContents({fromBlock: 'latest'}, async (error, event) => {
+            let values = Web3Utils.prettyJSON(event.returnValues);
+            let comic = new Comic(values.contentsAddress, JSON.parse(values.record));
+            comic.setWriter(values.writerAddress, values.writerName);
+            this.comics.splice(0, 0, comic);
+          });
+        this.web3Events.push(event);
       },
-      showModal(item) {
-        this.$refs.reportModal.$data.selectedReport = item;
-        this.$refs.reportModal.show()
+      async setTab(tab) {
+        this.$router.replace({hash: `#${tab}`});
       },
-      hideModal() {
-        this.$refs.reportModal.hide()
+      setGenre(value) {
+        this.$router.push({query: {genre: value}})
       },
-      async reportProcess(success) {
-        const report = this.$refs.reportModal.$data.selectedReport;
-        let loader = this.$loading.show();
-        try {
-          await this.$contract.apiReport.reportProcess(report.id, report.content_id, report.user, success);
-        } catch (e) {
-          alert(e)
-        }
-        this.hideModal();
-        loader.hide();
-      },
-      result(item) {
-        if (item.complete) {
-          if (item.rewardAmount == 0) {
-            return {text: `반려`, variant: 'danger'}
-          } else {
-            return {text: `보상 ${item.rewardAmount} PXL 지급`, variant: 'primary'}
-          }
-        } else {
-          return {text: `처리`, variant: 'primary'}
-        }
-      },
-      getEventJsonObj(event) {
-        return {
-          id: event.returnValues.id,
-          content_id: event.returnValues._content,
-          user: event.returnValues._from,
-          title: '',
-          detail: event.returnValues._detail,
-          complete: false,
-          rewardAmount: 0,
-          action: ''
-        }
-      },
-      async loadList() {
-        const events = await this.$contract.report.getContract().getPastEvents('SendReport', {
-          fromBlock: 0,
-          toBlock: 'latest'
-        });
-        var list = [];
-        events.forEach(event => list.push(this.getEventJsonObj(event)));
-        const ids = list.map(o => o.id);
-        const contentIds = list.map(o => o.content_id);
-        if (ids.length > 0) {
-          var result = await this.$contract.apiReport.getReportResult(ids);
-          var contents = await this.$contract.apiContents.getContentsRecord(contentIds);
-          contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
-          result.complete_.forEach((o, i) => list[i].complete = o);
-          result.completeAmount_.forEach((o, i) => list[i].rewardAmount = this.$utils.toPXL(o));
-          result.completeAmount_.forEach((o, i) => list[i].title = contents[i].title);
-          this.list = list.reverse();
-          this.loaded = true;
-        }
-      },
-      setEvent() {
-        this.$contract.report.setCallback(async (error, event) => {
-          const obj = this.getEventJsonObj(event);
-          var contents = await this.$contract.apiContents.getContentsRecord([obj.content_id]);
-          contents = JSON.parse(web3.utils.hexToUtf8(contents.records_))
-          obj.title = contents[0].title;
-          this.list.splice(0, 0, obj);
-        });
-        this.$contract.council.setCallback(async (error, event) => {
-          let findObj = this.list.find(o => o.id == event.returnValues._index);
-          findObj.complete = true;
-          findObj.rewardAmount = this.$utils.toPXL(event.returnValues._rewordAmount);
-        });
-      }
     },
     async created() {
-      this.setEvent();
-      this.loadList();
-    },
+      this.setEvents();
+      this.setComics();
+    }
   }
 </script>
 
 <style scoped>
-
 </style>

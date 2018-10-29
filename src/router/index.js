@@ -84,23 +84,15 @@ const router = new Router({
       props: true
     },
     // council
-    {
-      path: '/council',
-      name: 'council',
-      component: CouncilIndex,
-      props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
-    },
+    {path: '/council', name: 'council', component: CouncilIndex},
+    {path: '/comics/:comic_id', redirect: '/council/:comic_id/detail'},
+    {path: '/council/:comic_id/detail', name: 'council-detail', component: MyReportIndex, props: true},
     // my
     {path: '/account', name: 'account', component: AccountIndex},
     {path: '/user-payback', name: 'user-payback', component: UserPaybackIndex},
     {path: '/my/fund-comics', name: 'my-fund-comics', component: MyFundComicIndex},
     {path: '/my/fund-comics/:comic_id/show', name: 'my-show-fund-comic', component: MyFundComicShow, props: true},
-    {
-      path: '/my/reports',
-      name: 'my-reports',
-      component: MyReportIndex,
-      props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
-    },
+    {path: '/my/reports', name: 'my-reports', component: MyReportIndex},
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
