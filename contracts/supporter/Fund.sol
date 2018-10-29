@@ -29,6 +29,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		uint256 investment;
 		uint256 collection;
 		uint256 distributionRate;
+		uint256 reward;
 		bool refund;
 	}
 
@@ -125,7 +126,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 				supporters[index].investment = supporters[index].investment.add(possibleValue);
 			} else {
 				require(_value >= minimum, "value < minimum");
-				supporters.push(Supporter(_from, possibleValue, 0, 0, false));
+				supporters.push(Supporter(_from, possibleValue, 0, 0, 0, false));
 			}
 
 			fundRise = fundRise.add(possibleValue);
@@ -226,6 +227,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 			if (remain == 0) {
 				amounts_[i] = _total.mul(distributionRate).div(10 ** decimals);
 				amounts_[i] = amounts_[i].mul(supporters[i].distributionRate).div(10 ** decimals);
+				supporters[i].reward = supporters[i].reward.add(amounts_[i]);
 			} else {
 				amounts_[i] = _total.mul(supporters[i].distributionRate).div(10 ** decimals).min(remain);
 				supporters[i].collection = supporters[i].collection.add(amounts_[i]);
@@ -248,12 +250,14 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		address[] memory user_,
 		uint256[] memory investment_,
 		uint256[] memory collection_,
+		uint256[] memory reward_,
 		uint256[] memory distributionRate_,
 		bool[] memory refund_)
 	{
 		user_ = new address[](supporters.length);
 		investment_ = new uint256[](supporters.length);
 		collection_ = new uint256[](supporters.length);
+		reward_ = new uint256[](supporters.length);
 		distributionRate_ = new uint256[](supporters.length);
 		refund_ = new bool[](supporters.length);
 
@@ -261,6 +265,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 			user_[i] = supporters[i].user;
 			investment_[i] = supporters[i].investment;
 			collection_[i] = supporters[i].collection;
+			reward_[i] = supporters[i].reward;
 			distributionRate_[i] = supporters[i].distributionRate;
 			refund_[i] = supporters[i].refund;
 		}
