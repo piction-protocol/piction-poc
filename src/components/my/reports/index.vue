@@ -155,11 +155,11 @@
                     let findObj = list.find(o => o.index == event.index);
                     findObj.completeDate = event.completeDate;
                     switch(event.type) {
-                        case 1: findObj.completeType = "작품 차단 (-"+event.deductionAmount+"PXL)";
-                        case 2: findObj.completeType = "작가 경고 (-"+event.deductionAmount+"PXL)";
+                        case 1: findObj.completeType = "작품 차단 (작가 -"+event.deductionAmount+"PXL)";
+                        case 2: findObj.completeType = "작가 경고 (작가 -"+event.deductionAmount+"PXL)";
                         case 3: findObj.completeType = "신고 무효";
                         case 4: findObj.completeType = "중복 신고";
-                        case 5: findObj.completeType = "잘못된 신고 (-"+event.deductionAmount+"PXL)";
+                        case 5: findObj.completeType = "잘못된 신고 (신고자 -"+event.deductionAmount+"PXL)";
                         default: findObj.completeType = "";
                     }
                 });
