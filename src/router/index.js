@@ -31,8 +31,7 @@ import AccountIndex from '@/components/my/account/Index'
 import UserPaybackIndex from '@/components/my/userpayback/Index'
 import MyFundComicIndex from '@/components/my/fund-comics/Index'
 import MyFundComicShow from '@/components/my/fund-comics/Show'
-// report
-import ReportIndex from '@/components/reports/Index'
+import MyReportIndex from '@/components/my/reports/Index'
 // council
 import CouncilIndex from '@/components/council/Index'
 
@@ -84,12 +83,6 @@ const router = new Router({
       component: PublishEpisodeEdit,
       props: true
     },
-    {
-      path: '/reports',
-      name: 'reports',
-      component: ReportIndex,
-      props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
-    },
     // council
     {
       path: '/council',
@@ -102,6 +95,12 @@ const router = new Router({
     {path: '/user-payback', name: 'user-payback', component: UserPaybackIndex},
     {path: '/my/fund-comics', name: 'my-fund-comics', component: MyFundComicIndex},
     {path: '/my/fund-comics/:comic_id/show', name: 'my-show-fund-comic', component: MyFundComicShow, props: true},
+    {
+      path: '/my/reports',
+      name: 'my-reports',
+      component: MyReportIndex,
+      props: (route) => ({page: route.query.page ? Number(route.query.page) : 1, filter: route.query.filter})
+    },
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],
