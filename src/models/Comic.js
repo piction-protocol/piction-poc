@@ -1,29 +1,20 @@
 import Writer from '@models/Writer'
 
 export default class Comic {
-  constructor(address, record = {
-    title: null,
-    thumbnail: '',
-    genres: '',
-    synopsis: ''
-  }, purchasedCount = 0, lastUploadedAt = 0, createdAt = 0) {
-    this.address = address ? address.toLowerCase() : '';
+  constructor(record = {title: null, thumbnail: '', genres: '', synopsis: ''}) {
+    this.address;
     this.title = record.title
     this.thumbnail = record.thumbnail
     this.genres = record.genres
     this.synopsis = record.synopsis
-    this.purchasedCount = Number(purchasedCount);
-    this.lastUploadedAt = Number(lastUploadedAt);
-    this.createdAt = Number(createdAt);
+    this.purchasedCount = 0;
+    this.lastUploadedAt = 0;
+    this.createdAt = 0;
     this.privateEpisodesCount = 0;
     this.publishedEpisodesCount = 0;
     this.totalPurchasedAmount = 0;
     this.isBlock = false;
     this.writer = new Writer();
-  }
-
-  setWriter(address, name) {
-    this.writer = new Writer(address, name);
   }
 
   static genres = [

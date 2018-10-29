@@ -1,18 +1,15 @@
 export default class Episode {
-  constructor(id, number = 1, record = {
-    title: null,
-    thumbnail: '',
-  }, price = 0, isPurchased = false, cuts = [], publishedAt = new Date(), status = true, createdAt = null) {
-    this.id = id;
-    this.number = number;
+  constructor(record = {title: null, thumbnail: '',}) {
+    this.id = null;
+    this.number = 0;
     this.title = record.title;
     this.thumbnail = record.thumbnail;
-    this.price = price;
-    this.isPurchased = isPurchased;
-    this.cuts = cuts;
-    this.publishedAt = publishedAt.toISOString();
-    this.status = status;
-    this.createdAt = createdAt;
+    this.price = 0;
+    this.isPurchased = false;
+    this.cuts = [];
+    this.publishedAt = 0;
+    this.status = false;
+    this.createdAt = 0;
     this.purchasedAmount = 0;
   }
 }

@@ -24,7 +24,7 @@
     <b-row class="pl-3 pr-3">
       <b-col cols="12" sm="12" md="6" lg="6" style="padding: 2px;"
              v-for="(episode, index) in episodes"
-             :key="episode.key">
+             :key="episode.id">
         <Item :comic="comic"
               :episode="episode"
               :comic_id="comic_id"/>
@@ -101,11 +101,5 @@
 
   .sort-text {
     font-size: 12px;
-  }
-
-  .add-episode {
-    height: 100px;
-    padding: 0px;
-    border: 1px dotted #979797;
   }
 </style>
