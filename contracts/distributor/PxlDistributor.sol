@@ -154,12 +154,14 @@ contract PxlDistributor is Ownable, ContractReceiver, ValidValue {
         (address[] memory supporterAddress, uint256[] memory supporterAmount) = fund.distribution(fundAddress, amount);
 
         for(uint256 j = 0 ; j < supporterAddress.length ; j++) {
-            compareAmount = compareAmount.add(supporterAmount[j]);
-            distribution.push(
-                DistributionDetail(
-                    supporterAmount[j], false, supporterAddress[j], new bytes(0), "서포터 수익 배분"
-                )
-            );
+            if(supporterAmount[j] > 0) {
+                compareAmount = compareAmount.add(supporterAmount[j]);
+                distribution.push(
+                    DistributionDetail(
+                        supporterAmount[j], false, supporterAddress[j], new bytes(0), "서포터 수익 배분"
+                    )
+                );
+            }
         }
 
         amount = amount.sub(compareAmount);
