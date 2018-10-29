@@ -28,14 +28,14 @@
       show() {
         this.$router.push({
           name: 'show-episode',
-          params: {comic_id: this.comic.address, episode_id: this.episode.key}
+          params: {comic_id: this.comic.address, episode_id: this.episode.id}
         });
       },
       updateEpisode(evt) {
         evt.preventDefault();
         this.$router.push({
           name: 'edit-episode',
-          params: {comic_id: this.comic.address, episode_id: this.episode.key}
+          params: {comic_id: this.comic.address, episode_id: this.episode.id}
         });
       },
       async purchase() {
@@ -49,11 +49,11 @@
         } else if (confirm(`소장하시겠습니까? (${this.episode.price}PXL)`)) {
           try {
             const comic = this.comic.address;
-            const key = this.$utils.toHexString(this.episode.key, 64).substr(2);
+            const id = this.$utils.toHexString(this.episode.id, 64).substr(2);
             await this.$contract.pxl.approveAndCall(
               this.pictionConfig.pictionAddress.pixelDistributor,
-              this.episode.price * Math.pow(10, 18),
-              `${comic}${key}`
+              web3.utils.toWei(String(this.episode.price)),
+              `${comic}${id}`
             );
             this.show();
           } catch (e) {

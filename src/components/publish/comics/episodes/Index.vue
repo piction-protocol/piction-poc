@@ -12,7 +12,7 @@
     <b-row class="pl-3 pr-3">
       <b-col cols="12" sm="12" md="6" lg="6" style="padding: 2px;"
              v-for="(episode, index) in episodes"
-             :key="episode.key">
+             :key="episode.id">
         <Item :episode="episode"
               :comic_id="comic_id"/>
       </b-col>

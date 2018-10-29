@@ -1,9 +1,9 @@
 import {abi} from '@contract-build-source/ApiContents'
 import Comic from '@models/Comic';
 import Episode from '@models/Episode';
+import Writer from '@models/Writer';
 import Sales from '@models/Sales'
 import Web3Utils from '@utils/Web3Utils'
-import BigNumber from 'bignumber.js'
 
 class ApiContents {
   constructor(address, from, gas) {
@@ -17,8 +17,10 @@ class ApiContents {
   }
 
   // 작품 목록 조회
-  async getComics(vue) {
-    let result = await this._contract.methods.getComics().call();
+  async getComics(vue, address) {
+    let result = address ?
+      await this._contract.methods.getComicsByAddress(addrs).call() :
+      await this._contract.methods.getComics().call();
     result = Web3Utils.prettyJSON(result);
     if (result.comicAddress.length == 0) {
       return [];
@@ -27,40 +29,12 @@ class ApiContents {
       let records = JSON.parse(web3.utils.hexToUtf8(result.records));
       let writerNames = await vue.$contract.accountManager.getUserNames(result.writer);
       records.forEach((record, i) => {
-        let comic = new Comic(
-          result.comicAddress[i],
-          record,
-          result.totalPurchasedCount[i],
-          result.episodeLastUpdatedTime[i],
-          result.contentCreationTime[i]
-        );
-        comic.setWriter(result.writer[i], writerNames[i]);
-        comics.push(comic);
-      });
-      return comics;
-    }
-  }
-
-  // 작품 주소로 작품 목록 조회
-  async getComicsByAddress(vue, addrs) {
-    let result = await this._contract.methods.getComicsByAddress(addrs).call();
-    result = Web3Utils.prettyJSON(result);
-    console.log(result)
-    if (result.comicAddress.length == 0) {
-      return [];
-    } else {
-      let comics = [];
-      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
-      let writerNames = await vue.$contract.accountManager.getUserNames(result.writer);
-      records.forEach((record, i) => {
-        let comic = new Comic(
-          result.comicAddress[i],
-          record,
-          result.totalPurchasedCount[i],
-          result.episodeLastUpdatedTime[i],
-          result.contentCreationTime[i]
-        );
-        comic.setWriter(result.writer[i], writerNames[i]);
+        let comic = new Comic(record);
+        comic.address = result.comicAddress[i].toLowerCase();
+        comic.purchasedCount = Number(result.totalPurchasedCount[i]);
+        comic.lastUploadedAt = Number(result.episodeLastUpdatedTime[i]);
+        comic.createdAt = Number(result.contentCreationTime[i]);
+        comic.writer = new Writer(result.writer[i], writerNames[i]);
         comics.push(comic);
       });
       return comics;
@@ -71,10 +45,34 @@ class ApiContents {
   async getComic(address) {
     let result = await this._contract.methods.getComic(address).call();
     result = Web3Utils.prettyJSON(result);
-    let comic = new Comic(address, JSON.parse(result.records))
-    comic.setWriter(result.writer, result.writerName);
+    let comic = new Comic(JSON.parse(result.records))
+    comic.address = address;
+    comic.writer = new Writer(result.writer, result.writerName);
     return comic;
   };
+
+  // 내 작품 조회
+  async getMyComics(vue) {
+    let result = await this._contract.methods.getMyComics().call();
+    result = Web3Utils.prettyJSON(result);
+    if (result.comicAddress.length == 0) {
+      return [];
+    } else {
+      let comics = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let comic = new Comic(record);
+        comic.address = result.comicAddress[i].toLowerCase();
+        comic.privateEpisodesCount = Number(result.privateEpisode[i]);
+        comic.publishedEpisodesCount = Number(result.publishedEpisode[i]);
+        comic.totalPurchasedAmount = Number(result.totalPurchasedAmount[i]);
+        comic.isBlock = result.isBlockComic[i]
+        comic.writer = new Writer(vue.$store.getters.publicKey, vue.$store.getters.name);
+        comics.push(comic);
+      });
+      return comics;
+    }
+  }
 
   // 에피소드 목록 조회
   async getEpisodes(address) {
@@ -86,15 +84,35 @@ class ApiContents {
       let episodes = [];
       let records = JSON.parse(web3.utils.hexToUtf8(result.records));
       records.forEach((record, i) => {
-        let episode = new Episode(
-          result.episodeIndex[i],
-          i + 1,
-          record,
-          result.price[i] / Math.pow(10, 18),
-          result.isPurchased[i],
-          undefined, undefined, undefined,
-          result.episodeCreationTime[i]
-        );
+        let episode = new Episode(record);
+        episode.id = Number(result.episodeIndex[i]);
+        episode.number = i + 1;
+        episode.price = Number(web3.utils.fromWei(result.price[i]));
+        episode.isPurchased = result.isPurchased[i];
+        episode.createdAt = Number(result.episodeCreationTime[i]);
+        episodes.push(episode);
+      });
+      return episodes;
+    }
+  }
+
+  // 내 에피소드 목록 조회
+  async getMyEpisodes(address) {
+    let result = await this._contract.methods.getMyEpisodes(address).call();
+    result = Web3Utils.prettyJSON(result);
+    if (result.episodeIndex.length == 0) {
+      return [];
+    } else {
+      let episodes = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      records.forEach((record, i) => {
+        let episode = new Episode(record);
+        episode.id = Number(result.episodeIndex[i]);
+        episode.number = i + 1;
+        episode.price = Number(web3.utils.fromWei(result.price[i]));
+        episode.publishedAt = Number(result.publishDate[i]);
+        episode.status = result.isPublished[i];
+        episode.purchasedAmount = Number(web3.utils.fromWei(result.purchasedAmount[i]));
         episodes.push(episode);
       });
       return episodes;
@@ -106,16 +124,13 @@ class ApiContents {
     let result = await this._contract.methods.getEpisode(address, id).call();
     let cuts = await this._contract.methods.getCuts(address, id).call();
     result = Web3Utils.prettyJSON(result);
-    let episode = new Episode(
-      id,
-      0,
-      JSON.parse(result.records),
-      result.price / Math.pow(10, 18),
-      result.isPurchased,
-      JSON.parse(cuts),
-      new Date(Number(result.publishDate)),
-      result.isPublished
-    )
+    let episode = new Episode(JSON.parse(result.records));
+    episode.id = id;
+    episode.price = web3.utils.fromWei(result.price);
+    episode.isPurchased = result.isPurchased;
+    episode.cuts = JSON.parse(cuts);
+    episode.publishedAt = Number(result.publishDate);
+    episode.isPurchased = result.isPublished;
     return episode;
   }
 
@@ -157,49 +172,7 @@ class ApiContents {
   // 예치금 조회
   async getInitialDeposit(address) {
     let result = await this._contract.methods.getInitialDeposit(address).call();
-    return Number(result) / Math.pow(10, 18);
-  }
-
-  // 내 작품 조회
-  async getMyComics(vue) {
-    let result = await this._contract.methods.getMyComics().call();
-    result = Web3Utils.prettyJSON(result);
-    if (result.comicAddress.length == 0) {
-      return [];
-    } else {
-      let comics = [];
-      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
-      records.forEach((record, i) => {
-        let comic = new Comic(result.comicAddress[i], record);
-        comic.privateEpisodesCount = Number(result.privateEpisode[i]);
-        comic.publishedEpisodesCount = Number(result.publishedEpisode[i]);
-        comic.totalPurchasedAmount = Number(result.totalPurchasedAmount[i]);
-        comic.isBlock = result.isBlockComic[i]
-        comic.setWriter(vue.$store.getters.publicKey, vue.$store.getters.name);
-        comics.push(comic);
-      });
-      return comics;
-    }
-  }
-
-  // 내 에피소드 목록 조회
-  async getMyEpisodes(address) {
-    let result = await this._contract.methods.getMyEpisodes(address).call();
-    result = Web3Utils.prettyJSON(result);
-    if (result.episodeIndex.length == 0) {
-      return [];
-    } else {
-      let episodes = [];
-      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
-      records.forEach((record, i) => {
-        let episode = new Episode(result.episodeIndex[i], i + 1, record, result.price[i] / Math.pow(10, 18));
-        episode.publishedAt = result.publishDate[i]
-        episode.status = result.isPublished[i];
-        episode.purchasedAmount = result.purchasedAmount[i] / Math.pow(10, 18);
-        episodes.push(episode);
-      });
-      return episodes;
-    }
+    return Number(web3.utils.fromWei(result));
   }
 
   async getComicSales(address) {
@@ -207,7 +180,7 @@ class ApiContents {
     result = Web3Utils.prettyJSON(result);
     let sales = new Sales();
     sales.favoriteCount = Number(result.favoriteCount);
-    sales.totalPurchasedAmount = Number(result.totalPurchasedAmount) / Math.pow(10, 18);
+    sales.totalPurchasedAmount = Number(web3.utils.fromWei(result.totalPurchasedAmount));
     sales.totalPurchasedCount = Number(result.totalPurchasedCount);
     sales.totalPurchasedUserCount = Number(result.totalPurchasedUserCount);
     return sales;

@@ -1,13 +1,5 @@
 <template>
   <div>
-    <!--<div class="d-flex justify-content-between align-items-end">-->
-    <!--<div class="page-title">Comics</div>-->
-    <!--<b-form-select style="width: 150px;" :value="genre" @change="setGenre">-->
-    <!--<option :value="undefined">전체</option>-->
-    <!--<option v-for="genre in genres" :value="genre.value">{{genre.text}}</option>-->
-    <!--</b-form-select>-->
-    <!--</div>-->
-    <!--<br>-->
     <div class="page-title">Comics</div>
     <br>
     <b-tabs>
@@ -67,17 +59,15 @@
         const event = this.$contract.contentsManager.getContract()
           .events.RegisterContents({fromBlock: 'latest'}, async (error, event) => {
             let values = Web3Utils.prettyJSON(event.returnValues);
-            let comic = new Comic(values.contentsAddress, JSON.parse(values.record));
-            comic.setWriter(values.writerAddress, values.writerName);
+            let comic = new Comic(JSON.parse(values.record));
+            comic.address = values.contentsAddress;
+            comic.writer = new Writer(values.writerAddress, values.writerName);
             this.comics.splice(0, 0, comic);
           });
         this.web3Events.push(event);
       },
       async setTab(tab) {
         this.$router.replace({hash: `#${tab}`});
-      },
-      setGenre(value) {
-        this.$router.push({query: {genre: value}})
       },
     },
     async created() {
