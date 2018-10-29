@@ -32,6 +32,10 @@ class AccountManager {
     this._contract.options.from = publicKey;
     return this._contract.methods.createNewAccount(userName, password, privateKey, publicKey).send();
   }
+
+  setNewPassword(newPassword, passwordValidation) {
+    return this._contract.methods.setNewPassword(newPassword, passwordValidation).send();
+  }
 }
 
 export default AccountManager;
