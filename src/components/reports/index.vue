@@ -58,10 +58,10 @@
                     :fields="fields"
                     :items="reports"
                     :small="true">
-            <template slot="reportDate" slot-scope="data">{{$utils.dateFmt(data.value)}}</template>
-            <template slot="completeDate" slot-scope="data">{{$utils.dateFmt(data.value)}}</template>
-            <template slot="reportDetail" slot-scope="data">{{data.value}}</template>
-            <template slot="completeType" slot-scope="data">-{{data.value}}( PXL)</template>
+            <template slot="reportDate" slot-scope="row">{{$utils.dateFmt(row.item.reportDate)}}</template>
+            <template slot="completeDate" slot-scope="row">{{$utils.dateFmt(row.item.completeDate)}}</template>
+            <template slot="reportDetail" slot-scope="row">{{row.item.reportDetail}}</template>
+            <template slot="completeType" slot-scope="row">{{row.item.completeType}}</template>
             </b-table>
         </div>
     </div>
@@ -119,15 +119,27 @@
                 let events = await this.$contract.report.getMyReportList();
                 events.forEach(event => {
                     event = Web3Utils.prettyJSON(event.returnValues);
-                    history = new ReportHistory();
+                    let history = new ReportHistory();
                     history.index = event.index;
                     history.reportDate = event.date;
                     history.reportDetail = event.detail;
-                    reports.push(history);
+                    this.reports.push(history);
                 });
+                
+                //CompleteReportList
                 events = await this.$contract.report.getMyCompleteReportList();
                 events.forEach(event => {
-                    //todo 하나씩 매핑함 reports에다가
+                    event = Web3Utils.prettyJSON(event.returnValues);
+                    let findObj = this.reports.find(o => o.index == event.index);
+                    findObj.completeDate = event.completeDate;
+                    switch(event.type) {
+                        case 1: findObj.completeType = "작품 차단 (-"+event.deductionAmount+"PXL)";
+                        case 2: findObj.completeType = "작가 경고 (-"+event.deductionAmount+"PXL)";
+                        case 3: findObj.completeType = "신고 무효";
+                        case 4: findObj.completeType = "중복 신고";
+                        case 5: findObj.completeType = "잘못된 신고 (-"+event.deductionAmount+"PXL)";
+                        default: findObj.completeType = "";
+                    }
                 });
 
             },
