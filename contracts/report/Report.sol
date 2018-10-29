@@ -102,7 +102,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         require(council.getApiReport() == msg.sender, "msg sender is not ApiReport");
         require(registrationFee[reporter].amount > 0, "Insufficient registrationFee");
         require(!registrationFee[reporter].reporterBlock, "repoter is block");
-        require(registrationFee[reporter].lockTime < TimeLib.currentTime(), "over the lockTime");
+        require(registrationFee[reporter].lockTime > TimeLib.currentTime(), "over the lockTime");
 
         reports.push(ReportData(TimeLib.currentTime(), _content, reporter, _detail, 0, 0, 0));
 
