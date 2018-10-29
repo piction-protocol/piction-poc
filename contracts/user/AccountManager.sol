@@ -123,6 +123,24 @@ contract AccountManager is IAccountManager, ValidValue {
         emit PurchaseHistory(_buyer, _contentsAddress, _episodeIndex, _episodePrice);
     }
 
+    /**
+    * @dev 사용자 비밀번호 변경
+    * @param _newPassword 변경할 비밀번호
+    * @param _passwordValidation 비밀번호 문자열 확인
+    */
+    function setNewPassword(
+        string _newPassword,
+        string _passwordValidation
+    )
+        external
+        validString(_newPassword) validString(_passwordValidation)
+    {
+        require(isRegistered(account[addressToIndex[msg.sender]].userName), "Set new password falid : Please register account.");
+        require(_compareString(_newPassword, _passwordValidation), "Set new password falid : Check password string.");
+
+        account[addressToIndex[msg.sender]].password = _newPassword;
+    }
+
     /** 
     * @dev 투자 내역 저장
     * @param _supporter 투자자 주소
