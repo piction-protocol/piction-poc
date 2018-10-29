@@ -26,7 +26,7 @@
       editEpisode() {
         this.$router.push({
           name: 'publish-edit-episode',
-          params: {comic_id: this.comic_id, episode_id: this.episode.key}
+          params: {comic_id: this.comic_id, episode_id: this.episode.id}
         });
       },
     }

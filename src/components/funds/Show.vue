@@ -67,19 +67,30 @@
       }
     },
     methods: {
-      async init() {
-        await this.setFundState();
-        await this.setSupporters();
-      },
-      async setFundState() {
+      async setFund() {
         this.fund = await this.$contract.apiFund.getFund(this, this.fund_id);
+        if (this.fund.needEndProcessing) {
+          await this.endFund();
+        }
       },
       async setSupporters() {
         this.fund.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
       },
+      async endFund() {
+        let loader = this.$loading.show();
+        try {
+          await this.$contract.apiFund.endFund(this.fund_id);
+        } catch (e) {
+          alert(e);
+        }
+        loader.hide();
+      },
       async setEvents() {
         this.web3Events.push(this.$contract.fund.getContract(this.fund_id).events
-          .Support({fromBlock: 'latest'}, () => this.init()));
+          .Support({fromBlock: 'latest'}, () => {
+            this.setFund();
+            this.setSupporters();
+          }));
       },
       async support(evt) {
         evt.preventDefault();
@@ -91,7 +102,8 @@
         let loader = this.$loading.show();
         try {
           await this.$contract.pxl.approveAndCall(this.fund_id, this.$utils.appendDecimals(this.supportAmount));
-          this.init();
+          await this.setFund();
+          await this.setSupporters();
         } catch (e) {
           alert(e)
         }
@@ -99,8 +111,9 @@
       },
     },
     async created() {
-      this.setEvents();
-      this.init();
+      await this.setEvents();
+      await this.setFund();
+      await this.setSupporters();
     }
   }
 </script>

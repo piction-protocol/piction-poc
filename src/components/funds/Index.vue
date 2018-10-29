@@ -30,9 +30,11 @@
     computed: {
       filteredFunds() {
         if (!this.$route.hash || this.$route.hash == '#opened') {
-          return this.funds.filter(fund => new Date(fund.startTime).getTime() < this.$root.now && this.$root.now < new Date(fund.endTime).getTime());
+          return this.funds.filter(fund =>
+            (new Date(fund.startTime).getTime() < this.$root.now && this.$root.now < new Date(fund.endTime).getTime()) &&
+            (fund.rise != fund.maxcap));
         } else {
-          return this.funds.filter(fund => this.$root.now > new Date(fund.endTime).getTime());
+          return this.funds.filter(fund => this.$root.now > new Date(fund.endTime).getTime() || fund.rise == fund.maxcap);
         }
       }
     },
@@ -48,7 +50,7 @@
       },
       async setEvent() {
         this.web3Events.push(this.$contract.apiFund.getContract().events
-          .CreateFund({fromBlock: 'latest'}, async () => this.init()));
+          .CreateFund({fromBlock: 'latest'}, async () => this.setFunds()));
       },
       async setTab(tab) {
         this.$router.replace({hash: `#${tab}`});

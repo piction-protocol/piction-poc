@@ -41,6 +41,32 @@ class ApiContents {
     }
   }
 
+  // 작품 주소로 작품 목록 조회
+  async getComicsByAddress(vue, addrs) {
+    let result = await this._contract.methods.getComicsByAddress(addrs).call();
+    result = Web3Utils.prettyJSON(result);
+    console.log(result)
+    if (result.comicAddress.length == 0) {
+      return [];
+    } else {
+      let comics = [];
+      let records = JSON.parse(web3.utils.hexToUtf8(result.records));
+      let writerNames = await vue.$contract.accountManager.getUserNames(result.writer);
+      records.forEach((record, i) => {
+        let comic = new Comic(
+          result.comicAddress[i],
+          record,
+          result.totalPurchasedCount[i],
+          result.episodeLastUpdatedTime[i],
+          result.contentCreationTime[i]
+        );
+        comic.setWriter(result.writer[i], writerNames[i]);
+        comics.push(comic);
+      });
+      return comics;
+    }
+  }
+
   // 작품 조회
   async getComic(address) {
     let result = await this._contract.methods.getComic(address).call();
@@ -75,12 +101,13 @@ class ApiContents {
     }
   }
 
-  async getEpisode(address, key) {
-    let result = await this._contract.methods.getEpisode(address, key).call();
-    let cuts = await this._contract.methods.getCuts(address, key).call();
+  // 회차 조회
+  async getEpisode(address, id) {
+    let result = await this._contract.methods.getEpisode(address, id).call();
+    let cuts = await this._contract.methods.getCuts(address, id).call();
     result = Web3Utils.prettyJSON(result);
     let episode = new Episode(
-      key,
+      id,
       0,
       JSON.parse(result.records),
       result.price / Math.pow(10, 18),
@@ -93,13 +120,13 @@ class ApiContents {
   }
 
   // 작품 등록
-  createComic(comic) {
-    return this._contract.methods.createComic(JSON.stringify(comic)).send();
+  createComic(form) {
+    return this._contract.methods.createComic(JSON.stringify(form)).send();
   }
 
   // 작품 수정
-  updateComic(address, comic) {
-    return this._contract.methods.updateComic(address, JSON.stringify(comic)).send();
+  updateComic(address, form) {
+    return this._contract.methods.updateComic(address, JSON.stringify(form)).send();
   }
 
   // 에피소드 등록
@@ -108,7 +135,7 @@ class ApiContents {
       address,
       JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
       JSON.stringify(episode.cuts),
-      BigNumber(episode.price * Math.pow(10, 18)),
+      web3.utils.toWei(String(episode.price)),
       episode.status,
       new Date(episode.publishedAt).getTime()
     ).send();
@@ -118,10 +145,10 @@ class ApiContents {
   updateEpisode(address, episode) {
     return this._contract.methods.updateEpisode(
       address,
-      episode.key,
+      episode.id,
       JSON.stringify({title: episode.title, thumbnail: episode.thumbnail}),
       JSON.stringify(episode.cuts),
-      BigNumber(episode.price * Math.pow(10, 18)),
+      web3.utils.toWei(String(episode.price)),
       episode.status,
       new Date(episode.publishedAt).getTime()
     ).send();
@@ -175,8 +202,8 @@ class ApiContents {
     }
   }
 
-  async getMyComicSales(address) {
-    let result = await this._contract.methods.getMyComicSales(address).call();
+  async getComicSales(address) {
+    let result = await this._contract.methods.getComicSales(address).call();
     result = Web3Utils.prettyJSON(result);
     let sales = new Sales();
     sales.favoriteCount = Number(result.favoriteCount);

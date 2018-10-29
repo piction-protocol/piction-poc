@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :episode="episode"
+      :form="form"
       action="new"
       submitText="등록"
       @onSubmit="onSubmit"></Form>
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import Episode from '@models/Episode'
+  import EpisodeForm from '@forms/EpisodeForm'
   import Form from './Form'
 
   export default {
@@ -17,14 +17,14 @@
     props: ['comic_id'],
     data() {
       return {
-        episode: new Episode()
+        form: new EpisodeForm()
       }
     },
     methods: {
-      async onSubmit(episode) {
+      async onSubmit(form) {
         let loader = this.$loading.show();
         try {
-          await this.$contract.apiContents.createEpisode(this.comic_id, episode);
+          await this.$contract.apiContents.createEpisode(this.comic_id, form);
           this.$router.push({name: 'publish-episodes', params: {comic_id: this.comic_id}})
         } catch (e) {
           alert(e)

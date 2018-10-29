@@ -29,6 +29,8 @@ import PublishSupporterShow from '@/components/publish/comics/supporter/Show'
 // my
 import AccountIndex from '@/components/my/account/Index'
 import UserPaybackIndex from '@/components/my/userpayback/Index'
+import MyFundComicIndex from '@/components/my/fund-comics/Index'
+import MyFundComicShow from '@/components/my/fund-comics/Show'
 // council
 import CouncilIndex from '@/components/council/Index'
 
@@ -90,6 +92,8 @@ const router = new Router({
     // my
     {path: '/account', name: 'account', component: AccountIndex},
     {path: '/user-payback', name: 'user-payback', component: UserPaybackIndex},
+    {path: '/my/fund-comics', name: 'my-fund-comics', component: MyFundComicIndex},
+    {path: '/my/fund-comics/:comic_id/show', name: 'my-show-fund-comic', component: MyFundComicShow, props: true},
     // not found
     {path: '*', component: {template: '<h1 align="center">Not Found</h1>'}}
   ],

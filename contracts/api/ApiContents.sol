@@ -492,7 +492,7 @@ contract ApiContents is ValidValue {
     * @return favoriteCount_ favorite 유지 건수
     * @return totalPurchasedUserCount_ 구매 유저 수
     */
-    function getMyComicSales(
+    function getComicSales(
         address _comicAddress
     )
         external
@@ -504,10 +504,6 @@ contract ApiContents is ValidValue {
             uint256 totalPurchasedUserCount_
         )
     {
-        if(IContent(_comicAddress).getWriter() != msg.sender) {
-            return;
-        }
-
         (totalPurchasedAmount_, totalPurchasedCount_, favoriteCount_, totalPurchasedUserCount_) = IContent(_comicAddress).getSalesInfo();
     }
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Form
-      :comic="comic"
+      :form="form"
       action="new"
       submitText="등록"
       @onSubmit="onSubmit"></Form>
@@ -10,20 +10,20 @@
 
 <script>
   import Form from './Form'
-  import Comic from '@models/Comic'
+  import ComicForm from '@forms/ComicForm'
 
   export default {
     components: {Form},
     data() {
       return {
-        comic: new Comic()
+        form: new ComicForm()
       }
     },
     methods: {
-      async onSubmit(comic) {
+      async onSubmit(form) {
         let loader = this.$loading.show();
         try {
-          await this.$contract.apiContents.createComic(comic);
+          await this.$contract.apiContents.createComic(form);
           this.$router.push({name: 'publish-comics'})
         } catch (e) {
           alert(e)
@@ -32,7 +32,6 @@
       },
     },
     created() {
-      this.comic.genres = Comic.genres[0].value
     }
   }
 </script>

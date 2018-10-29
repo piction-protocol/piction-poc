@@ -10,7 +10,7 @@
                       :disabled="disabled"
                       required
                       type="text"
-                      v-model="comic.title"
+                      v-model="form.title"
                       placeholder="작품명을 입력하세요">
         </b-form-input>
       </b-form-group>
@@ -18,13 +18,13 @@
                     label-for="thumbnail"
                     description="">
         <img class="preview form-control"
-             v-if="comic.thumbnail"
-             :src="comic.thumbnail">
+             v-if="form.thumbnail"
+             :src="form.thumbnail">
         <b-form-file id="thumbnail"
                      :disabled="disabled"
                      :required="action == 'new'"
                      @change="onChangeImage"
-                     :state="Boolean(comic.thumbnail)"
+                     :state="Boolean(form.thumbnail)"
                      placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
       </b-form-group>
       <b-form-group label="시놉시스"
@@ -34,7 +34,7 @@
                          :disabled="disabled"
                          required
                          type="text"
-                         v-model="comic.synopsis"
+                         v-model="form.synopsis"
                          placeholder="시놉시스를 입력하세요"
                          :rows="2"
                          :max-rows="3">
@@ -46,7 +46,7 @@
         <b-form-radio-group id="genres"
                             :disabled="disabled"
                             required
-                            v-model="comic.genres"
+                            v-model="form.genres"
                             :options="options">
         </b-form-radio-group>
       </b-form-group>
@@ -62,7 +62,7 @@
   import Comic from '@models/Comic'
 
   export default {
-    props: ['comic', 'action', 'submitText'],
+    props: ['form', 'action', 'submitText'],
     data() {
       return {
         options: Comic.genres
@@ -76,14 +76,14 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
-        this.$emit('onSubmit', this.comic);
+        this.$emit('onSubmit', this.form);
       },
       async onChangeImage(event) {
         let loader = this.$loading.show();
         var url = await this.$firebase.storage.upload(event.target.files[0]);
         var dimensions = await this.$utils.getImageDimensions(url);
         console.log(dimensions)
-        this.comic.thumbnail = url;
+        this.form.thumbnail = url;
         loader.hide();
       },
     },

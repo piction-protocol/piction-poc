@@ -36,6 +36,16 @@ class AccountManager {
   setNewPassword(newPassword, passwordValidation) {
     return this._contract.methods.setNewPassword(newPassword, passwordValidation).send();
   }
+
+  async getSupportComicsAddress(address) {
+    let events = await this._contract.getPastEvents('SupportHistory', {
+      filter: {_supporter: address},
+      fromBlock: 0,
+      toBlock: 'latest'
+    });
+    let addrs = events.map(event => Web3Utils.prettyJSON(event.returnValues).contentsAddress);
+    return Array.from(new Set(addrs));
+  }
 }
 
 export default AccountManager;
