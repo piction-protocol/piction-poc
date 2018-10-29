@@ -13,14 +13,14 @@
         <div v-else="">
             <div class="font-size-20 font-weight-bold mt-5 mb-2">예치금</div>
             <b-row>
-            <b-col cols="2">
+            <b-col cols="2" sm="8" md="4" lg="2">
                 <div>
                 <span class="font-size-24">{{reporterRegistrationAmount / Math.pow(10, 18)}}</span>
                 <span class="font-size-14 text-secondary">PXL</span>
                 </div>
                 <div class="font-size-12">신고 예치금</div>
             </b-col>
-            <b-col cols="2">
+            <b-col cols="2" sm="8" md="4" lg="2">
                 <div>
                 <span class="font-size-24">{{reporterReporterBlock ? "-" : reporterRegistrationLockTimeText.number}}</span>
                 <span class="font-size-14 text-secondary">{{reporterRegistrationLockTimeText.text}}</span>
