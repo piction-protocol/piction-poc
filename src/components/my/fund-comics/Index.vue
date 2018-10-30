@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="comics.length > 0" class="page-title">투자 관리</div>
+    <div class="page-title">투자 관리</div>
     <br>
     <b-row v-for="comic in comics"
            :key="comic.address">
