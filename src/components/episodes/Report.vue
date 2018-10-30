@@ -20,8 +20,6 @@
 </template>
 
 <script>
-  import {BigNumber} from 'bignumber.js';
-
   export default {
     props: ['comic_id'],
     data() {
@@ -46,13 +44,13 @@
         try {
           this.restoreData();
           let registrationInfo = await this.$contract.apiReport.getRegistrationAmount();
-          let deposit = BigNumber(registrationInfo.amount_);
-          let initialDeposit = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
-          let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
-          let message = `신고를 하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
-          if (deposit.gt(BigNumber(0))) {
+          let deposit = new this.web3.utils.BN(registrationInfo.amount_);
+          let initialDeposit = new this.web3.utils.BN(this.pictionConfig.pictionValue.reportRegistrationFee);
+          let pxl = new this.web3.utils.BN(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
+          let message = `신고를 하려면 예치금 ${this.web3.utils.fromWei(this.initialDeposit)} PXL 이 필요합니다.`;
+          if (deposit > 0) {
             this.$refs.reportModal.show()
-          } else if (pxl.lt(initialDeposit)) {
+          } else if (pxl < initialDeposit) {
             this.$toasted.show(message, {position: "top-center"});
           } else if (confirm(`${message}\n등록하시겠습니까?`)) {
             let loader = this.$loading.show();

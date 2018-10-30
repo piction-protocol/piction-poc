@@ -32,6 +32,7 @@ class ApiContents {
         let comic = new Comic(record);
         comic.address = result.comicAddress[i].toLowerCase();
         comic.purchasedCount = Number(result.totalPurchasedCount[i]);
+        // comic.totalPurchasedAmount = new web3.utils.BN(result.totalPurchasedAmount[i]);
         comic.lastUploadedAt = Number(result.episodeLastUpdatedTime[i]);
         comic.createdAt = Number(result.contentCreationTime[i]);
         comic.writer = new Writer(result.writer[i], writerNames[i]);
@@ -65,7 +66,7 @@ class ApiContents {
         comic.address = result.comicAddress[i].toLowerCase();
         comic.privateEpisodesCount = Number(result.privateEpisode[i]);
         comic.publishedEpisodesCount = Number(result.publishedEpisode[i]);
-        comic.totalPurchasedAmount = Number(result.totalPurchasedAmount[i]);
+        comic.totalPurchasedAmount = new web3.utils.BN(result.totalPurchasedAmount[i]);
         comic.isBlock = result.isBlockComic[i]
         comic.writer = new Writer(vue.$store.getters.publicKey, vue.$store.getters.name);
         comics.push(comic);
