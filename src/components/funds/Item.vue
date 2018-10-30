@@ -37,10 +37,10 @@
         return `Softcap ${this.fund.softcap} PXL\nMaxcap ${this.fund.maxcap} PXL`;
       },
       dDay() {
-        if (new Date(this.fund.startTime).getTime() > this.$root.now) {
+        if (this.fund.startTime > this.$root.now) {
           return '모집예정'
         } else {
-          let time = Web3Utils.remainTimeToStr(this, new Date(this.fund.endTime).getTime());
+          let time = Web3Utils.remainTimeToStr(this, this.fund.endTime);
           return time ? `${time.number}${time.text}남음` : '종료'
         }
       }
@@ -95,7 +95,6 @@
 
   .thumbnail {
     width: 100%;
-    /*height: 100%;*/
     height: 250px;
     background-position: center;
     background-size: cover;

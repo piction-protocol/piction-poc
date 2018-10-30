@@ -9,7 +9,7 @@ export default new Vuex.Store({
     token: localStorage.getItem('token') || null,
   },
   getters: {
-    isLoggedIn: state => state.token != null,
+    isLoggedIn: state => state.name != null && state.token != null,
     name: state => state.name,
     token: state => state.token,
     publicKey: state => state.token ? web3.eth.accounts.privateKeyToAccount(state.token).address : '0x0000000000000000000000000000000000000000'

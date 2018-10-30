@@ -55,14 +55,14 @@
         return this.fund.comic.writer.address == this.pictionConfig.account;
       },
       supportable() {
-        return new Date(this.fund.startTime).getTime() < this.$root.now &&
-          this.$root.now < new Date(this.fund.endTime).getTime() &&
+        return this.fund.startTime < this.$root.now &&
+          this.$root.now < this.fund.endTime &&
           this.fund.maxcap > this.fund.rise;
       },
     },
     data() {
       return {
-        fund: new Fund(),
+        fund: {},
         supportAmount: 10,
       }
     },

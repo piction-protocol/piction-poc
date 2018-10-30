@@ -2,7 +2,7 @@
   <div>
     <div class="font-size-20 mb-2 font-weight-bold">모집기간</div>
     <div class="font-size-18 mb-4">
-      {{$utils.dateFmt(new Date(fund.startTime).getTime())}} ~ {{$utils.dateFmt(new Date(fund.endTime).getTime())}}
+      {{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}
       <span class="ml-1">({{statusText}})</span>
     </div>
     <div class="font-size-20 mb-2 font-weight-bold">모집 현황</div>
@@ -37,7 +37,7 @@
       </b-row>
       <b-row>
         <b-col cols="2">모금액 수령 방법</b-col>
-        <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval / (1000 * 60 * 60)}}시간 간격</b-col>
+        <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval}}시간 간격</b-col>
       </b-row>
       <b-row class="mb-4">
         <b-col cols="2">최초 모금액 수령일</b-col>

@@ -30,11 +30,9 @@
     computed: {
       filteredFunds() {
         if (!this.$route.hash || this.$route.hash == '#opened') {
-          return this.funds.filter(fund =>
-            (new Date(fund.startTime).getTime() < this.$root.now && this.$root.now < new Date(fund.endTime).getTime()) &&
-            (fund.rise != fund.maxcap));
+          return this.funds.filter(fund => fund.startTime < this.$root.now && this.$root.now < fund.endTime && fund.rise != fund.maxcap);
         } else {
-          return this.funds.filter(fund => this.$root.now > new Date(fund.endTime).getTime() || fund.rise == fund.maxcap);
+          return this.funds.filter(fund => this.$root.now > fund.endTime || fund.rise == fund.maxcap);
         }
       }
     },

@@ -145,7 +145,7 @@
                 });
 
                 //작품 명 조회
-                let comics = await this.$contract.apiContents.getComicsByAddress(this, contentIds);
+                let comics = await this.$contract.apiContents.getComics(this, contentIds);
                 list.forEach((history, i) => history.contentTitle = comics[i].title);
                 
                 //신고처리 완료 조회
