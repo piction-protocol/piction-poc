@@ -76,6 +76,7 @@
     color: #6c757d;
     height: 50px;
     white-space: pre-line;
+    overflow: hidden;
   }
 
   .rise-pxl-text {
