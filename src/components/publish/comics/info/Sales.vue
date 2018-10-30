@@ -23,7 +23,7 @@
              :fields="fields"
              :items="episodes"
              :small="true">
-      <template slot="key" slot-scope="data">{{data.value}}</template>
+      <template slot="id" slot-scope="data">{{data.value + 1}}</template>
       <template slot="title" slot-scope="data">{{data.value}}</template>
       <template slot="purchasedAmount" slot-scope="data">{{data.value}} PXL</template>
     </b-table>
@@ -41,7 +41,7 @@
         sales: new Sales(),
         episodes: [],
         fields: [
-          {key: 'key', label: '#'},
+          {key: 'id', label: '#'},
           {key: 'title', label: '에피소드 제목'},
           {key: 'purchasedAmount', label: '매출'},
         ],

@@ -7,7 +7,7 @@
                 <div class="title">신고 권한을 획득하시려면 <b>신고 예치금</b>이 필요합니다.</div>
                 <div class="title">신고 예치금 예치 후 30일 간 신고 권한이 부여되며,</div>
                 <div class="title">30일 후 신고 예치금은 반환됩니다.(임시 10분)</div>
-                <b-button variant="outline-secondary mt-2" @click="transferFee">{{$utils.toPXL(reportRegistrationFee)}} PXL 예치하기</b-button>
+                <b-button variant="outline-secondary mt-2" @click="transferFee">{{web3.utils.fromWei(reportRegistrationFee)}} PXL 예치하기</b-button>
             </div>
         </div>
         <div v-else="">
@@ -15,7 +15,7 @@
             <b-row>
             <b-col cols="2" sm="8" md="4" lg="2">
                 <div>
-                <span class="font-size-24">{{reporterRegistrationAmount / Math.pow(10, 18)}}</span>
+                <span class="font-size-24">{{web3.utils.fromWei(reporterRegistrationAmount)}}</span>
                 <span class="font-size-14 text-secondary">PXL</span>
                 </div>
                 <div class="font-size-12">신고 예치금</div>
@@ -79,7 +79,6 @@
 </template>
 
 <script>
-    import {BigNumber} from 'bignumber.js';
     import ReportHistory from '@models/ReportHistory';
     import Web3Utils from '@utils/Web3Utils';
 
@@ -106,12 +105,12 @@
                     {key: 'reportDetail', label: '신고 내용'},
                     {key: 'completeType', label: '처리'},
                 ],
-                reporterRegistrationAmount: 0,
+                reporterRegistrationAmount: new web3.utils.BN('0'),
                 reporterRegistrationLockTime: 0,
                 reporterReporterBlock: false,
-                reportRegistrationFee: 0,
+                reportRegistrationFee: new web3.utils.BN('0'),
                 interval: 0,
-                pxl: 0,
+                pxl: new web3.utils.BN('0'),
                 reports: [],
                 perPage: 10,
                 limit: 7,
@@ -120,10 +119,10 @@
         },
         methods: {
             async init() {
-                this.reportRegistrationFee = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
-                this.pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
+                this.reportRegistrationFee = new web3.utils.BN(String(this.pictionConfig.pictionValue.reportRegistrationFee));
+                this.pxl = new web3.utils.BN(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
                 let reagistration = await this.$contract.apiReport.getRegistrationAmount();
-                this.reporterRegistrationAmount = BigNumber(reagistration[0]);
+                this.reporterRegistrationAmount = new web3.utils.BN(reagistration[0]);
                 this.reporterRegistrationLockTime = reagistration[1];
                 this.reporterReporterBlock = reagistration[2];
                 this.interval = 10 * 60 * 1000; //test 10 min
@@ -155,11 +154,11 @@
                     let findObj = list.find(o => o.index == event.index);
                     findObj.completeDate = event.completeDate;
                     switch(event.type) {
-                        case 1: findObj.completeType = "작품 차단 (작가 -"+event.deductionAmount+"PXL)";
-                        case 2: findObj.completeType = "작가 경고 (작가 -"+event.deductionAmount+"PXL)";
+                        case 1: findObj.completeType = "작품 차단 (작가 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
+                        case 2: findObj.completeType = "작가 경고 (작가 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
                         case 3: findObj.completeType = "신고 무효";
                         case 4: findObj.completeType = "중복 신고";
-                        case 5: findObj.completeType = "잘못된 신고 (신고자 -"+event.deductionAmount+"PXL)";
+                        case 5: findObj.completeType = "잘못된 신고 (신고자 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
                         default: findObj.completeType = "";
                     }
                 });
@@ -168,8 +167,9 @@
             },
             async transferFee() {
                 let loader = this.$loading.show();
+                console.log(this.reportRegistrationFee.toString(), this.pxl.toString())
                 if (this.reportRegistrationFee > this.pxl) {
-                    alert(`예치금 ${$utils.toPXL(this.reportRegistrationFee)} PXL 이 필요합니다.`)
+                    alert(`예치금 ${this.web3.utils.fromWei(this.reportRegistrationFee)} PXL 이 필요합니다.`)
                     loader.hide();
                     return;
                 }

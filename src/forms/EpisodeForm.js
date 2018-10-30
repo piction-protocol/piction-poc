@@ -2,7 +2,7 @@ export default class EpisodeForm {
   constructor(episode) {
     this.id;
     this.title;
-    this.thumbnail;
+    this.thumbnail = '';
     this.price;
     this.cuts = [];
     this.publishedAt = new Date().toISOString()

@@ -1,7 +1,7 @@
 export default class ComicForm {
   constructor(comic) {
     this.title;
-    this.thumbnail;
+    this.thumbnail = '';
     this.genres = '액션';
     this.synopsis;
 

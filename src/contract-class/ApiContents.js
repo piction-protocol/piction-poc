@@ -130,7 +130,7 @@ class ApiContents {
     episode.isPurchased = result.isPurchased;
     episode.cuts = JSON.parse(cuts);
     episode.publishedAt = Number(result.publishDate);
-    episode.isPurchased = result.isPublished;
+    episode.status = result.isPublished;
     return episode;
   }
 
