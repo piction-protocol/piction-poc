@@ -40,7 +40,7 @@ Vue.use(Router)
 const router = new Router({
   mode: 'history',
   routes: [
-    {path: '/', redirect: '/my'},
+    {path: '/', redirect: '/comics'},
     // login
     {path: '/login', name: 'login', component: Login},
     {path: '/join', name: 'join', component: Join},
