@@ -3,7 +3,7 @@
     <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
     <div class="title-text">{{comic.title}}</div>
     <div class="writer-text">{{comic.writer.name}}</div>
-    <b-badge variant="secondary bg-dark">{{comic.genres}}</b-badge>
+    <div class="report-count-text">대기중인 신고 : {{comic.uncompletedReportCount}}</div>
   </router-link>
 </template>
 
@@ -26,6 +26,11 @@
   .writer-text {
     font-size: 12px;
     color: #9b9b9b;
+  }
+
+  .report-count-text {
+    font-size: 12px;
+    color: #ff6e27;
   }
 
   .thumbnail {
