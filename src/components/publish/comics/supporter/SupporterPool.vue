@@ -6,7 +6,7 @@
              :fields="fields"
              :items="fund.distributions"
              :small="true">
-      <template slot="index" slot-scope="row">{{row.value}}회차</template>
+      <template slot="index" slot-scope="row">{{row.value + 1}}회차</template>
       <template slot="amount" slot-scope="row">{{row.value}} PXL</template>
       <template slot="distributableTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributedTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
