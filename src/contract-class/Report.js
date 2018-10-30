@@ -38,6 +38,10 @@ class Report {
     });
   }
 
+  //작품 미처리 신고내역 건수 조회
+  async getUncompletedReport(address) {
+    return await this._contract.methods.getUncompletedReport(address).call();
+  }
 }
 
 export default Report;
