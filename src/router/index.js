@@ -34,6 +34,7 @@ import MyFundComicShow from '@/components/my/fund-comics/Show'
 import MyReportIndex from '@/components/my/reports/Index'
 // council
 import CouncilIndex from '@/components/council/Index'
+import CouncilDetailIndex from '@/components/council/detail/Index'
 
 Vue.use(Router)
 
@@ -86,7 +87,7 @@ const router = new Router({
     // council
     {path: '/council', name: 'council', component: CouncilIndex},
     {path: '/comics/:comic_id', redirect: '/council/:comic_id/detail'},
-    {path: '/council/:comic_id/detail', name: 'council-detail', component: MyReportIndex, props: true},
+    {path: '/council/:comic_id/detail', name: 'council-detail', component: CouncilDetailIndex, props: true},
     // my
     {path: '/account', name: 'account', component: AccountIndex},
     {path: '/user-payback', name: 'user-payback', component: UserPaybackIndex},
