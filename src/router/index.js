@@ -12,7 +12,6 @@ import EpisodeShow from '@/components/episodes/Show'
 
 // fund
 import FundIndex from '@/components/funds/Index'
-import FundNew from '@/components/funds/New'
 import FundShow from '@/components/funds/Show'
 // publish
 import PublishComicIndex from '@/components/publish/comics/Index'
@@ -56,7 +55,6 @@ const router = new Router({
     {path: '/comics/:comic_id/episodes/:episode_id', name: 'show-episode', component: EpisodeShow, props: true},
     // funds
     {path: '/funds', name: 'funds', component: FundIndex},
-    {path: '/comics/:comic_id/funds/new', name: 'new-fund', component: FundNew, props: true},
     {path: '/funds/:fund_id/show', name: 'show-fund', component: FundShow, props: true},
     // publish
     {path: '/publish/comics', name: 'publish-comics', component: PublishComicIndex},
