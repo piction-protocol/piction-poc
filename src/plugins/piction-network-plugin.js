@@ -13,6 +13,9 @@ import ContentsManager from '@contract-class/ContentsManager'
 const PictionNetworkPlugin = {
   install(Vue, pictionConfig) {
 
+
+    Vue.prototype.web3 = window.web3;
+
     console.log(pictionConfig);
     Vue.prototype.pictionConfig = pictionConfig;
     Vue.prototype.$contract = {};

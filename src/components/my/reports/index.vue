@@ -7,7 +7,7 @@
                 <div class="title">신고 권한을 획득하시려면 <b>신고 예치금</b>이 필요합니다.</div>
                 <div class="title">신고 예치금 예치 후 30일 간 신고 권한이 부여되며,</div>
                 <div class="title">30일 후 신고 예치금은 반환됩니다.(임시 10분)</div>
-                <b-button variant="outline-secondary mt-2" @click="transferFee">{{$utils.toPXL(reportRegistrationFee)}} PXL 예치하기</b-button>
+                <b-button variant="outline-secondary mt-2" @click="transferFee">{{reportRegistrationFee}} PXL 예치하기</b-button>
             </div>
         </div>
         <div v-else="">
@@ -120,8 +120,9 @@
         },
         methods: {
             async init() {
-                this.reportRegistrationFee = BigNumber(this.pictionConfig.pictionValue.reportRegistrationFee);
-                this.pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
+              BigNumber.config({ DECIMAL_PLACES: 22})
+                this.reportRegistrationFee = Number(web3.utils.fromWei(String(this.pictionConfig.pictionValue.reportRegistrationFee)));
+                this.pxl = Number(web3.utils.fromWei(await this.$contract.pxl.balanceOf(this.pictionConfig.account)));
                 let reagistration = await this.$contract.apiReport.getRegistrationAmount();
                 this.reporterRegistrationAmount = BigNumber(reagistration[0]);
                 this.reporterRegistrationLockTime = reagistration[1];
@@ -168,8 +169,9 @@
             },
             async transferFee() {
                 let loader = this.$loading.show();
+                console.log(this.reportRegistrationFee.toString(), this.pxl.toString())
                 if (this.reportRegistrationFee > this.pxl) {
-                    alert(`예치금 ${$utils.toPXL(this.reportRegistrationFee)} PXL 이 필요합니다.`)
+                    alert(`예치금 ${this.$utils.toPXL(this.reportRegistrationFee)} PXL 이 필요합니다.`)
                     loader.hide();
                     return;
                 }

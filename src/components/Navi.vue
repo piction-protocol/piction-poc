@@ -63,22 +63,6 @@
         this.$store.dispatch('LOGOUT');
         window.location.reload();
       },
-      async newContents() {
-        let deposit = BigNumber(await this.$contract.apiContents.getInitialDeposit(this.pictionConfig.account));
-        let initialDeposit = BigNumber(this.pictionConfig.pictionValue.initialDeposit);
-        let pxl = BigNumber(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
-        let message = `작품을 등록하려면 예치금 ${this.$utils.toPXL(initialDeposit)} PXL 이 필요합니다.`;
-        if (deposit.eq(initialDeposit)) {
-          this.$router.push({name: 'new-comic'});
-        } else if (pxl.lt(initialDeposit)) {
-          alert(message)
-        } else if (confirm(`${message}\n등록하시겠습니까?`)) {
-          let loader = this.$loading.show();
-          await this.$contract.pxl.approveAndCall(this.pictionConfig.managerAddress.contentsManager, this.pictionConfig.pictionValue.initialDeposit);
-          loader.hide();
-          this.$router.push({name: 'new-comic'});
-        }
-      }
     },
     async created() {
       this.updatePXL();
