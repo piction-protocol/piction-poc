@@ -4,6 +4,11 @@ import BigNumber from 'bignumber.js'
 const Utils = {
   install(Vue, options) {
 
+    Number.prototype.between = function (a, b, inclusive) {
+      var min = Math.min(a, b), max = Math.max(a, b);
+      return inclusive ? this >= min && this <= max : this > min && this < max;
+    }
+
     Vue.prototype.$utils = {
       getImageDimensions(dataUri) {
         return new Promise((resolved, rejected) => {

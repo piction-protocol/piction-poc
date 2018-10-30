@@ -65,7 +65,7 @@
         this.$router.push({name: 'edit-comic', params: {'comic_id': this.comic_id}});
       },
       setEvents() {
-        // TODO: 회차 등록/수정 이벤트 처리
+        // TODO: 에피소드 등록 이벤트 처리
       },
       sort(evt) {
         evt.preventDefault();
