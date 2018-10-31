@@ -12,7 +12,7 @@
                             :stop-color="stopColor"
                             :inner-stroke-color="innerStrokeColor">
                 <div class="p-1" style="font-size: 14px;">작품 구매 보상 풀</div>
-                <div class="p-1" style="font-size: 24px; font-weight: bold;">{{$utils.toPXL(reward)}} PXL</div>
+                <div class="p-1" style="font-size: 24px; font-weight: bold;">{{toPXL(reward)}} PXL</div>
                 <div v-if="this.reward == 0"></div>
                 <div v-else>
                     <div v-if="isReleaseTime === '출금'">
@@ -37,7 +37,7 @@
                 empty-text="조회 내역이 없습니다.">
                 <template slot="accumulationTime" slot-scope="row">{{$utils.dateFmt(row.item.accumulationTime)}}</template>
                 <template slot="purchasedComic" slot-scope="row">{{row.item.contentName}}/#{{row.item.episodeIndex}}</template>
-                <template slot="value" slot-scope="row">{{$utils.toPXL(row.item.value)}} PXL</template>
+                <template slot="value" slot-scope="row">{{toPXL(row.item.value)}} PXL</template>
             </b-table>
             <b-pagination class="d-flex justify-content-center" size="md"
                   :total-rows="list.length"
@@ -146,6 +146,9 @@
             this.remainingTime = results.nextReleaseTime;
             this.releaseInterval = interval;
         },
+        toPXL(amount) {
+            return this.web3.utils.fromWei(new this.web3.utils.BN(amount));
+        }
     },
     async created() {
         await this.setRewards();
