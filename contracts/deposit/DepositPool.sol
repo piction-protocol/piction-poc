@@ -124,7 +124,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
         if (contentDeposit[_content] > 0) {
             ERC20 token = ERC20(council.getToken());
-            uint256 rewardOnePXL = 1 ** DECIMALS;
+            uint256 rewardOnePXL = 1 * DECIMALS;
 
             if (contentDeposit[_content] >= rewardOnePXL) {
                 deduction_ = contentDeposit[_content].sub(rewardOnePXL);
@@ -136,6 +136,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
                     if (deduction_ == 0) {
                         contentBlock_ = true;
                     }
+                    deduction_ = 0;
                 }
             } else {
                 rewardOnePXL = contentDeposit[_content];
