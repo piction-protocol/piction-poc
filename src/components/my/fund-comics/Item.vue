@@ -30,7 +30,7 @@
         if (this.comic.isBlock) {
           return '비공개';
         } else {
-          return `매출 ${this.$utils.toPXL(this.comic.totalPurchasedAmount)} PXL`
+          return `매출 ${new this.web3.utils.BN(this.comic.totalPurchasedAmount)} PXL`
         }
       }
     },

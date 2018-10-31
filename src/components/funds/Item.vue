@@ -64,6 +64,10 @@
   .title-text {
     font-size: 16px;
     font-weight: bold;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .writer-text {

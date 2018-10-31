@@ -23,7 +23,6 @@
 <script>
   import moment from 'moment';
   import {Datetime} from 'vue-datetime';
-  import BigNumber from 'bignumber.js'
 
   export default {
     props: ['fund'],

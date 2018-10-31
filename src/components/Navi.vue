@@ -17,7 +17,7 @@
             <animated-number
               class="pxl"
               :class="{'pxl-change': pxlChange}"
-              :value="pxl"
+              :value="pxl.toString()"
               :formatValue="formatValue"
               :duration="1000"/>
           </b-nav-item>
@@ -44,7 +44,7 @@
     },
     data() {
       return {
-        pxl: 0,
+        pxl: '0',
         pxlChange: false,
       }
     },
@@ -55,7 +55,7 @@
       updatePXL() {
         this.pxlChange = false;
         this.$contract.pxl.balanceOf(this.pictionConfig.account).then(pxl => {
-          this.pxl = this.$utils.toPXL(pxl);
+          this.pxl = web3.utils.fromWei(new this.web3.utils.BN(pxl));
           this.pxlChange = true;
         });
       },

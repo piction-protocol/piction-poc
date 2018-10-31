@@ -12,7 +12,7 @@ export default class Comic {
     this.createdAt = 0;
     this.privateEpisodesCount = 0;
     this.publishedEpisodesCount = 0;
-    this.totalPurchasedAmount = 0;
+    this.totalPurchasedAmount = new web3.utils.BN(0);
     this.isBlock = false;
     this.writer = new Writer();
   }

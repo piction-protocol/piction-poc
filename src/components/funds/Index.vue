@@ -30,7 +30,7 @@
     computed: {
       filteredFunds() {
         if (!this.$route.hash || this.$route.hash == '#opened') {
-          return this.funds.filter(fund => fund.startTime < this.$root.now && this.$root.now < fund.endTime && fund.rise != fund.maxcap);
+          return this.funds.filter(fund => this.$root.now.between(fund.startTime, fund.endTime) && fund.rise != fund.maxcap);
         } else {
           return this.funds.filter(fund => this.$root.now > fund.endTime || fund.rise == fund.maxcap);
         }

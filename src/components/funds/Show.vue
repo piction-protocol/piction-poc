@@ -28,13 +28,17 @@
       </b-col>
     </b-row>
     <b-modal ref="myModalRef"
-             title="참여"
+             title="서포터 신청"
+             ok-title="신청"
+             cancel-title="취소"
              @ok="support"
-             @shown="supportAmount = 10">
+             @shown="supportAmount = fund.min">
       <form @submit.stop.prevent="handleSubmit">
-        <b-form-input type="number"
-                      placeholder="투자 금액을 입력하세요"
-                      v-model="supportAmount"></b-form-input>
+        <div class="text-center">
+          <span class="font-size-32 font-weight-bold">{{supportAmount}}</span>
+          <span class="font-size-24" style="color: #9b9b9b">PXL</span>
+        </div>
+        <b-form-input type="range" v-model="supportAmount" :min="fund.min" :max="fund.max"/>
       </form>
     </b-modal>
   </div>
