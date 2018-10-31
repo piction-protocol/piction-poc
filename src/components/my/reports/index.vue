@@ -6,7 +6,7 @@
             <div align="center">
                 <div class="title">신고 권한을 획득하시려면 <b>신고 예치금</b>이 필요합니다.</div>
                 <div class="title">신고 예치금 예치 후 30일 간 신고 권한이 부여되며,</div>
-                <div class="title">30일 후 신고 예치금은 반환됩니다.(임시 10분)</div>
+                <div class="title">30일 후 신고 예치금은 반환됩니다.(임시 30분)</div>
                 <b-button variant="outline-secondary mt-2" @click="transferFee">{{web3.utils.fromWei(reportRegistrationFee)}} PXL 예치하기</b-button>
             </div>
         </div>
@@ -125,7 +125,7 @@
                 this.reporterRegistrationAmount = new web3.utils.BN(reagistration[0]);
                 this.reporterRegistrationLockTime = reagistration[1];
                 this.reporterReporterBlock = reagistration[2];
-                this.interval = 10 * 60 * 1000; //test 10 min
+                this.interval = 30 * 60 * 1000; //test 30 min
             },
             async setTable() {
                 let contentIds = [];
