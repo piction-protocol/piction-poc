@@ -27,6 +27,14 @@ class ApiReport {
     return this._contract.methods.reportDisposal(index, content, reporter, type, description).send();
   }
 
+  getUncompletedReportCount(content) {
+    return this._contract.methods.getUncompletedReportCount(content).call();
+  }
+
+  getUncompletedReportCounts(content) {
+    return this._contract.methods.getUncompletedReportCounts(content).call();
+  }
+
 }
 
 export default ApiReport;

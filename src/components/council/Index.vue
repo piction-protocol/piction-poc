@@ -32,7 +32,7 @@
     computed: {
       filteredCouncil() {
         if (this.selected == 'first') {
-          return this.council.sort((a, b) => a.lastReportTime - b.lastReportTime);
+          return this.council.sort((a, b) => a.lastReportTime - b.lastReportTime).reverse();
         } else {
           return this.council.sort((a, b) => b.uncompletedReportCount - a.uncompletedReportCount);
         }
@@ -54,15 +54,22 @@
         
         let comics = await this.$contract.apiContents.getComics(this);
         
-        let councilComics = comics.map(comic => {
-          let newComic = new Council();
-          newComic.comic = comic;
-          newComic.uncompletedReportCount = 0;
-          newComic.lastReportTime = 0;
-          return newComic
-        });
+        comics.forEach(async comic => {
+          let council = new Council();
+          council.comic = comic;
+          council.uncompletedReportCount = await this.$contract.apiReport.getUncompletedReportCount(comic.address);
+          
+          let events = await this.$contract.report.getReportList(comic.address);
+          events = events.map(event => Web3Utils.prettyJSON(event.returnValues));
+          
+          if (events.length > 0) {
+            let max = events.reduce((previous, current) => previous.date > current.date ? previous:current);
+            council.lastReportTime = max.date;
+          }
 
-        this.council = councilComics;
+          list.push(council);
+        });
+        this.council = list;
       }
     },
     async created() {
