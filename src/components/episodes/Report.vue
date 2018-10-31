@@ -45,9 +45,9 @@
           this.restoreData();
           let registrationInfo = await this.$contract.apiReport.getRegistrationAmount();
           let deposit = new this.web3.utils.BN(registrationInfo.amount_);
-          let initialDeposit = new this.web3.utils.BN(this.pictionConfig.pictionValue.reportRegistrationFee);
+          let initialDeposit = new this.web3.utils.BN(this.pictionConfig.pictionValue.reportRegistrationFee.toString());
           let pxl = new this.web3.utils.BN(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
-          let message = `신고를 하려면 예치금 ${this.web3.utils.fromWei(this.initialDeposit)} PXL 이 필요합니다.`;
+          let message = `신고를 하려면 예치금 ${this.web3.utils.fromWei(initialDeposit)} PXL 이 필요합니다.`;
           if (deposit > 0) {
             this.$refs.reportModal.show()
           } else if (pxl < initialDeposit) {
