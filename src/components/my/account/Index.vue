@@ -54,10 +54,10 @@
                 <template slot="message" slot-scope="row">{{row.item.message}}</template>
                   <template slot="value" slot-scope="row">
                     <div v-if="row.item.isPlus" style="font-size: 14px; color: #4a90e2;">
-                      + {{$utils.toPXL(row.item.value)}} PXL
+                      + {{toPXL(row.item.value)}} PXL
                     </div>
                     <div v-else style="font-size: 14px; color: #d0021b;">
-                      - {{$utils.toPXL(row.item.value)}} PXL
+                      - {{toPXL(row.item.value)}} PXL
                     </div>
                   </template>                
             </b-table>
@@ -128,6 +128,9 @@
         let results = await this.$contract.pxl.getPxlTransferEvents();
         this.list = results;
         this.list = this.list.reverse();
+      },
+      toPXL(amount) {
+            return this.web3.utils.fromWei(new this.web3.utils.BN(amount));
       }
     },
     async created() {
