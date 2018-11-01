@@ -186,6 +186,7 @@ contract ApiContents is ValidValue {
             bytes memory records_,
             address[] memory writer_,
             uint256[] memory totalPurchasedCount_,
+            uint256[] memory totalPurchasedAmount_,
             uint256[] memory contentCreationTime_,
             uint256[] memory episodeLastUpdatedTime_
         )
@@ -200,11 +201,12 @@ contract ApiContents is ValidValue {
 
         writer_ = new address[](comicAddress_.length);
         totalPurchasedCount_ = new uint256[](comicAddress_.length);
+        totalPurchasedAmount_ = new uint256[](comicAddress_.length);
         contentCreationTime_ = new uint256[](comicAddress_.length);
         episodeLastUpdatedTime_ = new uint256[](comicAddress_.length);
 
         for(uint256 i = 0 ; i < comicAddress_.length ; i++) {
-            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i],
+            (, writer_[i], , totalPurchasedCount_[i], totalPurchasedAmount_[i], contentCreationTime_[i],
                 episodeLastUpdatedTime_[i]) = IContent(comicAddress_[i]).getComicsInfo();
         }
     }
@@ -229,6 +231,7 @@ contract ApiContents is ValidValue {
             bytes memory records_,
             address[] memory writer_,
             uint256[] memory totalPurchasedCount_,
+            uint256[] memory totalPurchasedAmount_,
             uint256[] memory contentCreationTime_,
             uint256[] memory episodeLastUpdatedTime_
         )
@@ -242,11 +245,12 @@ contract ApiContents is ValidValue {
         comicAddress_ = _comicAddress;
         writer_ = new address[](_comicAddress.length);
         totalPurchasedCount_ = new uint256[](_comicAddress.length);
+        totalPurchasedAmount_ = new uint256[](_comicAddress.length);
         contentCreationTime_ = new uint256[](_comicAddress.length);
         episodeLastUpdatedTime_ = new uint256[](_comicAddress.length);
 
         for(uint256 i = 0 ; i < _comicAddress.length ; i++) {
-            (, writer_[i], , totalPurchasedCount_[i], , contentCreationTime_[i],
+            (, writer_[i], , totalPurchasedCount_[i], totalPurchasedAmount_[i], contentCreationTime_[i],
                 episodeLastUpdatedTime_[i]) = IContent(_comicAddress[i]).getComicsInfo();
         }
     }
