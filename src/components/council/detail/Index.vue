@@ -77,7 +77,7 @@
           :current-page="currentPage"
           :per-page="perPage"
           show-empty 
-          empty-text="조회 내역이 없습니다.">
+          empty-text="처리 완료 내역이 없습니다.">
           <template slot="date" slot-scope="row">{{$utils.dateFmt(row.item.date)}}</template>
           <template slot="userName" slot-scope="row">{{row.item.userName}}</template>
           <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
