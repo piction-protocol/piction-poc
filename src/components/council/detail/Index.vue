@@ -168,7 +168,7 @@
           loader.hide();
           return;  
         }
-        loader.hide();
+
         alert("신고 처리가 완료되었습니다.");
         window.location.reload();
       },
