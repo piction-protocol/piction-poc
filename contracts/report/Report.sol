@@ -157,7 +157,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     /**
     * @dev 신고 처리 완료 후 호출하는 메소드, deduction나 DepositPool의 reportReward 처리 후 호출
     * @param _index 신고 목록의 인덱스
-    * @param _type 신고처리 타입 / 1 작품 차단, 2 작가 경고, 3 신고 무효, 4 중복 신고, 5 잘못된 신고
+    * @param _type 신고처리 타입 / 1 작품 차단, 2 작품 경고, 3 신고 무효, 4 중복 신고, 5 잘못된 신고
     * @param _deductionAmount 변경된 관련 금액
     */
     function completeReport(uint256 _index, uint256 _type, uint256 _deductionAmount) external {
@@ -183,7 +183,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     function deduction(address _reporter) external validAddress(_reporter) returns(uint256 deduction_) {
         require(msg.sender == address(council), "msg sender is not council");
 
-        uint256 onePXL = 1 ** DECIMALS;
+        uint256 onePXL = 1 * DECIMALS;
         uint256 remain;
         if (registrationFee[_reporter].amount > 0) {
             if (registrationFee[_reporter].amount >= onePXL) {
