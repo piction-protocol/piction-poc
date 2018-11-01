@@ -37,7 +37,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     mapping (address => Registration) registrationFee;
 
     //신고자 등록금 잠금 시간
-    uint256 interval = 10 * 60 * 1000; //for test 10 min
+    uint256 interval = 30 * 60 * 1000; //for test 30 min
 
     //신고내용과 처리유무
     struct ReportData {
@@ -51,6 +51,9 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     }
     //신고 목록
     ReportData[] reports;
+
+    //처리되지 않은 작품 별 신고 개수
+    mapping (address => uint256) reportCount;
 
     /**
     * @dev 생성자
@@ -105,6 +108,7 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         require(registrationFee[reporter].lockTime > TimeLib.currentTime(), "over the lockTime");
 
         reports.push(ReportData(TimeLib.currentTime(), _content, reporter, _detail, 0, 0, 0));
+        reportCount[_content] = reportCount[_content].add(1);
 
         emit SendReport(TimeLib.currentTime(), reports.length-1, _content, reporter, _detail);
     }
@@ -134,24 +138,20 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
     * @dev 작품의 신고 건수 조회
     * @param _content 확인할 작품의 주소
     */
-    function getReportCount(address _content) external view returns(uint256 count) {
+    function getReportCount(address _content) external view returns(uint256 count_) {
         for(uint256 i = 0; i < reports.length; i++) {
             if (reports[i].content == _content) {
-                count = count.add(1);
+                count_ = count_.add(1);
             }
         }
     }
 
     /**
-    * @dev 작품의 신고 중 처리되지 않은 건수 조회, 작품 릴리즈 시 조회에 사용
+    * @dev 작품의 신고 중 처리되지 않은 건수 조회
     * @param _content 확인할 작품의 주소
     */
-    function getUncompletedReport(address _content) external view returns(uint256 count) {
-        for(uint256 i = 0; i < reports.length; i++) {
-            if (reports[i].content == _content && reports[i].completeDate != 0) {
-                count = count.add(1);
-            }
-        }
+    function getUncompletedReportCount(address _content) external view returns(uint256 count_) {
+        return reportCount[_content];
     }
 
     /**
@@ -165,10 +165,13 @@ contract Report is ExtendsOwnable, ValidValue, ContractReceiver, IReport {
         require(_index < reports.length, "out of index");
         require(reports[_index].completeDate == 0, "already complete");
         require(_type != 0, "type error");
+        require(reportCount[reports[_index].content] > 0, "reportCount error");
 
         reports[_index].completeDate = TimeLib.currentTime();
         reports[_index].completeType = _type;
         reports[_index].completeAmount = _deductionAmount;
+
+        reportCount[reports[_index].content] = reportCount[reports[_index].content].sub(1);
 
         emit CompleteReport(reports[_index].reportDate, reports[_index].completeDate, _index, reports[_index].content, reports[_index].reporter, reports[_index].detail, _type, _deductionAmount);
     }

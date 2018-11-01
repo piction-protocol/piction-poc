@@ -14,9 +14,9 @@
     <br>
     <b-row>
       <b-col cols="12" sm="6" md="4" lg="3"
-             v-for="comic in filteredComics"
-             :key="comic.address">
-        <Item :comic="comic"/>
+             v-for="council in filteredCouncil"
+             :key="council.comic.address">
+        <Item :council="council"/>
       </b-col>
     </b-row>
   </div>
@@ -24,24 +24,23 @@
 
 <script>
   import Item from './Item'
-  import Comic from '@models/CouncilComic'
+  import Council from '@models/Council'
   import Web3Utils from '@utils/Web3Utils'
 
   export default {
     components: {Item},
     computed: {
-      filteredComics() {
-        //todo 아래 미처리 숫자 및 최근 리포트 타임별 정렬처리
+      filteredCouncil() {
         if (this.selected == 'first') {
-          return this.comics.sort((a, b) => a.createdAt - b.createdAt);
+          return this.council.sort((a, b) => a.lastReportTime - b.lastReportTime).reverse();
         } else {
-          return this.comics.sort((a, b) => b.createdAt - a.createdAt);
+          return this.council.sort((a, b) => b.uncompletedReportCount - a.uncompletedReportCount);
         }
       }
     },
     data() {
       return {
-        comics: [],
+        council: [],
         selected: 'first',
         options: [
         { text: '최근 신고 순', value: 'first' },
@@ -51,10 +50,27 @@
     },
     methods: {
       async setComics() {
+        let list = [];
+        
         let comics = await this.$contract.apiContents.getComics(this);
-        //todo getCouncilCoimcs 만들고 미처리 숫자 및 최근 리포트 타임을 넣는다
-        this.comics = comics.reverse();
-      },
+        
+        comics.forEach(async comic => {
+          let council = new Council();
+          council.comic = comic;
+          council.uncompletedReportCount = await this.$contract.apiReport.getUncompletedReportCount(comic.address);
+          
+          let events = await this.$contract.report.getReportList(comic.address);
+          events = events.map(event => Web3Utils.prettyJSON(event.returnValues));
+          
+          if (events.length > 0) {
+            let max = events.reduce((previous, current) => previous.date > current.date ? previous:current);
+            council.lastReportTime = max.date;
+          }
+
+          list.push(council);
+        });
+        this.council = list;
+      }
     },
     async created() {
       this.setComics();
