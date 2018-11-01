@@ -87,4 +87,24 @@ contract ApiReport is ValidValue {
             (,,,,completeDate_[i],completeType_[i], completeAmount_[i]) = IReport(council.getReport()).getReport(ids[i]);
         }
     }
+
+    /**
+    * @dev 작품의 신고 중 처리되지 않은 건수 조회
+    * @param _content 확인할 작품의 주소
+    */
+    function getUncompletedReportCount(address _content) external view returns(uint256 count_) {
+        return IReport(council.getReport()).getUncompletedReportCount(_content);
+    }
+
+    /**
+    * @dev 작품들의 신고 중 처리되지 않은 건수 조회
+    * @param _contents 확인할 작품들의 주소
+    */
+    function getUncompletedReportCounts(address[] _contents) external view returns(uint256[] memory counts_) {
+        counts_ = new uint256[](_contents.length);
+
+        for (uint256 i = 0; i < _contents.length; i++) {
+            counts_[i] = IReport(council.getReport()).getUncompletedReportCount(_contents[i]);
+        }
+    }
 }

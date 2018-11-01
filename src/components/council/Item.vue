@@ -1,15 +1,15 @@
 <template>
-  <router-link class="item d-inline-block w-100 mb-4" :to="{ name: 'council-detail', params: { comic_id: comic.address }}">
-    <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
-    <div class="title-text">{{comic.title}}</div>
-    <div class="writer-text">{{comic.writer.name}}</div>
-    <div class="report-count-text">대기중인 신고 : {{comic.uncompletedReportCount}}</div>
+  <router-link class="item d-inline-block w-100 mb-4" :to="{ name: 'council-detail', params: { comic_id: council.comic.address }}">
+    <b-img fluid :src="council.comic.thumbnail" class="thumbnail"/>
+    <div class="title-text">{{council.comic.title}}</div>
+    <div class="writer-text">{{council.comic.writer.name}}</div>
+    <div class="report-count-text">대기중인 신고 : {{council.uncompletedReportCount}}</div>
   </router-link>
 </template>
 
 <script>
   export default {
-    props: ['comic'],
+    props: ['council'],
     data() {
       return {}
     },

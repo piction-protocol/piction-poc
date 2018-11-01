@@ -37,7 +37,6 @@ class Report {
       toBlock: 'latest'
     });
   }
-
 }
 
 export default Report;
