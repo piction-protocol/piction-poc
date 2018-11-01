@@ -12,7 +12,11 @@
       <span class="font-size-28"><b>{{deposit}}</b></span>
       <span class="font-size-14 text-secondary"> PXL</span>
     </div>
-    <div class="p-1" style="font-size:14px; color:#9b9b9b">예치금 회수 권한 지급 날짜 : {{$utils.dateFmt(releaseDate)}}</div>
+    <div v-if="releaseDate < $root.now && !releaseHistory && deposit > 0" 
+      class="p-1" style="font-size:14px; color:#9b9b9b">예치금 회수 권한 지급 날짜 : {{$utils.dateFmt(releaseDate)}}</div>
+    <div v-if="releaseDate < $root.now && !releaseHistory && deposit == 0"
+      class="p-1" style="font-size:14px; color:#9b9b9b">반환될 예치금이 없습니다.</div>
+    <div v-if="releaseHistory" class="p-1" style="font-size:14px; color:#9b9b9b">예치금이 반환되었습니다. ({{$utils.dateFmt(releaseHistory.date)}})</div>
     <br/>
     <div class="p-1" style="font-size:20px; font-weight:bold;">처리 대기중</div>
     <div>
@@ -106,6 +110,7 @@
         comic: new Comic(),
         deposit: 0,
         releaseDate: 0,
+        releaseHistory: null,
         waitingFields: [
           {key: 'date', label: '신고 일시'},
           {key: 'userName', label: '신고자'},
@@ -140,6 +145,7 @@
         this.comic = await this.$contract.apiContents.getComic(this.comic_id);
         this.deposit = await this.$contract.depositPool.getDeposit(this.comic_id);
         this.releaseDate = await this.$contract.depositPool.getReleaseDate(this.comic_id);
+        this.releaseHistory = (await this.$contract.depositPool.getDepositHistory(this.comic_id)).find(h => h.type == 6);
       },
       async setTableList() {
         var results = await this.$contract.report.getComicReportList(this, this.comic_id);
