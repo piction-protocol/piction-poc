@@ -4,7 +4,7 @@
     <b-row>
       <b-col cols="2">
         <div>
-          <span class="font-size-24">{{releaseHistory ? releaseHistory.amount : deposit}}</span>
+          <span class="font-size-24">{{deposit}}</span>
           <span class="font-size-14 text-secondary">PXL</span>
         </div>
         <div class="font-size-12">작품 등록 예치금</div>
