@@ -18,7 +18,7 @@
         :invalid-feedback="passwordInvalidFeedback"
         :valid-feedback="passwordValidFeedback"
         :state="passwordState">
-        <b-form-input id="password" type="password" :state="passwordState" v-model.trim="password"></b-form-input>
+        <b-form-input id="password" type="password" :state="passwordState" v-model.trim="password" @keydown.enter.native="login"></b-form-input>
       </b-form-group>
       <hr>
       <div align="center">
