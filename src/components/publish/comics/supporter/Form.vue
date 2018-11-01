@@ -126,7 +126,7 @@
           type="datetime"
           hidden-name="Enter first distribution time"
           v-model="form.firstDistributionTime"
-          :min-datetime="form.endTime"
+          :min-datetime="minFirstDistributionTime"
           style="width: 250px"
           input-class="form-control"></datetime>
       </b-form-group>
@@ -163,6 +163,16 @@
     computed: {
       disabled: function () {
         return this.action == 'edit'
+      },
+      minFirstDistributionTime: function () {
+        if (this.form.endTime != "") {
+          let endTime = new Date(this.form.endTime).getTime();
+          let a = new Date(endTime + 60000)
+        
+          return (a.toISOString());
+        } else {
+          return (new Date()).toISOString();
+        }
       }
     },
     methods: {
