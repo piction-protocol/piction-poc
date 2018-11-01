@@ -45,11 +45,24 @@
           this.restoreData();
           let registrationInfo = await this.$contract.apiReport.getRegistrationAmount();
           let deposit = new this.web3.utils.BN(registrationInfo.amount_);
+          let lockTime = registrationInfo.lockTime_;
           let initialDeposit = new this.web3.utils.BN(this.pictionConfig.pictionValue.reportRegistrationFee.toString());
           let pxl = new this.web3.utils.BN(await this.$contract.pxl.balanceOf(this.pictionConfig.account));
           let message = `신고를 하려면 예치금 ${this.web3.utils.fromWei(initialDeposit)} PXL 이 필요합니다.`;
+          let resetMessage = `신고 권한 부여 시간이 만료되었습니다. 반환 및 재예치 후 진행하시겠습니까?`;
           if (deposit > 0) {
-            this.$refs.reportModal.show()
+            if(lockTime <= this.$root.now) {
+              alert(lockTime + ' : ' + this.$root.now);
+              if(confirm(resetMessage)) { 
+                let loader = this.$loading.show();
+                await this.$contract.apiReport.withdrawRegistration();
+                await this.$contract.pxl.approveAndCall(this.pictionConfig.pictionAddress.report, initialDeposit);  
+                this.$refs.reportModal.show();
+                loader.hide();
+              }
+            } else {
+              this.$refs.reportModal.show();
+            } 
           } else if (pxl < initialDeposit) {
             this.$toasted.show(message, {position: "top-center"});
           } else if (confirm(`${message}\n등록하시겠습니까?`)) {
