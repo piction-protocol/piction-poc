@@ -14,7 +14,7 @@ export default class Fund {
     this.interval = fund ? Number(fund.releaseInterval) / (1000 * 60 * 60) : 0;
     this.firstDistributionTime = fund ? Number(fund.supportFirstTime) : 0;
     this.distributionRate = fund ? Number(web3.utils.fromWei(fund.distributionRate)) : 0;
-    this.needEndProcessing = false;
+    this.needEndProcessing = fund ? fund.needEndProcessing : false;
     this.detail = fund ? fund.detail : '';
     this.comic = new Comic();
     this.supporters = [];

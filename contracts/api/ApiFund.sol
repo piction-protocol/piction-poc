@@ -129,6 +129,7 @@ contract ApiFund is ValidValue {
     * @return releaseInterval_ 후원 받을 간격
     * @return supportFirstTime_ 첫 후원을 받을 수 있는 시간
     * @return distributionRate_ 서포터가 분배 받을 비율
+    * @return needEndProcessing_ 투자의 종료가 필요한지 여부
     * @return detail_ 투자의 기타 상세 정보
     */
     function getFundInfo(address _fund)
