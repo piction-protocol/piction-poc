@@ -76,6 +76,7 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		require(_maxcap >= _softcap, "maxcap < softcap");
 		require(_minimum > 0, "minimum is zero");
 		require(_maximum > 0, "maximum is zero");
+		require(_maxcap >= _maximum, "maxcap < maximum");
 		require(_poolSize > 0, "poolsize is zero");
 		require(_releaseInterval > 0, "releaseInterval is zero");
 		require(_supportFirstTime > _endTime, "_supportFirstTime <= _endTime");
