@@ -136,7 +136,11 @@
             let loader = this.$loading.show();
             
             await this.$contract.userPaybackPool.release();
-            window.location.reload();
+
+            this.completedSteps = 0;
+            await this.setRewards();
+            await this.setTable();
+            loader.hide();
         },
         async setRewards() {
             let results = await this.$contract.userPaybackPool.getPaybackInfo();
