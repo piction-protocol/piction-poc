@@ -90,6 +90,7 @@
       }
       await this.setDistributions();
       this.supporter = await this.$contract.apiFund.getMySupporter(this, this.fund.address);
+      this.fund.supporters = await this.$contract.apiFund.getSupporters(this, this.fund_id);
     }
   }
 </script>
