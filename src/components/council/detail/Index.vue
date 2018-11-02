@@ -12,9 +12,9 @@
       <span class="font-size-28"><b>{{deposit}}</b></span>
       <span class="font-size-14 text-secondary"> PXL</span>
     </div>
-    <div v-if="releaseDate < $root.now && !releaseHistory && deposit > 0" 
+    <div v-if="!releaseHistory && deposit > 0" 
       class="p-1" style="font-size:14px; color:#9b9b9b">예치금 회수 권한 지급 날짜 : {{$utils.dateFmt(releaseDate)}}</div>
-    <div v-if="releaseDate < $root.now && !releaseHistory && deposit == 0"
+    <div v-if="!releaseHistory && deposit == 0"
       class="p-1" style="font-size:14px; color:#9b9b9b">반환될 예치금이 없습니다.</div>
     <div v-if="releaseHistory" class="p-1" style="font-size:14px; color:#9b9b9b">예치금이 반환되었습니다. ({{$utils.dateFmt(releaseHistory.date)}})</div>
     <br/>
@@ -48,7 +48,7 @@
                   <div><b-form-select size="md" v-model="row.item.selected" :options="options" class="mb-2" style="width: 134px"></b-form-select></div>                  
                 </b-col>
                 <b-col>
-                  <div><b-form-input v-model="row.item.completeDetail" type="text" style="width: 561px"></b-form-input></div>                 
+                  <div><b-form-input v-model="row.item.completeDetail" type="text" style="width: 561px"  @keydown.enter.native="setCompleteReport(row.index)"></b-form-input></div>                 
                 </b-col>
                 <b-col>
                   <div><b-button variant="outline-secondary" style="width: 76px" @click="setCompleteReport(row.index)">등록</b-button></div>
@@ -167,15 +167,7 @@
         }
 
         let loader = this.$loading.show();
-        try{
-          await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
-        } catch(e){
-          alert("신고 처리는 위원회로 등록된 계정에서만 처리가 가능합니다.");
-          loader.hide();
-          return;  
-        }
-
-        alert("신고 처리가 완료되었습니다.");
+        await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
         window.location.reload();
       },
       getResult(typeNumber, amount) {

@@ -52,7 +52,6 @@
           let resetMessage = `신고 권한 부여 시간이 만료되었습니다. 반환 및 재예치 후 진행하시겠습니까?`;
           if (deposit > 0) {
             if(lockTime <= this.$root.now) {
-              alert(lockTime + ' : ' + this.$root.now);
               if(confirm(resetMessage)) { 
                 let loader = this.$loading.show();
                 await this.$contract.apiReport.withdrawRegistration();
