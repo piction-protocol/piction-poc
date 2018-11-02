@@ -168,7 +168,11 @@
         if (this.form.endTime != "") {
           let endTime = new Date(this.form.endTime).getTime();
           let a = new Date(endTime + 60000)
-        
+
+          if (new Date(this.form.firstDistributionTime).getTime() < a) {
+            this.form.firstDistributionTime = a.toISOString();
+          }
+
           return (a.toISOString());
         } else {
           return (new Date()).toISOString();
