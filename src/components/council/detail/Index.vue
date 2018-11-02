@@ -48,7 +48,7 @@
                   <div><b-form-select size="md" v-model="row.item.selected" :options="options" class="mb-2" style="width: 134px"></b-form-select></div>                  
                 </b-col>
                 <b-col>
-                  <div><b-form-input v-model="row.item.completeDetail" type="text" style="width: 561px"  @keydown.enter.native="setCompleteReport(row.index)"></b-form-input></div>                 
+                  <div><b-form-input v-model="row.item.completeDetail" type="text" style="width: 561px" ></b-form-input></div>                 
                 </b-col>
                 <b-col>
                   <div><b-button variant="outline-secondary" style="width: 76px" @click="setCompleteReport(row.index)">등록</b-button></div>
@@ -167,10 +167,10 @@
         }
 
         let loader = this.$loading.show();
+
         await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
 
         this.$toasted.show('처리되었습니다.', {position: "top-center"});
-        
         await this.setComicInfo();
         await this.setTableList();
         loader.hide();
