@@ -151,14 +151,20 @@
                 events = await this.$contract.report.getMyCompleteReportList();
                 events.forEach(event => {
                     event = Web3Utils.prettyJSON(event.returnValues);
+                    console.log(event.type);
                     let findObj = list.find(o => o.index == event.index);
                     findObj.completeDate = event.completeDate;
                     switch(event.type) {
-                        case 1: findObj.completeType = "작품 차단 (작가 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
-                        case 2: findObj.completeType = "작품 경고 (작가 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
-                        case 3: findObj.completeType = "신고 무효";
-                        case 4: findObj.completeType = "중복 신고";
-                        case 5: findObj.completeType = "잘못된 신고 (신고자 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
+                        case "1": findObj.completeType = "작품 차단 (작가 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
+                            break;
+                        case "2": findObj.completeType = "작품 경고 (작가 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
+                            break;
+                        case "3": findObj.completeType = "신고 무효";
+                            break;
+                        case "4": findObj.completeType = "중복 신고";
+                            break;
+                        case "5": findObj.completeType = "잘못된 신고 (신고자 -"+this.web3.utils.fromWei(event.deductionAmount)+"PXL)";
+                            break;
                         default: findObj.completeType = "";
                     }
                 });
