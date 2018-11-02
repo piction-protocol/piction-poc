@@ -37,7 +37,7 @@
       </b-row>
       <b-row>
         <b-col cols="2">모금액 수령 방법</b-col>
-        <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval}}시간 간격</b-col>
+        <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval / (1000 * 60 * 60)}}시간 간격</b-col>
       </b-row>
       <b-row class="mb-4">
         <b-col cols="2">최초 모금액 수령일</b-col>
