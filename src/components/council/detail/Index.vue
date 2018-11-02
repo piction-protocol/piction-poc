@@ -168,7 +168,12 @@
 
         let loader = this.$loading.show();
         await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
-        window.location.reload();
+
+        alert('신고 처리가 완료되었습니다.');
+        
+        await this.setComicInfo();
+        await this.setTableList();
+        loader.hide();
       },
       getResult(typeNumber, amount) {
         var result = '';
