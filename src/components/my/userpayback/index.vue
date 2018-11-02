@@ -137,6 +137,7 @@
             
             await this.$contract.userPaybackPool.release();
 
+            this.$toasted.show('출금되었습니다.', {position: "top-center"});
             this.completedSteps = 0;
             await this.setRewards();
             await this.setTable();

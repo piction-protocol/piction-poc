@@ -169,7 +169,7 @@
         let loader = this.$loading.show();
         await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
 
-        alert('신고 처리가 완료되었습니다.');
+        this.$toasted.show('처리되었습니다.', {position: "top-center"});
         
         await this.setComicInfo();
         await this.setTableList();
