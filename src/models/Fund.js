@@ -11,7 +11,7 @@ export default class Fund {
     this.min = fund ? Number(web3.utils.fromWei(fund.limit[2])) : 0;
     this.max = fund ? Number(web3.utils.fromWei(fund.limit[3])) : 0;
     this.poolSize = fund ? Number(fund.poolSize) : 0;
-    this.interval = fund ? Number(fund.releaseInterval) / (1000 * 60 * 60) : 0;
+    this.interval = fund ? Number(fund.releaseInterval) : 0;
     this.firstDistributionTime = fund ? Number(fund.supportFirstTime) : 0;
     this.distributionRate = fund ? Number(web3.utils.fromWei(fund.distributionRate)) : 0;
     this.needEndProcessing = fund ? fund.needEndProcessing : false;

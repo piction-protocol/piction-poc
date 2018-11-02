@@ -7,7 +7,7 @@ export default class SupporterPool {
     this.isVoting = distribution.isVoting;
     this.state = Number(distribution.state);
     this.votingCount = Number(distribution.votingCount);
-    this.startTime = (index == 0) ? 0 : this.distributableTime - fund.interval;
+    this.startTime = (this.distributableTime == 0) ? 0 : this.distributableTime - fund.interval;
     this.endTime = this.distributableTime;
   }
 
