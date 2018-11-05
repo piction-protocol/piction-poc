@@ -14,18 +14,10 @@
                       placeholder="작품명을 입력하세요">
         </b-form-input>
       </b-form-group>
-      <b-form-group label="작품 썸네일"
+      <b-form-group label="작품 썸네일 (250x250)"
                     label-for="thumbnail"
                     description="">
-        <img class="preview form-control"
-             v-if="form.thumbnail"
-             :src="form.thumbnail">
-        <b-form-file id="thumbnail"
-                     :disabled="disabled"
-                     :required="action == 'new'"
-                     @change="onChangeImage"
-                     :state="Boolean(form.thumbnail)"
-                     placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
+        <ImageCrop :imageUrl="form.thumbnail" @onCrop="onCrop" :width=250 :height="250"/>
       </b-form-group>
       <b-form-group label="시놉시스"
                     label-for="synopsis"
@@ -60,12 +52,15 @@
 
 <script>
   import Comic from '@models/Comic'
+  import ImageCrop from '@/components/image-crop/ImageCrop'
 
   export default {
+    components: {ImageCrop},
     props: ['form', 'action', 'submitText'],
     data() {
       return {
-        options: Comic.genres
+        options: Comic.genres,
+        event: null,
       }
     },
     computed: {
@@ -76,15 +71,14 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
+        if (!this.form.thumbnail) {
+          alert('작품 썸네일이 등록되지 않았습니다')
+          return;
+        }
         this.$emit('onSubmit', this.form);
       },
-      async onChangeImage(event) {
-        let loader = this.$loading.show();
-        var url = await this.$firebase.storage.upload(event.target.files[0]);
-        var dimensions = await this.$utils.getImageDimensions(url);
-        console.log(dimensions)
+      onCrop(url) {
         this.form.thumbnail = url;
-        loader.hide();
       },
     },
     created() {
@@ -93,9 +87,5 @@
 </script>
 
 <style scoped>
-  .preview {
-    width: 360px;
-    height: 180px;
-    margin-bottom: 4px;
-  }
+
 </style>

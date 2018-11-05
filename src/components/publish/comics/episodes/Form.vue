@@ -15,18 +15,10 @@
         </b-form-input>
       </b-form-group>
 
-      <b-form-group label="썸네일"
+      <b-form-group label="썸네일 (200x200)"
                     label-for="thumbnail"
                     description="">
-        <img class="preview-thumbnail form-control"
-             v-if="form.thumbnail"
-             :src="form.thumbnail">
-        <b-form-file id="thumbnail"
-                     :disabled="disabled"
-                     :required="action == 'new'"
-                     @change="onChangeThumbnail"
-                     :state="Boolean(form.thumbnail)"
-                     placeholder="클릭해서 썸네일을 등록하세요"></b-form-file>
+        <ImageCrop :imageUrl="form.thumbnail" @onCrop="onCrop" :width=200 :height="200"/>
       </b-form-group>
 
       <b-form-group label="웹툰 이미지"
@@ -88,7 +80,10 @@
 </template>
 
 <script>
+  import ImageCrop from '@/components/image-crop/ImageCrop'
+
   export default {
+    components: {ImageCrop},
     props: ['form', 'action', 'submitText'],
     data() {
       return {}
@@ -101,17 +96,18 @@
     methods: {
       onSubmit(evt) {
         evt.preventDefault();
+        if (!this.form.thumbnail) {
+          alert('작품 썸네일이 등록되지 않았습니다')
+          return;
+        }
         if (this.form.cuts.length == 0) {
           alert('웹툰 이미지를 등록하세요')
           return;
         }
         this.$emit('onSubmit', this.form);
       },
-      async onChangeThumbnail(event) {
-        let loader = this.$loading.show();
-        var url = await this.$firebase.storage.upload(event.target.files[0]);
+      onCrop(url) {
         this.form.thumbnail = url;
-        loader.hide();
       },
       async addCut(event) {
         let loader = this.$loading.show();
@@ -129,12 +125,6 @@
 </script>
 
 <style scoped>
-  .preview-thumbnail {
-    width: 360px;
-    height: 180px;
-    margin-bottom: 4px;
-  }
-
   .preview-cut {
     position: relative;
     width: 720px;
