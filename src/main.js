@@ -22,6 +22,7 @@ import 'vue-loading-overlay/dist/vue-loading.css';
 import Toasted from 'vue-toasted';
 import Datetime from 'vue-datetime'
 import 'vue-datetime/dist/vue-datetime.css'
+import VueCropper from 'vue-cropper'
 import config from './config.js'
 
 Vue.config.productionTip = false
@@ -41,6 +42,7 @@ Vue.use(Toasted, {
   position: "top-right",
   duration: 5000,
 });
+Vue.use(VueCropper)
 Vue.use(Vuex);
 
 Vue.mixin({
