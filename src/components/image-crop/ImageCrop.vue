@@ -4,7 +4,7 @@
       <img class="preview"
            :style="{width:width + 'px', height:height + 'px'}"
            for="uploads"
-           :src="image">
+           :src="image ? image : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'">
     </label>
     <input ref="fileRef" type="file" id="uploads" style="position:absolute; clip:rect(0 0 0 0);"
            accept="image/png, image/jpeg, image/gif, image/jpg" @change="uploadImg">
