@@ -36,7 +36,7 @@
             field: '모금액 작가 수령',
             value: `${this.fund.poolSize}회 분할, ${this.fund.interval}시간 간격<br>(1회차: ${this.$utils.dateFmt(this.fund.firstDistributionTime)})`
           },
-          {field: '수익 분배', value: `${this.fund.distributionRate * 100}% / 1PXL<br>(모금액 100% 회수 후)`},
+          {field: '수익 분배', value: `${web3.utils.fromWei((web3.utils.toWei((this.fund.distributionRate).toString()) * 100).toString())}% / 1PXL<br>(모금액 100% 회수 후)`},
         ]
       }
     }
