@@ -34,7 +34,7 @@
 
   .back {
     background: black;
-    color: white;
+    color: white !important;
     margin: 0;
     padding: 0;
     position: fixed;
