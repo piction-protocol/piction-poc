@@ -24,14 +24,17 @@ class ApiFund {
     if (address) {
       filter._content = address;
     }
-    const funds = [];
+    let funds = [];
     let events = await this._contract.getPastEvents('CreateFund', {filter: filter, fromBlock: 0, toBlock: 'latest'});
     events.forEach(async event => {
       event = Web3Utils.prettyJSON(event.returnValues);
       let fund = new Fund(event);
       fund.address = event.fund;
-      fund.comic = comics.find(comic => comic.address == event.content.toLowerCase());
-      funds.push(fund);
+      let comic = comics.find(comic => comic.address == event.content.toLowerCase());
+      if (comic) {
+        fund.comic = comic
+        funds.push(fund);
+      }
     });
     const rises = await this.getFundRise(funds.map(fund => fund.address));
     funds.map((fund, i) => fund.rise = Number(rises[i]) / Math.pow(10, 18));
