@@ -124,6 +124,8 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 		(uint256 index, bool success) = findSupporterIndex(_from);
 		(uint256 possibleValue, uint256 refundValue) = getRefundAmount(success ? supporters[index].investment : 0, _value);
 
+		CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "서포터 참여, 투자금 모금");
+
 		if (possibleValue > 0) {
 			if (success) {
 				supporters[index].investment = supporters[index].investment.add(possibleValue);
@@ -133,7 +135,6 @@ contract Fund is ContractReceiver, IFund, ExtendsOwnable, ValidValue {
 			}
 
 			fundRise = fundRise.add(possibleValue);
-			CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "서포터 참여, 투자금 모금");
 		}
 
 		if (refundValue > 0) {
