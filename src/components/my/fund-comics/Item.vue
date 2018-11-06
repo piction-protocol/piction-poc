@@ -4,7 +4,9 @@
       <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
       <div class="d-flex align-content-between flex-wrap p-3">
         <div class="title-text w-100">{{comic.title}}</div>
-        <div class="episode-count-text w-100">{{episodeCountText}}</div>
+        <div v-if="comic.writer.address == pictionConfig.account">
+          <div class="episode-count-text w-100">{{episodeCountText}}</div>
+        </div>
         <div :class="comic.isBlock ? 'block-text' : 'purchased-amount-text'" class="w-100">{{purchasedAmountText}}</div>
       </div>
     </router-link>
