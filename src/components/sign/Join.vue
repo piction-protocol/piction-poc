@@ -8,7 +8,8 @@
         label-for="userName"
         :invalid-feedback="userNameInvalidFeedback"
         :valid-feedback="userNameValidFeedback"
-        :state="userNameState">
+        :state="userNameState"
+        v-model.trim="userName">
         <b-form-input id="userName" :state="userNameState" v-model.trim="userName"></b-form-input>
       </b-form-group>
 
@@ -17,7 +18,8 @@
         label-for="password"
         :invalid-feedback="passwordInvalidFeedback"
         :valid-feedback="passwordValidFeedback"
-        :state="passwordState">
+        :state="passwordState"
+        v-model.trim="password">
         <b-form-input id="password" type="password" :state="passwordState" v-model.trim="password" @keydown.enter.native="join"></b-form-input>
       </b-form-group>
       <hr>
@@ -32,13 +34,13 @@
   export default {
     computed: {
       userNameState() {
-        return this.userName.length >= 3 ? true : false
+        return this.userName.length > 2 ? true : false
       },
       passwordState() {
-        return this.password.length >= 3 ? true : false
+        return this.password.length > 2 ? true : false
       },
       userNameInvalidFeedback() {
-        if (this.userName.length > 3) {
+        if (this.userName.length > 2) {
           return ''
         } else if (this.userName.length > 0) {
           return '닉네임은 3글자 이상입니다'
@@ -47,7 +49,7 @@
         }
       },
       passwordInvalidFeedback() {
-        if (this.password.length > 3) {
+        if (this.password.length > 2) {
           return ''
         } else if (this.password.length > 0) {
           return '비밀번호는 3글자 이상입니다'
@@ -70,6 +72,17 @@
     },
     methods: {
       join: async function () {
+        
+        if(this.userNameInvalidFeedback != '') {
+          alert(this.userNameInvalidFeedback);
+          return;
+        }
+
+        if(this.passwordInvalidFeedback != '') {
+          alert(this.passwordInvalidFeedback);
+          return;
+        }
+
         let loader = this.$loading.show();
         const isRegistered = await this.$contract.accountManager.isRegistered(this.userName);
         if (isRegistered) {
