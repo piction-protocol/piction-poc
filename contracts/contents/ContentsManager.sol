@@ -97,7 +97,7 @@ contract ContentsManager is IContentsManager, ContractReceiver, ValidValue {
         require(council.getInitialDeposit() == _value);
         require(initialDeposit[_from] == 0);
 
-        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "작품 예치금 임시 입금");
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "작품 등록 예치금 입금");
         initialDeposit[_from] = _value;
 
         emit ContentInitialDeposit(_from, _value);

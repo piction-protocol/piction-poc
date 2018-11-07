@@ -72,7 +72,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
         address content = _data.toAddress(0);
         contentDeposit[content] = contentDeposit[content].add(_value);
-        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "작품 초기 보증금 예치");
+        CustomToken(address(token)).transferFromPxl(_from, address(this), _value, "작품 등록 예치금 입금");
         
         uint256 releaseDate = TimeLib.currentTime() + council.getDepositReleaseDelay();
         setReleaseDate(content, releaseDate);
@@ -175,9 +175,9 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
         
         uint256 amount = contentDeposit[_content];
         contentDeposit[_content] = 0;
-        CustomToken(address(token)).transferPxl(writer, amount, "작품 등록 보증금 회수");
+        CustomToken(address(token)).transferPxl(writer, amount, "작품 등록 예치금 회수");
         
-        emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 보증금 회수");
+        emit DepositChange(TimeLib.currentTime(), _content, 6, amount, "작품 등록 예치금 회수");
     }
 
     event DepositChange(uint256 _date, address indexed _content, uint256 _type, uint256 _amount, string _description);
