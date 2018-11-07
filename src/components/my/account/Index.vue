@@ -53,11 +53,14 @@
                 empty-text="조회 내역이 없습니다.">
                 <template slot="message" slot-scope="row">{{row.item.message}}</template>
                   <template slot="value" slot-scope="row">
-                    <div v-if="row.item.isPlus" style="font-size: 14px; color: #4a90e2;">
-                      + {{toPXL(row.item.value)}} PXL
-                    </div>
-                    <div v-else style="font-size: 14px; color: #d0021b;">
-                      - {{toPXL(row.item.value)}} PXL
+                    <div v-b-popover.hover="toPXL(row.item.value)" >
+                      <div v-if="row.item.isPlus" style="font-size: 14px; color: #4a90e2;">
+                        <div v-if="toPXL(row.item.value) / parseInt(toPXL(row.item.value)) > 1">+ {{parseFloat(toPXL(row.item.value)).toFixed(2)}} PXL</div>
+                        <div v-else>+ {{toPXL(row.item.value)}} PXL</div>
+                      </div>
+                      <div v-else style="font-size: 14px; color: #d0021b;">
+                        - {{toPXL(row.item.value)}} PXL
+                      </div>
                     </div>
                   </template>                
             </b-table>

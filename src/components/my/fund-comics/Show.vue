@@ -11,7 +11,10 @@
           <div class="font-size-12">투자금</div>
         </div>
         <div class="text-center pr-3">
-          <div class="font-size-20">{{supporter.collection}} PXL</div>
+          <div v-b-popover.hover="supporter.collection" class="font-size-20">
+            <div v-if="supporter.collection / parseInt(supporter.collection) > 1">{{parseFloat(supporter.collection).toFixed(2)}} PXL</div>
+            <div v-else>{{supporter.collection}} PXL</div>
+          </div>
           <div class="font-size-12">회수금</div>
         </div>
       </div>
@@ -29,11 +32,17 @@
     <b-col cols="12" sm="12" md="6" lg="6">
       <div class="d-flex justify-content-between mb-1">
         <div class="text-center pl-3">
-          <div class="font-size-20">{{supporter.distributionRate}} %</div>
+          <div v-b-popover.hover="supporter.distributionRate" class="font-size-20">
+            <div v-if="supporter.distributionRate / parseInt(supporter.distributionRate) > 1">{{parseFloat(supporter.distributionRate).toFixed(2)}} %</div>
+            <div v-else>{{supporter.distributionRate}} %</div>
+          </div>
           <div class="font-size-12">수익 분배율</div>
         </div>
         <div class="text-center pr-3">
-          <div class="font-size-20">{{supporter.reward}} PXL</div>
+          <div v-b-popover.hover="supporter.reward" class="font-size-20">
+            <div v-if="supporter.reward / parseInt(supporter.reward) > 1">{{parseFloat(supporter.reward).toFixed(2)}} %</div>
+            <div v-else>{{supporter.reward}} %</div>
+          </div>
           <div class="font-size-12">누적 수익 분배 금액</div>
         </div>
       </div>
