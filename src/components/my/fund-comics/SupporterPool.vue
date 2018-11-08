@@ -7,7 +7,12 @@
              :items="fund.distributions"
              :small="true">
       <template slot="index" slot-scope="row">{{row.value + 1}}회차</template>
-      <template slot="amount" slot-scope="row">{{row.value}} PXL</template>
+      <template slot="amount" slot-scope="row">
+        <div v-b-popover.hover="row.value" >
+          <div v-if="row.value / parseInt(row.value) > 1">{{parseFloat(row.value).toFixed(2)}} PXL</div>
+          <div v-else>{{row.value}} PXL</div>
+        </div>
+      </template>
       <template slot="startTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributableTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributedTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
