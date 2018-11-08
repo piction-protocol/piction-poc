@@ -10,7 +10,8 @@
             <b-form @submit="setPassword">
               <b-form-group id="userNameGroup"
                             label="닉네임"
-                            label-for="userNameInput">
+                            label-for="userNameInput"
+                            :description="`주소: ${form.account}`">
                 <b-form-input id="userNameInput"
                               type="text"
                               v-model="form.name"
@@ -41,7 +42,11 @@
           </div>
         </div>
         <div class="col-12 col-sm-6 col-md-8">
-          <div class="p-1" style="font-size: 20px; font-weight: bold;">PXL 내역</div>
+          <div class="p-1" style="font-size: 20px; font-weight: bold;">PXL 내역 
+            <b-link :href="`https://private.piction.network/address/${pictionConfig.account}`" target="_blank">
+              <span class="font-size-14 text-secondary">(PIXEL Explorer에서 보기)</span>
+            </b-link>
+          </div>
           <br/>
           <div>
             <b-table 
@@ -85,6 +90,7 @@
       return {
         title: '내 정보',
         form: {
+          account: '',
           name: '',
           password: '',
           confirmPassword: ''
@@ -121,10 +127,11 @@
         
         alert("비밀번호가 변경되었습니다.");
       },
-      async setUserName() {
+      async setAccount() {
         let results = await this.$contract.accountManager.getUserName(this.pictionConfig.account);
         results = Web3Utils.prettyJSON(results);
 
+        this.form.account = this.pictionConfig.account;
         this.form.name = results.userName;
       },
       async setPxlHistory() {
@@ -137,7 +144,7 @@
       }
     },
     async created() {
-        await this.setUserName();
+        await this.setAccount();
         await this.setPxlHistory();
     }
   }
