@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-once class="page-title">{{action == 'new' ? `새 만화 작품 등록` : `작품 수정`}}</div>
+    <div v-once class="page-title">{{action == 'new' ? $t('새만화작품등록') : $t('작품수정')}}</div>
     <br>
     <b-form @submit="onSubmit">
-      <b-form-group label="제목"
+      <b-form-group :label="$t('form.comic.title.label')"
                     label-for="title"
                     description="">
         <b-form-input id="title"
@@ -11,15 +11,15 @@
                       required
                       type="text"
                       v-model="form.title"
-                      placeholder="작품명을 입력하세요">
+                      :placeholder="$t('form.comic.title.placeholder')">
         </b-form-input>
       </b-form-group>
-      <b-form-group label="작품 썸네일 (250x250)"
+      <b-form-group :label="`${$t('form.comic.thumbnail.label')} (250x250)`"
                     label-for="thumbnail"
                     description="">
         <ImageCrop :imageUrl="form.thumbnail" @onCrop="onCrop" :width=250 :height="250"/>
       </b-form-group>
-      <b-form-group label="시놉시스"
+      <b-form-group :label="$t('form.comic.synopsis.label')"
                     label-for="synopsis"
                     description="">
         <b-form-textarea id="synopsis"
@@ -27,12 +27,12 @@
                          required
                          type="text"
                          v-model="form.synopsis"
-                         placeholder="시놉시스를 입력하세요"
+                         :placeholder="$t('form.comic.synopsis.placeholder')"
                          :rows="2"
                          :max-rows="3">
         </b-form-textarea>
       </b-form-group>
-      <b-form-group label="장르"
+      <b-form-group :label="$t('form.comic.genres.label')"
                     label-for="genres"
                     description="">
         <b-form-radio-group id="genres"
@@ -44,7 +44,7 @@
       </b-form-group>
       <div align="center">
         <b-button type="submit" variant="primary">{{submitText}}</b-button>
-        <b-button type="submit" variant="secondary" @click="$router.back()">취소</b-button>
+        <b-button type="submit" variant="secondary" @click="$router.back()">{{$t('취소')}}</b-button>
       </div>
     </b-form>
   </div>
@@ -72,7 +72,7 @@
       onSubmit(evt) {
         evt.preventDefault();
         if (!this.form.thumbnail) {
-          alert('작품 썸네일이 등록되지 않았습니다')
+          alert(this.$t('emptyThumbnail'))
           return;
         }
         this.$emit('onSubmit', this.form);

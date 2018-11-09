@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="comics.length > 0" class="page-title">만화 작품 관리</div>
+    <div v-if="comics.length > 0" class="page-title">{{$t('만화작품관리')}}</div>
     <br>
     <b-row v-for="comic in comics"
            :key="comic.address">

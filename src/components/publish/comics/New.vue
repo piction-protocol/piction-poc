@@ -3,7 +3,7 @@
     <Form
       :form="form"
       action="new"
-      submitText="등록"
+      :submitText="$t('등록')"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>

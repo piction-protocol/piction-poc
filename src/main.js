@@ -9,6 +9,7 @@ window.web3 = new Web3(provider);
 import Vue from 'vue'
 import Vuex from 'vuex'
 import App from './App'
+import VueI18n from 'vue-i18n'
 import PictionNetworkPlugin from './plugins/piction-network-plugin'
 import FirebasePlugin from './plugins/firebase-plugin'
 import Utils from './plugins/utils'
@@ -27,6 +28,7 @@ import config from './config.js'
 
 Vue.config.productionTip = false
 
+Vue.use(VueI18n)
 Vue.use(BootstrapVue);
 Vue.use(Datetime);
 Vue.use(Loading, {
@@ -74,9 +76,18 @@ Vue.mixin({
     messagingSenderId: "312406426508"
   });
 
+  const i18n = new VueI18n({
+    locale: store.getters.locale,
+    messages: {
+      'ko': Object.assign(require('./locales/ko.json')),
+      'en': Object.assign(require('./locales/en.json'))
+    }
+  });
+
   /* eslint-disable no-new */
   new Vue({
     el: '#app',
+    i18n: i18n,
     router,
     store,
     data() {

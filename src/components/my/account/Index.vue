@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="page-title">{{title}}</div>
+    <div class="page-title">{{$t('내정보')}}</div>
     <br/>
       <div class="row">
         <div class="col-6 col-md-4">
-          <div class="p-1" style="font-size: 20px; font-weight: bold;">정보 변경</div>
+          <div class="p-1" style="font-size: 20px; font-weight: bold;">{{$t('정보변경')}}</div>
           <br/>
           <div>
             <b-form @submit="setPassword">
               <b-form-group id="userNameGroup"
-                            label="닉네임"
+                            :label="$t('form.account.name.label')"
                             label-for="userNameInput"
-                            :description="`주소: ${form.account}`">
+                            :description="$t('form.account.name.description', {account: form.account})">
                 <b-form-input id="userNameInput"
                               type="text"
                               v-model="form.name"
@@ -19,7 +19,7 @@
                 </b-form-input>
               </b-form-group>
               <b-form-group id="passwordGroup"
-                            label="비밀번호"
+                            :label="$t('form.account.password.label')"
                             label-for="passwordInput">
                 <b-form-input id="passwordInput"
                               type="password"
@@ -28,23 +28,23 @@
                 </b-form-input>
               </b-form-group>
               <b-form-group id="passwordValidationGroup"
-                            label="비밀번호 재입력"
+                            :label="$t('form.account.confirmPassword.label')"
                             label-for="passwordValidation"
-                            description="비밀번호 변경 시에만 입력해주세요.">
+                            :description="$t('form.account.confirmPassword.description')">
                 <b-form-input id="passwordValidation"
                               type="password"
                               v-model="form.confirmPassword"
                               required>
                 </b-form-input>
               </b-form-group>
-              <b-button type="submit" variant="outline-secondary">저장</b-button>
+              <b-button type="submit" variant="outline-secondary">{{$t('정보수정')}}</b-button>
             </b-form>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-md-8">
-          <div class="p-1" style="font-size: 20px; font-weight: bold;">PXL 내역 
+          <div class="p-1" style="font-size: 20px; font-weight: bold;">{{$t('PXL내역')}}
             <b-link :href="`https://private.piction.network/address/${pictionConfig.account}`" target="_blank">
-              <span class="font-size-14 text-secondary">(PIXEL Explorer에서 보기)</span>
+              <span class="font-size-14 text-secondary">({{$t('PIXELExplorer에서보기')}})</span>
             </b-link>
           </div>
           <br/>
@@ -55,7 +55,7 @@
                 :current-page="currentPage"
                 :per-page="perPage"
                 show-empty 
-                empty-text="조회 내역이 없습니다.">
+                :empty-text="$t('emptyList')">
                 <template slot="message" slot-scope="row">{{row.item.message}}</template>
                   <template slot="value" slot-scope="row">
                     <div v-b-popover.hover="toPXL(row.item.value)" >
@@ -88,7 +88,6 @@
   export default {
     data() {
       return {
-        title: '내 정보',
         form: {
           account: '',
           name: '',
@@ -96,8 +95,8 @@
           confirmPassword: ''
         },
         fields: [
-            {key: 'message', label: '내역'},
-            {key: 'value', label: '변동 금액'}
+            {key: 'message', label: this.$t('내역')},
+            {key: 'value', label: this.$t('변동금액')}
         ],
         list: [],
         perPage: 10,
@@ -110,7 +109,7 @@
         evt.preventDefault();
 
         if(this.form.password != this.form.confirmPassword) {
-          alert("비밀번호가 동일하지 않습니다.");
+          alert(this.$t('notEqualPassword'));
           return;
         }
 
@@ -124,8 +123,8 @@
         this.form.password = '';
         this.form.confirmPassword = '';
         loader.hide();
-        
-        alert("비밀번호가 변경되었습니다.");
+
+        alert(this.$t('successChangedPassword'));
       },
       async setAccount() {
         let results = await this.$contract.accountManager.getUserName(this.pictionConfig.account);

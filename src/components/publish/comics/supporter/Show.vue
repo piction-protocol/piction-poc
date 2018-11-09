@@ -1,19 +1,19 @@
 <template>
   <div>
-    <div class="font-size-20 mb-2 font-weight-bold">모집기간</div>
+    <div class="font-size-20 mb-2 font-weight-bold">{{$t('모집기간')}}</div>
     <div class="font-size-18 mb-4">
       {{$utils.dateFmt(fund.startTime)}} ~ {{$utils.dateFmt(fund.endTime)}}
       <span class="ml-1">({{statusText}})</span>
     </div>
-    <div class="font-size-20 mb-2 font-weight-bold">모집 현황</div>
+    <div class="font-size-20 mb-2 font-weight-bold">{{$t('모집현황')}}</div>
     <div class="d-flex justify-content-between mb-1">
       <div class="text-center pl-3">
         <div class="font-size-20">{{fund.softcap}} PXL</div>
-        <div class="font-size-12">최소 모집 금액</div>
+        <div class="font-size-12">{{$t('최소모집금액')}}</div>
       </div>
       <div class="text-center pr-3">
         <div class="font-size-20">{{fund.maxcap}} PXL</div>
-        <div class="font-size-12">목표 모집 금액</div>
+        <div class="font-size-12">{{$t('목표모집금액')}}</div>
       </div>
     </div>
     <div class="position-relative" style="height: 12px">
@@ -26,31 +26,31 @@
     <div class="d-flex justify-content-center mb-4">
       <div class="text-center">
         <div class="font-size-20">{{fund.rise}} PXL</div>
-        <div class="font-size-12">현재까지 모금액</div>
+        <div class="font-size-12">{{$t('현재모금액')}}</div>
       </div>
     </div>
     <div v-if="success != false">
-      <div class="font-size-20 mb-2 font-weight-bold">모집 정보</div>
+      <div class="font-size-20 mb-2 font-weight-bold">{{$t('모집정보')}}</div>
       <b-row>
-        <b-col cols="2">1인당 모금 가능액</b-col>
+        <b-col cols="2">{{$t('1인당모금가능액')}}</b-col>
         <b-col cols="2">{{fund.min}}PXL ~ {{fund.max}}PXL</b-col>
       </b-row>
       <b-row>
-        <b-col cols="2">모금액 수령 방법</b-col>
+        <b-col cols="2">{{$t('모금액수령방법')}}</b-col>
         <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval / (1000 * 60 * 60)}}시간 간격</b-col>
       </b-row>
       <b-row class="mb-4">
-        <b-col cols="2">최초 모금액 수령일</b-col>
+        <b-col cols="2">{{$t('최초모금액수령일')}}</b-col>
         <b-col cols="2">{{$utils.dateFmt(new Date(fund.firstDistributionTime).getTime())}}</b-col>
       </b-row>
       <div v-if="fund.distributions.length > 0">
-        <div class="font-size-20 font-weight-bold mt-5 mb-2">모금액 작가 수령 일정</div>
+        <div class="font-size-20 font-weight-bold mt-5 mb-2">{{$t('모금액작가수령일정')}}</div>
         <SupporterPool :fund="fund"/>
         <div class="text-center">
           <b-button type="submit" size="sm"
                     @click="releaseDistribution"
                     :disabled="distributionsTotalAmount == 0"
-                    variant="outline-secondary">{{distributionsTotalAmount.toString()}} PXL 수령받기
+                    variant="outline-secondary">{{distributionsTotalAmount.toString()}} {{$t('PXL수령받기')}}
           </b-button>
         </div>
       </div>

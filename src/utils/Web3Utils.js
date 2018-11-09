@@ -41,13 +41,13 @@ export default class Web3Utils {
     const day = hour * 24;
     const remain = Number(targetTime) - vue.$root.now;
     if (parseInt(remain / day) > 0) {
-      return {number: parseInt(remain / day), text: '일'};
+      return {number: parseInt(remain / day), text: vue.$t('일')};
     } else if (parseInt(remain / hour) > 0) {
-      return {number: parseInt(remain / hour), text: '시간'};
+      return {number: parseInt(remain / hour), text: vue.$t('시간')};
     } else if (parseInt(remain / min) > 0) {
-      return {number: parseInt(remain / min), text: '분'};
+      return {number: parseInt(remain / min), text: vue.$t('분')};
     } else if (remain > 0) {
-      return {number: parseInt(remain / 1000), text: '초'};
+      return {number: parseInt(remain / 1000), text: vue.$t('초')};
     } else {
       return null;
     }

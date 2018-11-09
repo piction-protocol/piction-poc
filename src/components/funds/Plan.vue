@@ -24,19 +24,19 @@
           {key: 'value', label: '내용'},
         ],
         plan: [
-          {field: '목표 모집 금액', value: `${this.fund.maxcap} PXL`},
-          {field: '최소 모집 금액', value: `${this.fund.softcap} PXL`},
-          {field: '1인당 최소 모금액', value: `${this.fund.min} PXL`},
-          {field: '1인당 최대 모금액', value: `${this.fund.max} PXL`},
+          {field: this.$t('목표모집금액'), value: `${this.fund.maxcap} PXL`},
+          {field: this.$t('최소모집금액'), value: `${this.fund.softcap} PXL`},
+          {field: this.$t('1인당최소모금액'), value: `${this.fund.min} PXL`},
+          {field: this.$t('1인당최대모금액'), value: `${this.fund.max} PXL`},
           {
-            field: '모집 기간',
+            field: this.$t('모집기간'),
             value: `${this.$utils.dateFmt(this.fund.startTime)}<br>~${this.$utils.dateFmt(this.fund.endTime)}`
           },
           {
-            field: '모금액 작가 수령',
+            field: this.$t('모금액작가수령'),
             value: `${this.fund.poolSize}회 분할, ${this.fund.interval / (1000 * 60 * 60)}시간 간격<br>(1회차: ${this.$utils.dateFmt(this.fund.firstDistributionTime)})`
           },
-          {field: '수익 분배', value: `${web3.utils.fromWei((web3.utils.toWei((this.fund.distributionRate).toString()) * 100).toString())}% / 1PXL<br>(모금액 100% 회수 후)`},
+          {field: this.$t('수익분배'), value: `${web3.utils.fromWei((web3.utils.toWei((this.fund.distributionRate).toString()) * 100).toString())}% / 1PXL<br>(모금액 100% 회수 후)`},
         ]
       }
     }

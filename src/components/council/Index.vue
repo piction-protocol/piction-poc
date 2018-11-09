@@ -2,7 +2,7 @@
   <div>
     <div class="row">
       <div class="col-6 col-md-4">
-        <div class="page-title">위원회</div>
+        <div class="page-title">{{$t('위원회')}}</div>
       </div>
       <div class="col-12 col-sm-6 col-md-8">
         <div class="radio">

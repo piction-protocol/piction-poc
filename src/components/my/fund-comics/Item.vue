@@ -23,16 +23,19 @@
       },
       episodeCountText() {
         if (this.totalEpisodeCount > 0) {
-          return `${this.comic.publishedEpisodesCount}개 에피소드 공개 중 / ${this.comic.privateEpisodesCount}개 에피소드 비공개`
+          return this.$t('onOffEpisodes', {
+            publishedEpisodesCount: this.comic.publishedEpisodesCount,
+            privateEpisodesCount: this.comic.privateEpisodesCount
+          });
         } else {
-          return `등록된 에피소드가 없습니다.`;
+          return this.$t('emptyEpisodes');
         }
       },
       purchasedAmountText() {
         if (this.comic.isBlock) {
-          return '비공개';
+          return this.$t('비공개');
         } else {
-          return `매출 ${this.web3.utils.fromWei(this.comic.totalPurchasedAmount)} PXL`
+          return `${this.$t('매출')} ${this.web3.utils.fromWei(this.comic.totalPurchasedAmount)}PXL`
         }
       }
     },

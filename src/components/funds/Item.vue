@@ -38,10 +38,10 @@
       },
       dDay() {
         if (this.fund.startTime > this.$root.now) {
-          return '모집예정'
+          return this.$t('모집예정');
         } else {
           let time = Web3Utils.remainTimeToStr(this, this.fund.endTime);
-          return time ? `${time.number}${time.text}남음` : '종료'
+          return time ? `${time.number}${time.text}${this.$t('남음')}` : this.$t('종료')
         }
       }
     },

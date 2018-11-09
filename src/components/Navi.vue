@@ -22,11 +22,15 @@
               :duration="1000"/>
           </b-nav-item>
           <b-nav-item-dropdown :text="$store.getters.name" right>
-            <b-dropdown-item :to="{name: 'account'}">내 정보</b-dropdown-item>
-            <b-dropdown-item :to="{name: 'my-fund-comics'}">투자 관리</b-dropdown-item>
-            <b-dropdown-item :to="{name: 'user-payback'}">작품 구매 보상</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'account'}">{{$t('내정보')}}</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'my-fund-comics'}">{{$t('투자관리')}}</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'user-payback'}">{{$t('작품구매보상')}}</b-dropdown-item>
             <b-dropdown-item :to="{name: 'my-reports'}">신고 처리 내역</b-dropdown-item>
-            <b-dropdown-item @click="logout">로그아웃</b-dropdown-item>
+            <b-dropdown-item @click="logout">{{$t('로그아웃')}}</b-dropdown-item>
+          </b-nav-item-dropdown>
+          <b-nav-item-dropdown :text="$t($store.getters.locale)" right>
+            <b-dropdown-item @click="setLocale('en')">{{$t('en')}}</b-dropdown-item>
+            <b-dropdown-item @click="setLocale('ko')">{{$t('ko')}}</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -49,6 +53,10 @@
       }
     },
     methods: {
+      setLocale(val) {
+        this.$store.dispatch('SET_LOCALE', val);
+        window.location.reload();
+      },
       formatValue(value) {
         return `${value.toFixed(2)} PXL`;
       },

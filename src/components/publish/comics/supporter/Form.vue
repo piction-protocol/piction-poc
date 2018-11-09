@@ -1,9 +1,9 @@
 <template>
   <div>
     <b-form @submit="onSubmit">
-      <b-form-group label="목표 모집 금액"
+      <b-form-group :label="$t('form.fund.maxcap.label')"
                     label-for="maxcap"
-                    description="해당 모집 금액이 모금되면 서포터 모집은 자동으로 종료됩니다.">
+                    :description="$t('form.fund.maxcap.description')">
         <div class="d-flex align-items-center">
           <input
             id="maxcap"
@@ -17,9 +17,9 @@
           <div class="ml-2">PXL</div>
         </div>
       </b-form-group>
-      <b-form-group :label="`수익 분배율: ${$utils.toPercent(form.distributionRate)}%`"
+      <b-form-group :label="`${$t('form.fund.distributionRate.label')}: ${$utils.toPercent(form.distributionRate)}%`"
                     label-for="distributionRate"
-                    :description="`목표 모집 금액 기준 수익 분배율을 지정하세요.<div style='color: red !important;'>1PXL 모금시 -> 매출의 ${form.distributionRate}PXL 분배</div>`">
+                    :description="$t('form.fund.distributionRate.description', {distributionRate : form.distributionRate})">
         <div class="d-flex align-items-center">
           <b-form-input id="distributionRate"
                         required
@@ -33,9 +33,9 @@
         </div>
       </b-form-group>
 
-      <b-form-group label="최소 모집 금액"
+      <b-form-group :label="$t('form.fund.softcap.label')"
                     label-for="softcap"
-                    :description="`<div>해당 금액을 달성하지 못하고 캠페인 기간이 종료되면 캠페인은 자동으로 취소됩니다.</div><div> 모금된 금액은 자동으로 환불됩니다.</div>`">
+                    :description="$t('form.fund.softcap.description')">
         <div class="d-flex align-items-center">
           <input
             id="softcap"
@@ -50,9 +50,10 @@
         </div>
       </b-form-group>
 
-      <b-form-group label="1인당 모금 가능액 설정" inline
+      <b-form-group :label="$t('form.fund.minmax.label')"
+                    inline
                     label-for="min"
-                    description="서포터 1인당 모금할 수 있는 최소 ~ 최대 금액">
+                    :description="$t('form.fund.minmax.description')">
         <div class="d-flex align-items-center">
           <input
             id="min"
@@ -77,7 +78,7 @@
         </div>
       </b-form-group>
 
-      <b-form-group label="모집 기간"
+      <b-form-group :label="$t('form.fund.dateRange.label')"
                     label-for="startTime">
         <div class="d-flex align-items-center">
           <datetime
@@ -103,7 +104,7 @@
         </div>
       </b-form-group>
 
-      <b-form-group label="모금액 수령 방법"
+      <b-form-group :label="$t('form.fund.howToReceive.label')"
                     label-for="poolSize"
                     description="">
         <div class="d-flex align-items-center">
@@ -116,9 +117,9 @@
         </div>
       </b-form-group>
 
-      <b-form-group label="최초 모금액 수령일"
+      <b-form-group :label="$t('form.fund.firstDistributionTime.label')"
                     label-for="firstDistributionTime"
-                    description="모집 종료 시점 이후로 지정하셔야 합니다.">
+                    :description="$t('form.fund.firstDistributionTime.description')">
         <datetime
           id="firstDistributionTime"
           required
@@ -131,7 +132,7 @@
           input-class="form-control"></datetime>
       </b-form-group>
 
-      <b-form-group label="모집 메시지"
+      <b-form-group :label="$t('form.fund.description.label')"
                     label-for="description"
                     description="">
         <b-form-textarea id="description"
@@ -146,7 +147,7 @@
       </b-form-group>
       <div v-if="!disabled" align="center">
         <hr>
-        <b-button type="submit" variant="primary">저장</b-button>
+        <b-button type="submit" variant="primary">{{$t('등록')}}</b-button>
       </div>
     </b-form>
   </div>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="page-title">Comics</div>
+    <div class="page-title">{{$t('comics')}}</div>
     <br>
     <b-tabs>
       <template slot="tabs">

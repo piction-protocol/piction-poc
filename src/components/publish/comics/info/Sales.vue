@@ -1,25 +1,25 @@
 <template>
   <div>
-    <div class="font-size-20 font-weight-bold mt-5 mb-2">매출 정보</div>
+    <div class="font-size-20 font-weight-bold mt-5 mb-2">{{$t('매출정보')}}</div>
     <div class="d-flex mb-2">
       <div>
         <div>
           <span class="font-size-24 font-weight-bold">{{sales.totalPurchasedAmount}}</span>
           <span class="font-size-14 text-secondary">PXL</span>
         </div>
-        <div class="font-size-14 text-secondary">누적 총 매출</div>
+        <div class="font-size-14 text-secondary">{{$t('누적총매출')}}</div>
       </div>
       <div class="ml-5">
         <div>
           <span class="font-size-24 font-weight-bold">{{sales.totalPurchasedUserCount}}</span>
-          <span class="font-size-14 text-secondary">명</span>
+          <span class="font-size-14 text-secondary">{{$t('명')}}</span>
         </div>
-        <div class="font-size-14 text-secondary">구매한 독자 수</div>
+        <div class="font-size-14 text-secondary">{{$t('구매한독자수')}}</div>
       </div>
     </div>
     <b-table striped hover
              show-empty
-             empty-text="조회된 목록이 없습니다"
+             :empty-text="$t('emptyList')"
              :fields="fields"
              :items="episodes"
              :small="true">
@@ -42,8 +42,8 @@
         episodes: [],
         fields: [
           {key: 'id', label: '#'},
-          {key: 'title', label: '에피소드 제목'},
-          {key: 'purchasedAmount', label: '매출'},
+          {key: 'title', label: this.$t('에피소드제목')},
+          {key: 'purchasedAmount', label: this.$t('매출')},
         ],
       }
     },

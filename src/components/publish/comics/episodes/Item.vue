@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="ml-auto p-2 align-self-end">
-        <div :class="episode.status ? 'on-text' : 'off-text'" class="h-25">{{episode.status ? `공개` : `비공개`}}</div>
+        <div :class="episode.status ? 'on-text' : 'off-text'" class="h-25">{{episode.status ? $t('공개') : $t('비공개')}}</div>
       </div>
     </div>
   </div>

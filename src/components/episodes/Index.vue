@@ -3,7 +3,7 @@
     <div v-if="my">
       <b-button variant="outline-secondary"
                 :to="{name:'publish-episodes', params:{comic_id:comic_id}}"
-                size="sm" class="float-right">관리
+                size="sm" class="float-right">{{$t('관리')}}
       </b-button>
     </div>
     <div v-else>
@@ -18,7 +18,7 @@
       <div class="synopsis-text">{{comic.synopsis}}</div>
     </div>
     <div class="sort-text mb-2 float-right pr-3" @click="sort">
-      <i :class="orderBy == 'desc' ? 'ml-2 fas fa-arrow-down' : 'ml-2 fas fa-arrow-up'"></i> 에피소드 정렬
+      <i :class="orderBy == 'desc' ? 'ml-2 fas fa-arrow-down' : 'ml-2 fas fa-arrow-up'"></i> {{$t('에피소드정렬')}}
     </div>
     <div class="clearfix"/>
     <b-row class="pl-3 pr-3">

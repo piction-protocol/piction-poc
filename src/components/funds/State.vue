@@ -3,11 +3,11 @@
     <b-row>
       <b-col class="text-center">
         <div class="value">{{fund.maxcap}} <span class="symbol">PXL</span></div>
-        <div class="label">목표 모집 금액</div>
+        <div class="label">{{$t('목표모집금액')}}</div>
       </b-col>
       <b-col class="text-center">
         <div class="value">{{fund.softcap}} <span class="symbol">PXL</span></div>
-        <div class="label">최소 모집 금액</div>
+        <div class="label">{{$t('최소모집금액')}}</div>
       </b-col>
       <b-col class="text-center">
         <div class="value">
@@ -17,15 +17,15 @@
             :formatValue="formatValue"
             :duration="1000"/>
           <span class="symbol">PXL</span></div>
-        <div class="label">현재 모금액</div>
+        <div class="label">{{$t('현재모금액')}}</div>
       </b-col>
       <b-col class="text-center">
         <div class="value">{{fund.supporters.length}} <span class="symbol">명</span></div>
-        <div class="label">참여자 수</div>
+        <div class="label">{{$t('참여자수')}}</div>
       </b-col>
       <b-col class="text-center">
-        <div class="value">{{time ? time.number : 0}} <span class="symbol">{{time ? time.text : '일'}}</span></div>
-        <div class="label">남은 모집 기간</div>
+        <div class="value">{{time ? time.number : 0}} <span class="symbol">{{time ? time.text : $t('일')}}</span></div>
+        <div class="label">{{$t('남은모집기간')}}</div>
       </b-col>
     </b-row>
     <br>
@@ -37,7 +37,7 @@
            :style="`top:-2px; width: 10px; height: 10px; border-radius: 10px; background-color: #FF6E27; left: ${fund.getSoftcapPercent()}%`"></div>
     </div>
     <div class="d-flex justify-content-end">
-      <div class="label">{{fund.getRisePercent()}}% 모금됨</div>
+      <div class="label">{{fund.getRisePercent()}}% {{$t('모금됨')}}</div>
     </div>
   </div>
 </template>

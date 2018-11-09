@@ -10,9 +10,9 @@
            accept="image/png, image/jpeg, image/gif, image/jpg" @change="uploadImg">
     <b-modal v-model="show"
              size="lg"
-             :title="`이미지 등록`"
-             :ok-title="`등록`"
-             :cancel-title="`취소`"
+             :title="$t('modal.imageCrop.title')"
+             :ok-title="$t('등록')"
+             :cancel-title="$t('취소')"
              @ok="down"
              @hidden="resetFileValue">
       <div class="body">
@@ -102,7 +102,6 @@
         reader.readAsArrayBuffer(file);
       },
       imgLoad(msg) {
-        console.log(msg);
       },
       cropMoving(data) {
         this.option.cropData = data;

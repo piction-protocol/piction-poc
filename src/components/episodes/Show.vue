@@ -1,7 +1,7 @@
 <template>
   <div style="max-width: 720px; padding-bottom: 20px">
     <img v-for="cut in episode.cuts" :src="cut" style="max-width: 720px;"/>
-    <router-link class="back" :to="{ name: 'episodes', params: { comic_id: comic_id }}">목록으로</router-link>
+    <router-link class="back" :to="{ name: 'episodes', params: { comic_id: comic_id }}">{{$t('목록으로')}}</router-link>
   </div>
 </template>
 

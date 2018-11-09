@@ -3,7 +3,7 @@
     <Form
       :form="form"
       action="edit"
-      submitText="수정"
+      :submitText="$t('수정')"
       @onSubmit="onSubmit"></Form>
   </div>
 </template>

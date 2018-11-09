@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-once class="page-title">{{action == 'new' ? `에피소드 등록` : `에피소드 수정`}}</div>
+    <div v-once class="page-title">{{action == 'new' ? $t('에피소드등록') : $t('에피소드수정')}}</div>
     <br>
     <b-form @submit="onSubmit">
-      <b-form-group label="회차명"
+      <b-form-group :label="$t('form.episode.title.label')"
                     label-for="title"
                     description="">
         <b-form-input id="title"
@@ -11,17 +11,17 @@
                       required
                       type="text"
                       v-model="form.title"
-                      placeholder="회차명을 입력하세요">
+                      :placeholder="$t('form.episode.title.placeholder')">
         </b-form-input>
       </b-form-group>
 
-      <b-form-group label="썸네일 (200x200)"
+      <b-form-group :label="`${$t('form.episode.thumbnail.label')} (200x200)`"
                     label-for="thumbnail"
                     description="">
         <ImageCrop :imageUrl="form.thumbnail" @onCrop="onCrop" :width=200 :height="200"/>
       </b-form-group>
 
-      <b-form-group label="웹툰 이미지"
+      <b-form-group :label="$t('form.episode.cuts.label')"
                     label-for="cuts"
                     description="">
         <div v-if="form.cuts.length > 0" class="preview-cuts form-control">
@@ -35,10 +35,10 @@
                      :required="action == 'new'"
                      @change="addCut"
                      :state="form.cuts.length > 0"
-                     placeholder="클릭해서 웹툰 이미지를 등록하세요"></b-form-file>
+                     :placeholder="$t('form.episode.cuts.placeholder')"></b-form-file>
       </b-form-group>
 
-      <b-form-group label="판매가격"
+      <b-form-group :label="$t('form.episode.price.label')"
                     label-for="price"
                     description="">
         <b-form-input id="price"
@@ -46,14 +46,14 @@
                       required
                       type="number"
                       v-model="form.price"
-                      placeholder="판매 가격을 입력하세요">
+                      :placeholder="$t('form.episode.price.placeholder')">
         </b-form-input>
       </b-form-group>
 
-      <b-form-group label="공개일시"
-                    label-for="price"
+      <b-form-group :label="$t('form.episode.publishedAt.label')"
+                    label-for="publishedAt"
                     description="">
-        <datetime id="startTime"
+        <datetime id="publishedAt"
                   required
                   type="datetime"
                   hidden-name="Enter start time"
@@ -61,19 +61,20 @@
                   input-class="form-control"></datetime>
       </b-form-group>
 
-      <b-form-group label="공개"
-                    label-for="price"
+      <b-form-group :label="$t('form.episode.status.label')"
+                    label-for="status"
                     description="">
-        <b-form-select :disabled="disabled"
+        <b-form-select id="status"
+                       :disabled="disabled"
                        required
                        v-model="form.status">
-          <option :value="true">공개</option>
-          <option :value="false">비공개</option>
+          <option :value="true">{{$t('공개')}}</option>
+          <option :value="false">{{$t('비공개')}}</option>
         </b-form-select>
       </b-form-group>
       <div align="center">
         <b-button type="submit" variant="primary">{{submitText}}</b-button>
-        <b-button type="submit" variant="secondary" @click="$router.back()">취소</b-button>
+        <b-button type="submit" variant="secondary" @click="$router.back()">{{$t('취소')}}</b-button>
       </div>
     </b-form>
   </div>
@@ -97,11 +98,11 @@
       onSubmit(evt) {
         evt.preventDefault();
         if (!this.form.thumbnail) {
-          alert('작품 썸네일이 등록되지 않았습니다')
+          alert(this.$t('emptyThumbnail'))
           return;
         }
         if (this.form.cuts.length == 0) {
-          alert('웹툰 이미지를 등록하세요')
+          alert(this.$t('emptyCut'))
           return;
         }
         this.$emit('onSubmit', this.form);

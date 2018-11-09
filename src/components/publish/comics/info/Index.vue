@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div class="font-size-20 font-weight-bold mb-2">작품 정보</div>
+    <div class="font-size-20 font-weight-bold mb-2">{{$t('작품정보')}}</div>
     <div class="d-flex">
       <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
       <div class="d-flex align-content-between flex-wrap p-3">
         <div class="title-text w-100">{{comic.title}}</div>
         <b-badge variant="secondary bg-dark">{{comic.genres}}</b-badge>
         <b-button type="submit" size="sm" variant="outline-secondary" block
-                  :to="{name:'publish-edit-comic', params:{comic_id: comic_id}}">정보수정
+                  :to="{name:'publish-edit-comic', params:{comic_id: comic_id}}">{{$t('정보수정')}}
         </b-button>
       </div>
     </div>
@@ -28,7 +28,7 @@
     computed: {
       releaseDateText() {
         let time = Web3Utils.remainTimeToStr(this, this.releaseDate)
-        return time ? time : {number: '0', text: '초'};
+        return time ? time : {number: '0', text: this.$t('초')};
       }
     },
     data() {

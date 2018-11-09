@@ -10,27 +10,27 @@
     <div class="text-center mb-5">
       <b-button variant="outline-secondary"
                 :disabled="!supportable || isMy"
-                @click="$refs.myModalRef.show()">서포터 신청
+                @click="$refs.myModalRef.show()">{{$t('서포터신청')}}
       </b-button>
-      <b-button variant="outline-secondary ml-2" :to="{name: 'episodes', params:{comic_id:fund.comic.address}}">작품 보기
+      <b-button variant="outline-secondary ml-2" :to="{name: 'episodes', params:{comic_id:fund.comic.address}}">{{$t('작품보기')}}
       </b-button>
     </div>
-    <div class="title">시놉시스</div>
+    <div class="title">{{$t('시놉시스')}}</div>
     <div class="mb-5">{{fund.comic.synopsis}}</div>
     <b-row>
       <b-col cols="12" sm="12" md="6" lg="6">
-        <div class="title">모집 정보</div>
+        <div class="title">{{$t('모집정보')}}</div>
         <Plan :fund="fund"/>
       </b-col>
       <b-col cols="12" sm="12" md="6" lg="6">
-        <div class="title">서포터</div>
+        <div class="title">{{$t('서포터')}}</div>
         <Supporters :supporters="fund.supporters"/>
       </b-col>
     </b-row>
     <b-modal ref="myModalRef"
-             title="서포터 신청"
-             ok-title="신청"
-             cancel-title="취소"
+             :title="$t('modal.support.title')"
+             :ok-title="$t('신청')"
+             :cancel-title="$t('취소')"
              @ok="support"
              @shown="supportAmount = fund.min">
       <form @submit.stop.prevent="handleSubmit">
@@ -98,10 +98,6 @@
       },
       async support(evt) {
         evt.preventDefault();
-        if (!Number(this.supportAmount) || Number(this.supportAmount) == 0) {
-          alert('Please enter your PXL amount')
-          return;
-        }
         this.$refs.myModalRef.hide();
         let loader = this.$loading.show();
         try {

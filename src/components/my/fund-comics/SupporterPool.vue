@@ -2,13 +2,13 @@
   <div>
     <b-table striped hover
              show-empty
-             empty-text="조회된 목록이 없습니다"
+             :empty-text="$t('emptyList')"
              :fields="fields"
              :items="fund.distributions"
              :small="true">
       <template slot="index" slot-scope="row">{{row.value + 1}}회차</template>
       <template slot="amount" slot-scope="row">
-        <div v-b-popover.hover="row.value" >
+        <div v-b-popover.hover="row.value">
           <div v-if="row.value / parseInt(row.value) > 1">{{parseFloat(row.value).toFixed(2)}} PXL</div>
           <div v-else>{{row.value}} PXL</div>
         </div>
@@ -25,7 +25,8 @@
       <template slot="row-details" slot-scope="row">
         <b-card class="text-center">
           <div v-if="row.item.state == 2">
-            <div>{{row.item.index + 1}}회차 <span class="font-weight-bold">{{row.item.amount}}PXL</span> 지급은 취소되었습니다.</div>
+            <div>{{row.item.index + 1}}회차 <span class="font-weight-bold">{{row.item.amount}}PXL</span> 지급은 취소되었습니다.
+            </div>
           </div>
           <div v-else>
             <div v-if="row.item.isVoting">
@@ -59,13 +60,13 @@
     data() {
       return {
         fields: [
-          {key: 'index', label: '회차'},
-          {key: 'amount', label: '수령 금액'},
-          {key: 'startTime', label: '투표 시작 일시'},
-          {key: 'distributableTime', label: '지급 가능 일시'},
-          {key: 'distributedTime', label: '수령 일시'},
-          {key: 'state', label: '수령 상태'},
-          {key: 'vote', label: '반대'},
+          {key: 'index', label: this.$t('회차')},
+          {key: 'amount', label: this.$t('수령금액')},
+          {key: 'startTime', label: this.$t('투표시작일시')},
+          {key: 'distributableTime', label: this.$t('지급가능일시')},
+          {key: 'distributedTime', label: this.$t('수령일시')},
+          {key: 'state', label: this.$t('수령상태')},
+          {key: 'vote', label: this.$t('반대')},
         ],
       }
     },
