@@ -101,7 +101,7 @@
   "신고예치금": "Report deposit",
   "신고권한종료까지남은시간": "Time remaining until reporting permission is terminated",
   "예치금반환": "Return Deposit",
-  "reportGuide": "You need a filing deposit to get reporting rights <br> <br> 30 days after filing deposit is granted, <br> return deposit will be returned after 30 days. (Temporary 30 minutes)",
+  "reportGuide": "You need a filing deposit to get reporting rights <br> 30 days after filing deposit is granted, <br> return deposit will be returned after 30 days. (Temporary 30 minutes)",
   "reportBlockMessage" : "There is no deposit back and you can not claim your reporting authority.",
   "reportDepositGuide" : "If your reporting authority expires, you will be entitled to your deposit back. If the reporting deposit reaches 0 PXL, you will be denied your reporting authority.",
   "신고일시": "Report date and time",
@@ -168,7 +168,7 @@
   "에피소드구매리워드지급": "Episode purchase rewards",
   "에피소드구매": "Buy episodes",
   "에피소드구매리워드예치": "Episode purchase reward deposit",
-  "작품등록예치금입금": "Deposit of initial registration deposit",
+  "작품등록예치금입금": "Deposit of initial registration",
   "신고보증금예치": "Report deposits",
   "CD플랫폼수수료": "CD platform fee",
   "컨텐츠판매수익": "Revenue from selling content",
@@ -342,7 +342,7 @@
           "emptyText": "No processing completed."
         }
       },
-      "completedMessage": "Processed."
+      "completedMessage": "Processing completed."
     }
   },
   "myMenu": {
