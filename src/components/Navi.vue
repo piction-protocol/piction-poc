@@ -12,8 +12,8 @@
           <router-link active-class="active" class="nav-link" :to="{name: 'publish-comics'}">Publish</router-link>
           <router-link active-class="active" class="nav-link" :to="{name: 'council'}">Council</router-link>
         </b-navbar-nav>
-        <b-navbar-nav v-if="$store.getters.name" class="ml-auto">
-          <b-nav-item style="margin-right: 10px;" v-b-tooltip.hover :title="pxl">
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item v-if="$store.getters.name" style="margin-right: 10px;" v-b-tooltip.hover :title="pxl">
             <animated-number
               class="pxl"
               :class="{'pxl-change': pxlChange}"
@@ -21,7 +21,7 @@
               :formatValue="formatValue"
               :duration="1000"/>
           </b-nav-item>
-          <b-nav-item-dropdown :text="$store.getters.name" right>
+          <b-nav-item-dropdown v-if="$store.getters.name" :text="$store.getters.name" right>
             <b-dropdown-item :to="{name: 'account'}">{{$t('내정보')}}</b-dropdown-item>
             <b-dropdown-item :to="{name: 'my-fund-comics'}">{{$t('투자관리')}}</b-dropdown-item>
             <b-dropdown-item :to="{name: 'user-payback'}">{{$t('작품구매보상')}}</b-dropdown-item>
