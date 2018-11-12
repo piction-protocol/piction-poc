@@ -146,7 +146,7 @@ contract DepositPool is ExtendsOwnable, ValidValue, ContractReceiver, IDepositPo
 
             require(token.balanceOf(address(this)) >= deduction_ + rewardOnePXL, "token balance abnormal");
             if (deduction_ > 0) {
-                CustomToken(address(token)).transferPxl(address(council), deduction_, "신고 등록금 차감");
+                CustomToken(address(token)).transferPxl(address(council), deduction_, "신고 보증금 차감");
             }
             
             if (rewardOnePXL > 0) {
