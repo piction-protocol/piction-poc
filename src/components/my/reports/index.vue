@@ -137,7 +137,11 @@
           let history = new ReportHistory();
           history.index = event.index;
           history.reportDate = event.date;
-          history.reportDetail = event.detail;
+          if(event.detail.indexOf('reports.reason') != -1) {
+            history.reportDetail = this.$t(event.detail);
+          } else {
+            history.reportDetail = event.detail;
+          }
           list.push(history);
 
           contentIds.push(event.content);

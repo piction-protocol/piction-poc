@@ -38,8 +38,10 @@
         <b-form-radio-group id="genres"
                             :disabled="disabled"
                             required
-                            v-model="form.genres"
-                            :options="options">
+                            v-model="form.genres">
+          <b-form-radio v-for="genre in options"
+                        :key="genre.value"
+                        :value="genre.value">{{$t('genres.' + genre.text)}}</b-form-radio>
         </b-form-radio-group>
       </b-form-group>
       <div align="center">

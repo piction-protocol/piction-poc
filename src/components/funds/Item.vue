@@ -4,7 +4,7 @@
     <b-img fluid :src="fund.comic.thumbnail" class="thumbnail"/>
     <div class="fund-info">
       <div class="mt-2">
-        <b-badge variant="secondary bg-dark">{{fund.comic.genres}}</b-badge>
+        <b-badge variant="secondary bg-dark">{{$t('genres.' + fund.comic.genres)}}</b-badge>
         <b-badge v-if="$route.hash != '#closed'" variant="secondary bg-dark "><i class="fas fa-clock"></i> {{dDay}}
         </b-badge>
       </div>

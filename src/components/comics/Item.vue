@@ -3,7 +3,7 @@
     <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
     <div class="title-text">{{comic.title}}</div>
     <div class="writer-text">{{comic.writer.name}}</div>
-    <b-badge variant="secondary bg-dark">{{comic.genres}}</b-badge>
+    <b-badge variant="secondary bg-dark">{{$t('genres.' + comic.genres)}}</b-badge>
   </router-link>
 </template>
 

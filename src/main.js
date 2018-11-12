@@ -22,6 +22,7 @@ import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import Toasted from 'vue-toasted';
 import Datetime from 'vue-datetime'
+import { Settings } from 'luxon'
 import 'vue-datetime/dist/vue-datetime.css'
 import VueCropper from 'vue-cropper'
 import config from './config.js'
@@ -83,6 +84,7 @@ Vue.mixin({
       'en': Object.assign(require('./locales/en.json'))
     }
   });
+  Settings.defaultLocale = store.getters.locale;
 
   /* eslint-disable no-new */
   new Vue({

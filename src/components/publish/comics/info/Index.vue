@@ -5,7 +5,7 @@
       <b-img fluid :src="comic.thumbnail" class="thumbnail"/>
       <div class="d-flex align-content-between flex-wrap p-3">
         <div class="title-text w-100">{{comic.title}}</div>
-        <b-badge variant="secondary bg-dark">{{comic.genres}}</b-badge>
+        <b-badge variant="secondary bg-dark">{{$t('genres.' + comic.genres)}}</b-badge>
         <b-button type="submit" size="sm" variant="outline-secondary" block
                   :to="{name:'publish-edit-comic', params:{comic_id: comic_id}}">{{$t('정보수정')}}
         </b-button>

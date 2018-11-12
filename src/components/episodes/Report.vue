@@ -27,11 +27,11 @@
         selected: null,
         etcReason: null,
         options: [
-          {text: '부적절한 광고', value: 'test'},
-          {text: '과도한 선정성, 폭력성', value: '과도한 선정성, 폭력성'},
-          {text: '명예훼손/저작권 침해', value: '명예훼손/저작권 침해'},
-          {text: '무분별한 반복 게시', value: '무분별한 반복 게시'},
-          {text: '기타', value: ''}
+          {text: this.$t('reports.reason1'), value: 'reports.reason1'},
+          {text: this.$t('reports.reason2'), value: 'reports.reason2'},
+          {text: this.$t('reports.reason3'), value: 'reports.reason3'},
+          {text: this.$t('reports.reason4'), value: 'reports.reason4'},
+          {text: this.$t('reports.etc'), value: ''}
         ]
       }
     },

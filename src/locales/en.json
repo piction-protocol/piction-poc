@@ -102,8 +102,8 @@
   "신고권한종료까지남은시간": "Time remaining until reporting permission is terminated",
   "예치금반환": "Return Deposit",
   "reportGuide": "You need a filing deposit to get reporting rights <br> 30 days after filing deposit is granted, <br> return deposit will be returned after 30 days. (Temporary 30 minutes)",
-  "reportBlockMessage" : "There is no deposit back and you can not claim your reporting authority.",
-  "reportDepositGuide" : "If your reporting authority expires, you will be entitled to your deposit back. If the reporting deposit reaches 0 PXL, you will be denied your reporting authority.",
+  "reportBlockMessage": "There is no deposit back and you can not claim your reporting authority.",
+  "reportDepositGuide": "If your reporting authority expires, you will be entitled to your deposit back. If the reporting deposit reaches 0 PXL, you will be denied your reporting authority.",
   "신고일시": "Report date and time",
   "처리일시": "Processing date and time",
   "작품명": "Title",
@@ -287,7 +287,7 @@
       }
     }
   },
-  "council" : {
+  "council": {
     "index": {
       "option": {
         "first": "Latest report order",
@@ -295,7 +295,7 @@
       }
     },
     "detail": {
-      "deposit" : {
+      "deposit": {
         "paymentDate": "Deposit payment date",
         "emptyDeposit": "There are no deposits to be returned.",
         "returnedDeposit": "Your deposit has been returned."
@@ -364,5 +364,20 @@
         "title": "Management of receipt of funds"
       }
     }
+  },
+  "genres": {
+    "액션": "Action",
+    "멜로": "Mellow",
+    "드라마": "Drama",
+    "판타지": "Fantasy",
+    "BL": "BL",
+    "성인": "Adult"
+  },
+  "reports": {
+    "reason1": "Inappropriate Ad",
+    "reason2": "Excessive sexuality, violence",
+    "reason3": "Defamation / Copyright Infringement",
+    "reason4": "Repeated repetitive posting",
+    "etc": "Etc."
   }
 }
