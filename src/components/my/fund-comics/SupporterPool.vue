@@ -43,7 +43,7 @@
               </div>
               <b-button class="m-3" type="submit"
                         :disabled="row.item.isVoting"
-                        @click="vote(row.item.index)" variant="outline-secondary">{{$t('투표 참여')}}
+                        @click="vote(row.item.index)" variant="outline-secondary">{{$t('투표참여')}}
               </b-button>
               <div>{{$t('votingGuide')}}</div>
             </div>

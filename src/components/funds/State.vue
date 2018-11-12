@@ -20,7 +20,7 @@
         <div class="label">{{$t('현재모금액')}}</div>
       </b-col>
       <b-col class="text-center">
-        <div class="value">{{fund.supporters.length}} <span class="symbol">명</span></div>
+        <div class="value">{{fund.supporters.length}} <span class="symbol">{{$t('명')}}</span></div>
         <div class="label">{{$t('참여자수')}}</div>
       </b-col>
       <b-col class="text-center">

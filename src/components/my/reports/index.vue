@@ -5,7 +5,9 @@
     <div v-if="reporterRegistrationAmount == 0 && !reporterReporterBlock">
       <div align="center">
         <div class="title" v-html="$t('reportGuide')"></div>
-        <b-button variant="outline-secondary mt-2" @click="transferFee">{{web3.utils.fromWei(reportRegistrationFee)}} PXL 예치하기</b-button>
+        <b-button variant="outline-secondary mt-2" @click="transferFee">
+          {{$t('publishInitialDepositButton', {amount: web3.utils.fromWei(reportRegistrationFee)})}}
+          </b-button>
       </div>
     </div>
     <div v-else="">

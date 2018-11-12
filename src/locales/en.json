@@ -101,7 +101,7 @@
   "신고예치금": "Report deposit",
   "신고권한종료까지남은시간": "Time remaining until reporting permission is terminated",
   "예치금반환": "Return Deposit",
-  "reportGuide": "You need a <b> filing deposit </ b> to get reporting rights <br> <br> 30 days after filing deposit is granted, <br> return deposit will be returned after 30 days. (Temporary 30 minutes)",
+  "reportGuide": "You need a filing deposit to get reporting rights <br> <br> 30 days after filing deposit is granted, <br> return deposit will be returned after 30 days. (Temporary 30 minutes)",
   "reportBlockMessage" : "There is no deposit back and you can not claim your reporting authority.",
   "reportDepositGuide" : "If your reporting authority expires, you will be entitled to your deposit back. If the reporting deposit reaches 0 PXL, you will be denied your reporting authority.",
   "신고일시": "Report date and time",
@@ -151,7 +151,7 @@
   "signUp": "Sign Up",
   "signUpText": "Do not have an account? ",
   "nameLengthValidation": "Your nickname is more than 3 letters",
-  "emptyNameValidation": "Please enter your nickname",
+  "emptyNameValidation": "Please enter a nickname",
   "pwLengthValidation": "Password must be at least 3 characters",
   "emptyPwValidation": "Please enter a password",
   "대기중인신고": "Pending report",
@@ -197,7 +197,7 @@
     "comic": {
       "title": {
         "label": "Title",
-        "placeholder": "Please enter your title"
+        "placeholder": "Please enter a title"
       },
       "thumbnail": {
         "label": "Contents thumbnail",
@@ -205,7 +205,7 @@
       },
       "synopsis": {
         "label": "Synopsis",
-        "placeholder": "Enter synopsis"
+        "placeholder": "Please enter a synopsis"
       },
       "genres": {
         "label": "Genre",
@@ -215,7 +215,7 @@
     "episode": {
       "title": {
         "label": "Episode title",
-        "placeholder": "Please enter your title"
+        "placeholder": "Please enter a title"
       },
       "thumbnail": {
         "label": "Thumbnail",
@@ -227,7 +227,7 @@
       },
       "price": {
         "label": "Sale price",
-        "placeholder": "Please enter your sales price"
+        "placeholder": "Please enter a sales price"
       },
       "publishedAt": {
         "label": "Public date and time",
@@ -235,7 +235,7 @@
       },
       "status": {
         "label": "Public",
-        "placeholder": "Please enter your sales price"
+        "placeholder": "Please enter a sales price"
       }
     },
     "fund": {
