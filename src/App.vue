@@ -33,7 +33,14 @@
 //        })
 //      },
     },
-    created() {
+    async created() {
+      if (this.$store.getters.isLoggedIn) {
+        const result = await this.$contract.accountManager.getUserName(this.pictionConfig.account);
+        if (!result.result_) {
+          this.$store.dispatch('LOGOUT');
+          window.location.reload();
+        }
+      }
 //      this.setEpisodeCreationEvent();
     }
   }
