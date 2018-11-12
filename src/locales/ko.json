@@ -179,6 +179,7 @@
   "votingGuide": "수령 가능 일시 전까지 투표가 진행되며, 수령 가능 일시 전까지 투표를 하지 않으시면 찬성으로 자동 처리됩니다.",
   "paymentVoting": " 지급 반대 투표를 하시겠습니까? >> ",
   "withdrawComplete": "출금되었습니다.",
+  "checkInitialDeposit": "예치금 {amount} PXL 이 필요합니다.",
   "modal": {
     "report": {
       "title": "신고 사유를 선택하세요",

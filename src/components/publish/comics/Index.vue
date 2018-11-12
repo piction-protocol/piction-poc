@@ -46,7 +46,7 @@
       async deposit() {
         let loader = this.$loading.show();
         if (this.initialDeposit > this.pxl) {
-          alert(`예치금 ${this.web3.utils.fromWei(this.initialDeposit)} PXL 이 필요합니다.`)
+          alert(this.$t('checkInitialDeposit', {amount: this.web3.utils.fromWei(this.initialDeposit)}));
           loader.hide();
           return;
         }

@@ -181,6 +181,7 @@
   "votingGuide": "If you do not vote before the deadline for receipt, you will be automatically handed a vote.",
   "paymentVoting": " Do you want to vote against payment? >> ",
   "withdrawComplete": "It has been withdrawn.",
+  "checkInitialDeposit": "Deposit {amount} PXL is required",
   "modal": {
     "report": {
       "title": "Please select a reason for reporting",

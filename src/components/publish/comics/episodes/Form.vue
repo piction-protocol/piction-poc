@@ -32,7 +32,6 @@
         </div>
         <b-form-file id="cuts"
                      :disabled="disabled"
-                     :required="action == 'new'"
                      @change="addCut"
                      :state="form.cuts.length > 0"
                      :placeholder="$t('form.episode.cuts.placeholder')"></b-form-file>
@@ -112,8 +111,12 @@
       },
       async addCut(event) {
         let loader = this.$loading.show();
-        var url = await this.$firebase.storage.upload(event.target.files[0]);
-        this.form.cuts.push(url);
+        try{
+          var url = await this.$firebase.storage.upload(event.target.files[0]);
+          this.form.cuts.push(url);
+        }catch(e){
+        }
+        
         loader.hide();
       },
       removeCut(index) {
