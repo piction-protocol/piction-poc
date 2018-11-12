@@ -3,7 +3,7 @@
     <b-img fluid :src="council.comic.thumbnail" class="thumbnail"/>
     <div class="title-text">{{council.comic.title}}</div>
     <div class="writer-text">{{council.comic.writer.name}}</div>
-    <div class="report-count-text">{{council.uncompletedReportCount > 0 ? "대기중인 신고 : "+council.uncompletedReportCount : ""}}</div>
+    <div class="report-count-text">{{council.uncompletedReportCount > 0 ? $t('대기중인신고') + " : "+council.uncompletedReportCount : ""}}</div>
   </router-link>
 </template>
 

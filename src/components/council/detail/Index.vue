@@ -3,44 +3,44 @@
     <div class="row">
       <div class="col-auto mr-auto page-title">{{comic.title}}</div>
       <div class="col-auto">
-        <b-button variant="outline-secondary" :to="{name: 'episodes', params:{comic_id:comic_id}}" class="ml-2">작품 보기</b-button>      
+        <b-button variant="outline-secondary" :to="{name: 'episodes', params:{comic_id:comic_id}}" class="ml-2">{{$t('작품보기')}}</b-button>      
       </div>
     </div>
     <br/>
-    <div class="p-1" style="font-size:24px; font-weight:bold;">작품 등록 예치금</div>
+    <div class="p-1" style="font-size:24px; font-weight:bold;">{{$t('작품등록예치금')}}</div>
     <div class="p-1">
       <span class="font-size-28"><b>{{deposit}}</b></span>
       <span class="font-size-14 text-secondary"> PXL</span>
     </div>
     <div v-if="!releaseHistory && deposit > 0" 
-      class="p-1" style="font-size:14px; color:#9b9b9b">예치금 회수 권한 지급 날짜 : {{$utils.dateFmt(releaseDate)}}</div>
+      class="p-1" style="font-size:14px; color:#9b9b9b">{{$t('council.detail.deposit.paymentDate')}} : {{$utils.dateFmt(releaseDate)}}</div>
     <div v-if="!releaseHistory && deposit == 0"
-      class="p-1" style="font-size:14px; color:#9b9b9b">반환될 예치금이 없습니다.</div>
-    <div v-if="releaseHistory" class="p-1" style="font-size:14px; color:#9b9b9b">예치금이 반환되었습니다. ({{$utils.dateFmt(releaseHistory.date)}})</div>
+      class="p-1" style="font-size:14px; color:#9b9b9b">{{$t('council.detail.deposit.emptyDeposit')}}</div>
+    <div v-if="releaseHistory" class="p-1" style="font-size:14px; color:#9b9b9b">{{$t('council.detail.deposit.returnedDeposit')}} ({{$utils.dateFmt(releaseHistory.date)}})</div>
     <br/>
-    <div class="p-1" style="font-size:20px; font-weight:bold;">처리 대기중</div>
+    <div class="p-1" style="font-size:20px; font-weight:bold;">{{$t('council.detail.form.waiting.title')}}</div>
     <div>
       <b-table 
           :items="waitingList" 
           :fields="waitingFields" 
           show-empty 
-          empty-text="처리 대기 중인 신고 내역이 없습니다.">
+          :empty-text="$t('council.detail.form.waiting.emptyText')">
           <template slot="date" slot-scope="row">{{$utils.dateFmt(row.item.date)}}</template>
           <template slot="userName" slot-scope="row">{{row.item.userName}}</template>
           <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
           <template slot="result" slot-scope="row">
             <b-button variant="link" @click.stop="row.toggleDetails"  style="font-size:14px; color:#000000">
-              설정 {{ row.detailsShowing ? '▲' : '▼' }}
+              {{$t('council.detail.form.waiting.setText')}} {{ row.detailsShowing ? '▲' : '▼' }}
             </b-button>
           </template>
           <template slot="row-details" slot-scope="row">
             <b-card>
               <b-row class="mb-2" style="font-size:14px; font-weight:bold;">
                 <b-col sm="3" class="text-sm-left">
-                  <div class="p-1">종류</div>
+                  <div class="p-1">{{$t('council.detail.form.waiting.type')}}</div>
                 </b-col>
                 <b-col>
-                  <div class="p-1">제재 사유 입력</div>
+                  <div class="p-1">{{$t('council.detail.form.waiting.Sanctions')}}</div>
                 </b-col>
               </b-row>
               <b-row class="mb-2">
@@ -51,20 +51,20 @@
                   <div><b-form-input v-model="row.item.completeDetail" type="text" style="width: 561px" ></b-form-input></div>                 
                 </b-col>
                 <b-col>
-                  <div><b-button variant="outline-secondary" style="width: 76px" @click="setCompleteReport(row.index)">등록</b-button></div>
+                  <div><b-button variant="outline-secondary" @click="setCompleteReport(row.index)">{{$t('council.detail.form.waiting.completeButton')}}</b-button></div>
                 </b-col>
               </b-row>
               <b-row>
                 <b-col style="font-size:14px;">
                   <div v-if="deposit == 0">
-                    <div class="p-1">작품 등록 예치금이 0 PXL으로 차감 및 리워드 지급 없음.</div>
+                    <div class="p-1">{{$t('council.detail.form.waiting.emptyDepositText')}}</div>
                   </div>
                   <div v-else>
-                    <div class="p-1">작품 차단 : 작품 등록 예치금이 {{deposit}} PXL 차감되며, {{row.item.userName}}님에게 1 PXL이 리워드로 지급됩니다.</div>
-                    <div class="p-1">작품 경고 : 작품 등록 예치금이 1 PXL 차감되며, {{row.item.userName}}님에게 1 PXL이 리워드로 지급됩니다.</div>
-                    <div class="p-1">신고 내용 무효 : 예치금 차감/지급 없음.</div>
-                    <div class="p-1">중복된 신고 내용 : 예치금 차감/지급 없음.</div>
-                    <div class="p-1">허위 신고 : {{row.item.userName}}님의 신고 예치금에서 1 PXL이 차감됩니다.</div>
+                    <div class="p-1">{{$t('council.detail.form.waiting.type1', {deposit: deposit, nickName: row.item.userName})}}</div>
+                    <div class="p-1">{{$t('council.detail.form.waiting.type2', {nickName: row.item.userName})}}</div>
+                    <div class="p-1">{{$t('council.detail.form.waiting.type3')}}</div>
+                    <div class="p-1">{{$t('council.detail.form.waiting.type4')}}</div>
+                    <div class="p-1">{{$t('council.detail.form.waiting.type5', {nickName: row.item.userName})}}</div>
                   </div>
                 </b-col>
               </b-row>
@@ -73,7 +73,7 @@
       </b-table>
     </div>
     <br/>
-    <div class="p-1" style="font-size:20px; font-weight:bold;">처리 완료</div>
+    <div class="p-1" style="font-size:20px; font-weight:bold;">{{$t('council.detail.form.completed.title')}}</div>
     <div>
       <b-table 
           :items="completedList" 
@@ -81,7 +81,7 @@
           :current-page="currentPage"
           :per-page="perPage"
           show-empty 
-          empty-text="처리 완료 내역이 없습니다.">
+          :empty-text="$t('council.detail.form.completed.emptyText')">
           <template slot="date" slot-scope="row">{{$utils.dateFmt(row.item.date)}}</template>
           <template slot="userName" slot-scope="row">{{row.item.userName}}</template>
           <template slot="detail" slot-scope="row">{{row.item.detail}}</template>
@@ -112,29 +112,29 @@
         releaseDate: 0,
         releaseHistory: null,
         waitingFields: [
-          {key: 'date', label: '신고 일시'},
-          {key: 'userName', label: '신고자'},
-          {key: 'detail', label: '신고 내용'},
-          {key: 'result', label: '처리'}          
+          {key: 'date', label: this.$t('council.detail.form.waiting.reportDate')},
+          {key: 'userName', label: this.$t('council.detail.form.waiting.reporter')},
+          {key: 'detail', label: this.$t('council.detail.form.waiting.reportContents')},
+          {key: 'result', label: this.$t('council.detail.form.waiting.method')}          
         ],
         waitingList: [],
         completedFields: [
-          {key: 'date', label: '처리 일시'},
-          {key: 'userName', label: '신고자'},
-          {key: 'detail', label: '신고 내용'},
-          {key: 'result', label: '처리'}
+          {key: 'date', label: this.$t('council.detail.form.completed.reportDate')},
+          {key: 'userName', label: this.$t('council.detail.form.completed.reporter')},
+          {key: 'detail', label: this.$t('council.detail.form.completed.reportContents')},
+          {key: 'result', label: this.$t('council.detail.form.completed.method')}
         ],
         completedList: [],
         perPage: 5,
         limit: 7,
         currentPage: 1,
         options: [
-          { value: null, text: '선택' },
-          { value: 1, text: '작품 차단' },
-          { value: 2, text: '작품 경고' },
-          { value: 3, text: '신고 내용 무효' },
-          { value: 4, text: '중복된 신고 내용' },
-          { value: 5, text: '허위 신고' }
+          { value: null, text: this.$t('council.detail.form.waiting.options.type0')},
+          { value: 1, text: this.$t('council.detail.form.waiting.options.type1') },
+          { value: 2, text: this.$t('council.detail.form.waiting.options.type2')},
+          { value: 3, text: this.$t('council.detail.form.waiting.options.type3')},
+          { value: 4, text: this.$t('council.detail.form.waiting.options.type4')},
+          { value: 5, text: this.$t('council.detail.form.waiting.options.type5')}
         ],
       }
     },
@@ -157,20 +157,26 @@
       },
       async setCompleteReport(idx) {
         if(this.waitingList[idx].selected == null) {
-          alert('처리 종류를 선택하세요.');
+          alert(this.$t('council.detail.form.waiting.alert.type'));
           return;
         }
 
         if(!this.waitingList[idx].completeDetail || 0 === this.waitingList[idx].completeDetail.length) {
-          alert('제재 사유를 입력하세요.');
+          alert(this.$t('council.detail.form.waiting.alert.sanctionText'));
           return;
         }
 
         let loader = this.$loading.show();
 
-        await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
+        try{
+          await this.$contract.apiReport.reportDisposal(this.waitingList[idx].index, this.waitingList[idx].content, this.waitingList[idx].from, this.waitingList[idx].selected, this.waitingList[idx].completeDetail);
+        }catch(e){
+          alert(this.$t('council.detail.form.waiting.alert.accessDenied'));
+          loader.hide();
+          return;
+        }
 
-        this.$toasted.show('처리되었습니다.', {position: "top-center"});
+        this.$toasted.show(this.$t('council.detail.completedMessage'), {position: "top-center"});
         await this.setComicInfo();
         await this.setTableList();
         loader.hide();

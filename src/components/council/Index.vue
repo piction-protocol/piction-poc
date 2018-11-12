@@ -43,8 +43,8 @@
         council: [],
         selected: 'first',
         options: [
-        { text: '최근 신고 순', value: 'first' },
-        { text: '대기 중인 신고수 순', value: 'second' }
+        { text: this.$t('council.index.option.first'), value: 'first' },
+        { text: this.$t('council.index.option.second'), value: 'second' }
       ]
       }
     },

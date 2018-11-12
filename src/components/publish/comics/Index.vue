@@ -10,13 +10,12 @@
     </b-row>
     <div align="center">
       <div v-if="myDeposit == 0">
-        <div class="title">작품을 등록하기 위해서는 <b>작품 등록 예치금</b>이 필요합니다.</div>
-        <div class="title">정상적인 작품이 확인되는 경우 예치금은 환급받을 수 있습니다.</div>
-        <b-button variant="outline-secondary mt-2" @click="deposit">{{web3.utils.fromWei(initialDeposit)}} PXL 예치하기</b-button>
+        <div class="title" v-html="$t('publishInitialDepositText')"></div>
+        <b-button variant="outline-secondary mt-2" @click="deposit">{{$t('publishInitialDepositButton', {amount: web3.utils.fromWei(initialDeposit)})}}</b-button>
       </div>
       <div v-else>
-        <div v-if="comics.length == 0" class="title">등록된 작품이 없습니다. 새 작품을 등록해주세요.</div>
-        <b-button variant="outline-secondary mt-2" @click="newComic">새 만화 작품 등록하기</b-button>
+        <div v-if="comics.length == 0" class="title">{{$t('publishEmptyContentsText')}}</div>
+        <b-button variant="outline-secondary mt-2" @click="newComic">{{$t('publishEmptyContentsButton')}}</b-button>
       </div>
     </div>
   </div>

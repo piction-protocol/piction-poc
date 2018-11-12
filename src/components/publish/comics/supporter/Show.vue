@@ -37,7 +37,7 @@
       </b-row>
       <b-row>
         <b-col cols="2">{{$t('모금액수령방법')}}</b-col>
-        <b-col cols="2">{{fund.poolSize}}회 분할 / {{fund.interval / (1000 * 60 * 60)}}시간 간격</b-col>
+        <b-col cols="2">{{fund.poolSize}}{{$t('회분할')}} / {{fund.interval / (1000 * 60 * 60)}}{{$t('시간간격')}}</b-col>
       </b-row>
       <b-row class="mb-4">
         <b-col cols="2">{{$t('최초모금액수령일')}}</b-col>
@@ -54,7 +54,7 @@
           </b-button>
         </div>
       </div>
-      <div class="font-size-20 font-weight-bold mt-5 mb-2 ">서포터 (총 {{fund.supporters.length}}명)</div>
+      <div class="font-size-20 font-weight-bold mt-5 mb-2 ">{{$t('서포터')}} ({{$t('fundSupportersLength', {length: fund.supporters.length})}})</div>
       <Supporters :supporters="fund.supporters"/>
     </div>
     <div v-if="success == false" class="font-size-24 text-center p-5">
@@ -76,11 +76,11 @@
     computed: {
       statusText() {
         if (new Date(this.fund.startTime).getTime() > this.$root.now) {
-          return '모집 예정';
+          return this.$t('모집예정');
         } else if (new Date(this.fund.endTime).getTime() < this.$root.now || this.fund.rise == this.fund.maxcap) {
-          return '모집 종료';
+          return this.$t('모집종료');
         } else {
-          return '현재 모집 중';
+          return this.$t('현재모집중');
         }
       }
     },

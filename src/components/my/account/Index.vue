@@ -56,7 +56,7 @@
                 :per-page="perPage"
                 show-empty 
                 :empty-text="$t('emptyList')">
-                <template slot="message" slot-scope="row">{{row.item.message}}</template>
+                <template slot="message" slot-scope="row">{{$t(row.item.message.replace(/\s/gi, ""))}}</template>
                   <template slot="value" slot-scope="row">
                     <div v-b-popover.hover="toPXL(row.item.value)" >
                       <div v-if="row.item.isPlus" style="font-size: 14px; color: #4a90e2;">

@@ -1,238 +1,367 @@
 {
-  "en": "영문",
-  "ko": "한글",
+  "en": "English",
+  "ko": "한국어",
   "comics": "Comics",
   "funds": "Waiting for supporters",
-  "만화작품관리": "만화 작품 관리",
-  "위원회": "위원회",
-  "내정보": "내 정보",
-  "작품구매보상": "작품 구매 보상",
-  "투자관리": "투자 관리",
-  "신고처리내역": "신고 처리 내역",
-  "로그아웃": "로그아웃",
-  "관리": "관리",
-  "신고": "신고",
-  "새만화작품등록": "새 만화 작품 등록",
-  "새에피소드등록": "새 에피소드 등록",
-  "작품수정": "작품 수정",
-  "에피소드등록": "에피소드 등록",
-  "에피소드수정": "에피소드 수정",
-  "에피소드정렬": "에피소드 정렬",
-  "목록으로": "목록으로",
-  "작품정보": "작품 정보",
-  "정보수정": "정보수정",
-  "매출정보": "매출 정보",
-  "누적총매출": "누적 총 매출",
-  "구매한독자수": "구매한 독자 수",
-  "에피소드제목": "에피소드 제목",
-  "매출": "매출",
-  "예치금": "예치금",
-  "작품등록예치금": "작품 등록 예치금",
-  "예치금반환까지남은시간": "예치금 반환까지 남은 시간",
-  "예치금반환": "예치금 반환",
-  "예치금차감내역": "예치금 차감 내역",
-  "명": "명",
-  "일": "일",
-  "시간": "시간",
-  "분": "분",
-  "초": "초",
-  "날짜": "날짜",
-  "사유": "사유",
-  "예치금차감": "예치금 차감",
-  "모집예정": "모집예정",
-  "남음": "남음",
-  "종료": "종료",
-  "확인": "확인",
-  "등록": "등록",
-  "취소": "취소",
-  "신청": "신청",
-  "수정": "수정",
-  "회차": "회차",
-  "내역": "내역",
-  "변동금액": "변동금액",
-  "목표모집금액": "목표 모집 금액",
-  "최소모집금액": "최소 모집 금액",
-  "현재모금액": "현재 모금액",
-  "참여자수": "참여자 수",
-  "남은모집기간": "남은 모집 기간",
-  "모금됨": "모금됨",
-  "1인당최소모금액": "1인당 최소 모금액",
-  "1인당최대모금액": "1인당 최대 모금액",
-  "모집기간": "모집 기간",
-  "모집현황": "모집 현황",
-  "1인당모금가능액": "1인당 모금 가능액",
-  "모금액수령방법": "모금액 수령 방법",
-  "모금액작가수령": "모금액 작가 수령",
-  "최초모금액수령일": "최초 모금액 수령일",
-  "수익분배": "수익 분배",
-  "서포터신청": "서포터 신청",
-  "작품보기": "작품 보기",
-  "시놉시스": "시놉시스",
-  "모집정보": "모집 정보",
-  "서포터": "서포터",
-  "모금액": "모금액",
-  "수익분배율": "수익 분배율",
-  "환불": "환불",
-  "미환불": "미환불",
-  "공개": "공개",
-  "비공개": "비공개",
-  "수령금액": "수령 금액",
-  "지급가능일시": "지급 가능 일시",
-  "수령 일시": "수령 일시",
-  "수령 상태": "수령 상태",
-  "반대": "반대",
-  "정보변경": "정보 변경",
-  "주소": "주소",
-  "모금액작가수령일정": "모금액 작가 수령 일정",
-  "PXL수령받기": "PXL 수령받기",
-  "PXL내역": "PXL 내역",
-  "PIXELExplorer에서보기": "PIXEL Explorer에서 보기",
-  "작품구매보상풀": "작품 구매 보상 풀",
-  "적립일시": "적립 일시",
-  "구매내역": "구매 내역",
-  "보상": "보상",
-  "출금": "출금",
-  "예치금": "예치금",
-  "신고예치금": "신고 예치금",
-  "신고권한종료까지남은시간": "신고권한 종료까지 남은 시간",
-  "예치금반환": "예치금 반환",
-  "reportGuide": "신고 권한을 획득하시려면 <b>신고 예치금</b>이 필요합니다.<br>신고 예치금 예치 후 30일 간 신고 권한이 부여되며,<br>30일 후 신고 예치금은 반환됩니다. (임시 30분)",
-  "reportBlockMessage" : "돌려받을 예치금이 없으며 신고 권한을 신청하실 수 없습니다.",
-  "reportDepositGuide" : "신고 권한이 만료되면 예치금을 돌려받을 수 있습니다. 신고 예치금이 0 PXL이 되는 경우 신고 권한이 박탈됩니다.",
-  "신고일시": "신고 일시",
-  "처리일시": "처리 일시",
-  "작품명": "작품 명",
-  "신고내용": "신고 내용",
-  "처리": "처리",
-  "resultReportCase1": "작품 차단 (작가 - {amount}PXL)",
-  "resultReportCase2": "작품 경고 (작가 - {amount}PXL)",
-  "resultReportCase3": "신고 무효",
-  "resultReportCase4": "중복 신고",
-  "resultReportCase5": "잘못된 신고 (신고자 - {amount}PXL)",
-  "notEnoughPXL": "{amount}PXL 이 필요합니다.",
-  "매출정보": "매출 정보",
-  "투표시작일시": "투표 시작 일시",
-  "수령일시": "수령 일시",
-  "수령상태": "수령 상태",
-  "emptyThumbnail": "작품 썸네일이 등록되지 않았습니다",
-  "emptyCut": "웹툰 이미지가 등록되지 않았습니다",
-  "emptyList": "조회된 목록이 없습니다",
-  "emptyEpisodes": "등록된 에피소드가 없습니다",
-  "onOffEpisodes": "{publishedEpisodesCount}개 에피소드 공개 중 / {privateEpisodesCount}개 에피소드 비공개",
-  "isPurchase": "소장하시겠습니까? ({pxl}PXL)",
-  "successPurchased": "구매완료",
-  "initialReportDepositHint": "신고를 하려면 예치금 {pxl}PXL이 필요합니다.",
-  "confirmResetReportDeposit": "신고 권한 부여 시간이 만료되었습니다. 반환 및 재예치 후 진행하시겠습니까?",
-  "confirmRegister": "등록하시겠습니까?",
-  "successReport": "신고되었습니다.",
-  "noReasonReportFail": "신고 사유가 입력되지 않았습니다.",
-  "noDepositReturned": "반환될 예치금이 없습니다.",
-  "depositReturned": "예치금이 반환되었습니다.",
-  "notEqualPassword": "비밀번호가 동일하지 않습니다.",
-  "successChangedPassword": "비밀번호가 변경되었습니다.",
+  "만화작품관리": "Managing cartoon contents",
+  "위원회": "Council",
+  "내정보": "My information",
+  "작품구매보상": "Reward for purchasing contents",
+  "투자관리": "Investment management",
+  "신고처리내역": "Report Processing History",
+  "로그아웃": "Logout",
+  "관리": "Management",
+  "신고": "Report",
+  "새만화작품등록": "Register a new cartoon",
+  "새에피소드등록": "Register new episode",
+  "작품수정": "Cartoon modification",
+  "에피소드등록": "Register episode",
+  "에피소드수정": "Modify Episode",
+  "에피소드정렬": "Episode sort",
+  "목록으로": "Move to list",
+  "작품정보": "Contents information",
+  "정보수정": "Modifying information",
+  "매출정보": "Sales information",
+  "누적총매출": "Cumulative total sales",
+  "구매한독자수": "Number of readers purchased",
+  "에피소드제목": "Episode Title",
+  "매출": "Amount of sales",
+  "예치금": "Deposit",
+  "작품등록예치금": "Initial deposit",
+  "예치금반환까지남은시간": "Time Remaining for Return of deposits",
+  "예치금반환": "Return deposit",
+  "예치금차감내역": "Deposit deduction details",
+  "명": "Person",
+  "일": "Day",
+  "시간": "Hour",
+  "분": "Minutes",
+  "초": "Seconds",
+  "날짜": "Date",
+  "사유": "Reason",
+  "예치금차감": "Deposit deduction",
+  "모집예정": "Recruitment scheduled",
+  "남음": "remaining",
+  "종료": "End",
+  "확인": "Confirmation",
+  "등록": "Registration",
+  "취소": "Cancle",
+  "신청": "Application",
+  "수정": "Modification",
+  "회차": "Times",
+  "1회차": "1st round",
+  "내역": "History",
+  "변동금액": "Fluctuation amount",
+  "목표모집금액": "Target amount of money",
+  "최소모집금액": "Minimum Recruitment Amount",
+  "현재모금액": "Current Funds",
+  "참여자수": "Number of participants",
+  "남은모집기간": "Remaining recruitment period",
+  "모금됨": "raised",
+  "1인당최소모금액": "Minimum funding amount per person",
+  "1인당최대모금액": "Maximum funding amount per person",
+  "모집기간": "Recruitment period",
+  "모집현황": "Recruitment status",
+  "1인당모금가능액": "Amount of money raised per person",
+  "모금액수령방법": "How to receive money",
+  "회분할": "times",
+  "시간간격": "hour interval",
+  "모금액작가수령": "Receipt of fundraiser",
+  "최초모금액수령일": "Date of first fund collection date",
+  "수익분배": "distribution of profits",
+  "서포터신청": "Supporter application",
+  "작품보기": "View the contents",
+  "시놉시스": "Synopsis",
+  "모집정보": "Recruitment Information",
+  "항목": "Item",
+  "내용": "Contents",
+  "서포터": "Supporter",
+  "모금액": "Fundraising amount",
+  "수익분배율": "Profit distribution rate",
+  "환불": "Refund",
+  "미환불": "Non-refundable",
+  "공개": "Public",
+  "비공개": "Private",
+  "수령금액": "Received amount",
+  "지급가능일시": "Payable time",
+  "수령 일시": "Date of receipt",
+  "수령 상태": "Receiving status",
+  "반대": "Opposition",
+  "정보변경": "Change information",
+  "주소": "Address",
+  "모금액작가수령일정": "Collection schedule",
+  "PXL수령받기": "Receive PXL",
+  "PXL내역": "PXL History",
+  "PIXELExplorer에서보기": "View in PIXEL Explorer",
+  "작품구매보상풀": "Purchase reward pool",
+  "적립일시": "Date and Time",
+  "구매내역": "Purchase History",
+  "보상": "Reward",
+  "출금": "Withdraw",
+  "예치금": "Deposit",
+  "신고예치금": "Report deposit",
+  "신고권한종료까지남은시간": "Time remaining until reporting permission is terminated",
+  "예치금반환": "Return Deposit",
+  "reportGuide": "You need a <b> filing deposit </ b> to get reporting rights <br> <br> 30 days after filing deposit is granted, <br> return deposit will be returned after 30 days. (Temporary 30 minutes)",
+  "reportBlockMessage" : "There is no deposit back and you can not claim your reporting authority.",
+  "reportDepositGuide" : "If your reporting authority expires, you will be entitled to your deposit back. If the reporting deposit reaches 0 PXL, you will be denied your reporting authority.",
+  "신고일시": "Report date and time",
+  "처리일시": "Processing date and time",
+  "작품명": "Title",
+  "신고내용": "Report content",
+  "처리": "Processing",
+  "resultReportCase1": "Block contents (writer - {amount}PXL)",
+  "resultReportCase2": "Warning contents (writer - {amount}PXL)",
+  "resultReportCase3": "Invalid report",
+  "resultReportCase4": "Duplicate report",
+  "resultReportCase5": "a false report (reporter - {amount}PXL)",
+  "notEnoughPXL": "{amount}PXL is required.",
+  "매출정보": "Sales information",
+  "투표시작일시": "Voting start date",
+  "수령일시": "Date of receipt",
+  "수령상태": "Receipt status",
+  "emptyThumbnail": "Thumbnail not registered",
+  "emptyCut": "Image not registered",
+  "emptyList": "No queried lists",
+  "emptyEpisodes": "No episodes registered",
+  "onOffEpisodes": "{publishedEpisodesCount} episode release / {privateEpisodesCount} episode private",
+  "isPurchase": "Do you want to keep it? ({pxl}PXL)",
+  "successPurchased": "Purchase complete",
+  "initialReportDepositHint": "A deposit {pxl}PXL is required to report",
+  "confirmResetReportDeposit": "The reporting authorization time has expired. Do you want to proceed after the return and rescheduling?",
+  "confirmRegister": "Do you want to register?",
+  "successReport": "Reported.",
+  "noReasonReportFail": "Report reason not entered.",
+  "noDepositReturned": "There are no deposits to be returned.",
+  "depositReturned": "Deposit returned.",
+  "notEqualPassword": "Password is not the same.",
+  "successChangedPassword": "Password has been changed.",
+  "distributionOfProfits": "(After collecting 100% of funds)",
+  "fundSupportersLength": "{length} people in total",
+  "publishInitialDepositText": "You must have a initial deposit to register your contents. <br/> You can get a refund if your contents is confirmed.",
+  "publishInitialDepositButton": "{amount} PXL deposit",
+  "publishEmptyContentsText": "There are no registered contents. Please register a new contents.",
+  "publishEmptyContentsButton": "Register a new contents",
+  "모집종료": "End of Recruitment",
+  "현재모집중": "Currently recruiting",
+  "지급완료": "Payment completed",
+  "지급거절": "Payment refused",
+  "login": "Login",
+  "userName": "Nickname",
+  "password": "Password",
+  "signUp": "Sign Up",
+  "signUpText": "Do not have an account? ",
+  "nameLengthValidation": "Your nickname is more than 3 letters",
+  "emptyNameValidation": "Please enter your nickname",
+  "pwLengthValidation": "Password must be at least 3 characters",
+  "emptyPwValidation": "Please enter a password",
+  "대기중인신고": "Pending report",
+  "신고활동보상금": "Payment of report compensation",
+  "작품등록예치금회수": "Collection of initial deposit",
+  "신고보증금차감": "Deduction of initial deposit",
+  "신고보증금환불": "Refund of initial deposit",
+  "서포터참여,투자금환불": "Participation in supporters, refund of investment",
+  "서포터참여,투자금모금": "Participation in supporters, fund raising",
+  "투자종료,후원풀로전송": "End of investment, transfer to sponsorship pool",
+  "투자종료,최소모집금액미달성으로환불": "End of investment, refund due to under-subscription",
+  "투자모금액수령": "Receipt of fund raising",
+  "에어드롭픽셀입금": "Air drop pixel deposit",
+  "에피소드구매리워드지급": "Episode purchase rewards",
+  "에피소드구매": "Buy episodes",
+  "에피소드구매리워드예치": "Episode purchase reward deposit",
+  "작품등록예치금입금": "Deposit of initial registration deposit",
+  "신고보증금예치": "Report deposits",
+  "CD플랫폼수수료": "CD platform fee",
+  "컨텐츠판매수익": "Revenue from selling content",
+  "서포터수익배분": "Distribution of Supporter Revenue",
+  "canclePayment": " Your payment has been canceled.",
+  "votedMessage": "I participated in the vote.",
+  "투표참여": " Vote participation",
+  "지급전": "Before payment",
+  "투표중": "Voting",
+  "votingGuide": "If you do not vote before the deadline for receipt, you will be automatically handed a vote.",
+  "paymentVoting": " Do you want to vote against payment? >> ",
+  "withdrawComplete": "It has been withdrawn.",
   "modal": {
     "report": {
-      "title": "신고 사유를 선택하세요",
-      "inputPlaceholder": "신고 사유를 입력하세요"
+      "title": "Please select a reason for reporting",
+      "inputPlaceholder": "Please enter a reason for reporting"
     },
     "support": {
-      "title": "서포터 신청"
+      "title": "Supporter application"
     },
     "imageCrop": {
-      "title": "이미지 등록"
+      "title": "Image registration"
     }
   },
   "form": {
     "comic": {
       "title": {
-        "label": "제목",
-        "placeholder": "작품명을 입력하세요"
+        "label": "Title",
+        "placeholder": "Please enter your title"
       },
       "thumbnail": {
-        "label": "작품 썸네일",
+        "label": "Contents thumbnail",
         "placeholder": ""
       },
       "synopsis": {
-        "label": "시놉시스",
-        "placeholder": "시놉시스를 입력하세요"
+        "label": "Synopsis",
+        "placeholder": "Enter synopsis"
       },
       "genres": {
-        "label": "장르",
+        "label": "Genre",
         "placeholder": ""
       }
     },
     "episode": {
       "title": {
-        "label": "회차명",
-        "placeholder": "회차명을 입력하세요"
+        "label": "Episode title",
+        "placeholder": "Please enter your title"
       },
       "thumbnail": {
-        "label": "썸네일",
+        "label": "Thumbnail",
         "placeholder": ""
       },
       "cuts": {
-        "label": "웹툰 이미지",
-        "placeholder": "클릭해서 웹툰 이미지를 등록하세요"
+        "label": "Webtoon image",
+        "placeholder": "Click to register"
       },
       "price": {
-        "label": "판매가격",
-        "placeholder": "판매 가격을 입력하세요"
+        "label": "Sale price",
+        "placeholder": "Please enter your sales price"
       },
       "publishedAt": {
-        "label": "공개일시",
+        "label": "Public date and time",
         "placeholder": ""
       },
       "status": {
-        "label": "공개",
-        "placeholder": "판매 가격을 입력하세요"
+        "label": "Public",
+        "placeholder": "Please enter your sales price"
       }
     },
     "fund": {
       "maxcap": {
-        "label": "목표 모집 금액",
-        "description": "해당 모집 금액이 모금되면 서포터 모집은 자동으로 종료됩니다."
+        "label": "Target amount of money",
+        "description": "When the subscription amount is raised, the supporters' recruitment will be terminated automatically."
       },
       "distributionRate": {
-        "label": "수익 분배율",
-        "description": "목표 모집 금액 기준 수익 분배율을 지정하세요.<div style='color: red !important;'>1PXL 모금시 -> 매출의 {distributionRate}PXL 분배</div>"
+        "label": "Profit distribution rate",
+        "description": "Please specify the revenue share based on the target amount of recoupment. <div style='color: red !important;'>1PXL fundraising -> distribution of {distributionRate}PXL </div>"
       },
       "softcap": {
-        "label": "최소 모집 금액",
-        "description": "<div>해당 금액을 달성하지 못하고 캠페인 기간이 종료되면 캠페인은 자동으로 취소됩니다.</div><div> 모금된 금액은 자동으로 환불됩니다.</div>"
+        "label": "Minimum recruitment amount",
+        "description": "<div>If the amount is not met and the campaign period ends, the campaign is automatically cancelled.The collected amount will be refunded automatically.</div>"
       },
       "minmax": {
-        "label": "1인당 모금 가능액 설정",
-        "description": "서포터 1인당 모금할 수 있는 최소 ~ 최대 금액"
+        "label": "Set amount of money per person",
+        "description": "The minimum to maximum amount you can raise per supporter"
       },
       "dateRange": {
-        "label": "1인당 모금 가능액 설정",
+        "label": "Set amount of money per person",
         "description": ""
       },
       "howToReceive": {
-        "label": "모금액 수령 방법",
+        "label": "How to receive money",
         "description": ""
       },
       "firstDistributionTime": {
-        "label": "최초 모금액 수령일",
-        "description": "모집 종료 시점 이후로 지정하셔야 합니다."
+        "label": "Date of first fund collection date",
+        "description": "Must be specified after the end of the recruitment."
       },
       "description": {
-        "label": "모집 메시지",
+        "label": "Recruitment message",
         "description": ""
       }
     },
     "account": {
       "name": {
-        "label": "닉네임",
-        "description": "주소: {account}"
+        "label": "Nickname",
+        "description": "Address: {account}"
       },
       "password": {
-        "label": "비밀번호",
+        "label": "Password",
         "description": ""
       },
       "confirmPassword": {
-        "label": "비밀번호 재입력",
-        "description": "비밀번호 변경 시에만 입력해주세요."
+        "label": "Confirm password",
+        "description": "Please enter only when changing your password."
+      }
+    }
+  },
+  "council" : {
+    "index": {
+      "option": {
+        "first": "Latest report order",
+        "second": "Queued report order"
+      }
+    },
+    "detail": {
+      "deposit" : {
+        "paymentDate": "Deposit payment date",
+        "emptyDeposit": "There are no deposits to be returned.",
+        "returnedDeposit": "Your deposit has been returned."
+      },
+      "form": {
+        "waiting": {
+          "title": "Waiting for processing",
+          "reportDate": "Report date and time",
+          "reporter": "Reporter",
+          "reportContents": "Report Contents",
+          "method": "Processing method",
+          "emptyText": "There are no reports waiting to be processed.",
+          "setText": "Setting",
+          "type": "Type",
+          "Sanctions": "Enter reason for sanction",
+          "emptyDepositText": "Contents registration deposit is deducted with 0 PXL and no reward is paid",
+          "type0": "Selection",
+          "type1": "Blocking contents: Your contents deposit is {deposit} deducted from PXL, and {nickName} will receive 1 PXL as reward.",
+          "type2": "Contents Warning: 1 PXL deduction will be deducted from the contents registration deposit and 1 PXL will be rewarded to {nickName}.",
+          "type3": "Report is invalid: no deposit/no payment.",
+          "type4": "Duplicate report details: no deposit deduction/payment.",
+          "type5": "False report: {nickName} will deduct 1 PXL from your reported deposit.",
+          "completeButton": "Registration",
+          "options": {
+            "type0": "Selection",
+            "type1": "Blocking contents",
+            "type2": "Contents Warning",
+            "type3": "Report is invalid",
+            "type4": "Duplicate report details",
+            "type5": "False report"
+          },
+          "alert": {
+            "type": "Please select a processing type.",
+            "sanctionText": "Please enter sanction reason.",
+            "accessDenied": "You do not have permission. Only committee members are allowed to execute."
+          }
+        },
+        "completed": {
+          "title": "Processing completed",
+          "reportDate": "Processing date and time",
+          "reporter": "Reporter",
+          "reportContents": "Report Contents",
+          "method": "Processing method",
+          "emptyText": "No processing completed."
+        }
+      },
+      "completedMessage": "Processed."
+    }
+  },
+  "myMenu": {
+    "fund": {
+      "fundInfo": {
+        "title": "Investment Information",
+        "fundraising": "Investment",
+        "recovery": "Recovery",
+        "inProgressMessage": "Currently, 100% of sales are distributed as supporter investment returns.",
+        "completedMessage": "All supporters' investments have been recovered."
+      },
+      "profits": {
+        "title": "Revenue distribution information",
+        "cumulativeProfits": "Cumulative revenue distribution",
+        "inProgressMessage": "Profits are being distributed in real time when selling contents.",
+        "completedMessage": "After the supporters' investment recovery is distributed, profits are distributed at a fixed rate."
+      },
+      "form": {
+        "title": "Management of receipt of funds"
       }
     }
   }

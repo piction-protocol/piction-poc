@@ -25,7 +25,7 @@
             <b-dropdown-item :to="{name: 'account'}">{{$t('내정보')}}</b-dropdown-item>
             <b-dropdown-item :to="{name: 'my-fund-comics'}">{{$t('투자관리')}}</b-dropdown-item>
             <b-dropdown-item :to="{name: 'user-payback'}">{{$t('작품구매보상')}}</b-dropdown-item>
-            <b-dropdown-item :to="{name: 'my-reports'}">신고 처리 내역</b-dropdown-item>
+            <b-dropdown-item :to="{name: 'my-reports'}">{{$t('신고처리내역')}}</b-dropdown-item>
             <b-dropdown-item @click="logout">{{$t('로그아웃')}}</b-dropdown-item>
           </b-nav-item-dropdown>
           <b-nav-item-dropdown :text="$t($store.getters.locale)" right>

@@ -1,10 +1,10 @@
 <template>
   <div class="pt-5">
     <div class="p-4 bg-light shadow p-3 rounded" style="max-width: 500px; margin: 0 auto">
-      <h4 class="text-center">로그인</h4>
+      <h4 class="text-center">{{$t('login')}}</h4>
       <hr>
       <b-form-group
-        label="닉네임"
+        :label="$t('userName')"
         label-for="userName"
         :invalid-feedback="userNameInvalidFeedback"
         :valid-feedback="userNameValidFeedback"
@@ -13,7 +13,7 @@
       </b-form-group>
 
       <b-form-group
-        label="비밀번호"
+        :label="$t('password')"
         label-for="password"
         :invalid-feedback="passwordInvalidFeedback"
         :valid-feedback="passwordValidFeedback"
@@ -22,10 +22,10 @@
       </b-form-group>
       <hr>
       <div align="center">
-        <b-button variant="primary" class="my-2 my-sm-0" @click="login" block>로그인</b-button>
+        <b-button variant="primary" class="my-2 my-sm-0" @click="login" block>{{$t('login')}}</b-button>
         <br>
-        <span>계정이 없으신가요? </span>
-        <b-link @click="join"><b>회원가입</b></b-link>
+        <span>{{$t('signUpText')}} </span>
+        <b-link @click="join"><b>{{$t('signUp')}}</b></b-link>
 
       </div>
 
@@ -46,18 +46,18 @@
         if (this.userName.length > 3) {
           return ''
         } else if (this.userName.length > 0) {
-          return '닉네임은 3글자 이상입니다'
+          return this.$t('nameLengthValidation')
         } else {
-          return '닉네임을 입력하세요'
+          return this.$t('emptyNameValidation')
         }
       },
       passwordInvalidFeedback() {
         if (this.password.length > 3) {
           return ''
         } else if (this.password.length > 0) {
-          return '비밀번호는 3글자 이상입니다'
+          return this.$t('pwLengthValidation')
         } else {
-          return '비밀번호를 입력하세요'
+          return this.$t('emptyPwValidation')
         }
       },
       userNameValidFeedback() {

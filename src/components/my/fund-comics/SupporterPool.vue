@@ -6,7 +6,7 @@
              :fields="fields"
              :items="fund.distributions"
              :small="true">
-      <template slot="index" slot-scope="row">{{row.value + 1}}회차</template>
+      <template slot="index" slot-scope="row">{{row.value + 1}}{{$t('회차')}}</template>
       <template slot="amount" slot-scope="row">
         <div v-b-popover.hover="row.value">
           <div v-if="row.value / parseInt(row.value) > 1">{{parseFloat(row.value).toFixed(2)}} PXL</div>
@@ -16,7 +16,7 @@
       <template slot="startTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributableTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributedTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
-      <template slot="state" slot-scope="row">{{row.item.getStateString()}}</template>
+      <template slot="state" slot-scope="row">{{$t(row.item.getStateString())}}</template>
       <template slot="vote" slot-scope="row">
         <div v-if="row.item.completed() || row.item.isCurrentPool()">
           {{row.item.votingCount}} / {{fund.supporters.length}}
@@ -25,23 +25,27 @@
       <template slot="row-details" slot-scope="row">
         <b-card class="text-center">
           <div v-if="row.item.state == 2">
-            <div>{{row.item.index + 1}}회차 <span class="font-weight-bold">{{row.item.amount}}PXL</span> 지급은 취소되었습니다.
+            <div>{{row.item.index + 1}}{{$t('회차')}} <span class="font-weight-bold">{{row.item.amount}}PXL</span>{{$t('canclePayment')}}
             </div>
           </div>
           <div v-else>
             <div v-if="row.item.isVoting">
-              <div>투표에 참여하였습니다.</div>
+              <div>{{$t('votedMessage')}}</div>
             </div>
             <div v-else>
-              <div>{{row.item.index + 1}}회차 <span class="font-weight-bold">{{row.item.amount}}PXL</span>
+              <!-- <div>{{row.item.index + 1}}{{$t('회차')}} <span class="font-weight-bold">{{row.item.amount}}PXL</span>
                 을 <span class="font-weight-bold">{{$utils.dateFmt(row.item.distributableTime)}}</span>
                 에 작가에게 지급하는 것에 반대하십니까?
+              </div> -->
+              <div>
+                {{row.item.index + 1}}{{$t('회차')}} {{$t('paymentVoting')}} <span class="font-weight-bold">{{row.item.amount}}PXL</span>
+                , <span class="font-weight-bold">{{$utils.dateFmt(row.item.distributableTime)}}</span>
               </div>
               <b-button class="m-3" type="submit"
                         :disabled="row.item.isVoting"
-                        @click="vote(row.item.index)" variant="outline-secondary">투표 참여
+                        @click="vote(row.item.index)" variant="outline-secondary">{{$t('투표 참여')}}
               </b-button>
-              <div>수령 가능 일시 전까지 투표가 진행되며, 수령 가능 일시 전까지 투표를 하지 않으시면 찬성으로 자동 처리됩니다.</div>
+              <div>{{$t('votingGuide')}}</div>
             </div>
           </div>
         </b-card>

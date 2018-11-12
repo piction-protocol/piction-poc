@@ -109,10 +109,10 @@
                     description="">
         <div class="d-flex align-items-center">
           <b-form-select v-model="form.poolSize" :disabled="disabled" style="width: 150px">
-            <option v-for="i in [3,4,5,6,7,8,9,10]" :value="i">{{i}}회 분할</option>
+            <option v-for="i in [3,4,5,6,7,8,9,10]" :value="i">{{i}}{{$t('회분할')}}</option>
           </b-form-select>
           <b-form-select v-model="form.interval" :disabled="disabled" style="width: 150px" class="ml-2">
-            <option v-for="i in [1,2,3,4,5,6,7]" :value="i * (1000 * 60 * 60)">{{i}}시간 간격</option>
+            <option v-for="i in [1,2,3,4,5,6,7]" :value="i * (1000 * 60 * 60)">{{i}}{{$t('시간간격')}}</option>
           </b-form-select>
         </div>
       </b-form-group>

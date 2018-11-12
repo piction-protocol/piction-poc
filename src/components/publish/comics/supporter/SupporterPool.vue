@@ -15,7 +15,7 @@
       </template>
       <template slot="distributableTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
       <template slot="distributedTime" slot-scope="row">{{$utils.dateFmt(row.value)}}</template>
-      <template slot="state" slot-scope="row">{{row.item.getStateString()}}</template>
+      <template slot="state" slot-scope="row">{{$t(row.item.getStateString())}}</template>
       <template slot="vote" slot-scope="row">
         <div v-if="row.item.completed() || row.item.isCurrentPool()">
           {{row.item.votingCount}} / {{fund.supporters.length}}

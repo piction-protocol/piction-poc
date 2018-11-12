@@ -27,7 +27,7 @@
         selected: null,
         etcReason: null,
         options: [
-          {text: '부적절한 광고', value: '부적절한 광고'},
+          {text: '부적절한 광고', value: 'test'},
           {text: '과도한 선정성, 폭력성', value: '과도한 선정성, 폭력성'},
           {text: '명예훼손/저작권 침해', value: '명예훼손/저작권 침해'},
           {text: '무분별한 반복 게시', value: '무분별한 반복 게시'},

@@ -20,8 +20,8 @@
     data() {
       return {
         fields: [
-          {key: 'field', label: '항목'},
-          {key: 'value', label: '내용'},
+          {key: 'field', label: this.$t('항목')},
+          {key: 'value', label: this.$t('내용')},
         ],
         plan: [
           {field: this.$t('목표모집금액'), value: `${this.fund.maxcap} PXL`},
@@ -34,9 +34,9 @@
           },
           {
             field: this.$t('모금액작가수령'),
-            value: `${this.fund.poolSize}회 분할, ${this.fund.interval / (1000 * 60 * 60)}시간 간격<br>(1회차: ${this.$utils.dateFmt(this.fund.firstDistributionTime)})`
+            value: `${this.fund.poolSize}${this.$t('회분할')}, ${this.fund.interval / (1000 * 60 * 60)}${this.$t('시간간격')}<br>(${this.$t('1회차')}: ${this.$utils.dateFmt(this.fund.firstDistributionTime)})`
           },
-          {field: this.$t('수익분배'), value: `${web3.utils.fromWei((web3.utils.toWei((this.fund.distributionRate).toString()) * 100).toString())}% / 1PXL<br>(모금액 100% 회수 후)`},
+          {field: this.$t('수익분배'), value: `${web3.utils.fromWei((web3.utils.toWei((this.fund.distributionRate).toString()) * 100).toString())}% / 1PXL<br>${this.$t('distributionOfProfits')}`},
         ]
       }
     }
