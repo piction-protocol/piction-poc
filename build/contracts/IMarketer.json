@@ -1,0 +1,537 @@
+{
+  "contractName": "IMarketer",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "generateMarketerKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setMarketerKey",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getMarketerAddress",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.24;\r\n\r\ninterface IMarketer {\r\n    function generateMarketerKey() external returns(bytes32);\r\n    function setMarketerKey(bytes32 _key) external;\r\n    function getMarketerAddress(bytes32 _key) external view returns(address);\r\n}\r\n",
+  "sourcePath": "contracts/interface/IMarketer.sol",
+  "ast": {
+    "absolutePath": "contracts/interface/IMarketer.sol",
+    "exportedSymbols": {
+      "IMarketer": [
+        13647
+      ]
+    },
+    "id": 13648,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 13629,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:42"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 13647,
+        "linearizedBaseContracts": [
+          13647
+        ],
+        "name": "IMarketer",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 13634,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "generateMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 13630,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "83:2:42"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 13633,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13632,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13634,
+                  "src": "103:7:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 13631,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "103:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "102:9:42"
+            },
+            "scope": 13647,
+            "src": "55:57:42",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "external"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 13639,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 13637,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13636,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13639,
+                  "src": "142:12:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 13635,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "142:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "141:14:42"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 13638,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "164:0:42"
+            },
+            "scope": 13647,
+            "src": "118:47:42",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "external"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 13646,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getMarketerAddress",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 13642,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13641,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13646,
+                  "src": "199:12:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 13640,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "199:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "198:14:42"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 13645,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13644,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13646,
+                  "src": "235:7:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 13643,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "235:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "234:9:42"
+            },
+            "scope": 13647,
+            "src": "171:73:42",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "external"
+          }
+        ],
+        "scope": 13648,
+        "src": "28:219:42"
+      }
+    ],
+    "src": "0:249:42"
+  },
+  "legacyAST": {
+    "absolutePath": "contracts/interface/IMarketer.sol",
+    "exportedSymbols": {
+      "IMarketer": [
+        13647
+      ]
+    },
+    "id": 13648,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 13629,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:42"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 13647,
+        "linearizedBaseContracts": [
+          13647
+        ],
+        "name": "IMarketer",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 13634,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "generateMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 13630,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "83:2:42"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 13633,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13632,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13634,
+                  "src": "103:7:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 13631,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "103:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "102:9:42"
+            },
+            "scope": 13647,
+            "src": "55:57:42",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "external"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 13639,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 13637,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13636,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13639,
+                  "src": "142:12:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 13635,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "142:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "141:14:42"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 13638,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "164:0:42"
+            },
+            "scope": 13647,
+            "src": "118:47:42",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "external"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 13646,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getMarketerAddress",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 13642,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13641,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13646,
+                  "src": "199:12:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 13640,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "199:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "198:14:42"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 13645,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 13644,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 13646,
+                  "src": "235:7:42",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 13643,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "235:7:42",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "234:9:42"
+            },
+            "scope": 13647,
+            "src": "171:73:42",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "external"
+          }
+        ],
+        "scope": 13648,
+        "src": "28:219:42"
+      }
+    ],
+    "src": "0:249:42"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-11-12T08:31:59.734Z"
+}

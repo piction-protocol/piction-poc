@@ -1,0 +1,1432 @@
+{
+  "contractName": "Marketer",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "generateMarketerKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setMarketerKey",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_key",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getMarketerAddress",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b506102c6806100206000396000f300608060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630a9ac3d01461005c57806311fdedb8146100cd578063fd55e9b9146100fe575b600080fd5b34801561006857600080fd5b5061008b6004803603810190808035600019169060200190929190505050610131565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100d957600080fd5b506100fc6004803603810190808035600019169060200190929190505050610175565b005b34801561010a57600080fd5b506101136101d1565b60405180826000191660001916815260200191505060405180910390f35b6000806000836000191660001916815260200190815260200160002060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050919050565b33600080836000191660001916815260200190815260200160002060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050565b60008033604051602001808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166c010000000000000000000000000281526014019150506040516020818303038152906040526040518082805190602001908083835b602083101515610264578051825260208201915060208101905060208303925061023f565b6001836020036101000a0380198251168184511680821785525050505050509050019150506040518091039020905080915050905600a165627a7a7230582010c811cea56e1141be5deffcc99c57bbfbe626a5a55d2195beb76b90466abc590029",
+  "deployedBytecode": "0x608060405260043610610057576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680630a9ac3d01461005c57806311fdedb8146100cd578063fd55e9b9146100fe575b600080fd5b34801561006857600080fd5b5061008b6004803603810190808035600019169060200190929190505050610131565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100d957600080fd5b506100fc6004803603810190808035600019169060200190929190505050610175565b005b34801561010a57600080fd5b506101136101d1565b60405180826000191660001916815260200191505060405180910390f35b6000806000836000191660001916815260200190815260200160002060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff169050919050565b33600080836000191660001916815260200190815260200160002060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050565b60008033604051602001808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166c010000000000000000000000000281526014019150506040516020818303038152906040526040518082805190602001908083835b602083101515610264578051825260208201915060208101905060208303925061023f565b6001836020036101000a0380198251168184511680821785525050505050509050019150506040518091039020905080915050905600a165627a7a7230582010c811cea56e1141be5deffcc99c57bbfbe626a5a55d2195beb76b90466abc590029",
+  "sourceMap": "168:480:19:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;168:480:19;;;;;;;",
+  "deployedSourceMap": "168:480:19:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;528:117;;8:9:-1;5:2;;;30:1;27;20:12;5:2;528:117:19;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;423:97;;8:9:-1;5:2;;;30:1;27;20:12;5:2;423:97:19;;;;;;;;;;;;;;;;;;;;;;;;;;;;;256:159;;8:9:-1;5:2;;;30:1;27;20:12;5:2;256:159:19;;;;;;;;;;;;;;;;;;;;;;;;;;;;;528:117;592:7;619:12;:18;632:4;619:18;;;;;;;;;;;;;;;;;;;;;;;;;;;612:25;;528:117;;;:::o;423:97::-;502:10;481:12;:18;494:4;481:18;;;;;;;;;;;;;;;;;;:31;;;;;;;;;;;;;;;;;;423:97;:::o;256:159::-;304:7;324:11;373:10;356:28;;;;;;;;;;;;;;;;;;;;;49:4:-1;39:7;30;26:21;22:32;13:7;6:49;356:28:19;;;346:39;;;;;;;;;;;;;36:153:-1;66:2;61:3;58:11;51:19;36:153;;;182:3;176:10;171:3;164:23;98:2;93:3;89:12;82:19;;123:2;118:3;114:12;107:19;;148:2;143:3;139:12;132:19;;36:153;;;274:1;267:3;263:2;259:12;254:3;250:22;246:30;315:4;311:9;305:3;299:10;295:26;356:4;350:3;344:10;340:21;389:7;380;377:20;372:3;365:33;3:399;;;346:39:19;;;;;;;;;;;;;;;;324:62;;404:3;397:10;;256:159;;:::o",
+  "source": "pragma solidity ^0.4.24;\r\n\r\nimport \"contracts/interface/IMarketer.sol\";\r\n\r\n/**\r\n * @title Marketer contract\r\n *\r\n * @author Junghoon Seo - <jh.seo@battleent.com>\r\n */\r\ncontract Marketer is IMarketer {\r\n    mapping (bytes32 => address) marketerInfo;\r\n\r\n    function generateMarketerKey() external returns(bytes32) {\r\n        bytes32 key = bytes32(keccak256(abi.encodePacked(msg.sender)));\r\n        return key;\r\n    }\r\n\r\n    function setMarketerKey(bytes32 _key) external {\r\n        marketerInfo[_key] = msg.sender;\r\n    }\r\n\r\n    function getMarketerAddress(bytes32 _key) external view returns(address) {\r\n        return marketerInfo[_key];\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\piction\\piction-poc\\contracts\\marketer\\Marketer.sol",
+  "ast": {
+    "absolutePath": "/C/piction/piction-poc/contracts/marketer/Marketer.sol",
+    "exportedSymbols": {
+      "Marketer": [
+        6607
+      ]
+    },
+    "id": 6608,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 6554,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:19"
+      },
+      {
+        "absolutePath": "contracts/interface/IMarketer.sol",
+        "file": "contracts/interface/IMarketer.sol",
+        "id": 6555,
+        "nodeType": "ImportDirective",
+        "scope": 6608,
+        "sourceUnit": 13648,
+        "src": "28:43:19",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 6556,
+              "name": "IMarketer",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 13647,
+              "src": "189:9:19",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_IMarketer_$13647",
+                "typeString": "contract IMarketer"
+              }
+            },
+            "id": 6557,
+            "nodeType": "InheritanceSpecifier",
+            "src": "189:9:19"
+          }
+        ],
+        "contractDependencies": [
+          13647
+        ],
+        "contractKind": "contract",
+        "documentation": "@title Marketer contract\r\n\n * @author Junghoon Seo - <jh.seo@battleent.com>\r",
+        "fullyImplemented": true,
+        "id": 6607,
+        "linearizedBaseContracts": [
+          6607,
+          13647
+        ],
+        "name": "Marketer",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 6561,
+            "name": "marketerInfo",
+            "nodeType": "VariableDeclaration",
+            "scope": 6607,
+            "src": "206:41:19",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+              "typeString": "mapping(bytes32 => address)"
+            },
+            "typeName": {
+              "id": 6560,
+              "keyType": {
+                "id": 6558,
+                "name": "bytes32",
+                "nodeType": "ElementaryTypeName",
+                "src": "215:7:19",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "206:28:19",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+                "typeString": "mapping(bytes32 => address)"
+              },
+              "valueType": {
+                "id": 6559,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "226:7:19",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 6580,
+              "nodeType": "Block",
+              "src": "313:102:19",
+              "statements": [
+                {
+                  "assignments": [
+                    6567
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 6567,
+                      "name": "key",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 6581,
+                      "src": "324:11:19",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      },
+                      "typeName": {
+                        "id": 6566,
+                        "name": "bytes32",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "324:7:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 6577,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "arguments": [
+                              {
+                                "argumentTypes": null,
+                                "expression": {
+                                  "argumentTypes": null,
+                                  "id": 6572,
+                                  "name": "msg",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 17369,
+                                  "src": "373:3:19",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_magic_message",
+                                    "typeString": "msg"
+                                  }
+                                },
+                                "id": 6573,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberName": "sender",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": null,
+                                "src": "373:10:19",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": null,
+                                "id": 6570,
+                                "name": "abi",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 17356,
+                                "src": "356:3:19",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_magic_abi",
+                                  "typeString": "abi"
+                                }
+                              },
+                              "id": 6571,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "memberName": "encodePacked",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": null,
+                              "src": "356:16:19",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_abiencodepacked_pure$__$returns$_t_bytes_memory_ptr_$",
+                                "typeString": "function () pure returns (bytes memory)"
+                              }
+                            },
+                            "id": 6574,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "356:28:19",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bytes_memory_ptr",
+                              "typeString": "bytes memory"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_bytes_memory_ptr",
+                              "typeString": "bytes memory"
+                            }
+                          ],
+                          "id": 6569,
+                          "name": "keccak256",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 17363,
+                          "src": "346:9:19",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
+                            "typeString": "function () pure returns (bytes32)"
+                          }
+                        },
+                        "id": 6575,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "346:39:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 6568,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "nodeType": "ElementaryTypeNameExpression",
+                      "src": "338:7:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_type$_t_bytes32_$",
+                        "typeString": "type(bytes32)"
+                      },
+                      "typeName": "bytes32"
+                    },
+                    "id": 6576,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "typeConversion",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "338:48:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "324:62:19"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6578,
+                    "name": "key",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 6567,
+                    "src": "404:3:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "functionReturnParameters": 6565,
+                  "id": 6579,
+                  "nodeType": "Return",
+                  "src": "397:10:19"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6581,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "generateMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6562,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "284:2:19"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6565,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6564,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6581,
+                  "src": "304:7:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6563,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "304:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "303:9:19"
+            },
+            "scope": 6607,
+            "src": "256:159:19",
+            "stateMutability": "nonpayable",
+            "superFunction": 13634,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 6593,
+              "nodeType": "Block",
+              "src": "470:50:19",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6591,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "baseExpression": {
+                        "argumentTypes": null,
+                        "id": 6586,
+                        "name": "marketerInfo",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 6561,
+                        "src": "481:12:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+                          "typeString": "mapping(bytes32 => address)"
+                        }
+                      },
+                      "id": 6588,
+                      "indexExpression": {
+                        "argumentTypes": null,
+                        "id": 6587,
+                        "name": "_key",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 6583,
+                        "src": "494:4:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "481:18:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 6589,
+                        "name": "msg",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 17369,
+                        "src": "502:3:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_magic_message",
+                          "typeString": "msg"
+                        }
+                      },
+                      "id": 6590,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "sender",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": null,
+                      "src": "502:10:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "481:31:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 6592,
+                  "nodeType": "ExpressionStatement",
+                  "src": "481:31:19"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6594,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6584,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6583,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6594,
+                  "src": "447:12:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6582,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "447:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "446:14:19"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6585,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "470:0:19"
+            },
+            "scope": 6607,
+            "src": "423:97:19",
+            "stateMutability": "nonpayable",
+            "superFunction": 13639,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 6605,
+              "nodeType": "Block",
+              "src": "601:44:19",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "baseExpression": {
+                      "argumentTypes": null,
+                      "id": 6601,
+                      "name": "marketerInfo",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6561,
+                      "src": "619:12:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+                        "typeString": "mapping(bytes32 => address)"
+                      }
+                    },
+                    "id": 6603,
+                    "indexExpression": {
+                      "argumentTypes": null,
+                      "id": 6602,
+                      "name": "_key",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6596,
+                      "src": "632:4:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "619:18:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "functionReturnParameters": 6600,
+                  "id": 6604,
+                  "nodeType": "Return",
+                  "src": "612:25:19"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6606,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getMarketerAddress",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6597,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6596,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6606,
+                  "src": "556:12:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6595,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "556:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "555:14:19"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6600,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6599,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6606,
+                  "src": "592:7:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6598,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "592:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "591:9:19"
+            },
+            "scope": 6607,
+            "src": "528:117:19",
+            "stateMutability": "view",
+            "superFunction": 13646,
+            "visibility": "external"
+          }
+        ],
+        "scope": 6608,
+        "src": "168:480:19"
+      }
+    ],
+    "src": "0:650:19"
+  },
+  "legacyAST": {
+    "absolutePath": "/C/piction/piction-poc/contracts/marketer/Marketer.sol",
+    "exportedSymbols": {
+      "Marketer": [
+        6607
+      ]
+    },
+    "id": 6608,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 6554,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:19"
+      },
+      {
+        "absolutePath": "contracts/interface/IMarketer.sol",
+        "file": "contracts/interface/IMarketer.sol",
+        "id": 6555,
+        "nodeType": "ImportDirective",
+        "scope": 6608,
+        "sourceUnit": 13648,
+        "src": "28:43:19",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 6556,
+              "name": "IMarketer",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 13647,
+              "src": "189:9:19",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_IMarketer_$13647",
+                "typeString": "contract IMarketer"
+              }
+            },
+            "id": 6557,
+            "nodeType": "InheritanceSpecifier",
+            "src": "189:9:19"
+          }
+        ],
+        "contractDependencies": [
+          13647
+        ],
+        "contractKind": "contract",
+        "documentation": "@title Marketer contract\r\n\n * @author Junghoon Seo - <jh.seo@battleent.com>\r",
+        "fullyImplemented": true,
+        "id": 6607,
+        "linearizedBaseContracts": [
+          6607,
+          13647
+        ],
+        "name": "Marketer",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 6561,
+            "name": "marketerInfo",
+            "nodeType": "VariableDeclaration",
+            "scope": 6607,
+            "src": "206:41:19",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+              "typeString": "mapping(bytes32 => address)"
+            },
+            "typeName": {
+              "id": 6560,
+              "keyType": {
+                "id": 6558,
+                "name": "bytes32",
+                "nodeType": "ElementaryTypeName",
+                "src": "215:7:19",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "206:28:19",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+                "typeString": "mapping(bytes32 => address)"
+              },
+              "valueType": {
+                "id": 6559,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "226:7:19",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 6580,
+              "nodeType": "Block",
+              "src": "313:102:19",
+              "statements": [
+                {
+                  "assignments": [
+                    6567
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 6567,
+                      "name": "key",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 6581,
+                      "src": "324:11:19",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      },
+                      "typeName": {
+                        "id": 6566,
+                        "name": "bytes32",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "324:7:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 6577,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "arguments": [
+                              {
+                                "argumentTypes": null,
+                                "expression": {
+                                  "argumentTypes": null,
+                                  "id": 6572,
+                                  "name": "msg",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 17369,
+                                  "src": "373:3:19",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_magic_message",
+                                    "typeString": "msg"
+                                  }
+                                },
+                                "id": 6573,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberName": "sender",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": null,
+                                "src": "373:10:19",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": null,
+                                "id": 6570,
+                                "name": "abi",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 17356,
+                                "src": "356:3:19",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_magic_abi",
+                                  "typeString": "abi"
+                                }
+                              },
+                              "id": 6571,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "memberName": "encodePacked",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": null,
+                              "src": "356:16:19",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_function_abiencodepacked_pure$__$returns$_t_bytes_memory_ptr_$",
+                                "typeString": "function () pure returns (bytes memory)"
+                              }
+                            },
+                            "id": 6574,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "functionCall",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "356:28:19",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_bytes_memory_ptr",
+                              "typeString": "bytes memory"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_bytes_memory_ptr",
+                              "typeString": "bytes memory"
+                            }
+                          ],
+                          "id": 6569,
+                          "name": "keccak256",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 17363,
+                          "src": "346:9:19",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
+                            "typeString": "function () pure returns (bytes32)"
+                          }
+                        },
+                        "id": 6575,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "346:39:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "id": 6568,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "lValueRequested": false,
+                      "nodeType": "ElementaryTypeNameExpression",
+                      "src": "338:7:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_type$_t_bytes32_$",
+                        "typeString": "type(bytes32)"
+                      },
+                      "typeName": "bytes32"
+                    },
+                    "id": 6576,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "typeConversion",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "338:48:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "324:62:19"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6578,
+                    "name": "key",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 6567,
+                    "src": "404:3:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "functionReturnParameters": 6565,
+                  "id": 6579,
+                  "nodeType": "Return",
+                  "src": "397:10:19"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6581,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "generateMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6562,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "284:2:19"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6565,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6564,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6581,
+                  "src": "304:7:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6563,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "304:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "303:9:19"
+            },
+            "scope": 6607,
+            "src": "256:159:19",
+            "stateMutability": "nonpayable",
+            "superFunction": 13634,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 6593,
+              "nodeType": "Block",
+              "src": "470:50:19",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6591,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "baseExpression": {
+                        "argumentTypes": null,
+                        "id": 6586,
+                        "name": "marketerInfo",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 6561,
+                        "src": "481:12:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+                          "typeString": "mapping(bytes32 => address)"
+                        }
+                      },
+                      "id": 6588,
+                      "indexExpression": {
+                        "argumentTypes": null,
+                        "id": 6587,
+                        "name": "_key",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 6583,
+                        "src": "494:4:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "481:18:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 6589,
+                        "name": "msg",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 17369,
+                        "src": "502:3:19",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_magic_message",
+                          "typeString": "msg"
+                        }
+                      },
+                      "id": 6590,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "sender",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": null,
+                      "src": "502:10:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "481:31:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 6592,
+                  "nodeType": "ExpressionStatement",
+                  "src": "481:31:19"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6594,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setMarketerKey",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6584,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6583,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6594,
+                  "src": "447:12:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6582,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "447:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "446:14:19"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6585,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "470:0:19"
+            },
+            "scope": 6607,
+            "src": "423:97:19",
+            "stateMutability": "nonpayable",
+            "superFunction": 13639,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 6605,
+              "nodeType": "Block",
+              "src": "601:44:19",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "baseExpression": {
+                      "argumentTypes": null,
+                      "id": 6601,
+                      "name": "marketerInfo",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6561,
+                      "src": "619:12:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
+                        "typeString": "mapping(bytes32 => address)"
+                      }
+                    },
+                    "id": 6603,
+                    "indexExpression": {
+                      "argumentTypes": null,
+                      "id": 6602,
+                      "name": "_key",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6596,
+                      "src": "632:4:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "619:18:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "functionReturnParameters": 6600,
+                  "id": 6604,
+                  "nodeType": "Return",
+                  "src": "612:25:19"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6606,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "getMarketerAddress",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6597,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6596,
+                  "name": "_key",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6606,
+                  "src": "556:12:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 6595,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "556:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "555:14:19"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6600,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6599,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6606,
+                  "src": "592:7:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6598,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "592:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "591:9:19"
+            },
+            "scope": 6607,
+            "src": "528:117:19",
+            "stateMutability": "view",
+            "superFunction": 13646,
+            "visibility": "external"
+          }
+        ],
+        "scope": 6608,
+        "src": "168:480:19"
+      }
+    ],
+    "src": "0:650:19"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {
+    "2880": {
+      "events": {},
+      "links": {},
+      "address": "0xf28d32afc84c9a8b18aefb14dc6ae4775b5fef31",
+      "transactionHash": "0x64246f38d85b89d02794381ab188d4526e6ce6528249e49aa1eb2a5070cc1f69"
+    },
+    "4447": {
+      "events": {},
+      "links": {},
+      "address": "0x4e72770760c011647d4873f60a3cf6cdea896cd8",
+      "transactionHash": "0x9a58ff5801884a37ad33ecd51a1423633a701282751cffa5ab9371157f151bfa"
+    }
+  },
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-11-12T08:33:33.258Z"
+}
