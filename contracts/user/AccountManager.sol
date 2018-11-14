@@ -27,6 +27,7 @@ contract AccountManager is IAccountManager, ValidValue {
 
     mapping(string => uint256) userNameToIndex;
     mapping(address => uint256) addressToIndex;
+    mapping(string => uint256) privateKeyToIndex;
 
     ICouncil council;
     IERC20 token;
@@ -56,11 +57,14 @@ contract AccountManager is IAccountManager, ValidValue {
         validAddress(_wallet) validString(_userName)
         validString(_password) validString(_privateKey)
     {
-        require(!isRegistered(_userName), "Create new account failed: Registered user name.");
+        require(!isRegisteredUserName(_userName), "Create new account failed: Registered user name.");
+        require(!isRegisteredPrivateKey(_privateKey), "Create new account failed: Registered user private key.");
+        require(!isRegisteredWallet(_wallet), "Create new account failed: Registered user wallet address.");
 
         account.push(Account(_userName, _password, _privateKey, _wallet));
         userNameToIndex[_userName] = account.length.sub(1);
         addressToIndex[_wallet] = account.length.sub(1);
+        privateKeyToIndex[_privateKey] = account.length.sub(1);
 
         if (airdropAmount > 0 && token.balanceOf(address(this)) >= airdropAmount) {
             CustomToken(address(token)).transferPxl(msg.sender, airdropAmount, "에어드롭 픽셀 입금");
@@ -85,7 +89,7 @@ contract AccountManager is IAccountManager, ValidValue {
         validString(_userName) validString(_userName)
         returns (string key_, bool result_)
     {
-        if(account.length == 0 || !isRegistered(_userName)) {
+        if(account.length == 0 || !isRegisteredUserName(_userName)) {
             key_ = "Login failed: Please register account.";
             result_ = false;
             return;
@@ -118,7 +122,7 @@ contract AccountManager is IAccountManager, ValidValue {
         validAddress(_contentsAddress) validAddress(_buyer)
     {
         require(council.getPixelDistributor() == msg.sender, "Purchase failed: Access denied.");
-        require(isRegistered(account[addressToIndex[_buyer]].userName), "Purchase failed: Please register account.");
+        require(isRegisteredWallet(_buyer), "Purchase failed: Please register account.");
 
         emit PurchaseHistory(_buyer, _contentsAddress, _episodeIndex, _episodePrice);
     }
@@ -135,7 +139,7 @@ contract AccountManager is IAccountManager, ValidValue {
         external
         validString(_newPassword) validString(_passwordValidation)
     {
-        require(isRegistered(account[addressToIndex[msg.sender]].userName), "Set new password falid : Please register account.");
+        require(isRegisteredWallet(msg.sender), "Set new password falid : Please register account.");
         require(_compareString(_newPassword, _passwordValidation), "Set new password falid : Check password string.");
 
         account[addressToIndex[msg.sender]].password = _newPassword;
@@ -160,7 +164,7 @@ contract AccountManager is IAccountManager, ValidValue {
         validAddress(_supporter) validAddress(_fundAddress) validAddress(_contentsAddress)
     {
         require(_isFundContract(_fundAddress, _contentsAddress), "Support history failed: Invalid address.");
-        require(isRegistered(account[addressToIndex[_supporter]].userName), "Support history failed: Please register account.");
+        require(isRegisteredWallet(_supporter), "Support history failed: Please register account.");
 
         emit SupportHistory(_supporter, _contentsAddress, _fundAddress, _investedAmount, _refund);
     }
@@ -173,7 +177,7 @@ contract AccountManager is IAccountManager, ValidValue {
         validAddress(_contentAddress) validAddress(_user)
     {
         require(_isContentContract(_contentAddress), "Change favorite content failed: Invalid content address.");
-        require(isRegistered(account[addressToIndex[_user]].userName), "Change favorite content failed: Please register account.");
+        require(isRegisteredWallet(_user), "Change favorite content failed: Please register account.");
 
         if(account[addressToIndex[_user]].addressToFavorite[_contentAddress]) {
             account[addressToIndex[_user]].addressToFavorite[_contentAddress] = false;
@@ -198,7 +202,7 @@ contract AccountManager is IAccountManager, ValidValue {
     * @param _userName 유저 ID
     * @return isRegistered_ 등록 여부
     */
-    function isRegistered(
+    function isRegisteredUserName(
         string _userName
     )
         public
@@ -212,6 +216,57 @@ contract AccountManager is IAccountManager, ValidValue {
         }
 
         if(account.length > 0 && userNameToIndex[_userName] == 0 && _compareString(account[userNameToIndex[_userName]].userName, _userName)) {
+            isRegistered_ = true;
+            return;
+        }
+
+    }
+
+    /**
+    * @dev 등록 된 지갑 주소인지 확인
+    * @param _wallet 유저 지갑 주소
+    * @return isRegistered_ 등록 여부
+    */
+    function isRegisteredWallet(
+        address _wallet
+    )
+        public
+        view
+        validAddress(_wallet)
+        returns (bool isRegistered_)
+    {
+        if(addressToIndex[_wallet] > 0) {
+            isRegistered_ = true;
+            return;
+        }
+
+        if(account.length > 0 && addressToIndex[_wallet] == 0 && account[addressToIndex[_wallet]].wallet == _wallet) {
+            isRegistered_ = true;
+            return;
+        }
+
+    }
+
+    /**
+    * @dev 등록 된 인증키 인지 확인
+    * @param _privateKey 유저 private key
+    * @return isRegistered_ 등록 여부
+    */
+    function isRegisteredPrivateKey(
+        string _privateKey
+    )
+        public
+        view
+        validString(_privateKey)
+        returns (bool isRegistered_)
+    {
+        if(privateKeyToIndex[_privateKey] > 0) {
+            isRegistered_ = true;
+            return;
+        }
+
+        if(account.length > 0 && privateKeyToIndex[_privateKey] == 0 
+            && _compareString(account[privateKeyToIndex[_privateKey]].privateKey, _privateKey)) {
             isRegistered_ = true;
             return;
         }
